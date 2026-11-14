@@ -14,6 +14,8 @@ N_OTHER = 1     # twins kept on the other destination body
 N_PAIRS = 3     # pair explanations (top twins of the main destination)
 N_LIGHT_TWINS = 2
 
+SF_KEYS = ("id", "lat", "lon", "score", "sun_pct", "earth_pct", "slope_p90_deg", "psr_km", "nearest_nasa_region")
+
 Emit = Callable[[str, Optional[str], dict[str, Any]], Awaitable[None]]
 
 
@@ -112,7 +114,7 @@ async def collect(req: CampaignRequest, session_id: str, emit: Emit, replay_cach
         sf = await asyncio.to_thread(service.site_evidence_item, req.lat, req.lon)
         if sf and sf["ref"] not in {i.ref for i in pack.items}:
             await emit("tool.call", "terrain", {"name": "site_properties", "args": {"lat": req.lat, "lon": req.lon}})
-            pack.items.append(EvidenceItem(ref=sf["ref"], kind="site_finder", data=_clean({k: v for k, v in sf["data"].items() if k != "sources"})))
+            pack.items.append(EvidenceItem(ref=sf["ref"], kind="site_finder", data=_clean({k: sf["data"].get(k) for k in SF_KEYS})))
             await emit("tool.result", "terrain", {"name": "site_properties", "ref": sf["ref"], "digest": "site-finder properties of the target cell"})
     for it in pack.items:
         if it.kind in ("window", "context"):
