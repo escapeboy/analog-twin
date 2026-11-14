@@ -1,3 +1,4 @@
+import json
 import pathlib
 import shutil
 import sys
@@ -352,3 +353,72 @@ def test_real_terrain3d_pair_through_service(client, monkeypatch):
     assert tp.a.max_m > tp.a.min_m and tp.sun_elevation_deg > 0 and "m source" in tp.a.dataset
     assert len(service.terrain_heights(tp.a.heights_url.rsplit("/", 1)[1].removesuffix(".f32"))) == tp.a.size ** 2 * 4
     assert t3 is not None
+
+
+def test_atlas_findings_routes_and_flags(client, monkeypatch, tmp_path):
+    import json
+    root = tmp_path / "root"
+    (root / "atlas").mkdir(parents=True)
+    (root / "docs").mkdir()
+    monkeypatch.setattr(service, "ROOT", root)
+    monkeypatch.setattr(service, "MAIN_ROOT", tmp_path / "nomain")
+    r = client.get("/api/atlas")
+    assert r.status_code == 404 and r.json() == {"available": False}
+    assert client.get("/api/findings").status_code == 404
+    f = client.get("/api/health").json()["features"]
+    assert f["atlas"] is False and f["findings"] is False
+    (root / "atlas" / "index.json").write_text(json.dumps({"targets": [{"id": "shackleton-rim"}]}))
+    (root / "docs" / "findings.json").write_text(json.dumps({"findings": ["a"]}))
+    assert client.get("/api/atlas").json()["targets"][0]["id"] == "shackleton-rim"
+    assert client.get("/api/findings").json() == {"findings": ["a"]}
+    f = client.get("/api/health").json()["features"]
+    assert f["atlas"] is True and f["findings"] is True
+    # replay cache keeps serving them after the live files vanish
+    service.record_extras([])
+    (root / "atlas" / "index.json").unlink()
+    (root / "docs" / "findings.json").unlink()
+    assert client.get("/api/atlas").json()["targets"] and client.get("/api/findings").json() == {"findings": ["a"]}
+
+
+def test_atlas_static_mount(client):
+    d = service.atlas_dir()
+    d.mkdir(exist_ok=True)
+    f = d / "_mount_test.txt"
+    f.write_text("hello")
+    try:
+        assert client.get("/atlas/_mount_test.txt").text == "hello"
+        assert client.get("/atlas/nope.png").status_code == 404
+    finally:
+        f.unlink()
+        if not any(d.iterdir()):
+            d.rmdir()
+
+
+def test_calendar_rows_weeks_and_replay_cache(client, monkeypatch):
+    import importlib
+
+    class Idx:
+        def point(self, pid):
+            return {"id": pid, "body": "earth", "lat": {"A": 42.0, "B": 69.0}[pid], "lon": 10.0, "place_label": f"Place {pid}"}
+
+    lm = importlib.import_module("engine.light")
+    monkeypatch.setattr(service, "get_index", lambda: Idx())
+    monkeypatch.setattr(service, "_mod", lambda n: lm if n == "engine.light" else None)
+    r = client.get("/api/calendar", params={"target_body": "moon", "target_lat": -89.7668, "target_lon": -171.87, "twin_ids": "A,B"})
+    assert r.status_code == 200
+    d = r.json()
+    assert d["caption"].startswith("Same terrain is not enough") and d["source"] == "fallback"
+    assert [x["kind"] for x in d["rows"]] == ["twin", "twin", "known analog"]
+    for row in d["rows"]:
+        assert len(row["weeks"]) == 52 and all(0 <= w["light_sim"] <= 1 for w in row["weeks"]) and set(row["weeks"][0]) == {"week", "start", "light_sim"}
+        assert max(w["light_sim"] for w in row["weeks"]) <= row["best_window"]["light_sim"] + 1e-6
+        assert set(row["best_window"]) == {"start", "end", "light_sim"}
+    assert client.get("/api/calendar", params={"target_body": "earth", "target_lat": 1, "target_lon": 1}).status_code == 422
+    assert client.get("/api/calendar", params={"target_body": "moon", "target_lat": 1, "target_lon": 1, "twin_ids": "ZZ"}).status_code == 404
+    # replay cache for a target
+    path = service.cache_dir() / service._calendar_key("moon", -89.7668, -171.87)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({k: v for k, v in d.items() if k != "source"}))
+    monkeypatch.setattr(service, "get_index", lambda: None)
+    c = client.get("/api/calendar", params={"target_body": "moon", "target_lat": -89.7668, "target_lon": -171.87, "replay": 1}).json()
+    assert c["source"] == "replay-cache" and len(c["rows"]) == 3

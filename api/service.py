@@ -751,3 +751,134 @@ def mission_evidence_item(lat: float, lon: float) -> Optional[dict]:
             except Exception as exc:
                 log.warning("mission file %s unusable: %s", p, exc)
     return None
+
+
+# ---------- D1 atlas, D2 rehearsal calendar, D3 findings (07-differentiators) ----------
+CALENDAR_CAPTION = "Same terrain is not enough \u2014 the light only matches in these weeks."
+
+
+def atlas_dir() -> pathlib.Path:
+    for base in (ROOT, MAIN_ROOT):
+        if (base / "atlas").is_dir():
+            return base / "atlas"
+    return ROOT / "atlas"
+
+
+def _read_json(*paths: pathlib.Path) -> Optional[Any]:
+    import json
+    for p in paths:
+        if p.is_file():
+            try:
+                return json.loads(p.read_text())
+            except ValueError:
+                log.warning("unreadable json %s", p)
+    return None
+
+
+def atlas_index() -> Optional[dict]:
+    return _read_json(atlas_dir() / "index.json", cache_dir() / "atlas_index.json")
+
+
+def findings() -> Optional[dict]:
+    return _read_json(ROOT / "docs" / "findings.json", MAIN_ROOT / "docs" / "findings.json", cache_dir() / "findings.json")
+
+
+def feature_flags() -> dict[str, bool]:
+    lm = _mod("engine.light")
+    return {"atlas": (atlas_dir() / "index.json").is_file(), "calendar": bool(lm is not None and hasattr(lm, "calendar")),
+            "findings": (ROOT / "docs" / "findings.json").is_file() or (MAIN_ROOT / "docs" / "findings.json").is_file()}
+
+
+def _calendar_key(body: str, lat: float, lon: float) -> str:
+    return f"calendar_{body}_{lat:.3f}_{lon:.3f}.json"
+
+
+def _known_analog_for(body: str, lat: float, lon: float) -> Optional[dict]:
+    import yaml
+    target_id = next((p.id for p in presets() if p.body == body and abs(p.lat - lat) < 0.01 and abs(p.lon - lon) < 0.01), None)
+    for base in (ROOT, MAIN_ROOT):
+        f = base / "engine" / "known_analogs.yaml"
+        if f.exists():
+            rows = [r for r in yaml.safe_load(f.read_text()) or [] if r.get("body") == "earth"]
+            pick = next((r for r in rows if target_id and target_id in (r.get("analog_for") or [])), rows[0] if rows else None)
+            return pick
+    return None
+
+
+def _weekly(lm, target_body: str, target_lat: float, earth_lat: float) -> list[dict]:
+    """52 weekly light_sim values: a 28-day window starting at each week, same EMD as best_window. Uses engine.light internals
+    until engine.light.calendar is available."""
+    import numpy as np
+    target = np.array(lm.light_profile(target_body, target_lat)["hist"])
+    windows = lm._earth_window_hists(round(float(earth_lat), 2))
+    emd = np.abs(np.cumsum(windows - target[None, :], axis=1)[:, :-1]).sum(axis=1)
+    out = []
+    for w in range(52):
+        day = w * 7
+        out.append({"week": w + 1, "start": lm.doy_to_mmdd(day), "light_sim": round(float(min(1.0, max(0.0, 1.0 - emd[day] / lm.EMD_MAX))), 4)})
+    return out
+
+
+def calendar(body: str, lat: float, lon: float, twin_ids: Optional[list[str]] = None, replay: bool = False) -> dict:
+    """Rehearsal calendar rows (top Earth twins + one known analog), 52 weekly light matches each."""
+    if body == "earth":
+        raise ValueError("the calendar compares Earth sites with a Moon or Mars target")
+    cached = cache_dir() / _calendar_key(body, lat, lon)
+    if not twin_ids and (replay or _mod("engine.light") is None) and cached.is_file():
+        import json
+        return {**json.loads(cached.read_text()), "source": "replay-cache"}
+    lm = _mod("engine.light")
+    idx = get_index()
+    if lm is None or idx is None:
+        raise LookupError("calendar needs the light engine and the index")
+    cand: list[dict] = []
+    if twin_ids:
+        for tid in twin_ids[:8]:
+            pt = _as_dict(idx.point(tid))  # KeyError -> 404
+            cand.append({"label": pt.get("place_label") or tid, "lat": pt["lat"], "lon": pt["lon"], "kind": "twin"})
+    else:
+        r = find_twins(TwinsRequest(body=body, lat=lat, lon=lon, to=["earth"], k=5))
+        cand = [{"label": t.place_label or t.id, "lat": t.lat, "lon": t.lon, "kind": "twin"} for t in r.results.get("earth", [])[:5]]
+    ka = _known_analog_for(body, lat, lon)
+    if ka:
+        cand.append({"label": ka["label"], "lat": ka["lat"], "lon": ka["lon"], "kind": "known analog"})
+    real = hasattr(lm, "calendar")
+    rows = None
+    if real:
+        try:  # ASSUMED signature until W2 reports: calendar(target_body, target_lat, [earth_lat, ...]) -> list of {weeks, best_window}
+            res = lm.calendar(body, lat, [c["lat"] for c in cand])
+            rows = [{**c, "weeks": _as_dict(x)["weeks"], "best_window": _as_dict(x)["best_window"]} for c, x in zip(cand, res)]
+        except Exception as exc:
+            log.warning("engine.light.calendar failed (%s); computing weekly values from engine.light internals", exc)
+    if rows is None:
+        rows = []
+        for c in cand:
+            bw = lm.best_window(body, lat, c["lat"])
+            rows.append({**c, "weeks": _weekly(lm, body, lat, c["lat"]),
+                         "best_window": {"start": bw["start"], "end": bw["end"], "light_sim": round(bw["light_sim"], 4)}})
+    return {"target": {"body": body, "lat": lat, "lon": lon}, "rows": rows, "caption": CALENDAR_CAPTION,
+            "source": "live" if real else "fallback"}
+
+
+def record_extras(presets_: list) -> dict[str, str]:
+    """Replay-cache entries for the differentiators: atlas index, findings, calendars of the Moon/Mars presets."""
+    import json
+    cache_dir().mkdir(parents=True, exist_ok=True)
+    out = {}
+    for name, data in (("atlas_index.json", (_read_json(atlas_dir() / "index.json"))), ("findings.json", findings())):
+        if data is None:
+            out[name] = "missing (not produced yet)"
+            continue
+        (cache_dir() / name).write_text(json.dumps(data))
+        out[name] = "recorded"
+    for p in presets_:
+        if p.body == "earth":
+            out[f"calendar {p.id}"] = "skipped (Earth target)"
+            continue
+        try:
+            c = calendar(p.body, p.lat, p.lon)
+            (cache_dir() / _calendar_key(p.body, p.lat, p.lon)).write_text(json.dumps({k: v for k, v in c.items() if k != "source"}))
+            out[f"calendar {p.id}"] = f"recorded ({c['source']}, {len(c['rows'])} rows)"
+        except Exception as exc:
+            out[f"calendar {p.id}"] = f"failed: {exc}"
+    return out

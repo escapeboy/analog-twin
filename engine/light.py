@@ -282,3 +282,58 @@ def earth_light_range(target_body: str, target_lat: float, lat_min: Optional[flo
     if not -90.0 <= lo <= hi <= 90.0:
         raise ValueError(f"need -90 <= lat_min <= lat_max <= 90, got {lo}, {hi}")
     return _earth_range_cached(target_body, round(float(target_lat), 2), _range_lats(lo, hi))
+
+
+# ---- D2 Rehearsal Calendar (spec 07) ----
+N_WEEKS = 52
+
+
+def weekly_light(target_body: str, target_lat: float, earth_lat: float) -> dict:
+    """52 weekly light_sim values for an Earth latitude, plus the bracketed best window.
+
+    Week w (1..52) starts on day 7(w-1) of a non-leap year. Its value is the light_sim of the 28-day window CENTRED on
+    the week (start = week start + 3.5 - 14 days, rounded down; wraps across the year end), computed with the same
+    tables and EMD as best_window. So no week exceeds the best window, and `best_window` is exactly best_window()."""
+    if not -90.0 <= earth_lat <= 90.0:
+        raise ValueError(f"earth_lat out of range: {earth_lat}")
+    target = np.array(light_profile(target_body, target_lat)["hist"])
+    windows = _earth_window_hists(round(float(earth_lat), 2))
+    emd = np.abs(np.cumsum(windows - target[None, :], axis=1)[:, :-1]).sum(axis=1)     # by window start day
+    sim = np.clip(1.0 - emd / EMD_MAX, 0.0, 1.0)
+    weeks = []
+    for w in range(N_WEEKS):
+        start = 7 * w
+        weeks.append({"week": w + 1, "start": doy_to_mmdd(start),
+                      "light_sim": round(float(sim[(start - 11) % 365]), 4)})
+    return {"weeks": weeks, "best_window": best_window(target_body, target_lat, earth_lat),
+            "window_definition": "28-day window centred on the week"}
+
+
+@lru_cache(maxsize=1)
+def _known_analogs() -> tuple[dict, ...]:
+    import yaml
+    from pathlib import Path
+    data = yaml.safe_load((Path(__file__).resolve().parent / "known_analogs.yaml").read_text())
+    return tuple(k for k in data if k.get("body") == "earth")
+
+
+def calendar(target_body: str, target_lat: float, earth_points, target_id: Optional[str] = None) -> list[dict]:
+    """Rows for the Rehearsal Calendar: one per (label, lat, lon) in earth_points, plus one comparison row.
+
+    Comparison row: among known analog sites (engine/known_analogs.yaml) whose analog_for lists target_id (all
+    known Earth analogs if target_id is None or none list it), the one with the highest best-window light_sim;
+    kind = "known analog"."""
+    rows = []
+    for label, lat, lon in earth_points:
+        wl = weekly_light(target_body, target_lat, float(lat))
+        rows.append({"kind": "twin", "label": label, "lat": float(lat), "lon": float(lon), **wl})
+    known = list(_known_analogs())
+    if target_id:
+        listed = [k for k in known if target_id in (k.get("analog_for") or [])]
+        known = listed or known
+    if known:
+        best = max(known, key=lambda k: best_window(target_body, target_lat, float(k["lat"]))["light_sim"])
+        wl = weekly_light(target_body, target_lat, float(best["lat"]))
+        rows.append({"kind": "known analog", "label": f"known analog: {best['label']}", "id": best["id"],
+                     "lat": float(best["lat"]), "lon": float(best["lon"]), **wl})
+    return rows

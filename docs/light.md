@@ -138,6 +138,26 @@ Speed: on the first call, the parquet read took 97 ms and the latitude tables (1
 target after that takes about 7 ms; a cached target takes microseconds. The API can call it once at start-up to warm
 it.
 
+## Rehearsal Calendar (spec 07, D2)
+
+`weekly_light(target_body, target_lat, earth_lat)` returns:
+* `weeks`: 52 entries `{week, start "MM-DD", light_sim}`. Week w starts on day 7(w−1) of a fixed non-leap year
+  (week 1 = 01-01, week 52 = 12-24; the last 1 day of the year is not a week of its own).
+* `best_window`: exactly `best_window(...)`, the bracket drawn on the strip.
+* `window_definition`.
+
+**Each week's value is the light_sim of the 28-day window centred on that week** (window start = week start − 11
+days, wrapping across the year end). It uses the same tables and EMD as `best_window`. A 7-day window was not used:
+its histogram could match better than any 28-day window, and the strip would then contradict its bracket. With the
+centred window, no week exceeds the bracketed best window (tested), and the best week is within 0.05 of it (tested).
+Warm cost is ~0.2 ms per twin.
+
+`calendar(target_body, target_lat, earth_points, target_id=None)` gives one row per `(label, lat, lon)`
+(`kind: "twin"`) plus one comparison row (`kind: "known analog"`, label `"known analog: <site>"`). The comparison
+site is the one from `engine/known_analogs.yaml` with the highest best-window light_sim among the sites whose
+`analog_for` lists `target_id`. If `target_id` is not given, or no site lists it, all known Earth analogs are
+candidates. Example, Shackleton rim: Haughton crater, Devon Island, best window 09-28 to 10-25, light_sim 0.935.
+
 ### Caveat: ground distance in bin-index units
 
 The EMD uses the bin index as ground distance, so moving mass from `0–5` to `5–15` costs the same as moving it from

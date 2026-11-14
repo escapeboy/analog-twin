@@ -59,7 +59,7 @@ def health() -> Health:
     return Health(status="ok" if (_cli_health.ok and loaded) else "degraded", claude_cli=_cli_health, index_loaded=loaded,
                   index_points=counts, replay_forced=_replay_forced(),
                   features={"site_finder": service.site_finder_passed(), "terrain3d": service.terrain3d_available(),
-                            "mission": service.metric_gate_passed("mission")})
+                            "mission": service.metric_gate_passed("mission"), **service.feature_flags()})
 
 
 @app.get("/api/presets", response_model=list[Preset])
@@ -136,6 +136,31 @@ def mission(site_id: str):
     if m is None:
         raise HTTPException(404, "no mission for this site")
     return m
+
+
+@app.get("/api/atlas")
+def atlas():
+    a = service.atlas_index()
+    return a if a is not None else JSONResponse({"available": False}, status_code=404)
+
+
+@app.get("/api/calendar")
+def calendar(target_body: str, target_lat: float, target_lon: float, twin_ids: str = "", replay: int = 0):
+    ids = [x for x in twin_ids.split(",") if x]
+    if target_body not in ("earth", "moon", "mars"):
+        raise HTTPException(422, "target_body must be earth, moon or mars")
+    try:
+        return service.calendar(target_body, target_lat, target_lon, ids, bool(replay))
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    except (KeyError, LookupError) as exc:
+        raise HTTPException(404, f"calendar not available: {exc}")
+
+
+@app.get("/api/findings")
+def findings():
+    f = service.findings()
+    return f if f is not None else JSONResponse({"available": False}, status_code=404)
 
 
 @app.get("/api/terrain/heights/{name}.f32")
@@ -234,6 +259,7 @@ def campaign_plan(sid: str) -> CampaignPlan:
 
 
 TILES.mkdir(parents=True, exist_ok=True)
+app.mount("/atlas", StaticFiles(directory=service.atlas_dir(), check_dir=False), name="atlas")
 app.mount("/tiles", StaticFiles(directory=TILES), name="tiles")
 
 if WEB_DIST.exists():

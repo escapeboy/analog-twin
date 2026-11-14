@@ -174,3 +174,42 @@ def test_earth_light_range_values_and_speed():
     assert min(runs) < 50, runs                             # new target, tables warm
     with pytest.raises(ValueError):
         light.earth_light_range("venus", 0.0)
+
+
+@pytest.mark.parametrize("target", [("moon", -89.7668), ("mars", 18.41), ("moon", 0.0)])
+@pytest.mark.parametrize("earth_lat", [-33.0, 0.0, 42.2, 69.5])
+def test_weekly_light(target, earth_lat):
+    r = light.weekly_light(*target, earth_lat)
+    assert len(r["weeks"]) == 52 and [w["week"] for w in r["weeks"]] == list(range(1, 53))
+    assert r["weeks"][0]["start"] == "01-01" and r["weeks"][-1]["start"] == "12-24"
+    vals = [w["light_sim"] for w in r["weeks"]]
+    assert all(0.0 <= v <= 1.0 for v in vals)
+    bw = light.best_window(*target, earth_lat)
+    assert r["best_window"] == bw
+    assert max(vals) <= bw["light_sim"] + 1e-4                     # no week beats the bracketed best window
+    assert max(vals) >= bw["light_sim"] - 0.05                     # and the best week is close to it
+
+
+def test_weekly_light_seasonality_and_speed():
+    vals = [w["light_sim"] for w in light.weekly_light("moon", -89.7668, 60.0)["weeks"]]
+    assert np.argmax(vals) in list(range(45, 52)) + list(range(0, 4))   # northern winter fits a polar lunar target
+    light.weekly_light("mars", 18.41, 10.0)                               # warm tables
+    t0 = time.perf_counter()
+    for lat in (12.3, 25.1, -14.2, 45.6, 61.0):
+        light._earth_window_hists(round(lat, 2))                          # twin latitude tables warm
+    t0 = time.perf_counter()
+    for lat in (12.3, 25.1, -14.2, 45.6, 61.0):
+        light.weekly_light("mars", 18.41, lat)
+    assert (time.perf_counter() - t0) * 1000 / 5 < 20
+
+
+def test_calendar_rows_and_comparison():
+    pts = [("A", 45.162, 34.992), ("B", -10.509, -73.919)]
+    rows = light.calendar("mars", 18.41, pts, target_id="jezero")
+    assert [r["kind"] for r in rows] == ["twin", "twin", "known analog"]
+    cmp_ = rows[-1]
+    assert cmp_["label"].startswith("known analog: ")
+    known = [k for k in light._known_analogs() if "jezero" in k["analog_for"]]
+    best = max(light.best_window("mars", 18.41, k["lat"])["light_sim"] for k in known)
+    assert cmp_["best_window"]["light_sim"] == pytest.approx(best)
+    assert len(light.calendar("moon", 0.0, [], target_id=None)) == 1      # comparison row from all known analogs
