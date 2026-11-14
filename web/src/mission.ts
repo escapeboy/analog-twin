@@ -98,7 +98,7 @@ export function initMission(overlay: HTMLElement, hooks: MissionHooks) {
     scene.globe.showGroundAtmosphere = true;
     if (scene.skyAtmosphere) scene.skyAtmosphere.show = true;
     scene.highDynamicRange = false;
-    scene.moon.onlySunLighting = false; // at this date the near side is unlit: add ambient light so the Moon stays visible
+    if (scene.moon) scene.moon.onlySunLighting = false; // at this date the near side is unlit: add ambient light so the Moon stays visible
 
     const ds = await CzmlDataSource.load(assetUrl(data.czml_url));
     await v.dataSources.add(ds);
