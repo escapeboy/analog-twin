@@ -170,3 +170,139 @@ def test_coord_id_limits_and_hillshade_cap(tmp_path, monkeypatch):
         os.utime(tmp_path / f"f{i}.png", (i, i))
     service._prune_hillshade(tmp_path)
     assert sorted(p.name for p in tmp_path.glob("*.png")) == [f"f{i}.png" for i in range(4, 9)]
+
+
+def test_sites_routes_with_real_engine_data(client, monkeypatch):
+    import os
+    os.environ.setdefault("ANALOG_TWIN_DATA", "/data/code/nasa-challenge/data")
+    from engine import site_finder
+    monkeypatch.setattr(site_finder, "DATA_DIR", pathlib.Path(os.environ["ANALOG_TWIN_DATA"]) / "site_finder")
+    monkeypatch.setattr(service, "_SF_LAYERS", None)
+    monkeypatch.setattr(service, "_mod", lambda n: site_finder if n == "engine.site_finder" else None)
+    if not (site_finder.DATA_DIR / "layers.npz").exists():
+        pytest.skip("site finder data not built")
+    r = client.get("/api/sites").json()
+    assert len(r["sites"]) == 10 and len(r["limitations"]) == 5 and r["weights"]["sun"] == 0.45 and r["slope_max_deg"] == 10.0
+    assert r["sites"][0]["rank"] == 1 and r["sites"][0]["ref"].startswith("site_finder:")
+    r2 = client.get("/api/sites", params={"w_sun": 0.1, "w_earth": 0.1, "w_psr": 1.0, "slope_max": 5}).json()
+    assert r2["slope_max_deg"] == 5.0 and r2["sites"][0]["id"] != r["sites"][0]["id"] or r2["weights"]["psr"] == 1.0
+    assert client.get("/api/sites", params={"w_sun": -1}).status_code == 422
+    assert client.get("/api/sites", params={"slope_max": 0}).status_code == 422
+    sid = r["sites"][0]["id"]
+    p = client.get(f"/api/sites/{sid}").json()
+    assert p["kind"] == "site_finder" and p["ref"] == f"site_finder:{sid}"
+    assert client.get("/api/sites/garbage").status_code in (404, 422)
+    m = client.get("/api/sites/map.png")
+    assert m.status_code == 200 and m.headers["content-type"] == "image/png" and m.content[:4] == b"\x89PNG"
+    assert client.get("/api/health").json()["features"]["site_finder"] in (True, False)
+    # replay cache
+    service.record_sites_cache()
+    monkeypatch.setattr(service, "_mod", lambda n: None)
+    monkeypatch.setattr(service, "_SF_LAYERS", None)
+    assert client.get("/api/sites").json()["source"] == "replay-cache"
+    assert client.get("/api/sites/map.png").status_code == 200
+    assert client.get("/api/sites", params={"w_sun": 0.3}).status_code == 404
+    # crew evidence for a lunar south-pole target
+    monkeypatch.setattr(service, "_mod", lambda n: site_finder if n == "engine.site_finder" else None)
+    monkeypatch.setattr(service, "_SF_LAYERS", None)
+    import asyncio
+    from crew import evidence
+    from crew.schemas import CampaignRequest
+
+    async def noop(*a, **k):
+        pass
+    pack = asyncio.run(evidence.collect(CampaignRequest(body="moon", lat=-85.4007, lon=31.6398), "t", noop))
+    sf = [i for i in pack.items if i.kind == "site_finder"]
+    assert len(sf) == 1 and sf[0].data["sun_pct"] and "sources" not in sf[0].data
+    assert not [i for i in asyncio.run(evidence.collect(CampaignRequest(body="moon", lat=10, lon=10), "t", noop)).items if i.kind == "site_finder"]
+
+
+def _terrain_stubs(monkeypatch, with_t3):
+    import importlib
+
+    import numpy as np
+
+    class Idx:
+        def search(self, *a, **k):
+            raise ValueError("no valid terrain window")
+
+        def explain(self, a, b):
+            return {"a_id": "m1", "b_id": "e1", "terrain_sim": 0.7, "a": {"body": "moon", "lat": -85.0, "lon": 10.0},
+                    "b": {"body": "earth", "lat": 42.0, "lon": 23.0}, "groups": [], "top_similar": [], "top_different": []}
+
+    rng = np.random.default_rng(1)
+    dem = types.SimpleNamespace(crop_metric=lambda body, lat, lon, ext, gsd: rng.random((43, 43)) * 300)
+    hs = importlib.import_module("engine.hillshade")
+    t3 = types.SimpleNamespace(terrain_pair=lambda a, b: {
+        "a": {"body": "moon", "lat": -85.0, "lon": 10.0, "heights": rng.random((64, 64)) * 100, "gsd_m": 600.0},
+        "b": {"body": "earth", "lat": 42.0, "lon": 23.0, "heights": rng.random((64, 64)) * 100, "gsd_m": 600.0},
+        "sun_azimuth_deg": 12.0, "sun_elevation_deg": 4.0})
+    mods = {"engine.dem": dem, "engine.hillshade": hs, **({"engine.terrain3d": t3} if with_t3 else {})}
+    monkeypatch.setattr(service, "get_index", lambda: Idx())
+    monkeypatch.setattr(service, "_mod", lambda n: mods.get(n))
+
+
+def test_twins_no_terrain_is_422_with_plain_message(client, monkeypatch):
+    _terrain_stubs(monkeypatch, False)
+    r = client.post("/api/twins", json={"body": "earth", "lat": 0, "lon": -30})
+    assert r.status_code == 422 and r.json()["detail"].startswith("No terrain data here")
+
+
+@pytest.mark.parametrize("with_t3", [False, True])
+def test_terrain_pair_and_heights(client, monkeypatch, with_t3):
+    _terrain_stubs(monkeypatch, with_t3)
+    from engine.models import TerrainGrid
+    r = client.get("/api/terrain/m1/e1")
+    assert r.status_code == 200
+    d = r.json()
+    assert d["source"] == ("live" if with_t3 else "fallback-dem") and d["sun_elevation_deg"] > 0
+    ga = TerrainGrid.model_validate(d["a"])
+    raw = client.get(ga.heights_url)
+    assert raw.status_code == 200 and len(raw.content) == ga.size * ga.size * 4
+    import numpy as np
+    h = np.frombuffer(raw.content, dtype="<f4")
+    assert h.min() == pytest.approx(ga.min_m) and h.max() == pytest.approx(ga.max_m)
+    assert client.get("/api/terrain/heights/none.f32").status_code == 404
+    assert client.get("/api/health").json()["features"]["terrain3d"] is with_t3
+
+
+def test_mission_routes_adapter_and_evidence(client, monkeypatch, tmp_path):
+    import json
+    src = pathlib.Path("/data/code/nasa-challenge/data/mission")
+    if not (src / "shackleton-rim.json").exists():
+        pytest.skip("mission data not built")
+    mdir = tmp_path / "data" / "mission"
+    mdir.mkdir(parents=True)
+    for ext in ("json", "czml"):
+        shutil.copy(src / f"shackleton-rim.{ext}", mdir / f"shackleton-rim.{ext}")
+    r = client.get("/api/mission/shackleton-rim")
+    assert r.status_code == 200
+    d = r.json()
+    s = d["summary"]
+    assert d["gate"]["status"] == "pass" and d["czml_url"] == "/api/mission/shackleton-rim.czml"
+    assert s["launch_utc"] and s["launch_time_computed"] and 3.0 <= s["tli_dv_kms"] <= 3.3 and s["site"]["id"] == "shackleton-rim"
+    assert s["limitations"][0].startswith("Lunar orbit is near the transfer plane") and "Descent to the site is schematic." in s["limitations"][0]
+    assert s["label"] and s["tof_days"] == 4.5 and s["tli_dv_kms"] == pytest.approx(3.1715)  # two-body gate numbers stay the headline
+    assert s["events"] and set(s["events"][0]) == {"t_utc", "name", "detail"}
+    c = client.get(d["czml_url"])
+    assert c.status_code == 200 and isinstance(c.json(), list)
+    assert client.get("/api/mission/nope").status_code == 404 and client.get("/api/mission/nope.czml").status_code == 404
+    # gate not passed or launch hidden -> launch_utc null
+    raw = json.loads((mdir / "shackleton-rim.json").read_text())
+    raw["show_launch_time"] = False
+    (mdir / "shackleton-rim.json").write_text(json.dumps(raw))
+    s2 = client.get("/api/mission/shackleton-rim").json()["summary"]
+    assert s2["launch_utc"] is None and s2["launch_time_computed"] is False
+    # reshaped file with its own summary block is accepted
+    raw["summary"] = {"tli_dv_kms": 3.2, "events": [{"t_utc": "2028-01-01T00:00:00Z", "name": "x", "detail": "y"}]}
+    (mdir / "shackleton-rim.json").write_text(json.dumps(raw))
+    s3 = client.get("/api/mission/shackleton-rim").json()["summary"]
+    assert s3["tli_dv_kms"] == 3.2 and len(s3["events"]) == 1
+    # replay cache copy serves when the data dir has no mission
+    service.record_mission_cache()
+    shutil.rmtree(mdir)
+    assert client.get("/api/mission/shackleton-rim.czml").status_code == 200
+    # evidence item
+    ev = service.mission_evidence_item(-89.7668, -171.87)
+    assert ev and ev["ref"] == "mission:shackleton-rim" and ev["kind"] == "mission" and ev["data"]["tli_dv_kms"] == 3.2
+    assert service.mission_evidence_item(10.0, 10.0) is None

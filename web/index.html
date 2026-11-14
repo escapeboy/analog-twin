@@ -13,6 +13,7 @@
     <div id="presets" role="group" aria-label="Presets"></div>
     <div id="gated" role="group" aria-label="Optional features"></div>
     <span id="badge-source" class="badge src big" hidden></span>
+    <span id="badge-offline" class="badge replay" hidden>offline demo: presets only</span>
     <span id="badge-replay" class="badge replay" hidden>replay</span>
     <span id="status" aria-live="polite"></span>
   </header>
@@ -20,15 +21,17 @@
   <section id="bottom">
     <div class="panel" id="twin-list"></div>
     <div class="panel" id="detail">
-      <div class="tabs" role="tablist"><button type="button" role="tab" id="tab-pair" aria-selected="true">Comparison</button><button type="button" role="tab" id="tab-sites" aria-selected="false" hidden>Base sites</button></div>
+      <div class="tabs" role="tablist"><button type="button" role="tab" id="tab-pair" aria-selected="true">Comparison</button><button type="button" role="tab" id="tab-terrain" aria-selected="false" hidden>3D</button><button type="button" role="tab" id="tab-sites" aria-selected="false" hidden>Base sites</button></div>
       <div id="detail-body"></div>
       <div id="sites-body" hidden></div>
+      <div id="terrain-body" hidden></div>
     </div>
     <div class="panel" id="crew"></div>
   </section>
   <div id="credits">Imagery: NASA Trek (LRO WAC, Viking MDIM 2.1); Earth: Natural Earth II. Globes rendered with CesiumJS.</div>
   <footer>Similarity = terrain shape + sunlight regime. Not geology, not chemistry.</footer>
   <div id="fps" hidden></div>
+  <div id="mission" hidden role="dialog" aria-label="Mission View"></div>
 </div>
 <script type="module" src="/src/main.ts"></script>
 </body>

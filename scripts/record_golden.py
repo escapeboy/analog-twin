@@ -52,6 +52,10 @@ def main() -> None:
         sys.exit("engine/targets.yaml has no preset entries yet (fixture presets); nothing real to record")
     if a.only != "campaign":
         record_cache(presets)
+        service.record_sites_cache()
+        print("site finder cache recorded")
+        service.record_mission_cache()
+        print("mission cache recorded")
     if a.only != "cache":
         p = next((x for x in presets if (x.id == a.preset if a.preset else "shackleton" in x.id.lower())), None)
         if p is None:

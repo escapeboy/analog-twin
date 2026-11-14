@@ -1,4 +1,4 @@
-import { getPair, type PairExplanation } from '../api';
+import { assetUrl, getPair, type PairExplanation } from '../api';
 import { clear, fmt, h } from '../dom';
 import { store } from '../state';
 
@@ -13,7 +13,7 @@ export function initDetail(root: HTMLElement) {
     if (p.source !== 'live') kids.push(h('span', { class: 'badge src' }, p.source));
     const hs = p.hillshade;
     if (hs) {
-      const img = h('img', { class: 'pair', src: hs.pair_url, alt: `Hillshade of both sites. ${hs.caption}` });
+      const img = h('img', { class: 'pair', src: assetUrl(hs.pair_url), alt: `Hillshade of both sites. ${hs.caption}` });
       img.addEventListener('error', () => img.replaceWith(h('div', { class: 'muted noimg' }, 'Hillshade image unavailable')));
       kids.push(img, h('p', { class: 'muted' }, hs.caption));
     }

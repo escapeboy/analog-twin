@@ -8,9 +8,10 @@ import contextlib
 import json
 import os
 import pathlib
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from sse_starlette.sse import EventSourceResponse
 
@@ -40,6 +41,8 @@ async def lifespan(_app):
     task = asyncio.create_task(_check_cli())
     yield
     task.cancel()
+    await asyncio.gather(task, return_exceptions=True)  # let run_claude reap its subprocess before the loop closes
+    await runner.shutdown()
 
 
 app = FastAPI(title="Analog Twin", version="0.2.0", lifespan=lifespan)
@@ -53,7 +56,9 @@ def _replay_forced() -> bool:
 def health() -> Health:
     loaded, counts = service.index_status()
     return Health(status="ok" if (_cli_health.ok and loaded) else "degraded", claude_cli=_cli_health, index_loaded=loaded,
-                  index_points=counts, replay_forced=_replay_forced())
+                  index_points=counts, replay_forced=_replay_forced(),
+                  features={"site_finder": service.site_finder_passed(), "terrain3d": service.terrain3d_available(),
+                            "mission": service.metric_gate_passed("mission")})
 
 
 @app.get("/api/presets", response_model=list[Preset])
@@ -63,7 +68,10 @@ def presets() -> list[Preset]:
 
 @app.post("/api/twins", response_model=TwinsResponse)
 def twins(req: TwinsRequest, replay: int = 0) -> TwinsResponse:
-    return service.find_twins(req, replay=bool(replay))
+    try:
+        return service.find_twins(req, replay=bool(replay))
+    except service.NoTerrain as exc:
+        raise HTTPException(422, str(exc))
 
 
 @app.get("/api/pair/{a}/{b}", response_model=PairExplanation)
@@ -85,6 +93,66 @@ def hillshade(name: str):
     if p is None:
         raise HTTPException(404, "no such hillshade")
     return FileResponse(p, media_type="image/png")
+
+
+def _sites_call(fn, *args, **kw):
+    try:
+        return fn(*args, **kw)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    except (LookupError, IndexError) as exc:
+        raise HTTPException(404, str(exc))
+
+
+@app.get("/api/sites")
+def sites(w_sun: Optional[float] = None, w_earth: Optional[float] = None, w_psr: Optional[float] = None,
+          slope_max: Optional[float] = None, replay: int = 0):
+    return _sites_call(service.sites, w_sun, w_earth, w_psr, slope_max, bool(replay))
+
+
+@app.get("/api/sites/map.png")
+def sites_map(w_sun: Optional[float] = None, w_earth: Optional[float] = None, w_psr: Optional[float] = None,
+              slope_max: Optional[float] = None, replay: int = 0):
+    return FileResponse(_sites_call(service.sites_map, w_sun, w_earth, w_psr, slope_max, bool(replay)), media_type="image/png")
+
+
+@app.get("/api/sites/{sid}")
+def site(sid: str):
+    return _sites_call(service.site_properties, sid)
+
+
+@app.get("/api/mission/{site_id}.czml")
+def mission_czml(site_id: str):
+    p = service.mission_czml(site_id)
+    if p is None:
+        raise HTTPException(404, "no mission for this site")
+    return FileResponse(p, media_type="application/json")
+
+
+@app.get("/api/mission/{site_id}")
+def mission(site_id: str):
+    m = service.mission(site_id)
+    if m is None:
+        raise HTTPException(404, "no mission for this site")
+    return m
+
+
+@app.get("/api/terrain/heights/{name}.f32")
+def terrain_heights(name: str):
+    data = service.terrain_heights(name)
+    if data is None:
+        raise HTTPException(404, "no such terrain grid (expired from the cache; request /api/terrain/{a}/{b} again)")
+    return Response(content=data, media_type="application/octet-stream")
+
+
+@app.get("/api/terrain/{a}/{b}", response_model=service.TerrainPair)
+def terrain_pair(a: str, b: str):
+    try:
+        return service.terrain_pair(a, b)
+    except service.NoTerrain as exc:
+        raise HTTPException(422, str(exc))
+    except (KeyError, ValueError) as exc:
+        raise HTTPException(404, f"unknown point: {exc}")
 
 
 @app.get("/api/terrain/{point_id}", response_model=TerrainGrid)

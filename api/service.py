@@ -13,11 +13,14 @@ import pathlib
 import re
 import shutil
 import time
-from typing import Any, Optional
+from collections import OrderedDict
+from typing import Any, Literal, Optional
 
 from api import fixtures
+from pydantic import BaseModel
+
 from engine.models import (
-    LIGHT_BINS, FeatureGroup, Hillshade, LightProfile, LightWindow, PairExplanation, Point, Preset, QueryInfo,
+    TerrainGrid, LIGHT_BINS, FeatureGroup, Hillshade, LightProfile, LightWindow, PairExplanation, Point, Preset, QueryInfo,
     SiteContext, Twin, TwinsRequest, TwinsResponse,
 )
 
@@ -27,6 +30,13 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 MAIN_ROOT = pathlib.Path(os.environ.get("ANALOG_MAIN_ROOT", "/data/code/nasa-challenge"))
 EXTENT_KM = 40.0
 BODIES = ("earth", "moon", "mars")
+
+
+NO_TERRAIN_MSG = "No terrain data here (ocean, ice sheet or beyond the latitude limit). Try a land point."
+
+
+class NoTerrain(Exception):
+    """The query point has no valid terrain (ocean, ice, outside the latitude limits)."""
 
 
 # ---------- paths (env-configurable so tests and worktrees do not touch the main tree) ----------
@@ -45,7 +55,7 @@ def cache_dir() -> pathlib.Path:
 def data_dir() -> pathlib.Path:
     if os.environ.get("DATA_DIR"):
         return pathlib.Path(os.environ["DATA_DIR"])
-    return ROOT / "data" if (ROOT / "data").exists() else MAIN_ROOT / "data"
+    return MAIN_ROOT / "data" if (MAIN_ROOT / "data").exists() else ROOT / "data"
 
 
 def hillshade_dir() -> pathlib.Path:
@@ -271,7 +281,11 @@ def find_twins(req: TwinsRequest, replay: bool = False) -> TwinsResponse:
     idx = get_index()
     if idx is None:
         return cache_get_twins(req) or fixtures.twins(req).model_copy(update={"ref": f"twins:{req.body}:{req.lat:.3f}:{req.lon:.3f}"})
-    return _live_twins(idx, req)
+    try:
+        return _live_twins(idx, req)
+    except ValueError as exc:  # engine.index: no valid terrain window at the query point
+        log.info("no terrain at %s %.3f,%.3f: %s", req.body, req.lat, req.lon, exc)
+        raise NoTerrain(NO_TERRAIN_MSG) from exc
 
 
 # ---------- pair ----------
@@ -302,10 +316,11 @@ def _outputs(result: Any, out_dir: pathlib.Path, pair_id: str) -> Optional[tuple
 HILLSHADE_MAX_FILES = int(os.environ.get("HILLSHADE_MAX_FILES", 500))
 
 
-def _prune_hillshade(d: pathlib.Path) -> None:
-    """Keeps the live hillshade cache bounded: drops the least recently written PNGs beyond the cap."""
+def _prune_hillshade(d: pathlib.Path, cap: Optional[int] = None) -> None:
+    """Keeps a PNG cache bounded: drops the least recently written files beyond the cap."""
+    cap = HILLSHADE_MAX_FILES if cap is None else cap
     files = sorted(d.glob("*.png"), key=lambda p: p.stat().st_mtime)
-    for p in files[: max(0, len(files) - HILLSHADE_MAX_FILES)]:
+    for p in files[: max(0, len(files) - cap)]:
         p.unlink(missing_ok=True)
 
 
@@ -403,3 +418,279 @@ def light(body: str, lat: float, lon: float) -> LightProfile:
     p = _as_dict(m.light_profile(body, lat))
     return LightProfile(body=body, lat=lat, lon=lon, bins=list(p.get("bins") or LIGHT_BINS), hist=[float(x) for x in p["hist"]],
                         median_sun_up_elevation_deg=p.get("median_sun_up_elevation_deg"), ref=f"light:{body}:{lat:.2f}:{lon:.2f}")
+
+
+# ---------- lunar south-pole site finder (W6, engine/site_finder.py) ----------
+_SF_LAYERS: Any = None
+SITE_MAP_MAX_FILES = 50
+
+
+def _sf():
+    """(module, layers) or (None, None) when the site finder or its data are not available."""
+    global _SF_LAYERS
+    m = _mod("engine.site_finder")
+    if m is None:
+        return None, None
+    if _SF_LAYERS is None:
+        try:
+            _SF_LAYERS = m.load_layers()
+        except Exception as exc:
+            log.warning("site finder layers unavailable: %s", exc)
+            return None, None
+    return m, _SF_LAYERS
+
+
+def metric_gate_passed(key: str) -> bool:
+    """docs/metrics.json <key>.passed (False when the file, key or flag is missing)."""
+    for base in (ROOT, MAIN_ROOT):
+        p = base / "docs" / "metrics.json"
+        if p.exists():
+            try:
+                import json
+                return bool((json.loads(p.read_text()).get(key) or {}).get("passed"))
+            except Exception:
+                return False
+    return False
+
+
+def site_finder_passed() -> bool:
+    return metric_gate_passed("site_finder")
+
+
+def _sf_args(w_sun, w_earth, w_psr, slope_max):
+    w = {k: float(v) for k, v in (("sun", w_sun), ("earth", w_earth), ("psr", w_psr)) if v is not None}
+    if slope_max is not None and not (0 < slope_max <= 90):
+        raise ValueError("slope_max must be in (0, 90] degrees")
+    return w, (round(float(slope_max), 1) if slope_max is not None else None)
+
+
+def _sf_is_default(w: dict, slope: Optional[float]) -> bool:
+    return not w and slope is None
+
+
+def sites(w_sun=None, w_earth=None, w_psr=None, slope_max=None, replay: bool = False) -> dict:
+    """Ranked lunar south-pole landing candidates. ValueError for invalid weights; LookupError when unavailable."""
+    w, slope = _sf_args(w_sun, w_earth, w_psr, slope_max)
+    cached = cache_dir() / "sites_default.json"
+    if _sf_is_default(w, slope) and replay and cached.exists():
+        import json
+        return {**json.loads(cached.read_text()), "source": "replay-cache"}
+    m, layers = _sf()
+    if m is None:
+        if _sf_is_default(w, slope) and cached.exists():
+            import json
+            return {**json.loads(cached.read_text()), "source": "replay-cache"}
+        raise LookupError("site finder not available")
+    weights_used = m._weights(w)
+    lim = m.SLOPE_LIMIT_DEG if slope is None else slope
+    return {"weights": weights_used, "slope_max_deg": lim, "slope_source": m.SLOPE_LIMIT_SOURCE,
+            "sites": m.rank(w or None, slope, layers=layers), "limitations": list(m.LIMITATIONS), "source": "live"}
+
+
+def sites_map(w_sun=None, w_earth=None, w_psr=None, slope_max=None, replay: bool = False) -> pathlib.Path:
+    w, slope = _sf_args(w_sun, w_earth, w_psr, slope_max)
+    default = _sf_is_default(w, slope)
+    cached = cache_dir() / "sites_map_default.png"
+    if default and replay and cached.exists():
+        return cached
+    m, layers = _sf()
+    if m is None:
+        if default and cached.exists():
+            return cached
+        raise LookupError("site finder not available")
+    eff = m._weights(w)
+    d = data_dir() / "cache" / "sites"
+    d.mkdir(parents=True, exist_ok=True)
+    out = d / f"map_{eff['sun']:.2f}_{eff['earth']:.2f}_{eff['psr']:.2f}_{slope if slope is not None else 'd'}.png"
+    if not out.exists():
+        m.render_map(out, w or None, slope, layers=layers)
+        _prune_hillshade(d, SITE_MAP_MAX_FILES)
+    return out
+
+
+def site_properties(sid: str) -> dict:
+    m, layers = _sf()
+    if m is None:
+        raise LookupError("site finder not available")
+    return m.site_properties(sid, layers)  # ValueError / IndexError for malformed or out-of-grid ids
+
+
+def record_sites_cache() -> None:
+    import json
+    cache_dir().mkdir(parents=True, exist_ok=True)
+    (cache_dir() / "sites_default.json").write_text(json.dumps({k: v for k, v in sites().items() if k != "source"}))
+    shutil.copy2(sites_map(), cache_dir() / "sites_map_default.png")
+
+
+def site_evidence_item(lat: float, lon: float) -> Optional[dict]:
+    """site_properties of the site-finder cell under a lunar south-polar point, or None (outside 80-90 S / no data)."""
+    m, layers = _sf()
+    if m is None or lat > m.LAT_LIMIT:
+        return None
+    try:
+        r, c = m.xy_to_cell(*m.latlon_to_xy(lat, lon))
+        return m.site_properties(m.site_id(int(r), int(c)), layers)
+    except Exception as exc:
+        log.warning("site_properties failed for %.3f,%.3f: %s", lat, lon, exc)
+        return None
+
+
+# ---------- 3D twin terrains (V1) ----------
+class TerrainPair(BaseModel):
+    a: TerrainGrid
+    b: TerrainGrid
+    sun_azimuth_deg: float
+    sun_elevation_deg: float
+    terrain_sim: float
+    source: Literal["live", "fallback-dem"]
+
+
+_HEIGHTS: "OrderedDict[str, bytes]" = OrderedDict()
+HEIGHTS_MAX = 64
+
+
+def terrain3d_available() -> bool:
+    m = _mod("engine.terrain3d")
+    return m is not None and hasattr(m, "terrain_pair")
+
+
+def terrain_heights(name: str) -> Optional[bytes]:
+    return _HEIGHTS.get(_safe(name))
+
+
+def _grid(pid: str, g: dict, dataset: str) -> TerrainGrid:
+    import numpy as np
+    h = np.ascontiguousarray(np.asarray(g["heights"], dtype="<f4"))
+    if h.ndim != 2 or h.shape[0] != h.shape[1]:
+        raise ValueError("terrain grid must be square")
+    h = np.nan_to_num(h, nan=float(np.nanmin(h)) if np.isfinite(h).any() else 0.0)
+    name = _safe(f"{pid}_{h.shape[0]}")
+    _HEIGHTS[name] = h.tobytes()
+    _HEIGHTS.move_to_end(name)
+    while len(_HEIGHTS) > HEIGHTS_MAX:
+        _HEIGHTS.popitem(last=False)
+    return TerrainGrid(id=pid, body=g["body"], lat=float(g["lat"]), lon=float(g["lon"]), size=int(h.shape[0]),
+                       gsd_m=float(g.get("gsd_m", gsd_m())), extent_km=float(g.get("extent_km", h.shape[0] * g.get("gsd_m", gsd_m()) / 1000)),
+                       min_m=float(h.min()), max_m=float(h.max()), dataset=str(g.get("dataset", dataset)),
+                       heights_url=f"/api/terrain/heights/{name}.f32")
+
+
+def terrain_pair(a_id: str, b_id: str) -> TerrainPair:
+    """Both heightfields under identical sun. Uses engine.terrain3d.terrain_pair when W1 has delivered it; otherwise a
+    low-resolution fallback cropped straight from the DEMs (source flag says which)."""
+    idx = get_index()
+    if idx is None:
+        raise LookupError("engine index not available")
+    ex = _as_dict(idx.explain(_resolve_arg(a_id), _resolve_arg(b_id)))
+    ca, cb = ex["a_id"], ex["b_id"]
+    t3 = _mod("engine.terrain3d")
+    if t3 is not None and hasattr(t3, "terrain_pair"):
+        res = _as_dict(t3.terrain_pair(_resolve_arg(a_id), _resolve_arg(b_id)))  # ASSUMED shape: a, b dicts with heights/body/lat/lon
+        ga, gb = _as_dict(res["a"]), _as_dict(res["b"])
+        az, el = float(res["sun_azimuth_deg"]), float(res["sun_elevation_deg"])
+        return TerrainPair(a=_grid(ca, ga, "engine.terrain3d"), b=_grid(cb, gb, "engine.terrain3d"), sun_azimuth_deg=az,
+                           sun_elevation_deg=el, terrain_sim=float(res.get("terrain_sim", ex["terrain_sim"])), source="live")
+    dem, hs = _mod("engine.dem"), _mod("engine.hillshade")
+    if dem is None or hs is None:
+        raise LookupError("terrain modules not available")
+    pa, pb = ex["a"], ex["b"]
+    tgt = pa if pa["body"] in ("moon", "mars") else (pb if pb["body"] in ("moon", "mars") else pa)
+    az, el = _sun(hs, tgt["body"], tgt["lat"])
+    grids = []
+    for pid, pt in ((ca, pa), (cb, pb)):
+        h = dem.crop_metric(pt["body"], pt["lat"], pt["lon"], EXTENT_KM, gsd_m())
+        grids.append(_grid(pid, {**pt, "heights": h, "gsd_m": gsd_m(), "extent_km": EXTENT_KM}, "common-scale DEM crop (fallback)"))
+    return TerrainPair(a=grids[0], b=grids[1], sun_azimuth_deg=az, sun_elevation_deg=el, terrain_sim=float(ex["terrain_sim"]),
+                       source="fallback-dem")
+
+
+# ---------- Earth-Moon mission (W8, engine/trajectory.py output in data/mission/<id>.json + .czml) ----------
+def _mission_dirs() -> list[pathlib.Path]:
+    return [data_dir() / "mission", cache_dir() / "mission"]
+
+
+def _mission_file(site_id: str, ext: str) -> Optional[pathlib.Path]:
+    name = _safe(site_id)
+    for d in _mission_dirs():
+        p = d / f"{name}.{ext}"
+        if p.is_file():
+            return p
+    return None
+
+
+def mission_czml(site_id: str) -> Optional[pathlib.Path]:
+    return _mission_file(site_id, "czml")
+
+
+MISSION_LIMITATIONS = [
+    "Lunar orbit is near the transfer plane; the plane change to a polar orbit is not modelled. Descent to the site is schematic.",
+    "Headline delta-v and time of flight come from a two-body transfer; the displayed arc is refined with an Earth-Moon gravity model.",
+]
+
+
+def _mission_summary(raw: dict, site_id: str) -> dict:
+    """Maps the current W8 file shape (or an already-shaped `summary`) to the API contract."""
+    if isinstance(raw.get("summary"), dict):  # reshaped file: trust it, fill the gaps below
+        base = dict(raw["summary"])
+    else:
+        base = {}
+    t = raw.get("times_utc") or {}
+    gate = (raw.get("gate") or {}).get("status", "unknown")
+    show = raw.get("show_launch_time", True) and gate == "pass"
+    site = raw.get("site") or {}
+    events = base.get("events") or [{"t_utc": e.get("utc") or e.get("t_utc"), "name": e.get("name"), "detail": e.get("detail", "")}
+                                    for e in raw.get("events") or []]
+    out = {
+        "launch_utc": base.get("launch_utc", t.get("launch")) if show else None,
+        "tli_utc": base.get("tli_utc", t.get("tli")),
+        "arrival_utc": base.get("arrival_utc", t.get("arrival")),
+        "landing_utc": base.get("landing_utc", t.get("landing")),
+        "tli_dv_kms": base.get("tli_dv_kms", raw.get("tli_dv_km_s")),
+        "loi_dv_kms": base.get("loi_dv_kms", raw.get("loi_dv_km_s")),
+        "tof_days": base.get("tof_days", raw.get("tof_days")),
+        "arrival_vinf_kms": base.get("arrival_vinf_kms", raw.get("arrival_v_inf_km_s")),
+        "site": {"id": site.get("id", site_id), "label": site.get("label"), "lat": site.get("lat"), "lon": site.get("lon")},
+        "launch_time_computed": bool(show and (base.get("launch_utc") or t.get("launch"))),
+        "landing_sun_elevation_deg": base.get("landing_sun_elevation_deg", raw.get("landing_sun_elevation_deg")),
+        "landing_earth_elevation_deg": base.get("landing_earth_elevation_deg", raw.get("landing_earth_elevation_deg")),
+        "label": base.get("label") or (raw.get("display") or {}).get("label") or raw.get("label"),
+        "events": [e for e in events if e.get("t_utc")],
+        "limitations": list(MISSION_LIMITATIONS) + [x for x in base.get("limitations", []) if x not in MISSION_LIMITATIONS],
+    }
+    return {"czml_url": f"/api/mission/{_safe(site_id)}.czml", "summary": out, "gate": {"status": gate}}
+
+
+def mission(site_id: str) -> Optional[dict]:
+    import json
+    p = _mission_file(site_id, "json")
+    if p is None:
+        return None
+    return _mission_summary(json.loads(p.read_text()), site_id)
+
+
+def record_mission_cache(site_ids=("shackleton-rim",)) -> None:
+    d = cache_dir() / "mission"
+    d.mkdir(parents=True, exist_ok=True)
+    for sid in site_ids:
+        for ext in ("json", "czml"):
+            src = data_dir() / "mission" / f"{_safe(sid)}.{ext}"
+            if src.is_file():
+                shutil.copy2(src, d / src.name)
+
+
+def mission_evidence_item(lat: float, lon: float) -> Optional[dict]:
+    """Mission values of the mission file whose site matches the target point (within 0.01 deg), or None."""
+    import json
+    for d in _mission_dirs():
+        for p in sorted(d.glob("*.json")) if d.is_dir() else []:
+            try:
+                raw = json.loads(p.read_text())
+                site = raw.get("site") or {}
+                if abs(site.get("lat", 999) - lat) < 0.01 and abs(site.get("lon", 999) - lon) < 0.01:
+                    s = _mission_summary(raw, p.stem)["summary"]
+                    keep = ("launch_utc", "tli_utc", "arrival_utc", "landing_utc", "tli_dv_kms", "loi_dv_kms", "tof_days",
+                            "arrival_vinf_kms", "landing_sun_elevation_deg", "landing_earth_elevation_deg")
+                    return {"ref": f"mission:{p.stem}", "kind": "mission", "data": {k: s[k] for k in keep if s.get(k) is not None}}
+            except Exception as exc:
+                log.warning("mission file %s unusable: %s", p, exc)
+    return None

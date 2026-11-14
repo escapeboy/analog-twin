@@ -799,27 +799,29 @@
     "map_png": "/data/code/nasa-challenge/data/site_finder/south_pole_sites.png"
   },
   "corpus": {
-    "index_path": "/data/code/nasa-challenge/data/index/full",
+    "index_path": "/data/code/nasa-challenge/data/index/full_v2",
     "points_per_body": {
-      "earth": 1026242,
+      "earth": 972567,
       "moon": 286543,
       "mars": 1056208
     },
     "uniform_points_per_body": {
-      "earth": 881847,
+      "earth": 841198,
       "moon": 261418,
       "mars": 1002711
     },
     "dense_points_per_body": {
-      "earth": 144395,
+      "earth": 131369,
       "moon": 25125,
       "mars": 53497
     },
-    "total_points": 2368993,
+    "total_points": 2315318,
     "gsd_m": 926.0,
+    "feature_set": "v2",
+    "context_window_px": 39,
     "gsd_note": "all bodies resampled to ~926 m (Earth has only ETOPO 2022 30\" globally)",
     "window_km": 12.038,
-    "n_features": 25,
+    "n_features": 31,
     "spacing_km": 12.0,
     "dense_spacing_km": 4.0,
     "lat_limits": {
@@ -849,15 +851,691 @@
       "earth": "/data/code/nasa-challenge/data/raw/earth_seg/ETOPO_2022_v1_30s_N90W180_surface.tif",
       "mars": "/data/code/nasa-challenge/data/raw/mars/Mars_MGS_MOLA_DEM_mosaic_global_463m.tif"
     },
-    "features_sha256": "e92819a8981caad391f35fbc037a46dea3b55196c38fcfc16239e66410a285d9",
-    "build_seconds": 238.3,
-    "built_at": "2026-11-14T10:33:43+0100",
-    "index_load_seconds": 2.72
+    "features_sha256": "84f92c38ec18643ec03026dd30ef42593ed26a18002e31072aa4c8312360eea4",
+    "build_seconds": 676.5,
+    "built_at": "2026-11-14T11:08:29+0100",
+    "index_load_seconds": 2.94
   },
   "terrain": {
+    "v1": {
+      "index_path": "/data/code/nasa-challenge/data/index/full",
+      "feature_set": "v1",
+      "n_features": 25,
+      "features_sha256": "e92819a8981caad391f35fbc037a46dea3b55196c38fcfc16239e66410a285d9",
+      "points_per_body": {
+        "earth": 1026242,
+        "moon": 286543,
+        "mars": 1056208
+      },
+      "index_load_seconds": 3.52,
+      "known_analog_test": {
+        "method": "percentile rank of each known analog site among all uniformly sampled Earth index points by terrain-feature distance to each target it is an analog for (0 % = best). Baseline: 1000 random Earth index points (seed 1000), each paired with a target drawn in turn from the same (site, target) list.",
+        "earth_points_ranked": 881847,
+        "targets": {
+          "shackleton-rim": {
+            "on_grid": false,
+            "snapped_km": null
+          },
+          "connecting-ridge": {
+            "on_grid": true,
+            "snapped_km": 1.4640143095406435
+          },
+          "malapert-massif": {
+            "on_grid": true,
+            "snapped_km": 0.6089713244783115
+          },
+          "nobile-rim-1": {
+            "on_grid": true,
+            "snapped_km": 1.7692900659135207
+          },
+          "haworth": {
+            "on_grid": true,
+            "snapped_km": 1.8554826355217033
+          },
+          "de-gerlache-rim-2": {
+            "on_grid": true,
+            "snapped_km": 0.6983242573083037
+          },
+          "jezero": {
+            "on_grid": true,
+            "snapped_km": 1.0752519061761787
+          },
+          "perseverance-landing": {
+            "on_grid": true,
+            "snapped_km": 1.2577657651778564
+          },
+          "gale": {
+            "on_grid": true,
+            "snapped_km": 1.5744966154460733
+          },
+          "oxia-planum": {
+            "on_grid": false,
+            "snapped_km": null
+          }
+        },
+        "sites": [
+          {
+            "id": "haughton",
+            "label": "Haughton crater, Devon Island (HMP)",
+            "type": "impact crater, polar desert",
+            "lat": 75.383,
+            "lon": -89.667,
+            "source_url": "https://en.wikipedia.org/wiki/Haughton_impact_crater",
+            "evaluable": true,
+            "on_grid": false,
+            "snapped_km": null,
+            "evaluated_at": {
+              "lat": 75.383,
+              "lon": -89.667
+            },
+            "percentile_by_target": {
+              "jezero": 73.61,
+              "gale": 36.25,
+              "perseverance-landing": 31.79,
+              "oxia-planum": 18.69,
+              "shackleton-rim": 61.52,
+              "connecting-ridge": 67.35,
+              "malapert-massif": 87.85,
+              "nobile-rim-1": 62.2,
+              "haworth": 70.84,
+              "de-gerlache-rim-2": 63.97
+            },
+            "median_percentile": 63.09,
+            "best_percentile": 18.69
+          },
+          {
+            "id": "university-valley",
+            "label": "McMurdo Dry Valleys, University Valley",
+            "type": "hyperarid polar permafrost",
+            "lat": -77.867,
+            "lon": 160.667,
+            "source_url": "https://openpolar.no/Record/ftnasantrs:oai:casi.ntrs.nasa.gov:20150023012/Details",
+            "evaluable": false,
+            "reason": "no valid terrain at earth -77.8670,160.6670 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+            "nearest_land_point_km": 3442.31
+          },
+          {
+            "id": "yungay",
+            "label": "Atacama Desert, Yungay",
+            "type": "hyperarid soil",
+            "lat": -24.08459,
+            "lon": -69.91531,
+            "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7645800",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 1.96,
+            "evaluated_at": {
+              "lat": -24.1018,
+              "lon": -69.9113
+            },
+            "percentile_by_target": {
+              "jezero": 83.11,
+              "gale": 18.35,
+              "perseverance-landing": 27.16,
+              "oxia-planum": 50.66
+            },
+            "median_percentile": 38.91,
+            "best_percentile": 18.35
+          },
+          {
+            "id": "death-valley",
+            "label": "Death Valley, California",
+            "type": "desert, dunes",
+            "lat": 36.24694,
+            "lon": -116.81694,
+            "source_url": "https://en.wikipedia.org/wiki/Death_Valley",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 2.0,
+            "evaluated_at": {
+              "lat": 36.2606,
+              "lon": -116.8026
+            },
+            "percentile_by_target": {
+              "jezero": 97.92,
+              "gale": 0.01,
+              "perseverance-landing": 90.26,
+              "oxia-planum": 99.67
+            },
+            "median_percentile": 94.09,
+            "best_percentile": 0.01
+          },
+          {
+            "id": "bockfjorden",
+            "label": "Svalbard, Bockfjorden (AMASE)",
+            "type": "volcanic and carbonate, Arctic",
+            "lat": 79.469,
+            "lon": 13.3287,
+            "source_url": "https://en.wikipedia.org/wiki/Bockfjorden",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 35.85,
+            "evaluated_at": {
+              "lat": 79.7878,
+              "lon": 13.5964
+            },
+            "percentile_by_target": {
+              "jezero": 39.49,
+              "gale": 89.09,
+              "perseverance-landing": 83.29,
+              "oxia-planum": 73.12
+            },
+            "median_percentile": 78.21,
+            "best_percentile": 39.49
+          },
+          {
+            "id": "holuhraun",
+            "label": "Holuhraun lava field, Iceland",
+            "type": "young basaltic lava",
+            "lat": 64.85,
+            "lon": -16.83,
+            "source_url": "https://en.wikipedia.org/wiki/Holuhraun",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 5.39,
+            "evaluated_at": {
+              "lat": 64.895,
+              "lon": -16.8724
+            },
+            "percentile_by_target": {
+              "jezero": 14.21,
+              "gale": 16.25,
+              "perseverance-landing": 12.48,
+              "oxia-planum": 40.87
+            },
+            "median_percentile": 15.23,
+            "best_percentile": 12.48
+          },
+          {
+            "id": "lanzarote",
+            "label": "Lanzarote, Timanfaya National Park (ESA PANGAEA)",
+            "type": "volcanic",
+            "lat": 28.99417,
+            "lon": -13.79333,
+            "source_url": "https://en.wikipedia.org/wiki/Timanfaya_National_Park",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 5.48,
+            "evaluated_at": {
+              "lat": 28.9941,
+              "lon": -13.737
+            },
+            "percentile_by_target": {
+              "jezero": 71.32,
+              "gale": 57.76,
+              "perseverance-landing": 73.39,
+              "oxia-planum": 73.38,
+              "shackleton-rim": 12.44,
+              "connecting-ridge": 9.38,
+              "malapert-massif": 8.3,
+              "nobile-rim-1": 15.34,
+              "haworth": 6.75,
+              "de-gerlache-rim-2": 19.15
+            },
+            "median_percentile": 17.24,
+            "best_percentile": 6.75
+          },
+          {
+            "id": "hi-seas",
+            "label": "HI-SEAS habitat, Mauna Loa, Hawaii",
+            "type": "lava terrain, habitat simulation",
+            "lat": 19.602378,
+            "lon": -155.487192,
+            "source_url": "https://en.wikipedia.org/wiki/HI-SEAS",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 1.61,
+            "evaluated_at": {
+              "lat": 19.6052,
+              "lon": -155.5023
+            },
+            "percentile_by_target": {
+              "jezero": 76.54,
+              "gale": 2.0,
+              "perseverance-landing": 35.6,
+              "oxia-planum": 97.03
+            },
+            "median_percentile": 56.07,
+            "best_percentile": 2.0
+          },
+          {
+            "id": "rio-tinto",
+            "label": "Rio Tinto, Spain (Peña de Hierro)",
+            "type": "acidic sulfate (geochemical analog; terrain shape not expected to match)",
+            "lat": 37.72186,
+            "lon": -6.55923,
+            "source_url": "https://msaweb.org/MSA/AmMin/products/AmMin/AM099P1199.pdf",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 1.12,
+            "evaluated_at": {
+              "lat": 37.7172,
+              "lon": -6.5479
+            },
+            "percentile_by_target": {
+              "jezero": 72.95,
+              "gale": 41.63,
+              "perseverance-landing": 44.15,
+              "oxia-planum": 62.45
+            },
+            "median_percentile": 53.3,
+            "best_percentile": 41.63
+          },
+          {
+            "id": "meteor-crater",
+            "label": "Meteor Crater (Barringer), Arizona",
+            "type": "impact crater (astronaut geology training)",
+            "lat": 35.02806,
+            "lon": -111.02333,
+            "source_url": "https://en.wikipedia.org/wiki/Meteor_Crater",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 1.06,
+            "evaluated_at": {
+              "lat": 35.0376,
+              "lon": -111.0227
+            },
+            "percentile_by_target": {
+              "shackleton-rim": 50.03,
+              "connecting-ridge": 71.25,
+              "malapert-massif": 22.3,
+              "nobile-rim-1": 54.57,
+              "haworth": 47.55,
+              "de-gerlache-rim-2": 18.67
+            },
+            "median_percentile": 48.79,
+            "best_percentile": 18.67
+          },
+          {
+            "id": "ries",
+            "label": "Nördlinger Ries, Germany (ESA PANGAEA)",
+            "type": "impact crater",
+            "lat": 48.88333,
+            "lon": 10.56667,
+            "source_url": "https://en.wikipedia.org/wiki/N%C3%B6rdlinger_Ries",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 0.69,
+            "evaluated_at": {
+              "lat": 48.8871,
+              "lon": 10.5593
+            },
+            "percentile_by_target": {
+              "shackleton-rim": 75.5,
+              "connecting-ridge": 72.89,
+              "malapert-massif": 76.72,
+              "nobile-rim-1": 82.06,
+              "haworth": 78.32,
+              "de-gerlache-rim-2": 88.89
+            },
+            "median_percentile": 77.52,
+            "best_percentile": 72.89
+          }
+        ],
+        "median_percentile_all_pairs": 59.64,
+        "median_of_site_medians": 54.69,
+        "pairs_evaluated": 56,
+        "sites_evaluable": 10,
+        "sites_total": 11,
+        "baseline_random_median_percentile": 48.07,
+        "baseline_random_n": 1000,
+        "by_target_body": {
+          "mars": {
+            "pairs": 32,
+            "median_percentile": 54.21,
+            "baseline_random_median_percentile": 47.45
+          },
+          "moon": {
+            "pairs": 24,
+            "median_percentile": 61.86,
+            "baseline_random_median_percentile": 48.78
+          }
+        },
+        "notes": [
+          "McMurdo Dry Valleys (University Valley) are inside the Natural Earth 10 m 'Antarctic Ice Sheet' polygon, so the ice mask removes them; not evaluable with this mask.",
+          "Sites on narrow coasts or islands have no fully valid 12 km land window; they are snapped to the nearest valid Earth index point within 50 km (snapped_km, evaluated_at) or reported as not evaluable.",
+          "Analog sites were chosen by their operators for geology, climate or logistics; terrain shape at 926 m / 12 km is only one aspect, so poor ranks are expected for some (e.g. Rio Tinto)."
+        ]
+      },
+      "find_twins": {
+        "queries": 120,
+        "k": 10,
+        "destinations": "the two other bodies",
+        "p50_ms": 64.8,
+        "p95_ms": 111.8,
+        "max_ms": 143.6,
+        "on_grid_queries": 70,
+        "no_terrain_errors": 0,
+        "method": "Index.search in-process on this machine (12 threads, shared host), index already loaded; half the queries offset off-grid (features computed on the fly)."
+      },
+      "validated_at": "2026-11-14T11:09:00+0100"
+    },
+    "v2_multiscale": {
+      "index_path": "/data/code/nasa-challenge/data/index/full_v2",
+      "feature_set": "v2",
+      "n_features": 31,
+      "features_sha256": "84f92c38ec18643ec03026dd30ef42593ed26a18002e31072aa4c8312360eea4",
+      "points_per_body": {
+        "earth": 972567,
+        "moon": 286543,
+        "mars": 1056208
+      },
+      "index_load_seconds": 4.35,
+      "known_analog_test": {
+        "method": "percentile rank of each known analog site among all uniformly sampled Earth index points by terrain-feature distance to each target it is an analog for (0 % = best). Baseline: 1000 random Earth index points (seed 1000), each paired with a target drawn in turn from the same (site, target) list.",
+        "earth_points_ranked": 841198,
+        "targets": {
+          "shackleton-rim": {
+            "on_grid": false,
+            "snapped_km": null
+          },
+          "connecting-ridge": {
+            "on_grid": true,
+            "snapped_km": 1.4640143095406435
+          },
+          "malapert-massif": {
+            "on_grid": true,
+            "snapped_km": 0.6089713244783115
+          },
+          "nobile-rim-1": {
+            "on_grid": true,
+            "snapped_km": 1.7692900659135207
+          },
+          "haworth": {
+            "on_grid": true,
+            "snapped_km": 1.8554826355217033
+          },
+          "de-gerlache-rim-2": {
+            "on_grid": true,
+            "snapped_km": 0.6983242573083037
+          },
+          "jezero": {
+            "on_grid": true,
+            "snapped_km": 1.0752519061761787
+          },
+          "perseverance-landing": {
+            "on_grid": true,
+            "snapped_km": 1.2577657651778564
+          },
+          "gale": {
+            "on_grid": true,
+            "snapped_km": 1.5744966154460733
+          },
+          "oxia-planum": {
+            "on_grid": false,
+            "snapped_km": null
+          }
+        },
+        "sites": [
+          {
+            "id": "haughton",
+            "label": "Haughton crater, Devon Island (HMP)",
+            "type": "impact crater, polar desert",
+            "lat": 75.383,
+            "lon": -89.667,
+            "source_url": "https://en.wikipedia.org/wiki/Haughton_impact_crater",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 4.88,
+            "evaluated_at": {
+              "lat": 75.3632,
+              "lon": -89.8221
+            },
+            "percentile_by_target": {
+              "jezero": 28.12,
+              "gale": 38.94,
+              "perseverance-landing": 26.76,
+              "oxia-planum": 48.62,
+              "shackleton-rim": 46.9,
+              "connecting-ridge": 52.72,
+              "malapert-massif": 51.14,
+              "nobile-rim-1": 35.77,
+              "haworth": 44.43,
+              "de-gerlache-rim-2": 23.82
+            },
+            "median_percentile": 41.69,
+            "best_percentile": 23.82
+          },
+          {
+            "id": "university-valley",
+            "label": "McMurdo Dry Valleys, University Valley",
+            "type": "hyperarid polar permafrost",
+            "lat": -77.867,
+            "lon": 160.667,
+            "source_url": "https://openpolar.no/Record/ftnasantrs:oai:casi.ntrs.nasa.gov:20150023012/Details",
+            "evaluable": false,
+            "reason": "no valid terrain at earth -77.8670,160.6670 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+            "nearest_land_point_km": 3521.24
+          },
+          {
+            "id": "yungay",
+            "label": "Atacama Desert, Yungay",
+            "type": "hyperarid soil",
+            "lat": -24.08459,
+            "lon": -69.91531,
+            "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7645800",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 1.96,
+            "evaluated_at": {
+              "lat": -24.1018,
+              "lon": -69.9113
+            },
+            "percentile_by_target": {
+              "jezero": 81.7,
+              "gale": 15.63,
+              "perseverance-landing": 20.24,
+              "oxia-planum": 53.2
+            },
+            "median_percentile": 36.72,
+            "best_percentile": 15.63
+          },
+          {
+            "id": "death-valley",
+            "label": "Death Valley, California",
+            "type": "desert, dunes",
+            "lat": 36.24694,
+            "lon": -116.81694,
+            "source_url": "https://en.wikipedia.org/wiki/Death_Valley",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 2.0,
+            "evaluated_at": {
+              "lat": 36.2606,
+              "lon": -116.8026
+            },
+            "percentile_by_target": {
+              "jezero": 98.07,
+              "gale": 0.01,
+              "perseverance-landing": 90.49,
+              "oxia-planum": 99.45
+            },
+            "median_percentile": 94.28,
+            "best_percentile": 0.01
+          },
+          {
+            "id": "bockfjorden",
+            "label": "Svalbard, Bockfjorden (AMASE)",
+            "type": "volcanic and carbonate, Arctic",
+            "lat": 79.469,
+            "lon": 13.3287,
+            "source_url": "https://en.wikipedia.org/wiki/Bockfjorden",
+            "evaluable": false,
+            "reason": "no valid terrain at earth 79.4690,13.3287 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+            "nearest_land_point_km": 683.55
+          },
+          {
+            "id": "holuhraun",
+            "label": "Holuhraun lava field, Iceland",
+            "type": "young basaltic lava",
+            "lat": 64.85,
+            "lon": -16.83,
+            "source_url": "https://en.wikipedia.org/wiki/Holuhraun",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 17.05,
+            "evaluated_at": {
+              "lat": 65.003,
+              "lon": -16.855
+            },
+            "percentile_by_target": {
+              "jezero": 77.11,
+              "gale": 36.92,
+              "perseverance-landing": 72.4,
+              "oxia-planum": 80.18
+            },
+            "median_percentile": 74.75,
+            "best_percentile": 36.92
+          },
+          {
+            "id": "lanzarote",
+            "label": "Lanzarote, Timanfaya National Park (ESA PANGAEA)",
+            "type": "volcanic",
+            "lat": 28.99417,
+            "lon": -13.79333,
+            "source_url": "https://en.wikipedia.org/wiki/Timanfaya_National_Park",
+            "evaluable": false,
+            "reason": "no valid terrain at earth 28.9942,-13.7933 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+            "nearest_land_point_km": 171.52
+          },
+          {
+            "id": "hi-seas",
+            "label": "HI-SEAS habitat, Mauna Loa, Hawaii",
+            "type": "lava terrain, habitat simulation",
+            "lat": 19.602378,
+            "lon": -155.487192,
+            "source_url": "https://en.wikipedia.org/wiki/HI-SEAS",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 1.61,
+            "evaluated_at": {
+              "lat": 19.6052,
+              "lon": -155.5023
+            },
+            "percentile_by_target": {
+              "jezero": 81.8,
+              "gale": 1.63,
+              "perseverance-landing": 42.14,
+              "oxia-planum": 97.45
+            },
+            "median_percentile": 61.97,
+            "best_percentile": 1.63
+          },
+          {
+            "id": "rio-tinto",
+            "label": "Rio Tinto, Spain (Peña de Hierro)",
+            "type": "acidic sulfate (geochemical analog; terrain shape not expected to match)",
+            "lat": 37.72186,
+            "lon": -6.55923,
+            "source_url": "https://msaweb.org/MSA/AmMin/products/AmMin/AM099P1199.pdf",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 1.12,
+            "evaluated_at": {
+              "lat": 37.7172,
+              "lon": -6.5479
+            },
+            "percentile_by_target": {
+              "jezero": 75.34,
+              "gale": 39.62,
+              "perseverance-landing": 44.12,
+              "oxia-planum": 63.8
+            },
+            "median_percentile": 53.96,
+            "best_percentile": 39.62
+          },
+          {
+            "id": "meteor-crater",
+            "label": "Meteor Crater (Barringer), Arizona",
+            "type": "impact crater (astronaut geology training)",
+            "lat": 35.02806,
+            "lon": -111.02333,
+            "source_url": "https://en.wikipedia.org/wiki/Meteor_Crater",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 1.06,
+            "evaluated_at": {
+              "lat": 35.0376,
+              "lon": -111.0227
+            },
+            "percentile_by_target": {
+              "shackleton-rim": 50.25,
+              "connecting-ridge": 66.78,
+              "malapert-massif": 27.74,
+              "nobile-rim-1": 51.09,
+              "haworth": 50.0,
+              "de-gerlache-rim-2": 24.85
+            },
+            "median_percentile": 50.12,
+            "best_percentile": 24.85
+          },
+          {
+            "id": "ries",
+            "label": "Nördlinger Ries, Germany (ESA PANGAEA)",
+            "type": "impact crater",
+            "lat": 48.88333,
+            "lon": 10.56667,
+            "source_url": "https://en.wikipedia.org/wiki/N%C3%B6rdlinger_Ries",
+            "evaluable": true,
+            "on_grid": true,
+            "snapped_km": 0.69,
+            "evaluated_at": {
+              "lat": 48.8871,
+              "lon": 10.5593
+            },
+            "percentile_by_target": {
+              "shackleton-rim": 69.52,
+              "connecting-ridge": 67.71,
+              "malapert-massif": 69.9,
+              "nobile-rim-1": 75.95,
+              "haworth": 73.11,
+              "de-gerlache-rim-2": 83.48
+            },
+            "median_percentile": 71.5,
+            "best_percentile": 67.71
+          }
+        ],
+        "median_percentile_all_pairs": 51.12,
+        "median_of_site_medians": 57.97,
+        "pairs_evaluated": 42,
+        "sites_evaluable": 8,
+        "sites_total": 11,
+        "baseline_random_median_percentile": 48.54,
+        "baseline_random_n": 1000,
+        "by_target_body": {
+          "mars": {
+            "pairs": 24,
+            "median_percentile": 50.91,
+            "baseline_random_median_percentile": 47.92
+          },
+          "moon": {
+            "pairs": 18,
+            "median_percentile": 51.12,
+            "baseline_random_median_percentile": 52.01
+          }
+        },
+        "notes": [
+          "McMurdo Dry Valleys (University Valley) are inside the Natural Earth 10 m 'Antarctic Ice Sheet' polygon, so the ice mask removes them; not evaluable with this mask.",
+          "Sites on narrow coasts or islands have no fully valid 12 km land window; they are snapped to the nearest valid Earth index point within 50 km (snapped_km, evaluated_at) or reported as not evaluable.",
+          "Analog sites were chosen by their operators for geology, climate or logistics; terrain shape at 926 m / 12 km is only one aspect, so poor ranks are expected for some (e.g. Rio Tinto)."
+        ]
+      },
+      "find_twins": {
+        "queries": 120,
+        "k": 10,
+        "destinations": "the two other bodies",
+        "p50_ms": 33.5,
+        "p95_ms": 60.1,
+        "max_ms": 94.7,
+        "on_grid_queries": 69,
+        "no_terrain_errors": 0,
+        "method": "Index.search in-process on this machine (12 threads, shared host), index already loaded; half the queries offset off-grid (features computed on the fly)."
+      },
+      "validated_at": "2026-11-14T11:09:11+0100"
+    },
     "known_analog_test": {
       "method": "percentile rank of each known analog site among all uniformly sampled Earth index points by terrain-feature distance to each target it is an analog for (0 % = best). Baseline: 1000 random Earth index points (seed 1000), each paired with a target drawn in turn from the same (site, target) list.",
-      "earth_points_ranked": 881847,
+      "earth_points_ranked": 841198,
       "targets": {
         "shackleton-rim": {
           "on_grid": false,
@@ -909,22 +1587,26 @@
           "lon": -89.667,
           "source_url": "https://en.wikipedia.org/wiki/Haughton_impact_crater",
           "evaluable": true,
-          "on_grid": false,
-          "snapped_km": null,
-          "percentile_by_target": {
-            "jezero": 73.61,
-            "gale": 36.25,
-            "perseverance-landing": 31.79,
-            "oxia-planum": 18.69,
-            "shackleton-rim": 61.52,
-            "connecting-ridge": 67.35,
-            "malapert-massif": 87.85,
-            "nobile-rim-1": 62.2,
-            "haworth": 70.84,
-            "de-gerlache-rim-2": 63.97
+          "on_grid": true,
+          "snapped_km": 4.88,
+          "evaluated_at": {
+            "lat": 75.3632,
+            "lon": -89.8221
           },
-          "median_percentile": 63.09,
-          "best_percentile": 18.69
+          "percentile_by_target": {
+            "jezero": 28.12,
+            "gale": 38.94,
+            "perseverance-landing": 26.76,
+            "oxia-planum": 48.62,
+            "shackleton-rim": 46.9,
+            "connecting-ridge": 52.72,
+            "malapert-massif": 51.14,
+            "nobile-rim-1": 35.77,
+            "haworth": 44.43,
+            "de-gerlache-rim-2": 23.82
+          },
+          "median_percentile": 41.69,
+          "best_percentile": 23.82
         },
         {
           "id": "university-valley",
@@ -934,7 +1616,8 @@
           "lon": 160.667,
           "source_url": "https://openpolar.no/Record/ftnasantrs:oai:casi.ntrs.nasa.gov:20150023012/Details",
           "evaluable": false,
-          "reason": "no valid terrain at earth -77.8670,160.6670 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km"
+          "reason": "no valid terrain at earth -77.8670,160.6670 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+          "nearest_land_point_km": 3521.24
         },
         {
           "id": "yungay",
@@ -946,14 +1629,18 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 1.96,
-          "percentile_by_target": {
-            "jezero": 83.11,
-            "gale": 18.35,
-            "perseverance-landing": 27.16,
-            "oxia-planum": 50.66
+          "evaluated_at": {
+            "lat": -24.1018,
+            "lon": -69.9113
           },
-          "median_percentile": 38.91,
-          "best_percentile": 18.35
+          "percentile_by_target": {
+            "jezero": 81.7,
+            "gale": 15.63,
+            "perseverance-landing": 20.24,
+            "oxia-planum": 53.2
+          },
+          "median_percentile": 36.72,
+          "best_percentile": 15.63
         },
         {
           "id": "death-valley",
@@ -965,13 +1652,17 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 2.0,
-          "percentile_by_target": {
-            "jezero": 97.92,
-            "gale": 0.01,
-            "perseverance-landing": 90.26,
-            "oxia-planum": 99.67
+          "evaluated_at": {
+            "lat": 36.2606,
+            "lon": -116.8026
           },
-          "median_percentile": 94.09,
+          "percentile_by_target": {
+            "jezero": 98.07,
+            "gale": 0.01,
+            "perseverance-landing": 90.49,
+            "oxia-planum": 99.45
+          },
+          "median_percentile": 94.28,
           "best_percentile": 0.01
         },
         {
@@ -982,7 +1673,8 @@
           "lon": 13.3287,
           "source_url": "https://en.wikipedia.org/wiki/Bockfjorden",
           "evaluable": false,
-          "reason": "no valid terrain at earth 79.4690,13.3287 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km"
+          "reason": "no valid terrain at earth 79.4690,13.3287 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+          "nearest_land_point_km": 683.55
         },
         {
           "id": "holuhraun",
@@ -993,15 +1685,19 @@
           "source_url": "https://en.wikipedia.org/wiki/Holuhraun",
           "evaluable": true,
           "on_grid": true,
-          "snapped_km": 5.39,
-          "percentile_by_target": {
-            "jezero": 14.21,
-            "gale": 16.25,
-            "perseverance-landing": 12.48,
-            "oxia-planum": 40.87
+          "snapped_km": 17.05,
+          "evaluated_at": {
+            "lat": 65.003,
+            "lon": -16.855
           },
-          "median_percentile": 15.23,
-          "best_percentile": 12.48
+          "percentile_by_target": {
+            "jezero": 77.11,
+            "gale": 36.92,
+            "perseverance-landing": 72.4,
+            "oxia-planum": 80.18
+          },
+          "median_percentile": 74.75,
+          "best_percentile": 36.92
         },
         {
           "id": "lanzarote",
@@ -1010,23 +1706,9 @@
           "lat": 28.99417,
           "lon": -13.79333,
           "source_url": "https://en.wikipedia.org/wiki/Timanfaya_National_Park",
-          "evaluable": true,
-          "on_grid": true,
-          "snapped_km": 5.48,
-          "percentile_by_target": {
-            "jezero": 71.32,
-            "gale": 57.76,
-            "perseverance-landing": 73.39,
-            "oxia-planum": 73.38,
-            "shackleton-rim": 12.44,
-            "connecting-ridge": 9.38,
-            "malapert-massif": 8.3,
-            "nobile-rim-1": 15.34,
-            "haworth": 6.75,
-            "de-gerlache-rim-2": 19.15
-          },
-          "median_percentile": 17.24,
-          "best_percentile": 6.75
+          "evaluable": false,
+          "reason": "no valid terrain at earth 28.9942,-13.7933 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+          "nearest_land_point_km": 171.52
         },
         {
           "id": "hi-seas",
@@ -1038,14 +1720,18 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 1.61,
-          "percentile_by_target": {
-            "jezero": 76.54,
-            "gale": 2.0,
-            "perseverance-landing": 35.6,
-            "oxia-planum": 97.03
+          "evaluated_at": {
+            "lat": 19.6052,
+            "lon": -155.5023
           },
-          "median_percentile": 56.07,
-          "best_percentile": 2.0
+          "percentile_by_target": {
+            "jezero": 81.8,
+            "gale": 1.63,
+            "perseverance-landing": 42.14,
+            "oxia-planum": 97.45
+          },
+          "median_percentile": 61.97,
+          "best_percentile": 1.63
         },
         {
           "id": "rio-tinto",
@@ -1057,14 +1743,18 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 1.12,
-          "percentile_by_target": {
-            "jezero": 72.95,
-            "gale": 41.63,
-            "perseverance-landing": 44.15,
-            "oxia-planum": 62.45
+          "evaluated_at": {
+            "lat": 37.7172,
+            "lon": -6.5479
           },
-          "median_percentile": 53.3,
-          "best_percentile": 41.63
+          "percentile_by_target": {
+            "jezero": 75.34,
+            "gale": 39.62,
+            "perseverance-landing": 44.12,
+            "oxia-planum": 63.8
+          },
+          "median_percentile": 53.96,
+          "best_percentile": 39.62
         },
         {
           "id": "meteor-crater",
@@ -1076,16 +1766,20 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 1.06,
-          "percentile_by_target": {
-            "shackleton-rim": 50.03,
-            "connecting-ridge": 71.25,
-            "malapert-massif": 22.3,
-            "nobile-rim-1": 54.57,
-            "haworth": 47.55,
-            "de-gerlache-rim-2": 18.67
+          "evaluated_at": {
+            "lat": 35.0376,
+            "lon": -111.0227
           },
-          "median_percentile": 48.79,
-          "best_percentile": 18.67
+          "percentile_by_target": {
+            "shackleton-rim": 50.25,
+            "connecting-ridge": 66.78,
+            "malapert-massif": 27.74,
+            "nobile-rim-1": 51.09,
+            "haworth": 50.0,
+            "de-gerlache-rim-2": 24.85
+          },
+          "median_percentile": 50.12,
+          "best_percentile": 24.85
         },
         {
           "id": "ries",
@@ -1097,49 +1791,75 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 0.69,
-          "percentile_by_target": {
-            "shackleton-rim": 75.5,
-            "connecting-ridge": 72.89,
-            "malapert-massif": 76.72,
-            "nobile-rim-1": 82.06,
-            "haworth": 78.32,
-            "de-gerlache-rim-2": 88.89
+          "evaluated_at": {
+            "lat": 48.8871,
+            "lon": 10.5593
           },
-          "median_percentile": 77.52,
-          "best_percentile": 72.89
+          "percentile_by_target": {
+            "shackleton-rim": 69.52,
+            "connecting-ridge": 67.71,
+            "malapert-massif": 69.9,
+            "nobile-rim-1": 75.95,
+            "haworth": 73.11,
+            "de-gerlache-rim-2": 83.48
+          },
+          "median_percentile": 71.5,
+          "best_percentile": 67.71
         }
       ],
-      "median_percentile_all_pairs": 56.16,
-      "median_of_site_medians": 53.3,
-      "pairs_evaluated": 52,
-      "sites_evaluable": 9,
+      "median_percentile_all_pairs": 51.12,
+      "median_of_site_medians": 57.97,
+      "pairs_evaluated": 42,
+      "sites_evaluable": 8,
       "sites_total": 11,
-      "baseline_random_median_percentile": 48.07,
+      "baseline_random_median_percentile": 48.54,
       "baseline_random_n": 1000,
       "by_target_body": {
         "mars": {
-          "pairs": 28,
-          "median_percentile": 47.41,
-          "baseline_random_median_percentile": 47.45
+          "pairs": 24,
+          "median_percentile": 50.91,
+          "baseline_random_median_percentile": 47.92
         },
         "moon": {
-          "pairs": 24,
-          "median_percentile": 61.86,
-          "baseline_random_median_percentile": 48.78
+          "pairs": 18,
+          "median_percentile": 51.12,
+          "baseline_random_median_percentile": 52.01
         }
       },
       "notes": [
         "McMurdo Dry Valleys (University Valley) are inside the Natural Earth 10 m 'Antarctic Ice Sheet' polygon, so the ice mask removes them; not evaluable with this mask.",
-        "Sites on narrow coasts or islands have no fully valid 12 km land window; they are snapped to the nearest valid index point within 25 km (snapped_km) or reported as not evaluable.",
+        "Sites on narrow coasts or islands have no fully valid 12 km land window; they are snapped to the nearest valid Earth index point within 50 km (snapped_km, evaluated_at) or reported as not evaluable.",
         "Analog sites were chosen by their operators for geology, climate or logistics; terrain shape at 926 m / 12 km is only one aspect, so poor ranks are expected for some (e.g. Rio Tinto)."
       ]
     },
-    "validated_at": "2026-11-14T10:46:36+0100"
+    "validated_at": "2026-11-14T11:11:38+0100",
+    "multiscale_decision": {
+      "rule_declared_before_run": "switch current to v2 only if the known-analog median percentile (all pairs) improves by >= 5 points vs v1 AND the random baseline stays ~50 % AND find_twins p95 < 1 s; analog list and weights not tuned",
+      "v1_median_percentile_all_pairs": 59.64,
+      "v2_median_percentile_all_pairs": 51.12,
+      "improvement_points": 8.52,
+      "paired_common_pairs": 42,
+      "paired_v1_median": 61.86,
+      "paired_v2_median": 51.12,
+      "paired_pairs_improved": 23,
+      "v1_median_of_site_medians": 54.69,
+      "v2_median_of_site_medians": 57.97,
+      "v1_pairs_evaluated": 56,
+      "v2_pairs_evaluated": 42,
+      "v2_baseline_random_median_percentile": 48.54,
+      "v2_find_twins_p95_ms": 60.1,
+      "decision": "switched current -> full_v2 (rule passed)",
+      "caveats": [
+        "v2 requires a fully valid 36 km window: 972,567 Earth points vs 1,026,242 in v1; coastal / island sites (Lanzarote, Bockfjorden) are not evaluable and small islands no longer appear as twins",
+        "median of per-site medians got worse (54.69 -> 57.97); the gain is in pairs, led by Haughton (63.09 -> 41.69)",
+        "v2 still does not rank known analogs clearly better than random points (51.12 % vs baseline 48.54 %)"
+      ]
+    }
   },
   "determinism": {
-    "method": "built the small index (50 km spacing, 12 km dense zones, 3 bodies) twice from the same inputs and compared sha256 of features.npy",
-    "hash_run_1": "bc37244e637b719b9cb9f77b5c73064b069d395deadc59037a6373ece3b6f214",
-    "hash_run_2": "bc37244e637b719b9cb9f77b5c73064b069d395deadc59037a6373ece3b6f214",
+    "method": "built the small index (50 km spacing, 12 km dense zones, 3 bodies, feature set v2) twice from the same inputs and compared sha256 of features.npy",
+    "hash_run_1": "51f211b3c7aacd415fe11c4f10e779ce1c39941f51b05cf166a3b44182671f1d",
+    "hash_run_2": "51f211b3c7aacd415fe11c4f10e779ce1c39941f51b05cf166a3b44182671f1d",
     "identical": true
   },
   "performance": {
@@ -1147,12 +1867,776 @@
       "queries": 120,
       "k": 10,
       "destinations": "the two other bodies",
-      "p50_ms": 39.0,
-      "p95_ms": 57.4,
-      "max_ms": 70.5,
-      "on_grid_queries": 70,
+      "p50_ms": 60.6,
+      "p95_ms": 90.3,
+      "max_ms": 125.7,
+      "on_grid_queries": 69,
       "no_terrain_errors": 0,
       "method": "Index.search in-process on this machine (12 threads, shared host), index already loaded; half the queries offset off-grid (features computed on the fly)."
+    }
+  },
+  "mission": {
+    "status": "pass",
+    "passed": true,
+    "config": {
+      "window_start_utc": "2028-01-01T12:00:00",
+      "window_days": 60,
+      "tof_days": 4.5,
+      "parking_alt_km": 185.0,
+      "inclination_deg": 28.5,
+      "transfer_angle_deg": 172.5,
+      "lunar_orbit_alt_km": 100.0,
+      "descent_hours": 24.0,
+      "ascent_minutes": 10.0,
+      "max_coast_orbits": 1.5,
+      "arrival_search_hours": 12.0,
+      "arrival_step_minutes": 5.0
+    },
+    "thresholds": {
+      "tli_km_s": [
+        3.0,
+        3.3
+      ],
+      "loi_km_s": [
+        0.7,
+        1.1
+      ],
+      "endpoint_pct": 1.0,
+      "ksc_deg": 1.0,
+      "cesium_deg": 3.0
+    },
+    "gate_numbers": "two-body transfer (spec steps 1-4); summary values shown in the view come from the Earth+Moon refinement when it converged",
+    "constants": {
+      "GM_EARTH_km3_s2": 398600.43550702266,
+      "GM_MOON_km3_s2": 4902.80011845755,
+      "gm_source": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/gm_de440.tpc",
+      "R_EARTH_EQ_km": 6378.1366,
+      "R_MOON_km": 1737.4,
+      "radii_source": "pck00011.tpc",
+      "ksc": [
+        28.624162,
+        -80.620327
+      ],
+      "ksc_source": "https://topoquest.com/place-detail.php?id=307746 (docs/sources.md)"
+    },
+    "kernels": [
+      "naif0012.tls",
+      "pck00011.tpc",
+      "de440s.bsp"
+    ],
+    "sites": {
+      "shackleton-rim": {
+        "summary": {
+          "launch_utc": "2027-12-31T19:34:07Z",
+          "tli_utc": "2027-12-31T20:45:00Z",
+          "arrival_utc": "2028-01-05T04:20:44Z",
+          "landing_utc": "2028-01-06T04:20:44Z",
+          "tli_dv_kms": 3.1672,
+          "loi_dv_kms": 0.8421,
+          "tof_days": 4.3165,
+          "arrival_vinf_kms": 0.9103,
+          "site": {
+            "id": "shackleton-rim",
+            "label": "Shackleton rim (Moon)",
+            "lat": -89.7668,
+            "lon": -171.87
+          },
+          "launch_time_computed": true,
+          "landing_sun_elevation_deg": 0.408,
+          "landing_earth_elevation_deg": 6.33,
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution."
+        },
+        "gate": {
+          "status": "pass",
+          "checks": {
+            "tli_dv": {
+              "passed": true,
+              "value_km_s": 3.1715,
+              "range_km_s": [
+                3.0,
+                3.3
+              ]
+            },
+            "loi_dv": {
+              "passed": true,
+              "value_km_s": 0.8495,
+              "range_km_s": [
+                0.7,
+                1.1
+              ]
+            },
+            "tof_equals_config": {
+              "passed": true,
+              "value_days": 4.5,
+              "config_days": 4.5
+            },
+            "endpoint_error": {
+              "passed": true,
+              "value_pct": 9.364180684856199e-09,
+              "value_km": 3.704206829370121e-05,
+              "max_pct": 1.0
+            },
+            "ksc_in_parking_plane": {
+              "passed": true,
+              "value_deg": 0.0,
+              "gmst_only_deg": 0.1237,
+              "max_deg": 1.0
+            },
+            "moon_sun_vs_cesium": {
+              "passed": true,
+              "max_deg": 0.0462,
+              "tolerance_deg": 3.0,
+              "error": null
+            }
+          }
+        },
+        "two_body": {
+          "times_utc": {
+            "launch": "2027-12-31T19:34:07Z",
+            "tli": "2027-12-31T20:45:00Z",
+            "arrival": "2028-01-05T08:45:00Z",
+            "landing": "2028-01-06T08:45:00Z"
+          },
+          "tli_dv_km_s": 3.1715,
+          "loi_dv_km_s": 0.8495,
+          "tof_days": 4.5,
+          "coast_min": 60.9,
+          "ascent_gap_deg": 1.36,
+          "arrival_shift_from_nominal_h": -3.25,
+          "landing_day_choice": {
+            "utc": "2028-01-06T12:00:00Z",
+            "sun_elevation_deg": 0.386439313307341,
+            "earth_elevation_deg": 6.350808422146052,
+            "days_both_up": 14,
+            "days_scored": 60
+          }
+        },
+        "refinement": {
+          "converged": true,
+          "iterations": 3,
+          "periselene_error_km_history": [
+            -198.024,
+            9.1,
+            0.014
+          ],
+          "tli_dv": 3.167174,
+          "loi_dv": 0.842068,
+          "periselene_alt_km": 100.013695,
+          "t_periselene": 883930913.619481,
+          "tof_days": 4.316487,
+          "periselene_lat_deg": -14.841052
+        }
+      },
+      "connecting-ridge": {
+        "summary": {
+          "launch_utc": "2027-12-31T19:34:07Z",
+          "tli_utc": "2027-12-31T20:45:00Z",
+          "arrival_utc": "2028-01-05T04:20:44Z",
+          "landing_utc": "2028-01-06T04:20:44Z",
+          "tli_dv_kms": 3.1672,
+          "loi_dv_kms": 0.8421,
+          "tof_days": 4.3165,
+          "arrival_vinf_kms": 0.9103,
+          "site": {
+            "id": "connecting-ridge",
+            "label": "Connecting Ridge (Artemis III region, 2022 list)",
+            "lat": -89.4632,
+            "lon": -137.49
+          },
+          "launch_time_computed": true,
+          "landing_sun_elevation_deg": 0.042,
+          "landing_earth_elevation_deg": 6.206,
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution."
+        },
+        "gate": {
+          "status": "pass",
+          "checks": {
+            "tli_dv": {
+              "passed": true,
+              "value_km_s": 3.1715,
+              "range_km_s": [
+                3.0,
+                3.3
+              ]
+            },
+            "loi_dv": {
+              "passed": true,
+              "value_km_s": 0.8495,
+              "range_km_s": [
+                0.7,
+                1.1
+              ]
+            },
+            "tof_equals_config": {
+              "passed": true,
+              "value_days": 4.5,
+              "config_days": 4.5
+            },
+            "endpoint_error": {
+              "passed": true,
+              "value_pct": 9.364180684856199e-09,
+              "value_km": 3.704206829370121e-05,
+              "max_pct": 1.0
+            },
+            "ksc_in_parking_plane": {
+              "passed": true,
+              "value_deg": 0.0,
+              "gmst_only_deg": 0.1237,
+              "max_deg": 1.0
+            },
+            "moon_sun_vs_cesium": {
+              "passed": true,
+              "max_deg": 0.0462,
+              "tolerance_deg": 3.0,
+              "error": null
+            }
+          }
+        },
+        "two_body": {
+          "times_utc": {
+            "launch": "2027-12-31T19:34:07Z",
+            "tli": "2027-12-31T20:45:00Z",
+            "arrival": "2028-01-05T08:45:00Z",
+            "landing": "2028-01-06T08:45:00Z"
+          },
+          "tli_dv_km_s": 3.1715,
+          "loi_dv_km_s": 0.8495,
+          "tof_days": 4.5,
+          "coast_min": 60.9,
+          "ascent_gap_deg": 1.36,
+          "arrival_shift_from_nominal_h": -3.25,
+          "landing_day_choice": {
+            "utc": "2028-01-06T12:00:00Z",
+            "sun_elevation_deg": 0.018249097296523662,
+            "earth_elevation_deg": 6.227524507053075,
+            "days_both_up": 8,
+            "days_scored": 60
+          }
+        },
+        "refinement": {
+          "converged": true,
+          "iterations": 3,
+          "periselene_error_km_history": [
+            -198.024,
+            9.1,
+            0.014
+          ],
+          "tli_dv": 3.167174,
+          "loi_dv": 0.842068,
+          "periselene_alt_km": 100.013695,
+          "t_periselene": 883930913.619481,
+          "tof_days": 4.316487,
+          "periselene_lat_deg": -14.841052
+        }
+      },
+      "malapert-massif": {
+        "summary": {
+          "launch_utc": "2028-01-02T21:47:32Z",
+          "tli_utc": "2028-01-02T22:55:00Z",
+          "arrival_utc": "2028-01-07T06:20:11Z",
+          "landing_utc": "2028-01-08T06:20:11Z",
+          "tli_dv_kms": 3.1708,
+          "loi_dv_kms": 0.8368,
+          "tof_days": 4.3092,
+          "arrival_vinf_kms": 0.8959,
+          "site": {
+            "id": "malapert-massif",
+            "label": "Malapert Massif (Artemis III region, 2022 + 2024 lists)",
+            "lat": -85.9948,
+            "lon": -0.23578
+          },
+          "launch_time_computed": true,
+          "landing_sun_elevation_deg": 3.283,
+          "landing_earth_elevation_deg": 10.019,
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution."
+        },
+        "gate": {
+          "status": "pass",
+          "checks": {
+            "tli_dv": {
+              "passed": true,
+              "value_km_s": 3.1747,
+              "range_km_s": [
+                3.0,
+                3.3
+              ]
+            },
+            "loi_dv": {
+              "passed": true,
+              "value_km_s": 0.8443,
+              "range_km_s": [
+                0.7,
+                1.1
+              ]
+            },
+            "tof_equals_config": {
+              "passed": true,
+              "value_days": 4.5,
+              "config_days": 4.5
+            },
+            "endpoint_error": {
+              "passed": true,
+              "value_pct": 7.344640134531766e-09,
+              "value_km": 2.8193085064109384e-05,
+              "max_pct": 1.0
+            },
+            "ksc_in_parking_plane": {
+              "passed": true,
+              "value_deg": 0.0,
+              "gmst_only_deg": 0.1304,
+              "max_deg": 1.0
+            },
+            "moon_sun_vs_cesium": {
+              "passed": true,
+              "max_deg": 0.0849,
+              "tolerance_deg": 3.0,
+              "error": null
+            }
+          }
+        },
+        "two_body": {
+          "times_utc": {
+            "launch": "2028-01-02T21:47:32Z",
+            "tli": "2028-01-02T22:55:00Z",
+            "arrival": "2028-01-07T10:55:00Z",
+            "landing": "2028-01-08T10:55:00Z"
+          },
+          "tli_dv_km_s": 3.1747,
+          "loi_dv_km_s": 0.8443,
+          "tof_days": 4.5,
+          "coast_min": 57.5,
+          "ascent_gap_deg": 0.57,
+          "arrival_shift_from_nominal_h": -1.0833333333333333,
+          "landing_day_choice": {
+            "utc": "2028-01-08T12:00:00Z",
+            "sun_elevation_deg": 3.4139281165542297,
+            "earth_elevation_deg": 9.86119590990015,
+            "days_both_up": 19,
+            "days_scored": 60
+          }
+        },
+        "refinement": {
+          "converged": true,
+          "iterations": 3,
+          "periselene_error_km_history": [
+            -197.12,
+            5.449,
+            0.003
+          ],
+          "tli_dv": 3.170846,
+          "loi_dv": 0.836812,
+          "periselene_alt_km": 100.003301,
+          "t_periselene": 884110880.539072,
+          "tof_days": 4.309159,
+          "periselene_lat_deg": -5.201856
+        }
+      },
+      "nobile-rim-1": {
+        "summary": {
+          "launch_utc": "2028-01-02T04:28:14Z",
+          "tli_utc": "2028-01-02T06:40:00Z",
+          "arrival_utc": "2028-01-06T13:32:57Z",
+          "landing_utc": "2028-01-07T13:32:57Z",
+          "tli_dv_kms": 3.1699,
+          "loi_dv_kms": 0.8197,
+          "tof_days": 4.2868,
+          "arrival_vinf_kms": 0.8476,
+          "site": {
+            "id": "nobile-rim-1",
+            "label": "Nobile Rim 1 (Artemis III region, 2022 + 2024 lists)",
+            "lat": -85.4381,
+            "lon": 37.36667
+          },
+          "launch_time_computed": true,
+          "landing_sun_elevation_deg": 4.864,
+          "landing_earth_elevation_deg": 9.628,
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution."
+        },
+        "gate": {
+          "status": "pass",
+          "checks": {
+            "tli_dv": {
+              "passed": true,
+              "value_km_s": 3.1734,
+              "range_km_s": [
+                3.0,
+                3.3
+              ]
+            },
+            "loi_dv": {
+              "passed": true,
+              "value_km_s": 0.8272,
+              "range_km_s": [
+                0.7,
+                1.1
+              ]
+            },
+            "tof_equals_config": {
+              "passed": true,
+              "value_days": 4.5,
+              "config_days": 4.5
+            },
+            "endpoint_error": {
+              "passed": true,
+              "value_pct": 1.7633812722400358e-08,
+              "value_km": 6.84119165982986e-05,
+              "max_pct": 1.0
+            },
+            "ksc_in_parking_plane": {
+              "passed": true,
+              "value_deg": 0.0,
+              "gmst_only_deg": 0.0214,
+              "max_deg": 1.0
+            },
+            "moon_sun_vs_cesium": {
+              "passed": true,
+              "max_deg": 0.0657,
+              "tolerance_deg": 3.0,
+              "error": null
+            }
+          }
+        },
+        "two_body": {
+          "times_utc": {
+            "launch": "2028-01-02T04:28:14Z",
+            "tli": "2028-01-02T06:40:00Z",
+            "arrival": "2028-01-06T18:40:00Z",
+            "landing": "2028-01-07T18:40:00Z"
+          },
+          "tli_dv_km_s": 3.1734,
+          "loi_dv_km_s": 0.8272,
+          "tof_days": 4.5,
+          "coast_min": 121.8,
+          "ascent_gap_deg": 1.56,
+          "arrival_shift_from_nominal_h": 6.666666666666667,
+          "landing_day_choice": {
+            "utc": "2028-01-07T12:00:00Z",
+            "sun_elevation_deg": 4.848352046566399,
+            "earth_elevation_deg": 9.650632770497612,
+            "days_both_up": 25,
+            "days_scored": 60
+          }
+        },
+        "refinement": {
+          "converged": true,
+          "iterations": 2,
+          "periselene_error_km_history": [
+            -8.404,
+            0.007
+          ],
+          "tli_dv": 3.169948,
+          "loi_dv": 0.81971,
+          "periselene_alt_km": 100.006559,
+          "t_periselene": 884050446.290814,
+          "tof_days": 4.286772,
+          "periselene_lat_deg": 6.433071
+        }
+      },
+      "haworth": {
+        "summary": {
+          "launch_utc": "2028-01-02T21:47:32Z",
+          "tli_utc": "2028-01-02T22:55:00Z",
+          "arrival_utc": "2028-01-07T06:20:11Z",
+          "landing_utc": "2028-01-08T06:20:11Z",
+          "tli_dv_kms": 3.1708,
+          "loi_dv_kms": 0.8368,
+          "tof_days": 4.3092,
+          "arrival_vinf_kms": 0.8959,
+          "site": {
+            "id": "haworth",
+            "label": "Haworth (Artemis III region, 2022 + 2024 lists)",
+            "lat": -86.7639,
+            "lon": -22.777
+          },
+          "launch_time_computed": true,
+          "landing_sun_elevation_deg": 1.687,
+          "landing_earth_elevation_deg": 9.155,
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution."
+        },
+        "gate": {
+          "status": "pass",
+          "checks": {
+            "tli_dv": {
+              "passed": true,
+              "value_km_s": 3.1747,
+              "range_km_s": [
+                3.0,
+                3.3
+              ]
+            },
+            "loi_dv": {
+              "passed": true,
+              "value_km_s": 0.8443,
+              "range_km_s": [
+                0.7,
+                1.1
+              ]
+            },
+            "tof_equals_config": {
+              "passed": true,
+              "value_days": 4.5,
+              "config_days": 4.5
+            },
+            "endpoint_error": {
+              "passed": true,
+              "value_pct": 7.344640134531766e-09,
+              "value_km": 2.8193085064109384e-05,
+              "max_pct": 1.0
+            },
+            "ksc_in_parking_plane": {
+              "passed": true,
+              "value_deg": 0.0,
+              "gmst_only_deg": 0.1304,
+              "max_deg": 1.0
+            },
+            "moon_sun_vs_cesium": {
+              "passed": true,
+              "max_deg": 0.0849,
+              "tolerance_deg": 3.0,
+              "error": null
+            }
+          }
+        },
+        "two_body": {
+          "times_utc": {
+            "launch": "2028-01-02T21:47:32Z",
+            "tli": "2028-01-02T22:55:00Z",
+            "arrival": "2028-01-07T10:55:00Z",
+            "landing": "2028-01-08T10:55:00Z"
+          },
+          "tli_dv_km_s": 3.1747,
+          "loi_dv_km_s": 0.8443,
+          "tof_days": 4.5,
+          "coast_min": 57.5,
+          "ascent_gap_deg": 0.57,
+          "arrival_shift_from_nominal_h": -1.0833333333333333,
+          "landing_day_choice": {
+            "utc": "2028-01-08T12:00:00Z",
+            "sun_elevation_deg": 1.8278096349344177,
+            "earth_elevation_deg": 8.994564199148066,
+            "days_both_up": 13,
+            "days_scored": 60
+          }
+        },
+        "refinement": {
+          "converged": true,
+          "iterations": 3,
+          "periselene_error_km_history": [
+            -197.12,
+            5.449,
+            0.003
+          ],
+          "tli_dv": 3.170846,
+          "loi_dv": 0.836812,
+          "periselene_alt_km": 100.003301,
+          "t_periselene": 884110880.539072,
+          "tof_days": 4.309159,
+          "periselene_lat_deg": -5.201856
+        }
+      },
+      "de-gerlache-rim-2": {
+        "summary": {
+          "launch_utc": "2028-01-03T23:31:08Z",
+          "tli_utc": "2028-01-04T00:35:00Z",
+          "arrival_utc": "2028-01-08T07:52:51Z",
+          "landing_utc": "2028-01-09T07:52:51Z",
+          "tli_dv_kms": 3.1733,
+          "loi_dv_kms": 0.8334,
+          "tof_days": 4.3041,
+          "arrival_vinf_kms": 0.8867,
+          "site": {
+            "id": "de-gerlache-rim-2",
+            "label": "de Gerlache Rim 2 (Artemis III region, 2022 + 2024 lists)",
+            "lat": -88.23,
+            "lon": -64.6284
+          },
+          "launch_time_computed": true,
+          "landing_sun_elevation_deg": 0.221,
+          "landing_earth_elevation_deg": 6.089,
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution."
+        },
+        "gate": {
+          "status": "pass",
+          "checks": {
+            "tli_dv": {
+              "passed": true,
+              "value_km_s": 3.1769,
+              "range_km_s": [
+                3.0,
+                3.3
+              ]
+            },
+            "loi_dv": {
+              "passed": true,
+              "value_km_s": 0.8409,
+              "range_km_s": [
+                0.7,
+                1.1
+              ]
+            },
+            "tof_equals_config": {
+              "passed": true,
+              "value_days": 4.5,
+              "config_days": 4.5
+            },
+            "endpoint_error": {
+              "passed": true,
+              "value_pct": 5.949204651567992e-09,
+              "value_km": 2.2439617994229897e-05,
+              "max_pct": 1.0
+            },
+            "ksc_in_parking_plane": {
+              "passed": true,
+              "value_deg": 0.0,
+              "gmst_only_deg": 0.1266,
+              "max_deg": 1.0
+            },
+            "moon_sun_vs_cesium": {
+              "passed": true,
+              "max_deg": 0.0981,
+              "tolerance_deg": 3.0,
+              "error": null
+            }
+          }
+        },
+        "two_body": {
+          "times_utc": {
+            "launch": "2028-01-03T23:31:08Z",
+            "tli": "2028-01-04T00:35:00Z",
+            "arrival": "2028-01-08T12:35:00Z",
+            "landing": "2028-01-09T12:35:00Z"
+          },
+          "tli_dv_km_s": 3.1769,
+          "loi_dv_km_s": 0.8409,
+          "tof_days": 4.5,
+          "coast_min": 53.9,
+          "ascent_gap_deg": 3.79,
+          "arrival_shift_from_nominal_h": 0.5833333333333334,
+          "landing_day_choice": {
+            "utc": "2028-01-09T12:00:00Z",
+            "sun_elevation_deg": 0.27952486232260304,
+            "earth_elevation_deg": 5.904236627342351,
+            "days_both_up": 4,
+            "days_scored": 60
+          }
+        },
+        "refinement": {
+          "converged": true,
+          "iterations": 3,
+          "periselene_error_km_history": [
+            -207.008,
+            5.024,
+            0.003
+          ],
+          "tli_dv": 3.173326,
+          "loi_dv": 0.833386,
+          "periselene_alt_km": 100.002837,
+          "t_periselene": 884202840.048698,
+          "tof_days": 4.304061,
+          "periselene_lat_deg": -0.585718
+        }
+      },
+      "sp-0386-0786": {
+        "summary": {
+          "launch_utc": "2028-01-02T04:28:14Z",
+          "tli_utc": "2028-01-02T06:40:00Z",
+          "arrival_utc": "2028-01-06T13:32:57Z",
+          "landing_utc": "2028-01-07T13:32:57Z",
+          "tli_dv_kms": 3.1699,
+          "loi_dv_kms": 0.8197,
+          "tof_days": 4.2868,
+          "arrival_vinf_kms": 0.8476,
+          "site": {
+            "id": "sp-0386-0786",
+            "label": "Site finder sp-0386-0786",
+            "lat": -85.4007,
+            "lon": 31.6398
+          },
+          "launch_time_computed": true,
+          "landing_sun_elevation_deg": 4.751,
+          "landing_earth_elevation_deg": 9.963,
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution."
+        },
+        "gate": {
+          "status": "pass",
+          "checks": {
+            "tli_dv": {
+              "passed": true,
+              "value_km_s": 3.1734,
+              "range_km_s": [
+                3.0,
+                3.3
+              ]
+            },
+            "loi_dv": {
+              "passed": true,
+              "value_km_s": 0.8272,
+              "range_km_s": [
+                0.7,
+                1.1
+              ]
+            },
+            "tof_equals_config": {
+              "passed": true,
+              "value_days": 4.5,
+              "config_days": 4.5
+            },
+            "endpoint_error": {
+              "passed": true,
+              "value_pct": 1.7633812722400358e-08,
+              "value_km": 6.84119165982986e-05,
+              "max_pct": 1.0
+            },
+            "ksc_in_parking_plane": {
+              "passed": true,
+              "value_deg": 0.0,
+              "gmst_only_deg": 0.0214,
+              "max_deg": 1.0
+            },
+            "moon_sun_vs_cesium": {
+              "passed": true,
+              "max_deg": 0.0657,
+              "tolerance_deg": 3.0,
+              "error": null
+            }
+          }
+        },
+        "two_body": {
+          "times_utc": {
+            "launch": "2028-01-02T04:28:14Z",
+            "tli": "2028-01-02T06:40:00Z",
+            "arrival": "2028-01-06T18:40:00Z",
+            "landing": "2028-01-07T18:40:00Z"
+          },
+          "tli_dv_km_s": 3.1734,
+          "loi_dv_km_s": 0.8272,
+          "tof_days": 4.5,
+          "coast_min": 121.8,
+          "ascent_gap_deg": 1.56,
+          "arrival_shift_from_nominal_h": 6.666666666666667,
+          "landing_day_choice": {
+            "utc": "2028-01-07T12:00:00Z",
+            "sun_elevation_deg": 4.729041263420002,
+            "earth_elevation_deg": 9.985389043839906,
+            "days_both_up": 25,
+            "days_scored": 60
+          }
+        },
+        "refinement": {
+          "converged": true,
+          "iterations": 2,
+          "periselene_error_km_history": [
+            -8.404,
+            0.007
+          ],
+          "tli_dv": 3.169948,
+          "loi_dv": 0.81971,
+          "periselene_alt_km": 100.006559,
+          "t_periselene": 884050446.290814,
+          "tof_days": 4.286772,
+          "periselene_lat_deg": 6.433071
+        }
+      }
     }
   }
 }

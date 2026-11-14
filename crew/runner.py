@@ -88,6 +88,7 @@ async def run_claude(prompt: str, model: str, system: str, on_delta: Optional[Ca
                            "--append-system-prompt", system, "--model", model]
     tmp = tempfile.mkdtemp(prefix="crew-")
     proc = None
+    err_task = None
     try:
         try:
             proc = await asyncio.create_subprocess_exec(*argv, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE,
@@ -133,9 +134,16 @@ async def run_claude(prompt: str, model: str, system: str, on_delta: Optional[Ca
         except asyncio.TimeoutError:
             raise CrewError("timeout", f"claude call exceeded {timeout:.0f} s")
     finally:
-        if proc is not None and proc.returncode is None:
-            proc.kill()
+        if proc is not None:
+            if proc.returncode is None:
+                proc.kill()
             await proc.wait()
+            if proc.stdin is not None and not proc.stdin.is_closing():
+                proc.stdin.close()
+        if err_task is not None and not err_task.done():
+            err_task.cancel()
+        if err_task is not None:
+            await asyncio.gather(err_task, return_exceptions=True)  # no pending task or open pipe may outlive the event loop
         shutil.rmtree(tmp, ignore_errors=True)
 
 
@@ -169,6 +177,19 @@ async def claude_health(timeout: float = 30.0) -> CliHealth:
         return CliHealth(ok=False, latency_ms=round((time.perf_counter() - t0) * 1000), error=f"{e.kind}: {e.message}", checked_at=stamp)
 
 
+async def timed_call(sess: "Session", role: str, prompt: str, model: str, system: str, on_delta, timeout=None, attempt: int = 1) -> str:
+    """run_claude plus a per-subprocess wall-time record for the session.end metrics."""
+    t0 = time.monotonic()
+    status = "ok"
+    try:
+        return await run_claude(prompt, model, system, on_delta, timeout)
+    except BaseException:
+        status = "failed"
+        raise
+    finally:
+        sess.calls.append({"role": role, "model": model, "attempt": attempt, "wall_s": round(time.monotonic() - t0, 2), "status": status})
+
+
 # ---------- sessions ----------
 class Session:
     """In-memory event log of one campaign, mirrored to sessions/<id>.jsonl. Late SSE subscribers read from index 0."""
@@ -179,6 +200,7 @@ class Session:
         self.plan: Optional[CampaignPlan] = None
         self.done = False
         self.cond = asyncio.Condition()
+        self.calls: list[dict[str, Any]] = []
         self.t0 = time.monotonic()
         d = service.sessions_dir()
         d.mkdir(parents=True, exist_ok=True)
@@ -212,6 +234,7 @@ class Session:
 
 
 _SESSIONS: dict[str, Session] = {}
+_TASKS: set = set()
 
 
 def get_session(sid: str) -> Optional[Session]:
@@ -282,6 +305,8 @@ async def replay_into(sess: Session, golden: pathlib.Path, speed: Optional[float
     speed = speed or float(os.environ.get("REPLAY_SPEED", 1.5))
     prev = 0.0
     for ev in read_events(golden):
+        if ev.type == "session.end":
+            continue  # run_session emits the real one (with replay status)
         await asyncio.sleep(max(0.0, (ev.t - prev) / speed))
         prev = ev.t
         data = {**ev.data, "replay": True, "replay_source": golden.stem}
@@ -314,8 +339,8 @@ async def _specialist(sess: Session, role: str, pack: Any, pack_json: str) -> tu
     kept = None
     for attempt in (1, 2):
         try:
-            text = await run_claude(_specialist_prompt(role, pack_json, feedback), model, system, delta,
-                                    timeout=RETRY_TIMEOUT_S if attempt == 2 else None)
+            text = await timed_call(sess, role, _specialist_prompt(role, pack_json, feedback), model, system, delta,
+                                    RETRY_TIMEOUT_S if attempt == 2 else None, attempt)
         except CrewError:
             if attempt == 2 and kept is not None:  # validation retry failed or timed out: keep the verified claims of try 1
                 good = kept[0].model_copy(update={"removed_unverified": len(kept[1])})
@@ -363,7 +388,8 @@ async def _director(sess: Session, pack: Any, pack_json: str, reports: list[dict
     feedback: Optional[list[str]] = None
     plan: Optional[CampaignPlan] = None
     for attempt in (1, 2):
-        text = await run_claude(_director_prompt(pack_json, reports, feedback), model, system, delta, timeout=TIMEOUT_S + 15)
+        text = await timed_call(sess, "director", _director_prompt(pack_json, reports, feedback), model, system, delta,
+                                TIMEOUT_S + 15, attempt)
         try:
             plan, problems = validate.validate_plan(parse_json_block(text), pack)
         except (CrewError, ValueError) as exc:
@@ -443,7 +469,8 @@ async def run_session(sess: Session, force_replay: bool = False, reason: Optiona
     except Exception as exc:
         status = "failed"
         await sess.emit("error", None, {"message": str(exc), "kind": getattr(exc, "kind", "internal"), "fallback": None})
-    await sess.emit("session.end", None, {"wall_s": round(time.monotonic() - started, 2), "status": status})
+    await sess.emit("session.end", None, {"wall_s": round(time.monotonic() - started, 2), "status": status,
+                                  "calls": sess.calls})
     await sess.finish()
 
 
@@ -451,5 +478,15 @@ def start_session(req: CampaignRequest, force_replay: bool, reason: Optional[str
     sid = uuid.uuid4().hex[:12]
     sess = Session(sid, req, "replay" if force_replay else "live")
     _SESSIONS[sid] = sess
-    asyncio.get_running_loop().create_task(run_session(sess, force_replay, reason))
+    task = asyncio.get_running_loop().create_task(run_session(sess, force_replay, reason))
+    _TASKS.add(task)
+    task.add_done_callback(_TASKS.discard)
     return sess
+
+
+async def shutdown() -> None:
+    """Cancels running campaigns so no subprocess or task outlives the event loop (server stop, test teardown)."""
+    tasks = list(_TASKS)
+    for t in tasks:
+        t.cancel()
+    await asyncio.gather(*tasks, return_exceptions=True)

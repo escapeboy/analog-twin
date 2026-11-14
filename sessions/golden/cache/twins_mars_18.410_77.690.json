@@ -1,0 +1,358 @@
+{
+ "query": {
+  "body": "mars",
+  "lat": 18.41,
+  "lon": 77.69,
+  "label": null,
+  "point_id": "mars-1038824",
+  "on_grid": true,
+  "snapped_km": 1.0752519061761787
+ },
+ "mode": {
+  "earth": "terrain+light",
+  "moon": "terrain"
+ },
+ "weights": {
+  "terrain": 0.6,
+  "light": 0.4
+ },
+ "results": {
+  "earth": [
+   {
+    "id": "earth-246193",
+    "body": "earth",
+    "lat": 45.162010388254586,
+    "lon": 34.99199520051479,
+    "place_label": "Russia",
+    "terrain_sim": 0.8926742789036682,
+    "light_sim": 0.9657930996472671,
+    "best_window": {
+     "start": "08-25",
+     "end": "09-21",
+     "emd": 0.17103450176366441,
+     "light_sim": 0.9657930996472671
+    },
+    "env": null,
+    "score": 0.9219,
+    "rank": 1,
+    "ref": "twin:earth-246193"
+   },
+   {
+    "id": "earth-426830",
+    "body": "earth",
+    "lat": 27.870870142772226,
+    "lon": 17.44639979302883,
+    "place_label": "Libya",
+    "terrain_sim": 0.8398801985495564,
+    "light_sim": 0.9925104717813058,
+    "best_window": {
+     "start": "09-02",
+     "end": "09-29",
+     "emd": 0.03744764109347072,
+     "light_sim": 0.9925104717813058
+    },
+    "env": null,
+    "score": 0.9009,
+    "rank": 2,
+    "ref": "twin:earth-426830"
+   },
+   {
+    "id": "earth-432811",
+    "body": "earth",
+    "lat": 27.318677806545413,
+    "lon": 17.393184706568718,
+    "place_label": "Libya",
+    "terrain_sim": 0.8108648030002973,
+    "light_sim": 0.9933537257495594,
+    "best_window": {
+     "start": "09-03",
+     "end": "09-30",
+     "emd": 0.03323137125220321,
+     "light_sim": 0.9933537257495594
+    },
+    "env": null,
+    "score": 0.8839,
+    "rank": 3,
+    "ref": "twin:earth-432811"
+   },
+   {
+    "id": "earth-166787",
+    "body": "earth",
+    "lat": 52.20110498966493,
+    "lon": 0.32285936921834946,
+    "place_label": "United Kingdom",
+    "terrain_sim": 0.8298136426567362,
+    "light_sim": 0.9553764329805994,
+    "best_window": {
+     "start": "03-22",
+     "end": "04-18",
+     "emd": 0.2231178350970032,
+     "light_sim": 0.9553764329805994
+    },
+    "env": null,
+    "score": 0.88,
+    "rank": 4,
+    "ref": "twin:earth-166787"
+   },
+   {
+    "id": "earth-654083",
+    "body": "earth",
+    "lat": -0.6741332166853405,
+    "lon": 37.35467854142189,
+    "place_label": "Kenya",
+    "terrain_sim": 0.7973887858605133,
+    "light_sim": 0.9961337081128749,
+    "best_window": {
+     "start": "06-06",
+     "end": "07-03",
+     "emd": 0.019331459435625094,
+     "light_sim": 0.9961337081128749
+    },
+    "env": null,
+    "score": 0.8769,
+    "rank": 5,
+    "ref": "twin:earth-654083"
+   },
+   {
+    "id": "earth-296935",
+    "body": "earth",
+    "lat": 40.36743369965431,
+    "lon": 109.50324591994286,
+    "place_label": "China",
+    "terrain_sim": 0.8138850732198375,
+    "light_sim": 0.9710014329805996,
+    "best_window": {
+     "start": "03-15",
+     "end": "04-11",
+     "emd": 0.14499283509700173,
+     "light_sim": 0.9710014329805996
+    },
+    "env": null,
+    "score": 0.8767,
+    "rank": 6,
+    "ref": "twin:earth-296935"
+   },
+   {
+    "id": "earth-906991",
+    "body": "earth",
+    "lat": 34.89367830964674,
+    "lon": -110.70175438596493,
+    "place_label": "United States of America",
+    "terrain_sim": 0.8061232709115872,
+    "light_sim": 0.9785719797178145,
+    "best_window": {
+     "start": "08-25",
+     "end": "09-21",
+     "emd": 0.10714010141092731,
+     "light_sim": 0.9785719797178145
+    },
+    "env": null,
+    "score": 0.8751,
+    "rank": 7,
+    "ref": "twin:earth-906991"
+   },
+   {
+    "id": "earth-110070",
+    "body": "earth",
+    "lat": 58.149209187856194,
+    "lon": -119.51419211179018,
+    "place_label": "Canada",
+    "terrain_sim": 0.8264089228850878,
+    "light_sim": 0.9413288139329805,
+    "best_window": {
+     "start": "08-17",
+     "end": "09-13",
+     "emd": 0.2933559303350975,
+     "light_sim": 0.9413288139329805
+    },
+    "env": null,
+    "score": 0.8724,
+    "rank": 8,
+    "ref": "twin:earth-110070"
+   },
+   {
+    "id": "earth-872064",
+    "body": "earth",
+    "lat": -37.34619400828993,
+    "lon": -67.92357271909714,
+    "place_label": "Argentina",
+    "terrain_sim": 0.8009944765055578,
+    "light_sim": 0.9741264329805993,
+    "best_window": {
+     "start": "09-12",
+     "end": "10-09",
+     "emd": 0.12936783509700345,
+     "light_sim": 0.9741264329805993
+    },
+    "env": null,
+    "score": 0.8702,
+    "rank": 9,
+    "ref": "twin:earth-872064"
+   },
+   {
+    "id": "earth-823028",
+    "body": "earth",
+    "lat": -25.773175970637286,
+    "lon": 146.9527086019516,
+    "place_label": "Australia",
+    "terrain_sim": 0.778136603033569,
+    "light_sim": 0.9957842813051154,
+    "best_window": {
+     "start": "09-08",
+     "end": "10-05",
+     "emd": 0.02107859347442302,
+     "light_sim": 0.9957842813051154
+    },
+    "env": null,
+    "score": 0.8652,
+    "rank": 10,
+    "ref": "twin:earth-823028"
+   }
+  ],
+  "moon": [
+   {
+    "id": "moon-142518",
+    "body": "moon",
+    "lat": -5.581381946904764,
+    "lon": -55.447252579033375,
+    "place_label": "Moon 5.58°S 55.45°W",
+    "terrain_sim": 0.8426897161045273,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.8427,
+    "rank": 1,
+    "ref": "twin:moon-142518"
+   },
+   {
+    "id": "moon-162965",
+    "body": "moon",
+    "lat": -14.625656678900722,
+    "lon": -34.195721454918385,
+    "place_label": "Moon 14.63°S 34.20°W",
+    "terrain_sim": 0.8329269615201271,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.8329,
+    "rank": 2,
+    "ref": "twin:moon-162965"
+   },
+   {
+    "id": "moon-177624",
+    "body": "moon",
+    "lat": -21.333790483413317,
+    "lon": 52.11748804524541,
+    "place_label": "Moon 21.33°S 52.12°E",
+    "terrain_sim": 0.8261786736991746,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.8262,
+    "rank": 3,
+    "ref": "twin:moon-177624"
+   },
+   {
+    "id": "moon-93119",
+    "body": "moon",
+    "lat": 16.12899130940771,
+    "lon": 38.516439598053694,
+    "place_label": "Moon 16.13°N 38.52°E",
+    "terrain_sim": 0.8101660933599455,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.8102,
+    "rank": 4,
+    "ref": "twin:moon-93119"
+   },
+   {
+    "id": "moon-13782",
+    "body": "moon",
+    "lat": 61.66218930413311,
+    "lon": 25.040001747198403,
+    "place_label": "Moon 61.66°N 25.04°E",
+    "terrain_sim": 0.8078259165574543,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.8078,
+    "rank": 5,
+    "ref": "twin:moon-13782"
+   },
+   {
+    "id": "moon-17769",
+    "body": "moon",
+    "lat": 58.200048172055304,
+    "lon": -11.504730751737952,
+    "place_label": "Moon 58.20°N 11.50°W",
+    "terrain_sim": 0.7757408680633014,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.7757,
+    "rank": 6,
+    "ref": "twin:moon-17769"
+   },
+   {
+    "id": "moon-83560",
+    "body": "moon",
+    "lat": 20.510385376686198,
+    "lon": -38.2001147121191,
+    "place_label": "Moon 20.51°N 38.20°W",
+    "terrain_sim": 0.7719809371713372,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.772,
+    "rank": 7,
+    "ref": "twin:moon-83560"
+   },
+   {
+    "id": "moon-89472",
+    "body": "moon",
+    "lat": 17.787675525780774,
+    "lon": 27.700949111953378,
+    "place_label": "Moon 17.79°N 27.70°E",
+    "terrain_sim": 0.7702268656391545,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.7702,
+    "rank": 8,
+    "ref": "twin:moon-89472"
+   },
+   {
+    "id": "moon-70049",
+    "body": "moon",
+    "lat": 26.933687739083272,
+    "lon": 54.39980522543192,
+    "place_label": "Moon 26.93°N 54.40°E",
+    "terrain_sim": 0.7685062811999858,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.7685,
+    "rank": 9,
+    "ref": "twin:moon-70049"
+   },
+   {
+    "id": "moon-62032",
+    "body": "moon",
+    "lat": 30.919134318555823,
+    "lon": -25.344583926722407,
+    "place_label": "Moon 30.92°N 25.34°W",
+    "terrain_sim": 0.7676034933338094,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.7676,
+    "rank": 10,
+    "ref": "twin:moon-62032"
+   }
+  ]
+ },
+ "latency_ms": 330.2,
+ "source": "live",
+ "ref": "twins:mars:18.410:77.690"
+}
