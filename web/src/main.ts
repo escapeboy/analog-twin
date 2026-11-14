@@ -2,10 +2,11 @@ import { BODIES, BODY_NAMES, getHealth, getPresets, postTwins, REPLAY, type Body
 import { h } from './dom';
 import { Globe } from './globes';
 import { initCrew } from './panels/crew';
+import { initTerrain3d } from './panels/terrain3d';
 import { initSites } from './panels/sites';
 import { initDetail } from './panels/detail';
 import { initTwinList } from './panels/twinlist';
-import { store } from './state';
+import { pairIds, store } from './state';
 
 const params = new URLSearchParams(location.search);
 const LAYOUT2 = params.get('layout') === '2';
@@ -61,12 +62,27 @@ async function runQuery(p: Point, label: string, presetId?: string) {
   }
 }
 
-function showTab(t: 'pair' | 'sites') {
-  $('detail-body').hidden = t !== 'pair';
-  $('sites-body').hidden = t !== 'sites';
-  $('tab-pair').setAttribute('aria-selected', String(t === 'pair'));
-  $('tab-sites').setAttribute('aria-selected', String(t === 'sites'));
+type Tab = 'pair' | 'sites' | 'terrain';
+let tab: Tab = 'pair';
+const terrain = initTerrain3d($('terrain-body'));
+const BODY_IDS: Record<Tab, string> = { pair: 'detail-body', sites: 'sites-body', terrain: 'terrain-body' };
+function showTab(t: Tab) {
+  if (tab === 'terrain' && t !== 'terrain') terrain.hide(); // free the WebGL context
+  tab = t;
+  for (const k of Object.keys(BODY_IDS) as Tab[]) {
+    $(BODY_IDS[k]).hidden = k !== t;
+    $('tab-' + k).setAttribute('aria-selected', String(k === t));
+  }
+  if (t === 'terrain') terrain.show();
 }
+$('tab-pair').addEventListener('click', () => showTab('pair'));
+$('tab-terrain').addEventListener('click', () => showTab('terrain'));
+let terrainKey = '';
+store.subscribe(() => {
+  const ids = pairIds();
+  const key = ids ? `${ids.a}/${ids.b}` : '';
+  if (key !== terrainKey) { terrainKey = key; if (tab === 'terrain') terrain.refresh(); }
+});
 
 function pickSite(s: Site) {
   void runQuery({ body: 'moon', lat: s.lat, lon: s.lon }, `Site ${s.rank} (${s.id})`, s.id);
@@ -156,7 +172,6 @@ let sitesPanel: ReturnType<typeof initSites> | null = null;
 function enableSites() {
   sitesPanel = initSites($('sites-body'), (list) => globes.forEach((g) => g.body === 'moon' && g.setSites(list)), pickSite);
   $('tab-sites').hidden = false;
-  $('tab-pair').addEventListener('click', () => showTab('pair'));
   $('tab-sites').addEventListener('click', () => { showTab('sites'); sitesPanel?.show(); });
   const b = h('button', { type: 'button', 'data-feature': 'site_finder' }, 'Find base sites');
   b.addEventListener('click', () => { showTab('sites'); sitesPanel?.show(); });
@@ -167,10 +182,12 @@ function enableSites() {
 async function initGated() {
   let features: Record<string, boolean> = {};
   try { features = (await getHealth()).features ?? {}; } catch { /* health unavailable: keep gated features hidden */ }
+  if (features.terrain3d || params.get('terrain3d') === '1') $('tab-terrain').hidden = false;
   const slots: [string, string][] = [['site_finder', 'Find base sites'], ['terrain3d', '3D terrain'], ['mission', 'Fly mission']];
   for (const [key, label] of slots) {
     if (!features[key]) continue;
     if (key === 'site_finder') { enableSites(); continue; }
+    if (key === 'terrain3d') continue; // handled below as a tab, not a button
     const b = h('button', { type: 'button', 'data-feature': key }, label);
     b.addEventListener('click', () => window.dispatchEvent(new CustomEvent('analog-twin:feature', { detail: { key, query: store.query, selected: store.selected } })));
     $('gated').append(b);
