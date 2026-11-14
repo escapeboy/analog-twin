@@ -126,18 +126,18 @@ export function initTerrain3d(root: HTMLElement) {
         pos.setY(i, ((Number.isFinite(v) ? v : lo) - lo) / 1000); // km, base at the lowest valid cell
       }
       geo.computeVertexNormals();
-      const mat = new T.MeshStandardMaterial({ color: 0xb9b2a6, roughness: 1, metalness: 0 });
+      const mat = new T.MeshStandardMaterial({ color: new T.Color().setRGB(0.85, 0.83, 0.79, T.LinearSRGBColorSpace), roughness: 1, metalness: 0 });
       const mesh = new T.Mesh(geo, mat);
       mesh.castShadow = true; mesh.receiveShadow = true;
       const scene = new T.Scene();
       scene.add(mesh);
-      scene.add(new T.AmbientLight(0xffffff, 0.12)); // fill so shadows stay readable on a projector
-      const light = new T.DirectionalLight(0xffffff, 3);
-      const half = g.extent_km * 0.8;
-      Object.assign(light.shadow.camera, { left: -half, right: half, top: half, bottom: -half, near: 0.1, far: g.extent_km * 6 });
+      // three.js lights are in units of pi: PI = full sun (output = albedo * N.L). Fill is tiny so cast shadows stay black
+      // (the sun light gets an exposure gain in applySun, see there).
+      scene.add(new T.AmbientLight(0xffffff, 0.012 * Math.PI));
+      const light = new T.DirectionalLight(0xffffff, Math.PI);
       light.shadow.mapSize.set(4096, 4096);
-      light.shadow.bias = -0.0004;
-      light.shadow.normalBias = g.extent_km / 2000;
+      light.shadow.bias = -0.0003;
+      light.shadow.normalBias = g.extent_km / 4000; // ~1 shadow-map texel
       light.castShadow = true;
       scene.add(light, light.target);
       // scale bar: a line along the south edge, 10 km long
@@ -163,6 +163,27 @@ export function initTerrain3d(root: HTMLElement) {
     ctl.addEventListener('start', () => { ctl.autoRotate = false; });
     const camB = cam.clone();
 
+    /** Fit the sun's orthographic shadow camera tightly around the terrain's bounding box, seen from the sun, so a
+     * 4096 map is spent on the terrain only and the near/far range covers the very long shadows of a 3 degree sun. */
+    function fitShadow(p: Pane, dir: THREE_NS.Vector3) {
+      const half = p.grid.extent_km / 2, top = p.relief / 1000 * exag;
+      const zc = dir.clone().normalize();
+      const xc = new T.Vector3(0, 1, 0).cross(zc);
+      if (xc.lengthSq() < 1e-8) xc.set(1, 0, 0);
+      xc.normalize();
+      const yc = zc.clone().cross(xc);
+      const eye = dir.clone().multiplyScalar(p.grid.extent_km * 2);
+      let l = Infinity, rr = -Infinity, b = Infinity, t = -Infinity, nr = Infinity, fr = -Infinity;
+      for (const x of [-half, half]) for (const y of [0, top]) for (const z of [-half, half]) {
+        const q = new T.Vector3(x, y, z);
+        const u = q.dot(xc), v = q.dot(yc), d = eye.clone().sub(q).dot(zc);
+        l = Math.min(l, u); rr = Math.max(rr, u); b = Math.min(b, v); t = Math.max(t, v); nr = Math.min(nr, d); fr = Math.max(fr, d);
+      }
+      const m = 0.02 * p.grid.extent_km;
+      Object.assign(p.light.shadow.camera, { left: l - m, right: rr + m, bottom: b - m, top: t + m, near: Math.max(0.01, nr - m), far: fr + m });
+      p.light.shadow.camera.updateProjectionMatrix();
+    }
+
     function applySun() {
       const a = (az * Math.PI) / 180, e = (el * Math.PI) / 180;
       // azimuth clockwise from north (-z); direction FROM origin TO the sun
@@ -172,6 +193,10 @@ export function initTerrain3d(root: HTMLElement) {
         p.light.target.position.set(0, 0, 0);
         p.light.target.updateMatrixWorld();
         p.mesh.scale.y = exag;
+        fitShadow(p, dir);
+        // auto-exposure: flat ground gets sin(elevation) of the sun, so at 3 degrees it would be nearly black. Gain keeps
+        // flat ground at a mid grey at any elevation (as in the matched-light PNG); relative shading and shadows are unchanged.
+        p.light.intensity = Math.PI * Math.min(8, Math.max(1, 0.5 / Math.max(Math.sin(e), 0.05)));
       }
       sunLabel.textContent = `azimuth ${((az % 360) + 360) % 360 | 0}°, elevation ${el.toFixed(1)}°`;
       renderOverlay();
