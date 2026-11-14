@@ -211,7 +211,10 @@ export function initMission(overlay: HTMLElement, hooks: MissionHooks) {
       const lift = Cartesian3.cross(axis, Cartesian3.negate(side, new Cartesian3()), new Cartesian3()); // roughly "up"
       const off = Cartesian3.normalize(Cartesian3.add(side, Cartesian3.multiplyByScalar(lift, 0.18, new Cartesian3()), new Cartesian3()), new Cartesian3());
       const dir = Cartesian3.negate(off, new Cartesian3());
-      return { center: Cartesian3.multiplyByScalar(m, 0.5, new Cartesian3()), off, range, up: Cartesian3.cross(axis, dir, new Cartesian3()) };
+      const up = Cartesian3.normalize(Cartesian3.cross(axis, dir, new Cartesian3()), new Cartesian3());
+      // aim a little above the midpoint so Earth and Moon sit in the lower part of the screen, clear of the event list
+      const center = Cartesian3.add(Cartesian3.multiplyByScalar(m, 0.5, new Cartesian3()), Cartesian3.multiplyByScalar(up, 0.09 * range, new Cartesian3()), new Cartesian3());
+      return { center, off, range, up };
     };
     const poseOf = (l: Look) => {
       const pos = Cartesian3.add(l.center, Cartesian3.multiplyByScalar(l.off, l.range, new Cartesian3()), new Cartesian3());
