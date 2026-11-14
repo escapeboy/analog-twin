@@ -27,7 +27,7 @@ flat target matches flat plains almost anywhere, so a high score for a flat targ
   It is labelled as not a flight plan.
 - **AI crew.** Four specialist agents and a director run through the Claude Code CLI. They do not calculate. Every
   number they use comes from the engine, every claim must cite an evidence reference, and numbers are checked against
-  that evidence. The plan always includes what Earth cannot reproduce (vacuum, lunar dust, one-sixth gravity).
+  that evidence. In three live runs for one target a plan took a median of 28.7 seconds, at most 35.0<!-- metrics: crew.median_s, crew.max_s, crew.runs -->. The plan always includes what Earth cannot reproduce (vacuum, lunar dust, one-sixth gravity).
 
 ## Why it matters
 
