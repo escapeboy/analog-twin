@@ -2644,43 +2644,43 @@
     "runs": [
       {
         "mode": "live",
-        "total_wall_s": 29.05,
+        "total_wall_s": 28.64,
         "fallback": false,
         "removed_unverified": 0,
         "subprocess_wall_s": [
           {
+            "role": "testlead",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 6.09,
+            "status": "ok"
+          },
+          {
             "role": "logistics",
             "model": "haiku",
             "attempt": 1,
-            "wall_s": 9.59,
+            "wall_s": 10.54,
             "status": "ok"
           },
           {
             "role": "terrain",
             "model": "haiku",
             "attempt": 1,
-            "wall_s": 11.65,
+            "wall_s": 10.77,
             "status": "ok"
           },
           {
             "role": "light",
             "model": "haiku",
             "attempt": 1,
-            "wall_s": 13.45,
-            "status": "ok"
-          },
-          {
-            "role": "testlead",
-            "model": "haiku",
-            "attempt": 1,
-            "wall_s": 17.75,
+            "wall_s": 16.96,
             "status": "ok"
           },
           {
             "role": "director",
             "model": "sonnet",
             "attempt": 1,
-            "wall_s": 10.84,
+            "wall_s": 11.21,
             "status": "ok"
           }
         ],
@@ -2688,7 +2688,7 @@
       },
       {
         "mode": "live",
-        "total_wall_s": 33.43,
+        "total_wall_s": 28.72,
         "fallback": false,
         "removed_unverified": 0,
         "subprocess_wall_s": [
@@ -2696,35 +2696,35 @@
             "role": "logistics",
             "model": "haiku",
             "attempt": 1,
-            "wall_s": 9.9,
+            "wall_s": 3.63,
             "status": "ok"
           },
           {
             "role": "terrain",
             "model": "haiku",
             "attempt": 1,
-            "wall_s": 12.45,
-            "status": "ok"
-          },
-          {
-            "role": "light",
-            "model": "haiku",
-            "attempt": 1,
-            "wall_s": 17.43,
+            "wall_s": 12.99,
             "status": "ok"
           },
           {
             "role": "testlead",
             "model": "haiku",
             "attempt": 1,
-            "wall_s": 22.23,
+            "wall_s": 16.14,
+            "status": "ok"
+          },
+          {
+            "role": "light",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 18.27,
             "status": "ok"
           },
           {
             "role": "director",
             "model": "sonnet",
             "attempt": 1,
-            "wall_s": 10.99,
+            "wall_s": 10.29,
             "status": "ok"
           }
         ],
@@ -2732,7 +2732,7 @@
       },
       {
         "mode": "live",
-        "total_wall_s": 37.34,
+        "total_wall_s": 34.97,
         "fallback": false,
         "removed_unverified": 0,
         "subprocess_wall_s": [
@@ -2740,48 +2740,48 @@
             "role": "logistics",
             "model": "haiku",
             "attempt": 1,
-            "wall_s": 9.73,
+            "wall_s": 12.39,
             "status": "ok"
           },
           {
             "role": "terrain",
             "model": "haiku",
             "attempt": 1,
-            "wall_s": 11.06,
+            "wall_s": 12.56,
             "status": "ok"
           },
           {
             "role": "light",
             "model": "haiku",
             "attempt": 1,
-            "wall_s": 18.35,
+            "wall_s": 21.68,
             "status": "ok"
           },
           {
             "role": "testlead",
             "model": "haiku",
             "attempt": 1,
-            "wall_s": 26.23,
+            "wall_s": 23.3,
             "status": "ok"
           },
           {
             "role": "director",
             "model": "sonnet",
             "attempt": 1,
-            "wall_s": 10.96,
+            "wall_s": 11.45,
             "status": "ok"
           }
         ],
         "status": "ok"
       }
     ],
-    "median_s": 33.4,
-    "max_s": 37.3,
+    "median_s": 28.7,
+    "max_s": 35.0,
     "models": {
       "fast": "haiku",
       "strong": "sonnet"
     },
-    "measured_at": "2026-11-14T10:25:59+00:00",
+    "measured_at": "2026-11-14T10:32:11+00:00",
     "measured_via": "POST /api/campaign + SSE, total = POST to plan.final"
   }
 }
