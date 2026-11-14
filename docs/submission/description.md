@@ -47,6 +47,7 @@ systematic literature search.
   not clearly better than chance, and v2 can evaluate only 8 of the 11 analog sites<!-- metrics: terrain.known_analog_test.sites_evaluable, terrain.known_analog_test.sites_total -->. We do not claim that
   this validates the method. The terrain match is a measured shape similarity, not proof that two places are good analogs.
 - The common scale is 926 m, so landforms smaller than about 2 km are not seen.
+- The light similarity score has a high floor for polar lunar targets, so it is shown next to the range of scores found on Earth.
 - The sunlight model ignores local horizons. It is a poor guide to what is lit at a polar crater rim.
 - The site finder uses NASA's long-term average illumination, not a mission date. Its agreement with NASA's candidate
   regions is a weak test: random points also score well on that statistic.
