@@ -55,7 +55,6 @@ export function initAtlas(getEarth: () => Globe | undefined, host: HTMLElement) 
   const maskBox = h('input', { type: 'checkbox', id: 'atlas-mask' }) as HTMLInputElement;
   const maskLabel = h('span', null, 'Mask vegetated land');
   const maskWrap = h('label', { class: 'atlas-mask', hidden: '', title: 'Grey overlay on land whose MODIS NDVI is above the barren threshold' }, maskBox, maskLabel);
-  host.append(maskWrap);
 
   function modeButtons(t: AtlasTarget | null) {
     clear(modeBox);
@@ -97,7 +96,7 @@ export function initAtlas(getEarth: () => Globe | undefined, host: HTMLElement) 
         mode === 'terrain+light' ? h('div', { class: 'atlas-note' }, "Most of the global colour change comes from sunlight; terrain shape alone is the 'terrain' view.") : '',
         h('div', { class: 'atlas-note' }, 'Yellow dots: top 10 cells. Rings: known analogs.'),
         topNdvi ? h('div', { class: 'atlas-note' }, topNdvi) : '',
-        maskOn && barren ? h('div', { class: 'atlas-note' }, `Mask: grey = vegetated (NDVI > ${barren.ndvi_max}); light/hatched = no MODIS value; clear = barren.`) : ''));
+        maskOn && barren ? h('div', { class: 'atlas-note' }, 'Mask: grey = vegetated, light/hatched = no MODIS value.') : ''));
   }
 
   async function refresh() {
@@ -143,7 +142,7 @@ export function initAtlas(getEarth: () => Globe | undefined, host: HTMLElement) 
       .sort((a: any, b: any) => (a.rank !== b.rank ? a.rank - b.rank : b.score - a.score));
     const top10 = pts.slice(0, 10);
     topNdvi = top10.some((p: any) => p.barren != null)
-      ? `Top 10: ${top10.filter((p: any) => p.barren === true).length} barren, ${top10.filter((p: any) => p.barren === false).length} vegetated; NDVI ${top10.map((p: any) => (p.ndvi != null ? p.ndvi.toFixed(2) : 'n/a')).join(', ')}`
+      ? `Top 10 cells: ${top10.filter((p: any) => p.barren === true).length} barren, ${top10.filter((p: any) => p.barren === false).length} vegetated (NDVI in marker details).`
       : '';
     showLegend(t);
     earth.setAtlasMarkers(top10, knownPts ?? []);
@@ -165,7 +164,7 @@ export function initAtlas(getEarth: () => Globe | undefined, host: HTMLElement) 
     on = !on;
     toggle.setAttribute('aria-pressed', String(on));
     const earth = getEarth();
-    if (earth && !legend.isConnected) earth.el.parentElement?.append(legend);
+    if (earth && !legend.isConnected) earth.el.parentElement?.append(legend, maskWrap);
     void refresh();
   });
   // switching the target (preset or click) re-colours the planet

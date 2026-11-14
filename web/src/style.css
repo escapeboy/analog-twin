@@ -88,7 +88,7 @@ table.sites tbody tr { cursor:pointer; } table.sites tbody tr:hover { background
 #positioning { padding:2px 14px; text-align:center; font-size:16px; color:var(--fg); }
 .atlas-modes { display:inline-flex; gap:4px; margin-left:4px; } [aria-pressed=true] { background:#0b5d80; border-color:var(--acc); }
 .atlas-legend { position:absolute; left:8px; bottom:26px; z-index:5; right:8px; padding:4px 8px; display:grid; grid-template-columns:200px 1fr; gap:12px; background:#000b; border:1px solid var(--line); border-radius:8px; pointer-events:none; font-size:16px; }
-.atlas-mask { display:inline-flex; align-items:center; gap:4px; margin-left:8px; color:var(--mut); cursor:pointer; } .atlas-mask[hidden] { display:none; }
+.atlas-mask { position:absolute; top:46px; right:8px; z-index:6; display:flex; align-items:center; gap:6px; padding:2px 8px; background:#000b; border:1px solid var(--line); border-radius:8px; color:var(--fg, #dde); cursor:pointer; font-size:16px; } .atlas-mask[hidden] { display:none; }
 .atlas-ramp { height:12px; border-radius:6px; margin:4px 0; } .atlas-scale { display:flex; justify-content:space-between; color:var(--mut); }
 .atlas-title { font-weight:700; } .atlas-note, .atlas-msg { color:var(--mut); font-size:16px; } .atlas-msg.err { color:var(--err); }
 
