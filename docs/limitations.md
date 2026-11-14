@@ -48,6 +48,9 @@ flat target matches flat plains almost anywhere, so a high score for a flat targ
 
 ## Sunlight model
 
+- The light similarity score (`light_sim`) has a high floor: even unrelated Earth places score well for a polar lunar
+  target, because the score is scaled by the largest possible distance between elevation histograms. The app shows each
+  target's Earth range next to the score, and a light score should be read against that range, not on its own scale.
 - Analytic model: circular orbit, constant obliquity, mean solar time. No orbital eccentricity, no equation of time,
   no refraction, Sun as a point.
 - No local horizon and no terrain shadowing in the sun-elevation numbers. This matters most at the lunar poles,
