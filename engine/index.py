@@ -70,11 +70,14 @@ class Index:
         self.id_to_row = {s: i for i, s in enumerate(self.ids)}
         self.sqnorm = (self.feats.astype(np.float64) ** 2).sum(axis=1).astype(np.float32)
         self.rows: dict[str, np.ndarray] = {}
+        self.slices: dict[str, slice] = {}
         self.trees: dict[str, cKDTree] = {}
         for b in BODIES:
             r = np.flatnonzero(self.body == b)
             if len(r):
                 self.rows[b] = r
+                if r[-1] - r[0] + 1 == len(r):  # contiguous (build_index writes bodies in blocks) -> zero-copy views
+                    self.slices[b] = slice(int(r[0]), int(r[-1]) + 1)
                 self.trees[b] = cKDTree(_unit(self.lat[r], self.lon[r]))
         self.gidx = F.group_indices()
         self.weights = np.asarray(self.scaler["weights"], dtype=np.float32)
@@ -136,9 +139,13 @@ class Index:
         raise ValueError(f"no valid terrain at {body} {lat:.4f},{lon:.4f} (ocean, ice, no data or outside "
                          f"latitude limits {dem.LAT_LIMITS[body]}) and no index point within {MAX_FALLBACK_SNAP_KM} km")
 
-    def distances(self, vec: np.ndarray, rows: np.ndarray | None = None) -> np.ndarray:
-        X = self.feats if rows is None else self.feats[rows]
-        sq = self.sqnorm if rows is None else self.sqnorm[rows]
+    def distances(self, vec: np.ndarray, rows: np.ndarray | None = None, body: str | None = None) -> np.ndarray:
+        sel = self.slices.get(body) if body is not None else None
+        if sel is not None:
+            X, sq = self.feats[sel], self.sqnorm[sel]
+        else:
+            X = self.feats if rows is None else self.feats[rows]
+            sq = self.sqnorm if rows is None else self.sqnorm[rows]
         d2 = sq - 2.0 * (X @ vec) + float(vec @ vec)
         return np.sqrt(np.maximum(d2, 0.0))
 
@@ -150,7 +157,7 @@ class Index:
         results: dict[str, list[dict]] = {}
         for dest in dests:
             rows = self.rows[dest]
-            d = self.distances(q.vec, rows)
+            d = self.distances(q.vec, rows, body=dest)
             mask = np.ones(len(rows), dtype=bool)
             if region is not None:
                 lo0, la0, lo1, la1 = region
@@ -175,15 +182,15 @@ class Index:
             cand = cand[np.argsort(d[cand], kind="stable")]
             cand = cand[np.isfinite(d[cand])]
             keep: list[int] = []
-            for c in cand:
-                i = rows[c]
-                if keep:
-                    kr = rows[np.asarray(keep)]
-                    if (haversine_km(self.lat[i], self.lon[i], self.lat[kr], self.lon[kr], R) < NMS_KM).any():
-                        continue
-                keep.append(int(c))
-                if len(keep) == k:
+            clat, clon = self.lat[rows[cand]], self.lon[rows[cand]]
+            alive = np.ones(len(cand), dtype=bool)
+            while len(keep) < k:
+                live = np.flatnonzero(alive)
+                if not len(live):
                     break
+                j = live[0]  # best remaining candidate; suppress everything within NMS_KM of it
+                keep.append(int(cand[j]))
+                alive[live] = haversine_km(clat[j], clon[j], clat[live], clon[live], R) >= NMS_KM
             if len(keep) == k or m >= n_valid:
                 break
             m = min(n_valid, m * 4)
