@@ -17,9 +17,10 @@ Changes from the original, so you can see what was rewritten:
 ## Script
 
 **[0:00] Three globes on screen. Touch nothing.**
-> "Before anyone lands on the Moon or Mars, they rehearse on Earth, in places that resemble where they are going.
-> Those places are called analog sites, and today they are mostly chosen by experience. We built a way to measure how
-> similar a place is, and to say when to go."
+> "Several teams here are finding places that look like the Moon. We asked a harder question: for one specific landing
+> site, where on Earth, and in which weeks?"
+>
+> (Optional second sentence: "Analog sites are where people rehearse, and today they are mostly chosen by experience.")
 
 **[0:20] Only if the site finder gate passed (it did: metrics: site_finder.passed). Click "Find base sites".**
 > "First, where would you build a base? The system searches the lunar south pole by combining NASA's own maps: gentle
@@ -73,22 +74,34 @@ the line above.*
 
 ## Video (30 to 60 seconds, due Sunday 14:00)
 
-Screen recording from replay mode, captions in English. Frames and captions as in the Svod note, with these values
-filled and these frames dropped if their gate has not passed:
+Positioning sentence for captions and the end card (from Svod `projects/analog-twin/07-differentiators.md`):
+**Others answer "which places look like the Moon". We answer: for THIS landing site — where on Earth, in which weeks, how good is the match, what cannot be matched, and proof that it agrees with NASA.**
+
+Screen recording from replay mode, captions in English. Shot order follows the differentiators note. Drop a frame if the
+feature has not passed its gate or is not built. Atlas, Rehearsal Calendar and the finding are not built yet as far as
+this repository shows; the captions below are drafts.
 
 | Seconds | Frame | Caption |
 |---|---|---|
-| 0 to 5 | Three globes, slow rotation | "Before we go to the Moon, we rehearse on Earth. Where, and when?" |
-| 5 to 12 | South pole map with suggested sites and NASA outlines (site finder passed) | "Step 1: find a base site: sunlight, Earth in view, ice nearby." |
-| 12 to 25 | Mission View: launch from Cape Canaveral, trajectory, landing (mission gate passed: metrics: mission.status) | "Launch 31 December 2027, UTC <!-- metrics: mission.sites.shackleton-rim.times_utc.launch -->, {tof} days. Real ephemerides, first-order transfer." where tof = 4.3 days <!-- metrics: mission.sites.shackleton-rim.refinement.tof_days --> |
-| 25 to 35 | Earth globe lights up with matches, fly to the first | "Step 2: compare with 972,567 places on Earth." <!-- metrics: corpus.points_per_body.earth --> |
-| 35 to 48 | Two 3D terrains side by side, the Sun moves, shadows creep | "Similar terrain texture. Same light. Best time to go: 23 May to 19 June." <!-- candidates: Shackleton rim, rank 1 --> |
-| 48 to 57 | The agent plan, the "Not reproducible on Earth" block | "Step 3: an AI crew plans the campaign, and says what Earth cannot give you." |
-| 57 to 60 | Name and "Open NASA data: LRO LOLA, MGS MOLA, NOAA ETOPO" | "Analog Twin" |
+| 0 to 5 | Three globes, slow rotation | "Several teams look for places that look like the Moon. We ask: for one landing site, where on Earth, and in which weeks?" |
+| 5 to 12 | Base sites on the south pole map (only if the site finder gate passed) | "Step 1: find a base site: sunlight, Earth in view, ice nearby." |
+| 12 to 20 | Atlas: the whole Earth is coloured by similarity to the target, then re-colours when light is switched on | "The whole Earth, scored for this one site. Now with sunlight." |
+| 20 to 26 | Fly to the top match | "Top match: {golden: top twin}." (Peru, 11.9 S, 76.4 W, from the golden plan) |
+| 26 to 36 | Two 3D terrains side by side, the Sun moves, shadows creep | "Similar terrain texture. Same light." |
+| 36 to 42 | Rehearsal Calendar: 52-week strips, best window bracketed (23 May to 19 June for the top match) | "Same terrain is not enough. The light only matches in these weeks." |
+| 42 to 50 | The agent plan and the "Not reproducible on Earth" block | "An AI crew plans the campaign, and says what Earth cannot give you." |
+| 50 to 57 | One finding sentence on screen (from the Findings card; wording from `docs/findings.md`, with its numbers from `docs/metrics.json`) | {finding sentence: not generated yet} |
+| 57 to 60 | Name, positioning line, "Open NASA data: LRO LOLA, MGS MOLA, NOAA ETOPO" | "Analog Twin" |
 
-The launch date is the two-body gate value for Shackleton rim. The Mission View shows the refined arc, whose landing
-time is 2028-01-06 04:20 UTC <!-- metrics: mission.sites.shackleton-rim.refinement.periselene_utc -->; if the caption must match the screen, read the date from the
-screen on the day.
+Mission View, if its gate passed (metrics: mission.status), may replace 5 to 8 seconds near the start (launch 31 December
+2027 UTC <!-- metrics: mission.sites.shackleton-rim.times_utc.launch -->, first-order transfer). It is no longer required for a
+strong video. Read the caption date from the screen on the day, because the view shows the refined arc.
+
+Honesty check on the positioning sentence: it ends with "proof that it agrees with NASA". Our measured agreement with
+practice is weak: the known-analog test is 51.12 against 48.54 for random <!-- metrics: terrain.known_analog_test.median_percentile_all_pairs, terrain.known_analog_test.baseline_random_median_percentile -->.
+Agreement with NASA candidate regions in the site finder is 4 of our top 10 <!-- metrics: site_finder.top10_near_nasa_region -->. If "proof" is
+spoken or shown, say what the test shows ("we check it against NASA's regions and against known analog sites, and we
+report where it does not agree").
 
 ## Live presentation notes
 

@@ -1,5 +1,7 @@
 # Description
 
+**Others answer "which places look like the Moon". We answer: for THIS landing site — where on Earth, in which weeks, how good is the match, what cannot be matched, and proof that it agrees with NASA.**
+
 ## What it does
 
 Analog sites are places on Earth where people rehearse for the Moon and Mars. They are mostly chosen by experience and
