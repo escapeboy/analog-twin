@@ -166,17 +166,18 @@ def latency_test(ix: Index) -> dict:
                       "half the queries offset off-grid (features computed on the fly)."}
 
 
-def determinism_test() -> dict:
+def determinism_test(set_name: str = "v1") -> dict:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import build_index
     tmp = Path(tempfile.mkdtemp(prefix="w1det-"))
     try:
         hashes = []
         for name in ("a", "b"):
-            m = build_index.build(tmp / name, spacing_km=50.0, dense_km=12.0, workers=8, log=lambda *a: None)
+            m = build_index.build(tmp / name, spacing_km=50.0, dense_km=12.0, workers=8, log=lambda *a: None,
+                                  set_name=set_name)
             hashes.append(m["features_sha256"])
-        return {"method": "built the small index (50 km spacing, 12 km dense zones, 3 bodies) twice from the same "
-                          "inputs and compared sha256 of features.npy",
+        return {"method": f"built the small index (50 km spacing, 12 km dense zones, 3 bodies, feature set "
+                          f"{set_name}) twice from the same inputs and compared sha256 of features.npy",
                 "hash_run_1": hashes[0], "hash_run_2": hashes[1], "identical": hashes[0] == hashes[1]}
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -187,7 +188,8 @@ def corpus_facts(ix: Index, load_s: float) -> dict:
     return {"index_path": str(ix.path), "points_per_body": {b: v["points"] for b, v in m["bodies"].items()},
             "uniform_points_per_body": {b: v["uniform_points"] for b, v in m["bodies"].items()},
             "dense_points_per_body": {b: v["dense_points"] for b, v in m["bodies"].items()},
-            "total_points": m["total_points"], "gsd_m": m["gsd_m"],
+            "total_points": m["total_points"], "gsd_m": m["gsd_m"], "feature_set": ix.fset["name"],
+            "context_window_px": m.get("context_window_px", m["window_px"]),
             "gsd_note": "all bodies resampled to ~926 m (Earth has only ETOPO 2022 30\" globally)",
             "window_km": m["window_km"], "n_features": m["n_features"], "spacing_km": m["spacing_km"],
             "dense_spacing_km": m["dense_spacing_km"], "lat_limits": m["lat_limits"],
@@ -214,14 +216,36 @@ def main(argv=None):
     ap.add_argument("--index", type=Path, default=dem.ROOT / "data" / "index" / "current")
     ap.add_argument("--metrics", type=Path, default=METRICS)
     ap.add_argument("--skip-determinism", action="store_true")
+    ap.add_argument("--tag", default=None,
+                    help="write results only under terrain.<tag> (experiment comparison); other keys untouched")
     a = ap.parse_args(argv)
     t0 = time.perf_counter()
     ix = Index(a.index)
     load_s = time.perf_counter() - t0
-    upd = {"corpus": corpus_facts(ix, load_s), "terrain": {"known_analog_test": known_analog_test(ix)}}
+    if a.tag:
+        kat = known_analog_test(ix)
+        perf = latency_test(ix)
+        cur = json.loads(a.metrics.read_text()) if a.metrics.exists() else {}
+        terrain = cur.get("terrain") if isinstance(cur.get("terrain"), dict) else {}
+        terrain[a.tag] = {"index_path": str(ix.path), "feature_set": ix.fset["name"],
+                          "n_features": len(ix.fset["names"]), "features_sha256": ix.manifest["features_sha256"],
+                          "points_per_body": {b: v["points"] for b, v in ix.manifest["bodies"].items()},
+                          "index_load_seconds": round(load_s, 2), "known_analog_test": kat, "find_twins": perf,
+                          "validated_at": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
+        merge_write(a.metrics, {"terrain": terrain}, None)
+        print(json.dumps({"tag": a.tag, "median_percentile_all_pairs": kat["median_percentile_all_pairs"],
+                          "median_of_site_medians": kat["median_of_site_medians"],
+                          "baseline": kat["baseline_random_median_percentile"],
+                          "by_target_body": kat["by_target_body"], "p95_ms": perf["p95_ms"]}, indent=1))
+        return
+    prev = json.loads(a.metrics.read_text()).get("terrain", {}) if a.metrics.exists() else {}
+    terrain = {k: v for k, v in prev.items() if k not in ("known_analog_test", "validated_at")} \
+        if isinstance(prev, dict) else {}
+    terrain["known_analog_test"] = known_analog_test(ix)
+    upd = {"corpus": corpus_facts(ix, load_s), "terrain": terrain}
     perf = latency_test(ix)
     if not a.skip_determinism:
-        upd["determinism"] = determinism_test()
+        upd["determinism"] = determinism_test(ix.fset["name"])
     upd["terrain"]["validated_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
     merge_write(a.metrics, upd, perf)
     k = upd["terrain"]["known_analog_test"]

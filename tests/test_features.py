@@ -96,3 +96,22 @@ def test_features_md_documents_every_dimension():
     doc = (Path(__file__).resolve().parents[1] / "docs" / "features.md").read_text()
     for name in F.FEATURE_NAMES:
         assert f"`{name}`" in doc, name
+
+
+def test_v2_extends_v1_exactly():
+    rng = np.random.default_rng(4)
+    w = rng.normal(0, 40, (3, F.WINDOW_PX_V2, F.WINDOW_PX_V2)) + _plane(3.0, 10.0, F.WINDOW_PX_V2)
+    o = (F.WINDOW_PX_V2 - F.WINDOW_PX) // 2
+    v2 = F.features_v2(w)
+    v1 = F.features(w[:, o:o + F.WINDOW_PX, o:o + F.WINDOW_PX])
+    fs = F.feature_set("v2")
+    assert v2.shape == (3, len(fs["names"])) and fs["names"][:F.N_FEATURES] == F.FEATURE_NAMES
+    np.testing.assert_array_equal(v2[:, :F.N_FEATURES], v1)
+    # a pure plane: context slope equals the analytic slope, context relief ~ 0
+    p = F.features_v2(_plane(6.0, 200.0, F.WINDOW_PX_V2))
+    i = fs["names"].index
+    assert p[i("ctx_slope_mean")] == pytest.approx(6.0, rel=1e-3)
+    assert p[i("ctx_relief")] < 1e-3
+    w8 = F.group_weights("v2")
+    for g, idx in F.group_indices("v2").items():
+        assert np.isclose((w8[idx] ** 2).sum(), 1.0)

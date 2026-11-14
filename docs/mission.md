@@ -10,6 +10,30 @@ python scripts/build_mission.py --cesium web/node_modules/cesium/Source/Cesium.j
 **Label (always shown):** "First-order mission geometry: real ephemerides, two-body transfer. Not a flight-dynamics
 solution."
 
+## Interface (API / frontend)
+
+`engine.trajectory.mission(site)` returns the cached `data/mission/<site_id>.json`, or builds it on first use
+(~10 s, needs node + Cesium for the ephemeris check, path `web/node_modules/cesium/Source/Cesium.js` or env
+`ANALOG_TWIN_CESIUM`). `site` can be a `targets.yaml` Moon id (`shackleton-rim`), a site-finder id
+(`sp-0386-0786`) or a `(lat, lon)` tuple (id `ll_<lat>_<lon>`).
+
+```
+{czml_file: "<site_id>.czml",
+ summary: {launch_utc | null, tli_utc, arrival_utc, landing_utc, tli_dv_kms, loi_dv_kms, tof_days,
+           arrival_vinf_kms, site: {id, label, lat, lon}, launch_time_computed, landing_sun_elevation_deg,
+           landing_earth_elevation_deg, label, events: [{t_utc, name, detail}]},
+ gate: {status: "pass" | "partial" | "fail", checks: {tli_dv, loi_dv, tof_equals_config, endpoint_error,
+        ksc_in_parking_plane, moon_sun_vs_cesium: {passed, ...values}}}}
+```
+
+* The summary holds what the view shows. When the Earth + Moon refinement converged (all current sites):
+  * TLI and LOI Δv, time of flight and `arrival_utc` (the periselene, i.e. the LOI burn) come from the refined arc;
+  * `label` reads "…Earth–Moon gravity model…" (spec step 5);
+  * `arrival_vinf_kms` is the two-body hyperbolic excess speed.
+* `launch_utc` is null and the launch event is dropped unless the gate status is "pass".
+* The gate checks use the two-body numbers (spec steps 1–4).
+* Everything else (two-body summary, refinement, Cesium epochs, end-point check) is in `<site_id>.detail.json`.
+
 ## Inputs and constants
 
 | Item | Value | Source |

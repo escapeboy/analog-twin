@@ -79,7 +79,8 @@ class Index:
                 if r[-1] - r[0] + 1 == len(r):  # contiguous (build_index writes bodies in blocks) -> zero-copy views
                     self.slices[b] = slice(int(r[0]), int(r[-1]) + 1)
                 self.trees[b] = cKDTree(_unit(self.lat[r], self.lon[r]))
-        self.gidx = F.group_indices()
+        self.fset = F.feature_set(self.manifest.get("feature_set", "v1"))
+        self.gidx = F.group_indices(self.fset["name"])
         self.weights = np.asarray(self.scaler["weights"], dtype=np.float32)
 
     # ------------------------------------------------------------------ helpers
@@ -129,8 +130,8 @@ class Index:
             return self._from_row(int(rows[0]), km[0])
         raw = None
         if dem.in_limits(body, lat):
-            win = dem.crop_metric_batch(body, np.array([lat]), np.array([lon]), F.WINDOW_PX, dem.GSD_M)
-            raw = F.features(win, dem.GSD_M)[0]
+            win = dem.crop_metric_batch(body, np.array([lat]), np.array([lon]), self.fset["window_px"], dem.GSD_M)
+            raw = self.fset["fn"](win, dem.GSD_M)[0]
         if raw is not None and np.isfinite(raw).all():
             vec = F.apply_scaler(raw[None], self.scaler)[0]
             return Resolved(body, lat, lon, raw, vec, None, False, None)
@@ -212,7 +213,7 @@ class Index:
         groups = []
         for g, idx in self.gidx.items():
             share = float(diff2[idx].sum() / total) if total > 0 else 0.0
-            groups.append({"group": g, "label": F.GROUPS[g], "a": [round(float(v), 4) for v in za[idx]],
+            groups.append({"group": g, "label": self.fset["groups"][g], "a": [round(float(v), 4) for v in za[idx]],
                            "b": [round(float(v), 4) for v in zb[idx]], "contribution": round(share, 4)})
         order = sorted(groups, key=lambda x: x["contribution"])
         top_similar = [f"Closest in {x['label']}: {_detail(x['group'], ra.raw, rb.raw)}" for x in order[:3]]
@@ -239,6 +240,7 @@ def _inv_slog(v: float) -> float:
 
 
 _FI = {n: i for i, n in enumerate(F.FEATURE_NAMES)}
+_FI_V2 = {n: i for i, n in enumerate(F.feature_set("v2")["names"])}  # v2 = v1 dims + context dims
 
 
 def _detail(group: str, a: np.ndarray, b: np.ndarray) -> str:
@@ -259,6 +261,9 @@ def _detail(group: str, a: np.ndarray, b: np.ndarray) -> str:
     if group == "relief":
         i = _FI["relief"]
         return f"local relief {_inv_log(a[i]):.0f} m vs {_inv_log(b[i]):.0f} m"
+    if group == "context":
+        i = _FI_V2["ctx_relief"]
+        return f"36 km relief {_inv_log(a[i]):.0f} m vs {_inv_log(b[i]):.0f} m"
     if group == "aspect":
         i = _FI["aspect_entropy"]
         return f"direction entropy {a[i]:.2f} vs {b[i]:.2f} (0 = one direction, 1 = all directions)"
