@@ -1,4 +1,5 @@
 import time
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -130,20 +131,39 @@ def test_unknown_body():
 
 @pytest.mark.parametrize("target", [("moon", -89.7668), ("mars", 18.41), ("moon", 0.0), ("earth", 42.2)])
 def test_earth_light_range_brackets_best_window(target):
-    lo, hi = light.earth_light_range(*target)
+    lo, hi = light.earth_light_range(*target, lat_min=-55.0, lat_max=83.0)
     assert 0.0 <= lo <= hi <= 1.0
     rng = np.random.default_rng(1)
-    sims = [light.best_window(*target, float(la))["light_sim"] for la in rng.uniform(-85, 85, 60)]
+    sims = [light.best_window(*target, float(la))["light_sim"] for la in rng.uniform(-55, 83, 60)]
     assert min(sims) >= lo - 0.005 and max(sims) <= hi + 0.005
-    on_grid = [light.best_window(*target, float(la))["light_sim"] for la in light.EARTH_RANGE_LATS]
+    grid = light._range_lats(-55.0, 83.0)
+    assert grid[0] == -55.0 and grid[-1] == 83.0 and len(grid) == 139
+    on_grid = [light.best_window(*target, la)["light_sim"] for la in grid]
     assert lo == pytest.approx(min(on_grid)) and hi == pytest.approx(max(on_grid))
 
 
+def test_earth_light_range_default_span_and_fallback(monkeypatch):
+    span = light.earth_index_lat_span()
+    assert -90 <= span[0] < span[1] <= 90
+    assert light.earth_light_range("moon", -89.7668) == light.earth_light_range("moon", -89.7668, *span)
+    wide = light.earth_light_range("moon", -89.7668, -85.0, 85.0)
+    narrow = light.earth_light_range("moon", -89.7668, -55.0, 83.0)
+    assert narrow[1] <= wide[1] and narrow[0] >= wide[0]           # a sub-span can only narrow the range
+    light.earth_index_lat_span.cache_clear()
+    monkeypatch.setattr("engine.dem.ROOT", Path("/nonexistent"))
+    try:
+        assert light.earth_index_lat_span() == light.EARTH_RANGE_FALLBACK
+    finally:
+        light.earth_index_lat_span.cache_clear()
+    with pytest.raises(ValueError):
+        light.earth_light_range("moon", 0.0, 10.0, -10.0)
+
+
 def test_earth_light_range_values_and_speed():
-    lo, hi = light.earth_light_range("moon", -89.7668)
-    assert 0.70 < lo < 0.78 and 0.90 < hi < 0.97          # high floor documented in docs/light.md
+    lo, hi = light.earth_light_range("moon", -89.7668, -85.0, 85.0)
+    assert 0.70 < lo < 0.78 and 0.90 < hi < 0.97
     assert light.earth_light_range("earth", 30.0)[1] == pytest.approx(1.0, abs=0.03)
-    light.earth_light_range("moon", -85.0)                  # tables built
+    light.earth_light_range("moon", -85.0)                  # tables built for the default span
     light._earth_range_cached.cache_clear()
     light._profile_cached.cache_clear()
     runs = []

@@ -116,21 +116,27 @@ from 0.4 to about 1.5 against terrain's 0.6, and would let the analytic light pr
 real candidate pools, the correlation of score with terrain_sim dropped from 0.88 to 0.38 for Shackleton. So
 **EMD_max stays 5** (decision logged in build-log), and the value is shown with its range instead.
 
-`earth_light_range(target_body, target_lat) -> (min, max)` is the best-window light_sim over Earth latitudes
-**−85° to 85° in 1° steps**, land-agnostic (oceans and Antarctica included). It uses exactly the same window tables
-as `best_window`, so the range brackets every twin's light_sim, up to tiny differences between grid latitudes.
-Because it is land-agnostic, the maximum for polar targets can come from latitudes with no indexed land (the index
-has no Earth points south of 54.8°S).
+`earth_light_range(target_body, target_lat, lat_min=None, lat_max=None) -> (min, max)` is the best-window
+light_sim over Earth latitudes **[lat_min, lat_max] in 1° steps plus both end points**.
+* **Default span:** the latitudes where an Earth twin can exist, i.e. the min/max latitude of the Earth points of the
+  current index (`data/index/current/points.parquet`, read once and cached). For full_v2 this is **−54.81° to
+  82.55°**. Without a readable index it falls back to −85..85.
+* It is land-agnostic within the span. It uses exactly the same window tables as `best_window`, so the range
+  brackets every twin's light_sim, up to tiny differences between grid latitudes.
 
-| Target | Earth range |
+| Target | Earth range (default span, full_v2) |
 |---|---|
-| Moon south pole (Shackleton rim, −89.77) | 0.739–0.966 |
-| Malapert (−85.99) | 0.746–0.973 |
-| Moon equator | 0.754–1.000 |
-| Jezero (18.41) | 0.775–0.999 |
+| Moon south pole (Shackleton rim, −89.77) | 0.739–0.953 |
+| Malapert (−85.99) | 0.746–0.960 |
+| Moon equator | 0.776–1.000 |
+| Jezero (18.41) | 0.797–0.999 |
 
-Speed: the latitude tables (171 × 365 windows) are built once per process. The first call took 92 ms including that
-build, each new target 5–8 ms, and a cached target 0.004 ms. The API can call it once at start-up to warm it.
+For comparison, with −85..85 the polar maxima were 0.966 (Shackleton) and 0.973 (Malapert). Those came from
+latitudes near 85°S, where no indexed land exists.
+
+Speed: on the first call, the parquet read took 97 ms and the latitude tables (139 × 365 windows) 78 ms. Each new
+target after that takes about 7 ms; a cached target takes microseconds. The API can call it once at start-up to warm
+it.
 
 ### Caveat: ground distance in bin-index units
 
