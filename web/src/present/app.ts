@@ -9,12 +9,10 @@ import { PresentGlobe } from './globe';
 import { initHud } from './hud';
 
 const params = new URLSearchParams(location.search);
-export const FILM = params.get('film') === '1';
 const DEFAULT_PRESET = 'shackleton-rim';
 const FOOTER = 'Terrain shape + sunlight regime. Not geology, not chemistry. · Data: NASA LRO LOLA, MGS MOLA, Trek, Blue Marble, Black Marble; NOAA ETOPO; Copernicus DEM (3D view); names: Natural Earth, IAU/USGS.';
 
 document.body.classList.add('present-mode');
-if (FILM) document.body.classList.add('film');
 document.getElementById('app')!.hidden = true;
 
 const root = h('div', { id: 'present' });
@@ -154,7 +152,7 @@ export function applyResult(p: Point, label: string, presetId: string | undefine
   if (roles[centre] !== 'center') bringToCentre(centre, 0.7);
   arcs.set(store.query, allTwins(res), first?.id ?? null);
   store.emit();
-  if (first) setHud(!FILM); // lay out first: the fitted camera heights depend on the final slot sizes
+  if (first) setHud(true); // lay out first: the fitted camera heights depend on the final slot sizes
   for (const b of BODIES) {
     const f = b === p.body ? p : res.results[b]?.[0];
     if (f) aim(b, f.lat, f.lon, 1.8);
@@ -190,7 +188,7 @@ function frame(now: number) {
 }
 requestAnimationFrame(frame);
 window.addEventListener('resize', layout);
-window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && hudOpen && !FILM) setHud(false); });
+window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && hudOpen) setHud(false); });
 layout();
 // first frame of every globe at its fitted size
 requestAnimationFrame(() => { for (const g of globes) { const v = g.view(); aim(g.body, v.lat, v.lon, 0); } });
@@ -199,6 +197,5 @@ if (params.get('debug') === '1') (window as unknown as Record<string, unknown>).
 
 void (async () => {
   await initPresets();
-  if (FILM) { (await import('./film')).runFilm(); return; }
   await runPreset(DEFAULT_PRESET);
 })();
