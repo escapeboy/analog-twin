@@ -1854,6 +1854,648 @@
         "median of per-site medians got worse (54.69 -> 57.97); the gain is in pairs, led by Haughton (63.09 -> 41.69)",
         "v2 still does not rank known analogs clearly better than random points (51.12 % vs baseline 48.54 %)"
       ]
+    },
+    "known_analog_test_barren_on": {
+      "method": "percentile rank of each known analog site among all uniformly sampled Earth index points by terrain-feature distance to each target it is an analog for (0 % = best). Baseline: 1000 random Earth index points (seed 1000), each paired with a target drawn in turn from the same (site, target) list.",
+      "earth_points_ranked": 221027,
+      "barren_filter": {
+        "on": true,
+        "ndvi_max": 0.2,
+        "uniform_earth_points": 841198,
+        "excluded_points": 620171
+      },
+      "targets": {
+        "shackleton-rim": {
+          "on_grid": false,
+          "snapped_km": null
+        },
+        "connecting-ridge": {
+          "on_grid": true,
+          "snapped_km": 1.4640143095406435
+        },
+        "malapert-massif": {
+          "on_grid": true,
+          "snapped_km": 0.6089713244783115
+        },
+        "nobile-rim-1": {
+          "on_grid": true,
+          "snapped_km": 1.7692900659135207
+        },
+        "haworth": {
+          "on_grid": true,
+          "snapped_km": 1.8554826355217033
+        },
+        "de-gerlache-rim-2": {
+          "on_grid": true,
+          "snapped_km": 0.6983242573083037
+        },
+        "jezero": {
+          "on_grid": true,
+          "snapped_km": 1.0752519061761787
+        },
+        "perseverance-landing": {
+          "on_grid": true,
+          "snapped_km": 1.2577657651778564
+        },
+        "gale": {
+          "on_grid": true,
+          "snapped_km": 1.5744966154460733
+        },
+        "oxia-planum": {
+          "on_grid": false,
+          "snapped_km": null
+        }
+      },
+      "sites": [
+        {
+          "id": "haughton",
+          "label": "Haughton crater, Devon Island (HMP)",
+          "type": "impact crater, polar desert",
+          "lat": 75.383,
+          "lon": -89.667,
+          "source_url": "https://en.wikipedia.org/wiki/Haughton_impact_crater",
+          "site_ndvi": 0.0056,
+          "site_barren": true,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 4.88,
+          "evaluated_at": {
+            "lat": 75.3632,
+            "lon": -89.8221
+          },
+          "percentile_by_target": {
+            "jezero": 33.82,
+            "gale": 42.2,
+            "perseverance-landing": 30.76,
+            "oxia-planum": 41.85,
+            "shackleton-rim": 40.85,
+            "connecting-ridge": 42.37,
+            "malapert-massif": 45.67,
+            "nobile-rim-1": 31.17,
+            "haworth": 37.41,
+            "de-gerlache-rim-2": 23.66
+          },
+          "median_percentile": 39.13,
+          "best_percentile": 23.66
+        },
+        {
+          "id": "university-valley",
+          "label": "McMurdo Dry Valleys, University Valley",
+          "type": "hyperarid polar permafrost",
+          "lat": -77.867,
+          "lon": 160.667,
+          "source_url": "https://openpolar.no/Record/ftnasantrs:oai:casi.ntrs.nasa.gov:20150023012/Details",
+          "evaluable": false,
+          "reason": "no valid terrain at earth -77.8670,160.6670 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+          "nearest_land_point_km": 3521.24
+        },
+        {
+          "id": "yungay",
+          "label": "Atacama Desert, Yungay",
+          "type": "hyperarid soil",
+          "lat": -24.08459,
+          "lon": -69.91531,
+          "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7645800",
+          "site_ndvi": 0.0838,
+          "site_barren": true,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 1.96,
+          "evaluated_at": {
+            "lat": -24.1018,
+            "lon": -69.9113
+          },
+          "percentile_by_target": {
+            "jezero": 81.11,
+            "gale": 17.16,
+            "perseverance-landing": 24.37,
+            "oxia-planum": 46.32
+          },
+          "median_percentile": 35.34,
+          "best_percentile": 17.16
+        },
+        {
+          "id": "death-valley",
+          "label": "Death Valley, California",
+          "type": "desert, dunes",
+          "lat": 36.24694,
+          "lon": -116.81694,
+          "source_url": "https://en.wikipedia.org/wiki/Death_Valley",
+          "site_ndvi": 0.0605,
+          "site_barren": true,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 2.0,
+          "evaluated_at": {
+            "lat": 36.2606,
+            "lon": -116.8026
+          },
+          "percentile_by_target": {
+            "jezero": 98.1,
+            "gale": 0.01,
+            "perseverance-landing": 88.19,
+            "oxia-planum": 99.49
+          },
+          "median_percentile": 93.14,
+          "best_percentile": 0.01
+        },
+        {
+          "id": "bockfjorden",
+          "label": "Svalbard, Bockfjorden (AMASE)",
+          "type": "volcanic and carbonate, Arctic",
+          "lat": 79.469,
+          "lon": 13.3287,
+          "source_url": "https://en.wikipedia.org/wiki/Bockfjorden",
+          "evaluable": false,
+          "reason": "no valid terrain at earth 79.4690,13.3287 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+          "nearest_land_point_km": 683.55
+        },
+        {
+          "id": "holuhraun",
+          "label": "Holuhraun lava field, Iceland",
+          "type": "young basaltic lava",
+          "lat": 64.85,
+          "lon": -16.83,
+          "source_url": "https://en.wikipedia.org/wiki/Holuhraun",
+          "site_ndvi": -0.0375,
+          "site_barren": true,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 17.05,
+          "evaluated_at": {
+            "lat": 65.003,
+            "lon": -16.855
+          },
+          "percentile_by_target": {
+            "jezero": 76.58,
+            "gale": 40.16,
+            "perseverance-landing": 70.79,
+            "oxia-planum": 77.07
+          },
+          "median_percentile": 73.69,
+          "best_percentile": 40.16
+        },
+        {
+          "id": "lanzarote",
+          "label": "Lanzarote, Timanfaya National Park (ESA PANGAEA)",
+          "type": "volcanic",
+          "lat": 28.99417,
+          "lon": -13.79333,
+          "source_url": "https://en.wikipedia.org/wiki/Timanfaya_National_Park",
+          "evaluable": false,
+          "reason": "no valid terrain at earth 28.9942,-13.7933 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+          "nearest_land_point_km": 171.52
+        },
+        {
+          "id": "hi-seas",
+          "label": "HI-SEAS habitat, Mauna Loa, Hawaii",
+          "type": "lava terrain, habitat simulation",
+          "lat": 19.602378,
+          "lon": -155.487192,
+          "source_url": "https://en.wikipedia.org/wiki/HI-SEAS",
+          "site_ndvi": 0.0636,
+          "site_barren": true,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 1.61,
+          "evaluated_at": {
+            "lat": 19.6052,
+            "lon": -155.5023
+          },
+          "percentile_by_target": {
+            "jezero": 81.22,
+            "gale": 2.02,
+            "perseverance-landing": 44.95,
+            "oxia-planum": 97.31
+          },
+          "median_percentile": 63.09,
+          "best_percentile": 2.02
+        },
+        {
+          "id": "rio-tinto",
+          "label": "Rio Tinto, Spain (Peña de Hierro)",
+          "type": "acidic sulfate (geochemical analog; terrain shape not expected to match)",
+          "lat": 37.72186,
+          "lon": -6.55923,
+          "source_url": "https://msaweb.org/MSA/AmMin/products/AmMin/AM099P1199.pdf",
+          "site_ndvi": 0.4225,
+          "site_barren": false,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 1.12,
+          "evaluated_at": {
+            "lat": 37.7172,
+            "lon": -6.5479
+          },
+          "percentile_by_target": {
+            "jezero": 74.94,
+            "gale": 42.89,
+            "perseverance-landing": 46.75,
+            "oxia-planum": 57.2
+          },
+          "median_percentile": 51.98,
+          "best_percentile": 42.89
+        },
+        {
+          "id": "meteor-crater",
+          "label": "Meteor Crater (Barringer), Arizona",
+          "type": "impact crater (astronaut geology training)",
+          "lat": 35.02806,
+          "lon": -111.02333,
+          "source_url": "https://en.wikipedia.org/wiki/Meteor_Crater",
+          "site_ndvi": 0.1556,
+          "site_barren": true,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 1.06,
+          "evaluated_at": {
+            "lat": 35.0376,
+            "lon": -111.0227
+          },
+          "percentile_by_target": {
+            "shackleton-rim": 43.65,
+            "connecting-ridge": 55.31,
+            "malapert-massif": 25.34,
+            "nobile-rim-1": 43.32,
+            "haworth": 42.01,
+            "de-gerlache-rim-2": 24.7
+          },
+          "median_percentile": 42.66,
+          "best_percentile": 24.7
+        },
+        {
+          "id": "ries",
+          "label": "Nördlinger Ries, Germany (ESA PANGAEA)",
+          "type": "impact crater",
+          "lat": 48.88333,
+          "lon": 10.56667,
+          "source_url": "https://en.wikipedia.org/wiki/N%C3%B6rdlinger_Ries",
+          "site_ndvi": 0.5856,
+          "site_barren": false,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 0.69,
+          "evaluated_at": {
+            "lat": 48.8871,
+            "lon": 10.5593
+          },
+          "percentile_by_target": {
+            "shackleton-rim": 61.42,
+            "connecting-ridge": 56.3,
+            "malapert-massif": 63.25,
+            "nobile-rim-1": 67.63,
+            "haworth": 63.83,
+            "de-gerlache-rim-2": 79.98
+          },
+          "median_percentile": 63.54,
+          "best_percentile": 56.3
+        }
+      ],
+      "median_percentile_all_pairs": 45.31,
+      "median_of_site_medians": 57.53,
+      "pairs_evaluated": 42,
+      "sites_evaluable": 8,
+      "sites_total": 11,
+      "baseline_random_median_percentile": 49.11,
+      "baseline_random_n": 1000,
+      "by_target_body": {
+        "mars": {
+          "pairs": 24,
+          "median_percentile": 46.53,
+          "baseline_random_median_percentile": 50.04
+        },
+        "moon": {
+          "pairs": 18,
+          "median_percentile": 43.48,
+          "baseline_random_median_percentile": 46.94
+        }
+      },
+      "notes": [
+        "McMurdo Dry Valleys (University Valley) are inside the Natural Earth 10 m 'Antarctic Ice Sheet' polygon, so the ice mask removes them; not evaluable with this mask.",
+        "Sites on narrow coasts or islands have no fully valid 12 km land window; they are snapped to the nearest valid Earth index point within 50 km (snapped_km, evaluated_at) or reported as not evaluable.",
+        "Analog sites were chosen by their operators for geology, climate or logistics; terrain shape at 926 m / 12 km is only one aspect, so poor ranks are expected for some (e.g. Rio Tinto)."
+      ]
+    },
+    "known_analog_test_barren_off": {
+      "method": "percentile rank of each known analog site among all uniformly sampled Earth index points by terrain-feature distance to each target it is an analog for (0 % = best). Baseline: 1000 random Earth index points (seed 1000), each paired with a target drawn in turn from the same (site, target) list.",
+      "earth_points_ranked": 841198,
+      "barren_filter": {
+        "on": false,
+        "ndvi_max": 0.2,
+        "uniform_earth_points": 841198,
+        "excluded_points": 0
+      },
+      "targets": {
+        "shackleton-rim": {
+          "on_grid": false,
+          "snapped_km": null
+        },
+        "connecting-ridge": {
+          "on_grid": true,
+          "snapped_km": 1.4640143095406435
+        },
+        "malapert-massif": {
+          "on_grid": true,
+          "snapped_km": 0.6089713244783115
+        },
+        "nobile-rim-1": {
+          "on_grid": true,
+          "snapped_km": 1.7692900659135207
+        },
+        "haworth": {
+          "on_grid": true,
+          "snapped_km": 1.8554826355217033
+        },
+        "de-gerlache-rim-2": {
+          "on_grid": true,
+          "snapped_km": 0.6983242573083037
+        },
+        "jezero": {
+          "on_grid": true,
+          "snapped_km": 1.0752519061761787
+        },
+        "perseverance-landing": {
+          "on_grid": true,
+          "snapped_km": 1.2577657651778564
+        },
+        "gale": {
+          "on_grid": true,
+          "snapped_km": 1.5744966154460733
+        },
+        "oxia-planum": {
+          "on_grid": false,
+          "snapped_km": null
+        }
+      },
+      "sites": [
+        {
+          "id": "haughton",
+          "label": "Haughton crater, Devon Island (HMP)",
+          "type": "impact crater, polar desert",
+          "lat": 75.383,
+          "lon": -89.667,
+          "source_url": "https://en.wikipedia.org/wiki/Haughton_impact_crater",
+          "site_ndvi": 0.0056,
+          "site_barren": true,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 4.88,
+          "evaluated_at": {
+            "lat": 75.3632,
+            "lon": -89.8221
+          },
+          "percentile_by_target": {
+            "jezero": 28.12,
+            "gale": 38.94,
+            "perseverance-landing": 26.76,
+            "oxia-planum": 48.62,
+            "shackleton-rim": 46.9,
+            "connecting-ridge": 52.72,
+            "malapert-massif": 51.14,
+            "nobile-rim-1": 35.77,
+            "haworth": 44.43,
+            "de-gerlache-rim-2": 23.82
+          },
+          "median_percentile": 41.69,
+          "best_percentile": 23.82
+        },
+        {
+          "id": "university-valley",
+          "label": "McMurdo Dry Valleys, University Valley",
+          "type": "hyperarid polar permafrost",
+          "lat": -77.867,
+          "lon": 160.667,
+          "source_url": "https://openpolar.no/Record/ftnasantrs:oai:casi.ntrs.nasa.gov:20150023012/Details",
+          "evaluable": false,
+          "reason": "no valid terrain at earth -77.8670,160.6670 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+          "nearest_land_point_km": 3521.24
+        },
+        {
+          "id": "yungay",
+          "label": "Atacama Desert, Yungay",
+          "type": "hyperarid soil",
+          "lat": -24.08459,
+          "lon": -69.91531,
+          "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7645800",
+          "site_ndvi": 0.0838,
+          "site_barren": true,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 1.96,
+          "evaluated_at": {
+            "lat": -24.1018,
+            "lon": -69.9113
+          },
+          "percentile_by_target": {
+            "jezero": 81.7,
+            "gale": 15.63,
+            "perseverance-landing": 20.24,
+            "oxia-planum": 53.2
+          },
+          "median_percentile": 36.72,
+          "best_percentile": 15.63
+        },
+        {
+          "id": "death-valley",
+          "label": "Death Valley, California",
+          "type": "desert, dunes",
+          "lat": 36.24694,
+          "lon": -116.81694,
+          "source_url": "https://en.wikipedia.org/wiki/Death_Valley",
+          "site_ndvi": 0.0605,
+          "site_barren": true,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 2.0,
+          "evaluated_at": {
+            "lat": 36.2606,
+            "lon": -116.8026
+          },
+          "percentile_by_target": {
+            "jezero": 98.07,
+            "gale": 0.01,
+            "perseverance-landing": 90.49,
+            "oxia-planum": 99.45
+          },
+          "median_percentile": 94.28,
+          "best_percentile": 0.01
+        },
+        {
+          "id": "bockfjorden",
+          "label": "Svalbard, Bockfjorden (AMASE)",
+          "type": "volcanic and carbonate, Arctic",
+          "lat": 79.469,
+          "lon": 13.3287,
+          "source_url": "https://en.wikipedia.org/wiki/Bockfjorden",
+          "evaluable": false,
+          "reason": "no valid terrain at earth 79.4690,13.3287 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+          "nearest_land_point_km": 683.55
+        },
+        {
+          "id": "holuhraun",
+          "label": "Holuhraun lava field, Iceland",
+          "type": "young basaltic lava",
+          "lat": 64.85,
+          "lon": -16.83,
+          "source_url": "https://en.wikipedia.org/wiki/Holuhraun",
+          "site_ndvi": -0.0375,
+          "site_barren": true,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 17.05,
+          "evaluated_at": {
+            "lat": 65.003,
+            "lon": -16.855
+          },
+          "percentile_by_target": {
+            "jezero": 77.11,
+            "gale": 36.92,
+            "perseverance-landing": 72.4,
+            "oxia-planum": 80.18
+          },
+          "median_percentile": 74.75,
+          "best_percentile": 36.92
+        },
+        {
+          "id": "lanzarote",
+          "label": "Lanzarote, Timanfaya National Park (ESA PANGAEA)",
+          "type": "volcanic",
+          "lat": 28.99417,
+          "lon": -13.79333,
+          "source_url": "https://en.wikipedia.org/wiki/Timanfaya_National_Park",
+          "evaluable": false,
+          "reason": "no valid terrain at earth 28.9942,-13.7933 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+          "nearest_land_point_km": 171.52
+        },
+        {
+          "id": "hi-seas",
+          "label": "HI-SEAS habitat, Mauna Loa, Hawaii",
+          "type": "lava terrain, habitat simulation",
+          "lat": 19.602378,
+          "lon": -155.487192,
+          "source_url": "https://en.wikipedia.org/wiki/HI-SEAS",
+          "site_ndvi": 0.0636,
+          "site_barren": true,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 1.61,
+          "evaluated_at": {
+            "lat": 19.6052,
+            "lon": -155.5023
+          },
+          "percentile_by_target": {
+            "jezero": 81.8,
+            "gale": 1.63,
+            "perseverance-landing": 42.14,
+            "oxia-planum": 97.45
+          },
+          "median_percentile": 61.97,
+          "best_percentile": 1.63
+        },
+        {
+          "id": "rio-tinto",
+          "label": "Rio Tinto, Spain (Peña de Hierro)",
+          "type": "acidic sulfate (geochemical analog; terrain shape not expected to match)",
+          "lat": 37.72186,
+          "lon": -6.55923,
+          "source_url": "https://msaweb.org/MSA/AmMin/products/AmMin/AM099P1199.pdf",
+          "site_ndvi": 0.4225,
+          "site_barren": false,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 1.12,
+          "evaluated_at": {
+            "lat": 37.7172,
+            "lon": -6.5479
+          },
+          "percentile_by_target": {
+            "jezero": 75.34,
+            "gale": 39.62,
+            "perseverance-landing": 44.12,
+            "oxia-planum": 63.8
+          },
+          "median_percentile": 53.96,
+          "best_percentile": 39.62
+        },
+        {
+          "id": "meteor-crater",
+          "label": "Meteor Crater (Barringer), Arizona",
+          "type": "impact crater (astronaut geology training)",
+          "lat": 35.02806,
+          "lon": -111.02333,
+          "source_url": "https://en.wikipedia.org/wiki/Meteor_Crater",
+          "site_ndvi": 0.1556,
+          "site_barren": true,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 1.06,
+          "evaluated_at": {
+            "lat": 35.0376,
+            "lon": -111.0227
+          },
+          "percentile_by_target": {
+            "shackleton-rim": 50.25,
+            "connecting-ridge": 66.78,
+            "malapert-massif": 27.74,
+            "nobile-rim-1": 51.09,
+            "haworth": 50.0,
+            "de-gerlache-rim-2": 24.85
+          },
+          "median_percentile": 50.12,
+          "best_percentile": 24.85
+        },
+        {
+          "id": "ries",
+          "label": "Nördlinger Ries, Germany (ESA PANGAEA)",
+          "type": "impact crater",
+          "lat": 48.88333,
+          "lon": 10.56667,
+          "source_url": "https://en.wikipedia.org/wiki/N%C3%B6rdlinger_Ries",
+          "site_ndvi": 0.5856,
+          "site_barren": false,
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 0.69,
+          "evaluated_at": {
+            "lat": 48.8871,
+            "lon": 10.5593
+          },
+          "percentile_by_target": {
+            "shackleton-rim": 69.52,
+            "connecting-ridge": 67.71,
+            "malapert-massif": 69.9,
+            "nobile-rim-1": 75.95,
+            "haworth": 73.11,
+            "de-gerlache-rim-2": 83.48
+          },
+          "median_percentile": 71.5,
+          "best_percentile": 67.71
+        }
+      ],
+      "median_percentile_all_pairs": 51.12,
+      "median_of_site_medians": 57.97,
+      "pairs_evaluated": 42,
+      "sites_evaluable": 8,
+      "sites_total": 11,
+      "baseline_random_median_percentile": 48.54,
+      "baseline_random_n": 1000,
+      "by_target_body": {
+        "mars": {
+          "pairs": 24,
+          "median_percentile": 50.91,
+          "baseline_random_median_percentile": 47.92
+        },
+        "moon": {
+          "pairs": 18,
+          "median_percentile": 51.12,
+          "baseline_random_median_percentile": 52.01
+        }
+      },
+      "notes": [
+        "McMurdo Dry Valleys (University Valley) are inside the Natural Earth 10 m 'Antarctic Ice Sheet' polygon, so the ice mask removes them; not evaluable with this mask.",
+        "Sites on narrow coasts or islands have no fully valid 12 km land window; they are snapped to the nearest valid Earth index point within 50 km (snapped_km, evaluated_at) or reported as not evaluable.",
+        "Analog sites were chosen by their operators for geology, climate or logistics; terrain shape at 926 m / 12 km is only one aspect, so poor ranks are expected for some (e.g. Rio Tinto)."
+      ]
     }
   },
   "determinism": {
