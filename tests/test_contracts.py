@@ -1,3 +1,5 @@
+import time
+
 from fastapi.testclient import TestClient
 
 from api.main import app
@@ -13,13 +15,21 @@ def test_endpoints_schema_valid():
     r = c.post("/api/twins", json={"body": "moon", "lat": -89.5, "lon": 0, "k": 5})
     tw = TwinsResponse.model_validate(r.json())
     assert set(tw.results) == {"earth", "mars"}
-    PairExplanation.model_validate(c.get("/api/pair/a/b").json())
+    ids = [t.id for t in tw.results["earth"][:1]]
+    pid = tw.query.point_id or f"moon@{-89.5:.4f},{0.0:.4f}"
+    r = c.get(f"/api/pair/{pid}/{ids[0]}")
+    assert r.status_code == 200
+    PairExplanation.model_validate(r.json())
+    assert c.get("/api/pair/nope/nope2").status_code == 404
     LightProfile.model_validate(c.get("/api/light", params={"body": "moon", "lat": -89.5, "lon": 0}).json())
 
 
-def test_campaign_replay_plan():
-    sid = c.post("/api/campaign", json={"body": "moon", "lat": -89.5, "lon": 0}).json()["session_id"]
-    CampaignPlan.model_validate(c.get(f"/api/campaign/{sid}/plan").json())
+def test_campaign_started_schema():
+    # the plan is built asynchronously (covered end-to-end in tests/test_api.py)
+    from crew.schemas import CampaignStarted
+    r = c.post("/api/campaign", json={"body": "moon", "lat": -89.5, "lon": 0, "replay": True})
+    CampaignStarted.model_validate(r.json())
+    assert CampaignPlan  # schema importable
 
 
 def test_fixture_session_valid():

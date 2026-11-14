@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analog Twin</title>
+<link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+<div id="app">
+  <header id="top">
+    <h1>Analog Twin</h1>
+    <div id="presets" role="group" aria-label="Presets"></div>
+    <div id="gated" role="group" aria-label="Optional features"></div>
+    <span id="badge-source" class="badge src big" hidden></span>
+    <span id="badge-replay" class="badge replay" hidden>replay</span>
+    <span id="status" aria-live="polite"></span>
+  </header>
+  <main id="globes"></main>
+  <section id="bottom">
+    <div class="panel" id="twin-list"></div>
+    <div class="panel" id="detail">
+      <div class="tabs" role="tablist"><button type="button" role="tab" id="tab-pair" aria-selected="true">Comparison</button><button type="button" role="tab" id="tab-sites" aria-selected="false" hidden>Base sites</button></div>
+      <div id="detail-body"></div>
+      <div id="sites-body" hidden></div>
+    </div>
+    <div class="panel" id="crew"></div>
+  </section>
+  <div id="credits">Imagery: NASA Trek (LRO WAC, Viking MDIM 2.1); Earth: Natural Earth II. Globes rendered with CesiumJS.</div>
+  <footer>Similarity = terrain shape + sunlight regime. Not geology, not chemistry.</footer>
+  <div id="fps" hidden></div>
+</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
