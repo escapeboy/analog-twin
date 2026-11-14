@@ -2,6 +2,7 @@ import { OFFLINE, BODIES, BODY_NAMES, getHealth, getPresets, postTwins, REPLAY, 
 import { h } from './dom';
 import { Globe } from './globes';
 import { initCrew } from './panels/crew';
+import { initAtlas } from './panels/atlas';
 import { initMission } from './mission';
 import { initTerrain3d } from './panels/terrain3d';
 import { initSites } from './panels/sites';
@@ -109,6 +110,7 @@ function build() {
     for (const b of BODIES) {
       const title = h('div', { class: 'globe-title' }, BODY_NAMES[b]);
       if (b === 'moon') title.append(h('span', { class: 'moon-actions', id: 'moon-actions' }));
+      if (b === 'earth') title.append(h('span', { class: 'moon-actions', id: 'earth-actions' }));
       const cell = h('div', { class: 'globe-cell' }, title);
       const el = h('div', { class: 'globe' });
       cell.append(el); root.append(cell);
@@ -199,7 +201,7 @@ async function initGated() {
   let features: Record<string, boolean> = {};
   try { features = (await getHealth()).features ?? {}; } catch { /* health unavailable: keep gated features hidden */ }
   if (features.terrain3d || params.get('terrain3d') === '1') $('tab-terrain').hidden = false;
-  const slots: [string, string][] = [['site_finder', 'Find base sites'], ['terrain3d', '3D terrain'], ['mission', 'Fly mission']];
+  const slots: [string, string][] = [['site_finder', 'Find base sites'], ['terrain3d', '3D terrain'], ['mission', 'Fly mission'], ['atlas', 'Atlas'], ['calendar', 'Rehearsal calendar'], ['findings', 'Findings']];
   for (const [key, label] of slots) {
     if (!features[key]) continue;
     if (key === 'site_finder') { enableSites(); continue; }
@@ -209,7 +211,8 @@ async function initGated() {
       $('gated').append(mb);
       continue;
     }
-    if (key === 'terrain3d') continue; // handled below as a tab, not a button
+    if (key === 'atlas') { initAtlas(() => globes.find((g) => g.body === 'earth'), document.getElementById('earth-actions') ?? $('gated')); continue; }
+    if (key === 'terrain3d' || key === 'calendar' || key === 'findings') continue; // not buttons (tab / panels)
     const b = h('button', { type: 'button', 'data-feature': key }, label);
     b.addEventListener('click', () => window.dispatchEvent(new CustomEvent('analog-twin:feature', { detail: { key, query: store.query, selected: store.selected } })));
     $('gated').append(b);

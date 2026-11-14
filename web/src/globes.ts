@@ -1,6 +1,6 @@
 import {
   Cartesian2, Cartesian3, Color, Entity, GeographicTilingScheme, ImageryLayer, Ion,
-  EllipsoidalOccluder, Math as CMath, TileMapServiceImageryProvider, UrlTemplateImageryProvider, Viewer, buildModuleUrl,
+  CallbackProperty, EllipsoidalOccluder, Rectangle, SingleTileImageryProvider, Math as CMath, TileMapServiceImageryProvider, UrlTemplateImageryProvider, Viewer, buildModuleUrl,
   LabelStyle, VerticalOrigin, ScreenSpaceEventHandler, ScreenSpaceEventType, Ellipsoid,
 } from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
@@ -43,6 +43,11 @@ export class Globe {
   private query: Point | null = null;
   private twins: Twin[] = [];
   private sites: Site[] = [];
+  private topSites: { lat: number; lon: number }[] = [];
+  private known: { lat: number; lon: number; name?: string }[] = [];
+  private atlasLayer: ImageryLayer | null = null;
+  private atlasSeq = 0;
+  private pulseTimer = 0;
   private selectedId: string | null = null;
   private entities = new Map<string, Entity>();
   private queryEntity: Entity | null = null;
@@ -117,6 +122,39 @@ export class Globe {
     this.render();
   }
 
+  /** Atlas overlay (Earth): top sites pulse subtly, known analog sites are outlined rings. */
+  setAtlasMarkers(top: { lat: number; lon: number }[], known: { lat: number; lon: number; name?: string }[]) {
+    this.topSites = top;
+    this.known = known;
+    this.render();
+    window.clearInterval(this.pulseTimer);
+    if (top.length) this.pulseTimer = window.setInterval(() => this.viewer.scene.requestRender(), 60); // keeps the pulse animating in requestRenderMode
+  }
+
+  /** Cross-fades the global atlas image (equirectangular, whole Earth) in over ~1 s; null removes it. */
+  async setAtlas(url: string | null, alpha = 0.75) {
+    const my = ++this.atlasSeq;
+    const old = this.atlasLayer;
+    let layer: ImageryLayer | null = null;
+    if (url) {
+      const provider = await SingleTileImageryProvider.fromUrl(url, { rectangle: Rectangle.fromDegrees(-180, -90, 180, 90) });
+      if (my !== this.atlasSeq) return;
+      layer = this.viewer.imageryLayers.addImageryProvider(provider);
+      layer.alpha = 0;
+    }
+    this.atlasLayer = layer;
+    const t0 = performance.now();
+    const step = () => {
+      const f = Math.min(1, (performance.now() - t0) / 1000);
+      if (layer) layer.alpha = alpha * f;
+      if (old && !old.isDestroyed()) old.alpha = alpha * (1 - f);
+      this.viewer.scene.requestRender();
+      if (f < 1) requestAnimationFrame(step);
+      else if (old && !old.isDestroyed()) this.viewer.imageryLayers.remove(old, true);
+    };
+    step();
+  }
+
   setSites(sites: Site[]) {
     this.sites = sites;
     this.render();
@@ -139,6 +177,18 @@ export class Globe {
         point: { pixelSize: 16, color: QUERY_COLOR, outlineColor: Color.WHITE, outlineWidth: 3 },
         label: this.label('Query'),
       });
+    }
+    this.topSites.slice(0, 10).forEach((s, i) => {
+      ents.add({
+        position: Cartesian3.fromDegrees(s.lon, s.lat),
+        point: {
+          pixelSize: new CallbackProperty(() => 10 + 3 * Math.sin(performance.now() / 500 + i), false) as never,
+          color: Color.fromCssColorString('#ffe066').withAlpha(0.85), outlineColor: Color.BLACK.withAlpha(0.6), outlineWidth: 1,
+        },
+      });
+    });
+    for (const k of this.known) {
+      ents.add({ position: Cartesian3.fromDegrees(k.lon, k.lat), point: { pixelSize: 11, color: Color.TRANSPARENT, outlineColor: Color.WHITE, outlineWidth: 2 } });
     }
     for (const s of this.body === 'moon' ? this.sites : []) {
       ents.add({

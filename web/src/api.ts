@@ -108,9 +108,9 @@ async function offlinePath(method: string, url: string, body?: { body: string; l
 
 /** URL for a static asset the server names in a response (hillshade PNG, heights, CZML) or a tile template. */
 export function assetUrl(url: string): string {
-  if (!OFFLINE) return url.startsWith('/tiles') ? url : withReplay(url);
+  if (!OFFLINE) return url.startsWith('/tiles') || url.startsWith('/atlas') ? url : withReplay(url);
   const path = decodeURIComponent(url.split('?')[0]);
-  return path.startsWith('/tiles') ? path.slice(1) : `offline${path}`;
+  return path.startsWith('/tiles') || path.startsWith('/atlas') ? path.slice(1) : `offline${path}`;
 }
 
 export function withReplay(url: string): string {
