@@ -93,3 +93,9 @@ table.sites tbody tr { cursor:pointer; } table.sites tbody tr:hover { background
 
 .grp { display:grid; grid-template-columns:7.5em 1fr 3em; gap:8px; align-items:center; margin:2px 0; } .grp span { text-align:right; }
 .tight { margin:2px 0 !important; } .grp b { font-weight:600; }
+
+.cal-canvas { width:100%; display:block; border-radius:6px; } .cal-caption { font-size:18px; margin:6px 0; color:var(--fg); }
+#calendar-body { flex:1 1 auto; min-height:0; overflow:auto; }
+
+#findings-body { flex:1 1 auto; min-height:0; overflow:auto; } .finding { font-size:17px; margin:6px 0; }
+.finding-i { display:inline-block; width:1.2em; height:1.2em; line-height:1.2em; text-align:center; border:1px solid var(--acc); border-radius:50%; color:var(--acc); font-size:14px; cursor:help; }

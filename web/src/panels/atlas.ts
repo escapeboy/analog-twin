@@ -7,6 +7,7 @@ import { store } from '../state';
 interface AtlasTarget {
   id: string; label: string; body: Body | string; lat: number; lon: number; modes: string[];
   ramp?: string[]; vmin?: number; vmax?: number;
+  files?: Record<string, { png?: string; top200?: string }>;
 }
 const FALLBACK_RAMP = ['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']; // viridis stops, used when the index has none
 
@@ -16,7 +17,7 @@ function parseIndex(j: any): AtlasTarget[] {
   return list.filter((t) => t && t.id).map((t) => ({
     id: String(t.id), label: String(t.label ?? t.name ?? t.id), body: t.body ?? 'moon', lat: Number(t.lat), lon: Number(t.lon),
     modes: Array.isArray(t.modes) && t.modes.length ? t.modes.map(String) : ['terrain', 'terrain+light'],
-    ramp: t.ramp ?? t.colors, vmin: t.vmin ?? t.range?.[0], vmax: t.vmax ?? t.range?.[1],
+    ramp: t.ramp ?? t.colors, vmin: t.vmin ?? t.value_range?.[0] ?? t.range?.[0], vmax: t.vmax ?? t.value_range?.[1] ?? t.range?.[1], files: t.files,
   }));
 }
 
@@ -39,6 +40,7 @@ export function initAtlas(getEarth: () => Globe | undefined, host: HTMLElement) 
   let on = false;
   let mode = 'terrain+light';
   let knownPts: { lat: number; lon: number; name?: string }[] | null = null;
+  let knownAll: any[] | null = null;
   let seq = 0;
   let loaded = false;
 
@@ -105,10 +107,15 @@ export function initAtlas(getEarth: () => Globe | undefined, host: HTMLElement) 
     if (!t.modes.includes(mode)) mode = t.modes.includes('terrain+light') ? 'terrain+light' : t.modes[0];
     modeButtons(t);
     showLegend(t);
-    const base = `/atlas/${encodeURIComponent(t.id)}/${mode}`;
-    void earth.setAtlas(`${base}/atlas.png`).catch((e) => { legend.append(h('div', { class: 'atlas-msg err' }, `Atlas image unavailable (${e instanceof Error ? e.message : e})`)); });
-    knownPts ??= ((await getJson('/atlas/known_analogs.geojson'))?.features ?? []).map((f: any) => ({ lon: f.geometry.coordinates[0], lat: f.geometry.coordinates[1], name: f.properties?.name }));
-    const top = await getJson(`${base}/top200.geojson`);
+    const f = t.files?.[mode];
+    const png = f?.png ? `/atlas/${f.png}` : `/atlas/${t.id}/${mode.replace('+', '_')}/score.png`;
+    const topUrl = f?.top200 ? `/atlas/${f.top200}` : `/atlas/${t.id}/${mode.replace('+', '_')}/top200.geojson`;
+    void earth.setAtlas(png).catch((e) => { legend.append(h('div', { class: 'atlas-msg err' }, `Atlas image unavailable (${e instanceof Error ? e.message : e})`)); });
+    knownAll ??= (await getJson('/atlas/known_analogs.geojson'))?.features ?? [];
+    // rings only for analog sites that are established analogs of THIS target (analog_for), all of them if the field is absent
+    knownPts = (knownAll ?? []).filter((f: any) => !f.properties?.analog_for || f.properties.analog_for.includes(t.id))
+      .map((f: any) => ({ lon: f.geometry.coordinates[0], lat: f.geometry.coordinates[1], name: f.properties?.label ?? f.properties?.name }));
+    const top = await getJson(topUrl);
     if (my !== seq) return;
     const pts = (top?.features ?? [])
       .map((f: any) => ({ lon: f.geometry.coordinates[0], lat: f.geometry.coordinates[1], rank: f.properties?.rank ?? 1e9, score: f.properties?.score ?? 0 }))
