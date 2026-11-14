@@ -86,11 +86,14 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
     return c;
   }
 
+  // target of the session being shown (from its session.start): a replayed recording can be for another target
+  let sessionTarget: string | null = null;
   /** Replace raw ids inside a tool row with readable names (target label, twin place names, ref labels). */
   const humanize = (t: string) => {
     const twins = store.twins ? Object.values(store.twins.results).flat() : [];
+    const label = sessionTarget ?? store.query?.label;
     return t
-      .replace(/\b(?:moon|mars|earth)@-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?/g, store.query ? `target (${store.query.label})` : 'target')
+      .replace(/\b(?:moon|mars|earth)@-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?/g, label ? `target (${label})` : 'target')
       .replace(/\b(twin|pair|twins|light|window|ctx|context|site_finder):[^\s,;)"'}]+/g, (m) => refLabel(m))
       .replace(/\b(?:earth|moon|mars)-\d+\b/g, (m) => twins.find((x) => x.id === m)?.place_label ?? m);
   };
@@ -117,6 +120,7 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
     switch (ev.type) {
       case 'session.start':
         if (d.mode === 'replay') setReplayBadge(true);
+        sessionTarget = d.target?.label ?? null;
         note.textContent = d.target?.label ? `Target: ${d.target.label}` : '';
         break;
       case 'agent.start': if (ev.role) card(ev.role); break;
