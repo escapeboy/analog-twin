@@ -135,8 +135,8 @@ function earthState(t: number, twin: Twin): EarthState {
     lat = lerp(22, twin.lat, f);
     height = Math.exp(lerp(Math.log(15_500_000), Math.log(2_400_000), f));
   }
-  const alphaA = 0.85 * ease((t - 7.2) / 1.0) * (1 - ease((t - 10.4) / 0.8));
-  const alphaB = 0.85 * ease((t - 10.4) / 0.8);
+  const alphaA = ease((t - 7.2) / 0.8) * (1 - ease((t - 10.2) / 0.6));
+  const alphaB = ease((t - 10.2) / 0.6);
   const marker = ease((t - 12.6) / 0.5);
   const pulse = ((t - 12.6) / 0.9) % 1;
   return { lon, lat, height, alphaA, alphaB, marker, pulse: pulse < 0 ? 0 : pulse };
@@ -205,6 +205,8 @@ export async function startFilm() {
     const labA = mkLabel('tl', 'Moon · Shackleton rim', `${fmtCoord(TARGET.lat, TARGET.lon)} · ${d.pair.a.extent_km.toFixed(0)} km`);
     const labB = mkLabel('tr', `Earth · ${twinName}`, `${fmtCoord(d.twin.lat, d.twin.lon)} · ${d.pair.b.extent_km.toFixed(0)} km`);
     const labFly = mkLabel('fly', `#${d.twin.rank} Earth twin · ${twinName}`, fmtCoord(d.twin.lat, d.twin.lon));
+    const labTer = mkLabel('tl', 'Terrain only', 'Atlas score for Shackleton rim · whole planet');
+    const labSun = mkLabel('tl', 'Terrain + sunlight', 'Atlas score for Shackleton rim · whole planet');
     stage.append(labels);
     const cap = document.createElement('div');
     cap.className = 'film-caption';
@@ -247,14 +249,17 @@ export async function startFilm() {
       setOp(labMoonSolo, moonSolo ? ease((t - 0.4) / 0.5) * (1 - ease((t - 3.6) / 0.4)) : 0);
       const pairLab = pairOn ? ease((t - 14.8) / 0.5) * (1 - ease((t - (p.pairEnd - 0.4)) / 0.3)) : 0;
       setOp(labA, pairLab); setOp(labB, pairLab);
+      setOp(labTer, t >= 7.6 && t < 10.6 ? ease((t - 7.6) / 0.4) * (1 - ease((t - 10.2) / 0.4)) : 0);
+      setOp(labSun, t >= 10.4 && t < 12.9 ? ease((t - 10.4) / 0.4) * (1 - ease((t - 12.4) / 0.4)) : 0);
       setOp(labFly, t >= 12.8 && t < 14.5 ? ease((t - 12.8) / 0.4) * (1 - ease((t - 14.1) / 0.3)) : 0);
       // caption
       const c = p.captions.find((x) => t >= x.t0 && t < x.t1);
       if (c) {
         if (cap.textContent !== c.text) cap.textContent = c.text;
-        const o = Math.min(ease((t - c.t0) / 0.18), 1 - ease((t - (c.t1 - 0.12)) / 0.12));
+        const prev = p.captions.some((x) => Math.abs(x.t1 - c.t0) < 1e-6), next = p.captions.some((x) => Math.abs(x.t0 - c.t1) < 1e-6);
+        const o = Math.min(prev ? 1 : ease((t - c.t0) / 0.15), next ? 1 : 1 - ease((t - (c.t1 - 0.12)) / 0.12));
         setOp(cap, o);
-        cap.style.transform = `translate(-50%, ${(1 - ease((t - c.t0) / 0.25)) * 14}px)`;
+        cap.style.transform = `translate(-50%, ${prev ? 0 : (1 - ease((t - c.t0) / 0.15)) * 14}px)`;
       } else setOp(cap, 0);
       if (settle) {
         await document.fonts.ready;

@@ -25,6 +25,8 @@ export class FilmTerrain {
     this.renderer.shadowMap.type = T.PCFShadowMap;
     this.renderer.shadowMap.autoUpdate = true;
     this.renderer.setClearColor(0x060a16);
+    this.renderer.toneMapping = T.ACESFilmicToneMapping; // compresses the lit slopes instead of clipping them
+    this.renderer.toneMappingExposure = 1.0;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this.renderer.setSize(w, h, false);
     this.panes = [this.makePane(a.grid, a.heights), this.makePane(b.grid, b.heights)];
@@ -43,12 +45,13 @@ export class FilmTerrain {
       pos.setY(i, ((Number.isFinite(v) ? v : lo) - lo) / 1000);
     }
     geo.computeVertexNormals();
-    const mat = new T.MeshStandardMaterial({ color: new T.Color().setRGB(0.85, 0.83, 0.79, T.LinearSRGBColorSpace), roughness: 1, metalness: 0 });
+    const mat = new T.MeshStandardMaterial({ color: new T.Color().setRGB(0.2, 0.19, 0.175, T.LinearSRGBColorSpace), roughness: 1, metalness: 0 });
     const mesh = new T.Mesh(geo, mat);
     mesh.castShadow = true; mesh.receiveShadow = true;
     const scene = new T.Scene();
     scene.add(mesh);
-    scene.add(new T.AmbientLight(0xffffff, 0.06 * Math.PI)); // a little fill so shadowed relief still reads on video
+    // small sky fill: shadows stay dark but keep a normal-dependent gradient (a flat ambient reads as grey plastic)
+    scene.add(new T.HemisphereLight(0x8fa6d8, 0x2a2620, 0.45 * Math.PI));
     const light = new T.DirectionalLight(0xffffff, Math.PI);
     light.shadow.mapSize.set(4096, 4096);
     light.shadow.bias = -0.0003;
@@ -82,7 +85,7 @@ export class FilmTerrain {
     Object.assign(p.light.shadow.camera, { left: l - m, right: r + m, bottom: b - m, top: t + m, near: Math.max(0.01, nr - m), far: fr + m });
     p.light.shadow.camera.updateProjectionMatrix();
     // exposure gain so flat ground stays mid grey at a grazing sun (relative shading and shadows unchanged)
-    p.light.intensity = Math.PI * Math.min(8, Math.max(1, 0.5 / Math.max(Math.sin(e), 0.05)));
+    p.light.intensity = Math.PI * 4.5; // fixed sun: grazing light keeps flat floors dark and sun-facing slopes bright; ACES rolls off the highlights
   }
 
   private placeCam(s: SunCam, extent: number, aspect: number) {

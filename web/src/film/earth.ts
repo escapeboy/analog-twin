@@ -18,6 +18,7 @@ export interface EarthState {
 export class FilmEarth {
   readonly el: HTMLDivElement;
   private w: CesiumWidget;
+  private base: ImageryLayer;
   private layerA: ImageryLayer | null = null;
   private layerB: ImageryLayer | null = null;
   private points: PointPrimitiveCollection;
@@ -32,8 +33,9 @@ export class FilmEarth {
     const credits = document.createElement('div');
     credits.hidden = true; // data credits are on the title card
     host.append(credits);
+    this.base = ImageryLayer.fromProviderAsync(TileMapServiceImageryProvider.fromUrl(buildModuleUrl('Assets/Textures/NaturalEarthII')));
     this.w = new CesiumWidget(this.el, {
-      baseLayer: ImageryLayer.fromProviderAsync(TileMapServiceImageryProvider.fromUrl(buildModuleUrl('Assets/Textures/NaturalEarthII'))),
+      baseLayer: this.base,
       skyBox: false, skyAtmosphere: false, useDefaultRenderLoop: false, requestRenderMode: false,
       shouldAnimate: false, creditContainer: credits, showRenderLoopErrors: false,
       contextOptions: { webgl: { preserveDrawingBuffer: true } },
@@ -64,6 +66,10 @@ export class FilmEarth {
   }
 
   apply(s: EarthState) {
+    // the base map steps back (darker, grey) while the atlas is on, so the viridis colours cannot be mistaken for land cover
+    const on = Math.max(s.alphaA, s.alphaB);
+    this.base.saturation = 1 - 0.9 * on;
+    this.base.brightness = 1 - 0.6 * on;
     this.w.camera.setView({ destination: Cartesian3.fromDegrees(s.lon, s.lat, s.height) });
     if (this.layerA) { this.layerA.alpha = s.alphaA; this.layerA.show = s.alphaA > 0.001; }
     if (this.layerB) { this.layerB.alpha = s.alphaB; this.layerB.show = s.alphaB > 0.001; }
