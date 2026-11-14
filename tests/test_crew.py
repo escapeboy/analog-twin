@@ -159,3 +159,12 @@ def test_parse_json_block():
     assert runner.parse_json_block('prefix {"a": 2} suffix') == {"a": 2}
     with pytest.raises(runner.CrewError):
         runner.parse_json_block("nothing here")
+
+
+def test_retry_timeout_keeps_verified_claims_without_fallback(env, monkeypatch):
+    monkeypatch.setenv("FAKE_MODE", "badref_slowretry")
+    monkeypatch.setattr(runner, "RETRY_TIMEOUT_S", 1.0)
+    sess = run_session()
+    assert not any(e.type == "error" for e in sess.events) and sess.plan
+    rep = next(e for e in sess.events if e.type == "agent.report" and e.role == "terrain").data["report"]
+    assert rep["removed_unverified"] == 3 and len(rep["claims"]) == 1

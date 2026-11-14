@@ -8,10 +8,10 @@ from api import service
 from crew.schemas import CampaignRequest, EvidenceItem, EvidencePack
 from engine.models import LightProfile, PairExplanation, TwinsRequest, TwinsResponse
 
-N_MAIN = 4      # twins kept on the main destination body
-N_OTHER = 2     # twins kept on the other destination body
+N_MAIN = 3      # twins kept on the main destination body
+N_OTHER = 1     # twins kept on the other destination body
 N_PAIRS = 3     # pair explanations (top twins of the main destination)
-N_LIGHT_TWINS = 3
+N_LIGHT_TWINS = 2
 
 Emit = Callable[[str, Optional[str], dict[str, Any]], Awaitable[None]]
 
@@ -50,11 +50,10 @@ def build_pack(session_id: str, target: dict[str, Any], twins: TwinsResponse, pa
             if t.env:
                 add(t.env.ref or f"ctx:{t.id}", "context", {"twin": t.ref, **t.env.model_dump(exclude={"ref"})})
     for p in pairs:
-        add(p.ref, "pair", {"a_id": p.a_id, "b_id": p.b_id, "terrain_sim": p.terrain_sim, "top_similar": p.top_similar,
-                            "top_different": p.top_different,
-                            "groups": [{"group": g.group, "label": g.label, "contribution": g.contribution} for g in p.groups],
-                            "hillshade": ({"sun_azimuth_deg": p.hillshade.sun_azimuth_deg, "sun_elevation_deg": p.hillshade.sun_elevation_deg,
-                                           "extent_km": p.hillshade.extent_km} if p.hillshade else None)})
+        top = sorted(p.groups, key=lambda g: -g.contribution)[:3]
+        add(p.ref, "pair", {"a_id": p.a_id, "b_id": p.b_id, "terrain_sim": p.terrain_sim, "top_similar": p.top_similar[:2],
+                            "top_different": p.top_different[:2],
+                            "main_difference_groups": [{"group": g.group, "contribution": g.contribution} for g in top]})
     for lp in lights:
         add(lp.ref, "light", {"body": lp.body, "lat": lp.lat, "lon": lp.lon, "bins_deg": lp.bins, "hist": lp.hist,
                               "median_sun_up_elevation_deg": lp.median_sun_up_elevation_deg})

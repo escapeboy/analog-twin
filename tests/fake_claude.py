@@ -43,7 +43,9 @@ pack = json.loads(stdin.split("EVIDENCE PACK:\n", 1)[1].split("\n", 1)[0])
 twins = [i for i in pack["items"] if i["kind"] == "twin"]
 earth = [t for t in twins if t["data"]["body"] == "earth"] or twins
 retry = "PREVIOUS ANSWER WAS REJECTED" in stdin
-bad = (mode == "badref_always") or (mode == "badref_once" and not retry)
+if mode == "badref_slowretry" and retry:
+    time.sleep(30)
+bad = (mode == "badref_always") or (mode in ("badref_once", "badref_slowretry") and not retry)
 
 if role == "director":
     plan = {

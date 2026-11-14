@@ -309,7 +309,7 @@ def _prune_hillshade(d: pathlib.Path) -> None:
         p.unlink(missing_ok=True)
 
 
-def _hillshade(a: dict, b: dict, a_id: str, b_id: str) -> Optional[Hillshade]:
+def _hillshade(a: dict, b: dict, a_id: str, b_id: str, label_a: str = "", label_b: str = "") -> Optional[Hillshade]:
     hs, dem = _mod("engine.hillshade"), _mod("engine.dem")
     if hs is None or dem is None:
         return None
@@ -317,7 +317,7 @@ def _hillshade(a: dict, b: dict, a_id: str, b_id: str) -> Optional[Hillshade]:
         tgt = a if a["body"] in ("moon", "mars") else (b if b["body"] in ("moon", "mars") else a)
         az, el = _sun(hs, tgt["body"], tgt["lat"])
         gsd = gsd_m()
-        pair_id = _safe(f"{a_id}__{b_id}")
+        pair_id = _safe(f"{a_id}__{b_id}") + "_lbl"  # suffix: labelled renders never reuse old id-labelled files
         out_dir = hillshade_dir()
         out_dir.mkdir(parents=True, exist_ok=True)
         names = _outputs({}, out_dir, pair_id)  # engine caches by pair id + sun; the sun is fixed per target
@@ -325,7 +325,7 @@ def _hillshade(a: dict, b: dict, a_id: str, b_id: str) -> Optional[Hillshade]:
         if names is None:
             dem_a = dem.crop_metric(a["body"], a["lat"], a["lon"], EXTENT_KM, gsd)
             dem_b = dem.crop_metric(b["body"], b["lat"], b["lon"], EXTENT_KM, gsd)
-            res = hs.render_pair(dem_a, dem_b, gsd, az, el, f"{a['body']} {a_id}", f"{b['body']} {b_id}", out_dir, pair_id)
+            res = hs.render_pair(dem_a, dem_b, gsd, az, el, label_a or f"{a['body']} {a_id}", label_b or f"{b['body']} {b_id}", out_dir, pair_id)
             names = _outputs(res, out_dir, pair_id)
         if names is None:
             return None
@@ -354,6 +354,28 @@ def _resolve_arg(pid: str):
     return (m.group(1), lat, lon)
 
 
+def _fmt_coord(lat: float, lon: float) -> str:
+    return f"{abs(lat):.2f}\u00b0{'N' if lat >= 0 else 'S'} {abs(lon):.2f}\u00b0{'E' if lon >= 0 else 'W'}"
+
+
+def _label(idx, pt: dict, pid: str) -> str:
+    """Human label for a pair panel: preset label or place_label, plus formatted coordinates."""
+    name = None
+    for p in presets():
+        if p.body == pt["body"] and abs(p.lat - pt["lat"]) < 0.01 and abs(p.lon - pt["lon"]) < 0.01:
+            name = p.label
+            break
+    if name is None:
+        try:
+            name = _as_dict(idx.point(pid)).get("place_label")
+        except Exception:
+            name = None
+    name = name or pt["body"].capitalize()
+    if "\u00b0" in name:  # engine labels like "Moon 5.58\u00b0S 55.45\u00b0W" already carry coordinates
+        return name
+    return f"{name} \u00b7 {_fmt_coord(pt['lat'], pt['lon'])}"
+
+
 def pair(a_id: str, b_id: str, replay: bool = False) -> PairExplanation:
     if replay:
         cached = cache_get_pair(a_id, b_id)
@@ -369,7 +391,7 @@ def pair(a_id: str, b_id: str, replay: bool = False) -> PairExplanation:
     return PairExplanation(
         a=Point(body=pa["body"], lat=pa["lat"], lon=pa["lon"]), b=Point(body=pb["body"], lat=pb["lat"], lon=pb["lon"]),
         a_id=ca, b_id=cb, terrain_sim=float(ex["terrain_sim"]), groups=groups, top_similar=list(ex["top_similar"]),
-        top_different=list(ex["top_different"]), hillshade=_hillshade(pa, pb, ca, cb), source="live",
+        top_different=list(ex["top_different"]), hillshade=_hillshade(pa, pb, ca, cb, _label(idx, pa, ca), _label(idx, pb, cb)), source="live",
         ref=f"pair:{ca}:{cb}")
 
 

@@ -30,6 +30,7 @@ SPECIALISTS = ["terrain", "light", "logistics", "testlead"]
 LEAN_FLAGS = ["--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}', "--tools", "", "--setting-sources", "",
               "--no-session-persistence", "--disable-slash-commands", "--max-turns", "1"]
 TIMEOUT_S = float(os.environ.get("CREW_TIMEOUT_S", 45))
+RETRY_TIMEOUT_S = float(os.environ.get("CREW_RETRY_TIMEOUT_S", 15))
 
 
 def claude_bin() -> list[str]:
@@ -310,8 +311,16 @@ async def _specialist(sess: Session, role: str, pack: Any, pack_json: str) -> tu
 
     await sess.emit("agent.start", role, {"title": ROLE_TITLES[role], "model": model})
     feedback: Optional[list[str]] = None
+    kept = None
     for attempt in (1, 2):
-        text = await run_claude(_specialist_prompt(role, pack_json, feedback), model, system, delta)
+        try:
+            text = await run_claude(_specialist_prompt(role, pack_json, feedback), model, system, delta,
+                                    timeout=RETRY_TIMEOUT_S if attempt == 2 else None)
+        except CrewError:
+            if attempt == 2 and kept is not None:  # validation retry failed or timed out: keep the verified claims of try 1
+                good = kept[0].model_copy(update={"removed_unverified": len(kept[1])})
+                break
+            raise
         try:
             raw = parse_json_block(text)
             raw = {**raw, "role": role}
@@ -326,7 +335,7 @@ async def _specialist(sess: Session, role: str, pack: Any, pack_json: str) -> tu
         if not problems:
             break
         if attempt == 1:
-            feedback = problems
+            feedback, kept = problems, (good, problems)
             await sess.emit("agent.delta", role, {"text": f"\n[retrying: {len(problems)} unverified claim(s)]\n"})
             continue
         good = good.model_copy(update={"removed_unverified": len(problems)})
