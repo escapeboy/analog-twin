@@ -144,7 +144,9 @@ export async function http<T>(url: string, init?: RequestInit): Promise<T> {
       const d = j?.detail ?? j;
       detail = typeof d === 'string' ? d : Array.isArray(d) ? d.map((x: { msg?: string }) => x.msg ?? JSON.stringify(x)).join('; ') : JSON.stringify(d);
     } catch { /* body was not JSON */ }
-    throw new Error(detail ? `Server: ${detail} (HTTP ${r.status})` : `${init?.method ?? 'GET'} ${url} failed: HTTP ${r.status}`);
+    // 4xx with a detail: show just the server's sentence; keep the code for 5xx and bodies without a detail
+    if (detail && r.status < 500) throw new Error(detail);
+    throw new Error(detail ? `${detail} (HTTP ${r.status})` : `${init?.method ?? 'GET'} ${url} failed: HTTP ${r.status}`);
   }
   return (await r.json()) as T;
 }

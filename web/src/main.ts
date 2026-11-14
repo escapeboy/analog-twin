@@ -211,6 +211,15 @@ const mission = initMission($('mission'), {
   },
 });
 
+// the calendar compares Earth sites with a Moon/Mars target: no calendar tab while an Earth target is selected
+let calendarOn = false;
+function updateCalendarTab() {
+  const hide = !calendarOn || store.query?.body === 'earth';
+  $('tab-calendar').hidden = hide;
+  if (hide && tab === 'calendar') showTab('pair');
+}
+store.subscribe(updateCalendarTab);
+
 async function initGated() {
   let features: Record<string, boolean> = {};
   try { features = (await getHealth()).features ?? {}; } catch { /* health unavailable: keep gated features hidden */ }
@@ -226,7 +235,7 @@ async function initGated() {
       continue;
     }
     if (key === 'atlas') { initAtlas(() => globes.find((g) => g.body === 'earth'), document.getElementById('earth-actions') ?? $('gated')); continue; }
-    if (key === 'calendar') { $('tab-calendar').hidden = false; continue; }
+    if (key === 'calendar') { calendarOn = true; updateCalendarTab(); continue; }
     if (key === 'findings') { $('tab-findings').hidden = false; continue; }
     if (key === 'terrain3d') continue; // not buttons (tab / panels)
     const b = h('button', { type: 'button', 'data-feature': key }, label);

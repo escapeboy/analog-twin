@@ -76,7 +76,15 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
     return c;
   }
 
-  const short = (v: unknown) => { const s = typeof v === 'string' ? v : JSON.stringify(v); return s.length > 140 ? s.slice(0, 140) + '…' : s; };
+  /** Replace raw ids inside a tool row with readable names (target label, twin place names, ref labels). */
+  const humanize = (t: string) => {
+    const twins = store.twins ? Object.values(store.twins.results).flat() : [];
+    return t
+      .replace(/\b(?:moon|mars|earth)@-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?/g, store.query ? `target (${store.query.label})` : 'target')
+      .replace(/\b(twin|pair|twins|light|window|ctx|context|site_finder):[^\s,;)"'}]+/g, (m) => refLabel(m))
+      .replace(/\b(?:earth|moon|mars)-\d+\b/g, (m) => twins.find((x) => x.id === m)?.place_label ?? m);
+  };
+  const short = (v: unknown) => { const s = humanize(typeof v === 'string' ? v : JSON.stringify(v)); return s.length > 140 ? s.slice(0, 140) + '…' : s; };
 
   function streamText(c: Card, role: Role, chunk: string) {
     c.buf += chunk;
@@ -106,7 +114,7 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
         if (ev.role || ev.type === 'director.delta') streamText(card(ev.role ?? 'director'), ev.role ?? 'director', String(d.text ?? ''));
         break;
       case 'tool.call': if (ev.role) card(ev.role).tools.append(h('div', { class: 'tool' }, h('b', null, `▶ ${d.name ?? 'tool'} `), short(d.args ?? d.input ?? ''))); break;
-      case 'tool.result': if (ev.role) card(ev.role).tools.append(h('div', { class: 'tool res' }, h('b', null, `✔ ${d.name ?? 'tool'} `), d.ref ? `${d.ref}: ` : '', short(d.digest ?? d.output ?? ''))); break;
+      case 'tool.result': if (ev.role) card(ev.role).tools.append(h('div', { class: 'tool res' }, h('b', null, `✔ ${d.name ?? 'tool'} `), d.ref ? `${refLabel(String(d.ref))}: ` : '', short(d.digest ?? d.output ?? ''))); break;
       case 'agent.report': {
         if (!ev.role) break;
         const r = d.report as SpecialistReport;
