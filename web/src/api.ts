@@ -99,7 +99,14 @@ async function offlinePath(method: string, url: string, body?: { body: string; l
     if (!p) throw new OfflineError('Offline demo: presets only. Use one of the three preset buttons at the top.');
     return `offline/api/twins/${safe(p.id)}.json`;
   }
-  if (path === '/api/health' || path === '/api/presets' || path === '/api/sites' || path === '/api/metrics') return `offline${path}.json`;
+  if (path === '/api/calendar') {
+    const q = new URLSearchParams(url.split('?')[1] ?? '');
+    presetCache ??= fetch('offline/api/presets.json').then((r) => r.json());
+    const p = (await presetCache).find((x) => x.body === q.get('target_body') && Math.abs(x.lat - Number(q.get('target_lat'))) < 1e-4 && Math.abs(x.lon - Number(q.get('target_lon'))) < 1e-4);
+    if (!p) throw new OfflineError('Offline demo: presets only. Use one of the three preset buttons at the top.');
+    return `offline/api/calendar/${safe(p.id)}.json`;
+  }
+  if (path === '/api/health' || path === '/api/presets' || path === '/api/sites' || path === '/api/metrics' || path === '/api/findings') return `offline${path}.json`;
   if (seg[1] === 'pair' && seg.length === 4) return `offline/api/pair/${safe(seg[2])}__${safe(seg[3])}.json`;
   if (seg[1] === 'terrain' && seg[2] !== 'heights') return `offline/api/terrain/${seg.slice(2).map(safe).join('__')}.json`;
   if (seg[1] === 'mission' && seg.length === 3 && !/\.[a-z0-9]+$/i.test(seg[2])) return `offline/api/mission/${safe(seg[2])}.json`;

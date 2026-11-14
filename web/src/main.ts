@@ -2,6 +2,8 @@ import { OFFLINE, BODIES, BODY_NAMES, getHealth, getPresets, postTwins, REPLAY, 
 import { h } from './dom';
 import { Globe } from './globes';
 import { initCrew } from './panels/crew';
+import { initFindings } from './panels/findings';
+import { initCalendar } from './panels/calendar';
 import { initAtlas } from './panels/atlas';
 import { initMission } from './mission';
 import { initTerrain3d } from './panels/terrain3d';
@@ -70,10 +72,12 @@ async function runQuery(p: Point, label: string, presetId?: string) {
   }
 }
 
-type Tab = 'pair' | 'sites' | 'terrain';
+type Tab = 'pair' | 'sites' | 'terrain' | 'calendar' | 'findings';
 let tab: Tab = 'pair';
 const terrain = initTerrain3d($('terrain-body'));
-const BODY_IDS: Record<Tab, string> = { pair: 'detail-body', sites: 'sites-body', terrain: 'terrain-body' };
+const calendar = initCalendar($('calendar-body'));
+const findings = initFindings($('findings-body'));
+const BODY_IDS: Record<Tab, string> = { pair: 'detail-body', sites: 'sites-body', terrain: 'terrain-body', calendar: 'calendar-body', findings: 'findings-body' };
 function showTab(t: Tab) {
   if (tab === 'terrain' && t !== 'terrain') terrain.hide(); // free the WebGL context
   tab = t;
@@ -82,14 +86,19 @@ function showTab(t: Tab) {
     $('tab-' + k).setAttribute('aria-selected', String(k === t));
   }
   if (t === 'terrain') terrain.show();
+  if (t === 'calendar') calendar.show();
+  if (t === 'findings') findings.show();
 }
 $('tab-pair').addEventListener('click', () => showTab('pair'));
 $('tab-terrain').addEventListener('click', () => showTab('terrain'));
+$('tab-calendar').addEventListener('click', () => showTab('calendar'));
+$('tab-findings').addEventListener('click', () => showTab('findings'));
 let terrainKey = '';
 store.subscribe(() => {
   const ids = pairIds();
   const key = ids ? `${ids.a}/${ids.b}` : '';
   if (key !== terrainKey) { terrainKey = key; if (tab === 'terrain') terrain.refresh(); }
+  if (tab === 'calendar') calendar.refresh();
 });
 
 function pickSite(s: Site) {
@@ -217,7 +226,9 @@ async function initGated() {
       continue;
     }
     if (key === 'atlas') { initAtlas(() => globes.find((g) => g.body === 'earth'), document.getElementById('earth-actions') ?? $('gated')); continue; }
-    if (key === 'terrain3d' || key === 'calendar' || key === 'findings') continue; // not buttons (tab / panels)
+    if (key === 'calendar') { $('tab-calendar').hidden = false; continue; }
+    if (key === 'findings') { $('tab-findings').hidden = false; continue; }
+    if (key === 'terrain3d') continue; // not buttons (tab / panels)
     const b = h('button', { type: 'button', 'data-feature': key }, label);
     b.addEventListener('click', () => window.dispatchEvent(new CustomEvent('analog-twin:feature', { detail: { key, query: store.query, selected: store.selected } })));
     $('gated').append(b);

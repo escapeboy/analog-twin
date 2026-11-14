@@ -19,10 +19,10 @@ echo "== 1/4 build frontend (offline mode) -> $OUT"
 VITE_OFFLINE=1 npm --prefix "$ROOT/web" run build -- --outDir "$OUT" --emptyOutDir >/dev/null
 
 echo "== 2/4 record API answers from $SERVER, copy tiles and golden"
-"$PY" -I - "$OUT" "$SERVER" "$DATA_ROOT/data/tiles" "$ROOT/sessions/golden" "$GOLDEN" <<'PYEOF'
+"$PY" -I - "$OUT" "$SERVER" "$DATA_ROOT/data/tiles" "$ROOT/sessions/golden" "$GOLDEN" "${ATLAS_DIR:-$DATA_ROOT/atlas}" <<'PYEOF'
 import json, pathlib, re, shutil, sys, urllib.error, urllib.parse, urllib.request
 
-out, server, tiles, golden_dir, golden_name = sys.argv[1:6]
+out, server, tiles, golden_dir, golden_name, atlas_dir = sys.argv[1:7]
 out, tiles, golden_dir = pathlib.Path(out), pathlib.Path(tiles), pathlib.Path(golden_dir)
 safe = lambda s: re.sub(r"[^A-Za-z0-9._-]", "_", s)  # must match web/src/api.ts
 quote = lambda s: urllib.parse.quote(s, safe="")      # == encodeURIComponent for our ids
@@ -64,7 +64,7 @@ def try_(label, fn):
 presets = json.loads(fetch("/api/presets"))
 save("offline/api/presets.json", json.dumps(presets).encode())
 n = {"twins": 0, "pair": 0, "terrain": 0, "assets": 0}
-mission_ok = terrain_ok = False
+mission_ok = terrain_ok = calendar_ok = False
 
 for p in presets:
     res = json.loads(fetch("/api/twins", {"body": p["body"], "lat": p["lat"], "lon": p["lon"], "k": 10}))
@@ -86,6 +86,10 @@ for p in presets:
                     if try_("heights", lambda: save_asset(g["heights_url"])) is not FAIL:
                         n["assets"] += 1
                 terrain_ok = True
+    cal = try_(f"calendar {p['id']}", lambda: json.loads(fetch(f"/api/calendar?target_body={p['body']}&target_lat={p['lat']}&target_lon={p['lon']}")))
+    if cal is not FAIL:
+        save(f"offline/api/calendar/{safe(p['id'])}.json", json.dumps(cal).encode())
+        calendar_ok = True
     if p["body"] == "moon":
         m = try_(f"mission {p['id']}", lambda: json.loads(fetch(f"/api/mission/{quote(p['id'])}")))
         if m is not FAIL:
@@ -103,9 +107,23 @@ metrics = try_("metrics", lambda: fetch("/api/metrics"))
 if metrics is not FAIL:
     save("offline/api/metrics.json", metrics)
 
+findings = try_("findings", lambda: fetch("/api/findings"))
+findings_ok = findings is not FAIL
+if findings_ok:
+    save("offline/api/findings.json", findings)
+
+# atlas files (built by W1 under atlas/); copied as they are, the UI reads them from ./atlas/
+atlas_ok = False
+if pathlib.Path(atlas_dir).is_dir() and (pathlib.Path(atlas_dir) / "index.json").exists():
+    shutil.copytree(atlas_dir, out / "atlas", dirs_exist_ok=True)
+    atlas_ok = True
+    print(f"  atlas copied from {atlas_dir}")
+else:
+    print(f"  atlas not found at {atlas_dir}: feature hidden in the bundle")
+
 health = json.loads(fetch("/api/health"))
 health["replay_forced"] = True
-health["features"] = {"site_finder": sites_ok, "terrain3d": terrain_ok, "mission": mission_ok}
+health["features"] = {"site_finder": sites_ok, "terrain3d": terrain_ok, "mission": mission_ok, "atlas": atlas_ok, "calendar": calendar_ok, "findings": findings_ok}
 save("offline/api/health.json", json.dumps(health).encode())
 
 # golden sessions; default.jsonl is what the offline "Plan campaign" replays
