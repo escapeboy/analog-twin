@@ -440,16 +440,21 @@ def _sf():
     return m, _SF_LAYERS
 
 
-def site_finder_passed() -> bool:
+def metric_gate_passed(key: str) -> bool:
+    """docs/metrics.json <key>.passed (False when the file, key or flag is missing)."""
     for base in (ROOT, MAIN_ROOT):
         p = base / "docs" / "metrics.json"
         if p.exists():
             try:
                 import json
-                return bool((json.loads(p.read_text()).get("site_finder") or {}).get("passed"))
+                return bool((json.loads(p.read_text()).get(key) or {}).get("passed"))
             except Exception:
                 return False
     return False
+
+
+def site_finder_passed() -> bool:
+    return metric_gate_passed("site_finder")
 
 
 def _sf_args(w_sun, w_earth, w_psr, slope_max):
@@ -597,3 +602,88 @@ def terrain_pair(a_id: str, b_id: str) -> TerrainPair:
         grids.append(_grid(pid, {**pt, "heights": h, "gsd_m": gsd_m(), "extent_km": EXTENT_KM}, "common-scale DEM crop (fallback)"))
     return TerrainPair(a=grids[0], b=grids[1], sun_azimuth_deg=az, sun_elevation_deg=el, terrain_sim=float(ex["terrain_sim"]),
                        source="fallback-dem")
+
+
+# ---------- Earth-Moon mission (W8, engine/trajectory.py output in data/mission/<id>.json + .czml) ----------
+def _mission_dirs() -> list[pathlib.Path]:
+    return [data_dir() / "mission", cache_dir() / "mission"]
+
+
+def _mission_file(site_id: str, ext: str) -> Optional[pathlib.Path]:
+    name = _safe(site_id)
+    for d in _mission_dirs():
+        p = d / f"{name}.{ext}"
+        if p.is_file():
+            return p
+    return None
+
+
+def mission_czml(site_id: str) -> Optional[pathlib.Path]:
+    return _mission_file(site_id, "czml")
+
+
+def _mission_summary(raw: dict, site_id: str) -> dict:
+    """Maps the current W8 file shape (or an already-shaped `summary`) to the API contract."""
+    if isinstance(raw.get("summary"), dict):  # reshaped file: trust it, fill the gaps below
+        base = dict(raw["summary"])
+    else:
+        base = {}
+    t = raw.get("times_utc") or {}
+    gate = (raw.get("gate") or {}).get("status", "unknown")
+    show = raw.get("show_launch_time", True) and gate == "pass"
+    site = raw.get("site") or {}
+    events = base.get("events") or [{"t_utc": e.get("utc") or e.get("t_utc"), "name": e.get("name"), "detail": e.get("detail", "")}
+                                    for e in raw.get("events") or []]
+    out = {
+        "launch_utc": base.get("launch_utc", t.get("launch")) if show else None,
+        "tli_utc": base.get("tli_utc", t.get("tli")),
+        "arrival_utc": base.get("arrival_utc", t.get("arrival")),
+        "landing_utc": base.get("landing_utc", t.get("landing")),
+        "tli_dv_kms": base.get("tli_dv_kms", raw.get("tli_dv_km_s")),
+        "loi_dv_kms": base.get("loi_dv_kms", raw.get("loi_dv_km_s")),
+        "tof_days": base.get("tof_days", raw.get("tof_days")),
+        "arrival_vinf_kms": base.get("arrival_vinf_kms", raw.get("arrival_v_inf_km_s")),
+        "site": {"id": site.get("id", site_id), "label": site.get("label"), "lat": site.get("lat"), "lon": site.get("lon")},
+        "launch_time_computed": bool(show and (base.get("launch_utc") or t.get("launch"))),
+        "landing_sun_elevation_deg": base.get("landing_sun_elevation_deg", raw.get("landing_sun_elevation_deg")),
+        "landing_earth_elevation_deg": base.get("landing_earth_elevation_deg", raw.get("landing_earth_elevation_deg")),
+        "label": base.get("label", raw.get("label")),
+        "events": [e for e in events if e.get("t_utc")],
+    }
+    return {"czml_url": f"/api/mission/{_safe(site_id)}.czml", "summary": out, "gate": {"status": gate}}
+
+
+def mission(site_id: str) -> Optional[dict]:
+    import json
+    p = _mission_file(site_id, "json")
+    if p is None:
+        return None
+    return _mission_summary(json.loads(p.read_text()), site_id)
+
+
+def record_mission_cache(site_ids=("shackleton-rim",)) -> None:
+    d = cache_dir() / "mission"
+    d.mkdir(parents=True, exist_ok=True)
+    for sid in site_ids:
+        for ext in ("json", "czml"):
+            src = data_dir() / "mission" / f"{_safe(sid)}.{ext}"
+            if src.is_file():
+                shutil.copy2(src, d / src.name)
+
+
+def mission_evidence_item(lat: float, lon: float) -> Optional[dict]:
+    """Mission values of the mission file whose site matches the target point (within 0.01 deg), or None."""
+    import json
+    for d in _mission_dirs():
+        for p in sorted(d.glob("*.json")) if d.is_dir() else []:
+            try:
+                raw = json.loads(p.read_text())
+                site = raw.get("site") or {}
+                if abs(site.get("lat", 999) - lat) < 0.01 and abs(site.get("lon", 999) - lon) < 0.01:
+                    s = _mission_summary(raw, p.stem)["summary"]
+                    keep = ("launch_utc", "tli_utc", "arrival_utc", "landing_utc", "tli_dv_kms", "loi_dv_kms", "tof_days",
+                            "arrival_vinf_kms", "landing_sun_elevation_deg", "landing_earth_elevation_deg")
+                    return {"ref": f"mission:{p.stem}", "kind": "mission", "data": {k: s[k] for k in keep if s.get(k) is not None}}
+            except Exception as exc:
+                log.warning("mission file %s unusable: %s", p, exc)
+    return None

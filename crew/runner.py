@@ -88,6 +88,7 @@ async def run_claude(prompt: str, model: str, system: str, on_delta: Optional[Ca
                            "--append-system-prompt", system, "--model", model]
     tmp = tempfile.mkdtemp(prefix="crew-")
     proc = None
+    err_task = None
     try:
         try:
             proc = await asyncio.create_subprocess_exec(*argv, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE,
@@ -133,9 +134,16 @@ async def run_claude(prompt: str, model: str, system: str, on_delta: Optional[Ca
         except asyncio.TimeoutError:
             raise CrewError("timeout", f"claude call exceeded {timeout:.0f} s")
     finally:
-        if proc is not None and proc.returncode is None:
-            proc.kill()
+        if proc is not None:
+            if proc.returncode is None:
+                proc.kill()
             await proc.wait()
+            if proc.stdin is not None and not proc.stdin.is_closing():
+                proc.stdin.close()
+        if err_task is not None and not err_task.done():
+            err_task.cancel()
+        if err_task is not None:
+            await asyncio.gather(err_task, return_exceptions=True)  # no pending task or open pipe may outlive the event loop
         shutil.rmtree(tmp, ignore_errors=True)
 
 
@@ -226,6 +234,7 @@ class Session:
 
 
 _SESSIONS: dict[str, Session] = {}
+_TASKS: set = set()
 
 
 def get_session(sid: str) -> Optional[Session]:
@@ -469,5 +478,15 @@ def start_session(req: CampaignRequest, force_replay: bool, reason: Optional[str
     sid = uuid.uuid4().hex[:12]
     sess = Session(sid, req, "replay" if force_replay else "live")
     _SESSIONS[sid] = sess
-    asyncio.get_running_loop().create_task(run_session(sess, force_replay, reason))
+    task = asyncio.get_running_loop().create_task(run_session(sess, force_replay, reason))
+    _TASKS.add(task)
+    task.add_done_callback(_TASKS.discard)
     return sess
+
+
+async def shutdown() -> None:
+    """Cancels running campaigns so no subprocess or task outlives the event loop (server stop, test teardown)."""
+    tasks = list(_TASKS)
+    for t in tasks:
+        t.cancel()
+    await asyncio.gather(*tasks, return_exceptions=True)

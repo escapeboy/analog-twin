@@ -264,3 +264,43 @@ def test_terrain_pair_and_heights(client, monkeypatch, with_t3):
     assert h.min() == pytest.approx(ga.min_m) and h.max() == pytest.approx(ga.max_m)
     assert client.get("/api/terrain/heights/none.f32").status_code == 404
     assert client.get("/api/health").json()["features"]["terrain3d"] is with_t3
+
+
+def test_mission_routes_adapter_and_evidence(client, monkeypatch, tmp_path):
+    import json
+    src = pathlib.Path("/data/code/nasa-challenge/data/mission")
+    if not (src / "shackleton-rim.json").exists():
+        pytest.skip("mission data not built")
+    mdir = tmp_path / "data" / "mission"
+    mdir.mkdir(parents=True)
+    for ext in ("json", "czml"):
+        shutil.copy(src / f"shackleton-rim.{ext}", mdir / f"shackleton-rim.{ext}")
+    r = client.get("/api/mission/shackleton-rim")
+    assert r.status_code == 200
+    d = r.json()
+    s = d["summary"]
+    assert d["gate"]["status"] == "pass" and d["czml_url"] == "/api/mission/shackleton-rim.czml"
+    assert s["launch_utc"] and s["launch_time_computed"] and 3.0 <= s["tli_dv_kms"] <= 3.3 and s["site"]["id"] == "shackleton-rim"
+    assert s["events"] and set(s["events"][0]) == {"t_utc", "name", "detail"}
+    c = client.get(d["czml_url"])
+    assert c.status_code == 200 and isinstance(c.json(), list)
+    assert client.get("/api/mission/nope").status_code == 404 and client.get("/api/mission/nope.czml").status_code == 404
+    # gate not passed or launch hidden -> launch_utc null
+    raw = json.loads((mdir / "shackleton-rim.json").read_text())
+    raw["show_launch_time"] = False
+    (mdir / "shackleton-rim.json").write_text(json.dumps(raw))
+    s2 = client.get("/api/mission/shackleton-rim").json()["summary"]
+    assert s2["launch_utc"] is None and s2["launch_time_computed"] is False
+    # reshaped file with its own summary block is accepted
+    raw["summary"] = {"tli_dv_kms": 3.2, "events": [{"t_utc": "2028-01-01T00:00:00Z", "name": "x", "detail": "y"}]}
+    (mdir / "shackleton-rim.json").write_text(json.dumps(raw))
+    s3 = client.get("/api/mission/shackleton-rim").json()["summary"]
+    assert s3["tli_dv_kms"] == 3.2 and len(s3["events"]) == 1
+    # replay cache copy serves when the data dir has no mission
+    service.record_mission_cache()
+    shutil.rmtree(mdir)
+    assert client.get("/api/mission/shackleton-rim.czml").status_code == 200
+    # evidence item
+    ev = service.mission_evidence_item(-89.7668, -171.87)
+    assert ev and ev["ref"] == "mission:shackleton-rim" and ev["kind"] == "mission" and ev["data"]["tli_dv_kms"] == 3.2
+    assert service.mission_evidence_item(10.0, 10.0) is None

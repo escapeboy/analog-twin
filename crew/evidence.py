@@ -116,6 +116,12 @@ async def collect(req: CampaignRequest, session_id: str, emit: Emit, replay_cach
             await emit("tool.call", "terrain", {"name": "site_properties", "args": {"lat": req.lat, "lon": req.lon}})
             pack.items.append(EvidenceItem(ref=sf["ref"], kind="site_finder", data=_clean({k: sf["data"].get(k) for k in SF_KEYS})))
             await emit("tool.result", "terrain", {"name": "site_properties", "ref": sf["ref"], "digest": "site-finder properties of the target cell"})
+    if req.body == "moon":
+        ms = await asyncio.to_thread(service.mission_evidence_item, req.lat, req.lon)
+        if ms:
+            await emit("tool.call", "logistics", {"name": "mission", "args": {"lat": req.lat, "lon": req.lon}})
+            pack.items.append(EvidenceItem(ref=ms["ref"], kind="mission", data=ms["data"]))
+            await emit("tool.result", "logistics", {"name": "mission", "ref": ms["ref"], "digest": "Earth-Moon transfer values for the target"})
     for it in pack.items:
         if it.kind in ("window", "context"):
             await emit("tool.result", "light" if it.kind == "window" else "logistics",

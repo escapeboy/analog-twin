@@ -41,6 +41,8 @@ async def lifespan(_app):
     task = asyncio.create_task(_check_cli())
     yield
     task.cancel()
+    await asyncio.gather(task, return_exceptions=True)  # let run_claude reap its subprocess before the loop closes
+    await runner.shutdown()
 
 
 app = FastAPI(title="Analog Twin", version="0.2.0", lifespan=lifespan)
@@ -55,7 +57,8 @@ def health() -> Health:
     loaded, counts = service.index_status()
     return Health(status="ok" if (_cli_health.ok and loaded) else "degraded", claude_cli=_cli_health, index_loaded=loaded,
                   index_points=counts, replay_forced=_replay_forced(),
-                  features={"site_finder": service.site_finder_passed(), "terrain3d": service.terrain3d_available()})
+                  features={"site_finder": service.site_finder_passed(), "terrain3d": service.terrain3d_available(),
+                            "mission": service.metric_gate_passed("mission")})
 
 
 @app.get("/api/presets", response_model=list[Preset])
@@ -116,6 +119,22 @@ def sites_map(w_sun: Optional[float] = None, w_earth: Optional[float] = None, w_
 @app.get("/api/sites/{sid}")
 def site(sid: str):
     return _sites_call(service.site_properties, sid)
+
+
+@app.get("/api/mission/{site_id}.czml")
+def mission_czml(site_id: str):
+    p = service.mission_czml(site_id)
+    if p is None:
+        raise HTTPException(404, "no mission for this site")
+    return FileResponse(p, media_type="application/json")
+
+
+@app.get("/api/mission/{site_id}")
+def mission(site_id: str):
+    m = service.mission(site_id)
+    if m is None:
+        raise HTTPException(404, "no mission for this site")
+    return m
 
 
 @app.get("/api/terrain/heights/{name}.f32")
