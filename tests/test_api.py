@@ -29,6 +29,7 @@ def client(tmp_path, monkeypatch):
     from api.main import app
     with TestClient(app) as c:
         c.tmp = tmp_path
+        wait_health(c)  # startup health task finished: no test depends on its timing
         yield c
 
 
@@ -53,8 +54,20 @@ def test_fixture_routes_schema_valid(client):
     assert client.get("/api/metrics").status_code == 200
 
 
+def wait_health(client, timeout=10.0):
+    """The startup check runs in a background task; wait until it has published a result (fake CLI answers in ms)."""
+    import time
+    end = time.monotonic() + timeout
+    while time.monotonic() < end:
+        h = Health.model_validate(client.get("/api/health").json())
+        if h.claude_cli.checked_at:
+            return h
+        time.sleep(0.05)
+    raise AssertionError("health check did not finish")
+
+
 def test_health_runs_cli_check(client):
-    h = Health.model_validate(client.get("/api/health").json())
+    h = wait_health(client)
     assert h.claude_cli.ok and h.index_loaded is False and h.replay_forced is False and h.status == "degraded"
 
 
@@ -382,7 +395,9 @@ def test_atlas_findings_routes_and_flags(client, monkeypatch, tmp_path):
 
 
 def test_atlas_static_mount(client):
-    d = service.atlas_dir()
+    from api.main import app
+    d = pathlib.Path(next(r for r in app.routes if getattr(r, "path", None) == "/atlas" and hasattr(r, "app")).app.directory)  # the dir mounted at import
+    created = not d.exists()
     d.mkdir(exist_ok=True)
     f = d / "_mount_test.txt"
     f.write_text("hello")
@@ -391,7 +406,7 @@ def test_atlas_static_mount(client):
         assert client.get("/atlas/nope.png").status_code == 404
     finally:
         f.unlink()
-        if not any(d.iterdir()):
+        if created and not any(d.iterdir()):
             d.rmdir()
 
 
