@@ -1,5 +1,7 @@
 # Analog Twin
 
+**Others answer "which places look like the Moon". We answer: for THIS landing site — where on Earth, in which weeks, how good is the match, what cannot be matched, and how it compares with NASA's own candidate sites.**
+
 Analog Twin finds places on Earth whose terrain shape and sunlight best match a site on the Moon or Mars, and the
 reverse: click any point on any of the three worlds and it lists the closest matches on the other two. It also
 searches the lunar south pole for base sites, draws the Earth to Moon trip for a chosen site, and lets a small crew of
@@ -124,6 +126,16 @@ used<!-- metrics: light.spice_crosscheck.summary -->.
 **Speed and determinism.** `find_twins` over 120 queries: median 60.6 ms, 95th percentile 90.3 ms, in process, index
 loaded<!-- metrics: performance.find_twins.p50_ms, performance.find_twins.p95_ms -->. Building a small index twice from
 the same inputs gives byte-identical features<!-- metrics: determinism.identical -->.
+
+## Open data: Global Analog Atlas
+
+For each target in `engine/targets.yaml`, the atlas scores every Earth index point and releases the result as open data in
+`atlas/`: a global equirectangular PNG heatmap (ocean and ice masked), a GeoTIFF, and a GeoJSON of the top 200 cells.
+The score is the same similarity the app uses (terrain, or terrain plus light), evaluated everywhere, with no new
+science. The atlas holds maps for {N targets: from `atlas/index.json`} Moon and Mars targets. A data card in `atlas/`
+gives method, scale and limitations. The planned licence is CC BY 4.0; the files and the card are not in the repository
+yet. The caveats of the terrain method apply to every map: coarse terrain texture only, and a validation test that does
+not clearly beat chance (see Validation).
 
 ## Computed candidates
 
