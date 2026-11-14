@@ -396,7 +396,7 @@ def test_atlas_findings_routes_and_flags(client, monkeypatch, tmp_path):
 
 def test_atlas_static_mount(client):
     from api.main import app
-    d = pathlib.Path(next(r for r in app.routes if getattr(r, "name", None) == "atlas").app.directory)  # the dir mounted at import
+    d = pathlib.Path(next(r for r in app.routes if getattr(r, "path", None) == "/atlas" and hasattr(r, "app")).app.directory)  # the dir mounted at import
     created = not d.exists()
     d.mkdir(exist_ok=True)
     f = d / "_mount_test.txt"
