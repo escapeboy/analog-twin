@@ -103,8 +103,8 @@ function plan(d: Data): Plan {
   caps.push({ t0: p.calStart, t1: p.calStart + 2, text: 'Go in these weeks:' });
   caps.push({ t0: p.calStart + 2, t1: p.calEnd, text: `${mdLabel(win.start)} – ${mdLabel(win.end)}.` });
   if (p.numStart != null) {
-    caps.push({ t0: 23, t1: 25, text: `Our top ${d.total} lunar base sites:` });
-    caps.push({ t0: 25, t1: 27, text: `${d.near} near NASA’s Artemis regions.` });
+    caps.push({ t0: 23, t1: 25, text: `Our ${d.total} best lunar base sites:` });
+    caps.push({ t0: 25, t1: 27, text: `${d.near} lie near NASA’s Artemis regions.` });
   }
   return p;
 }

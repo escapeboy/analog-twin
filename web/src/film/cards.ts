@@ -143,6 +143,8 @@ export function numberCard(ctx: CanvasRenderingContext2D, u: number, near: numbe
       ctx.strokeStyle = AMBER; ctx.lineWidth = 3; ctx.globalAlpha = a * on * 0.4; ctx.stroke();
     }
   }
+  ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.fillStyle = MUTED; ctx.font = `400 30px ${FONT}`;
+  ctx.fillText('within 25 km of an Artemis III candidate region · LOLA illumination maps', 960, 810);
   ctx.restore();
   ctx.globalAlpha = 1; ctx.textAlign = 'left';
 }
