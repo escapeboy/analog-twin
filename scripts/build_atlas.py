@@ -118,7 +118,10 @@ def build(out: Path, index_path: Path, width: int, log=print, tif_width: int = 2
         "colour_ramp": {"name": "viridis (32 stops, linear)", "stops_t": "t = (score - vmin) / (vmax - vmin), "
                         "vmin/vmax = value_range of the target (shared by both modes)",
                         "legend_example": "per target: legend_stops"},
-        "targets": [{**e, "legend_stops": A.legend_stops(*e["value_range"])} for e in entries],
+        # modes / ramp / vmin / vmax: flat fields the UI (W4) reads; ramp = 9 hex colours evenly spaced from vmin to vmax
+        "targets": [{**e, "modes": list(A.MODES), "vmin": e["value_range"][0], "vmax": e["value_range"][1],
+                     "ramp": [s["rgb"] for s in A.legend_stops(*e["value_range"])],
+                     "legend_stops": A.legend_stops(*e["value_range"])} for e in entries],
         "known_analogs": "known_analogs.geojson",
         "sanity_mean_score_by_abs_latitude": sanity,
         "build_seconds": round(time.time() - t0, 1),

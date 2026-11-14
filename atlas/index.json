@@ -1,7 +1,7 @@
 {
  "title": "Analog Twin - Global Analog Atlas",
  "licence": "CC BY 4.0",
- "generated_at": "2026-11-14T12:45:49+0100",
+ "generated_at": "2026-11-14T12:50:15+0100",
  "index": {
   "path": "/data/code/nasa-challenge/data/index/full_v2",
   "feature_set": "v2",
@@ -86,6 +86,23 @@
      "geotiff": "shackleton-rim/terrain_light/score.tif"
     }
    },
+   "modes": [
+    "terrain",
+    "terrain+light"
+   ],
+   "vmin": 0.019,
+   "vmax": 0.5904,
+   "ramp": [
+    "#440154",
+    "#472d7b",
+    "#3b528b",
+    "#2c728e",
+    "#21908c",
+    "#28ae80",
+    "#5cc863",
+    "#aadc32",
+    "#fde725"
+   ],
    "legend_stops": [
     {
      "t": 0.0,
@@ -188,6 +205,23 @@
      "top200": "connecting-ridge/terrain_light/top200.geojson"
     }
    },
+   "modes": [
+    "terrain",
+    "terrain+light"
+   ],
+   "vmin": 0.0228,
+   "vmax": 0.6445,
+   "ramp": [
+    "#440154",
+    "#472d7b",
+    "#3b528b",
+    "#2c728e",
+    "#21908c",
+    "#28ae80",
+    "#5cc863",
+    "#aadc32",
+    "#fde725"
+   ],
    "legend_stops": [
     {
      "t": 0.0,
@@ -292,6 +326,23 @@
      "geotiff": "malapert-massif/terrain_light/score.tif"
     }
    },
+   "modes": [
+    "terrain",
+    "terrain+light"
+   ],
+   "vmin": 0.0189,
+   "vmax": 0.4646,
+   "ramp": [
+    "#440154",
+    "#472d7b",
+    "#3b528b",
+    "#2c728e",
+    "#21908c",
+    "#28ae80",
+    "#5cc863",
+    "#aadc32",
+    "#fde725"
+   ],
    "legend_stops": [
     {
      "t": 0.0,
@@ -394,6 +445,23 @@
      "top200": "nobile-rim-1/terrain_light/top200.geojson"
     }
    },
+   "modes": [
+    "terrain",
+    "terrain+light"
+   ],
+   "vmin": 0.0196,
+   "vmax": 0.6313,
+   "ramp": [
+    "#440154",
+    "#472d7b",
+    "#3b528b",
+    "#2c728e",
+    "#21908c",
+    "#28ae80",
+    "#5cc863",
+    "#aadc32",
+    "#fde725"
+   ],
    "legend_stops": [
     {
      "t": 0.0,
@@ -496,6 +564,23 @@
      "top200": "haworth/terrain_light/top200.geojson"
     }
    },
+   "modes": [
+    "terrain",
+    "terrain+light"
+   ],
+   "vmin": 0.0284,
+   "vmax": 0.6165,
+   "ramp": [
+    "#440154",
+    "#472d7b",
+    "#3b528b",
+    "#2c728e",
+    "#21908c",
+    "#28ae80",
+    "#5cc863",
+    "#aadc32",
+    "#fde725"
+   ],
    "legend_stops": [
     {
      "t": 0.0,
@@ -598,6 +683,23 @@
      "top200": "de-gerlache-rim-2/terrain_light/top200.geojson"
     }
    },
+   "modes": [
+    "terrain",
+    "terrain+light"
+   ],
+   "vmin": 0.0271,
+   "vmax": 0.6031,
+   "ramp": [
+    "#440154",
+    "#472d7b",
+    "#3b528b",
+    "#2c728e",
+    "#21908c",
+    "#28ae80",
+    "#5cc863",
+    "#aadc32",
+    "#fde725"
+   ],
    "legend_stops": [
     {
      "t": 0.0,
@@ -702,6 +804,23 @@
      "geotiff": "jezero/terrain_light/score.tif"
     }
    },
+   "modes": [
+    "terrain",
+    "terrain+light"
+   ],
+   "vmin": 0.0437,
+   "vmax": 0.8824,
+   "ramp": [
+    "#440154",
+    "#472d7b",
+    "#3b528b",
+    "#2c728e",
+    "#21908c",
+    "#28ae80",
+    "#5cc863",
+    "#aadc32",
+    "#fde725"
+   ],
    "legend_stops": [
     {
      "t": 0.0,
@@ -804,6 +923,23 @@
      "top200": "perseverance-landing/terrain_light/top200.geojson"
     }
    },
+   "modes": [
+    "terrain",
+    "terrain+light"
+   ],
+   "vmin": 0.0455,
+   "vmax": 0.8636,
+   "ramp": [
+    "#440154",
+    "#472d7b",
+    "#3b528b",
+    "#2c728e",
+    "#21908c",
+    "#28ae80",
+    "#5cc863",
+    "#aadc32",
+    "#fde725"
+   ],
    "legend_stops": [
     {
      "t": 0.0,
@@ -906,6 +1042,23 @@
      "top200": "gale/terrain_light/top200.geojson"
     }
    },
+   "modes": [
+    "terrain",
+    "terrain+light"
+   ],
+   "vmin": 0.023,
+   "vmax": 0.7627,
+   "ramp": [
+    "#440154",
+    "#472d7b",
+    "#3b528b",
+    "#2c728e",
+    "#21908c",
+    "#28ae80",
+    "#5cc863",
+    "#aadc32",
+    "#fde725"
+   ],
    "legend_stops": [
     {
      "t": 0.0,
@@ -1008,6 +1161,23 @@
      "top200": "oxia-planum/terrain_light/top200.geojson"
     }
    },
+   "modes": [
+    "terrain",
+    "terrain+light"
+   ],
+   "vmin": 0.0452,
+   "vmax": 0.9456,
+   "ramp": [
+    "#440154",
+    "#472d7b",
+    "#3b528b",
+    "#2c728e",
+    "#21908c",
+    "#28ae80",
+    "#5cc863",
+    "#aadc32",
+    "#fde725"
+   ],
    "legend_stops": [
     {
      "t": 0.0,
@@ -1180,6 +1350,6 @@
    }
   }
  },
- "build_seconds": 95.2,
- "size_mb": 50.94
+ "build_seconds": 101.2,
+ "size_mb": 50.95
 }
