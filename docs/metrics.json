@@ -2638,5 +2638,150 @@
         }
       }
     }
+  },
+  "crew": {
+    "target": "shackleton-rim",
+    "runs": [
+      {
+        "mode": "live",
+        "total_wall_s": 29.05,
+        "fallback": false,
+        "removed_unverified": 0,
+        "subprocess_wall_s": [
+          {
+            "role": "logistics",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 9.59,
+            "status": "ok"
+          },
+          {
+            "role": "terrain",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 11.65,
+            "status": "ok"
+          },
+          {
+            "role": "light",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 13.45,
+            "status": "ok"
+          },
+          {
+            "role": "testlead",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 17.75,
+            "status": "ok"
+          },
+          {
+            "role": "director",
+            "model": "sonnet",
+            "attempt": 1,
+            "wall_s": 10.84,
+            "status": "ok"
+          }
+        ],
+        "status": "ok"
+      },
+      {
+        "mode": "live",
+        "total_wall_s": 33.43,
+        "fallback": false,
+        "removed_unverified": 0,
+        "subprocess_wall_s": [
+          {
+            "role": "logistics",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 9.9,
+            "status": "ok"
+          },
+          {
+            "role": "terrain",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 12.45,
+            "status": "ok"
+          },
+          {
+            "role": "light",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 17.43,
+            "status": "ok"
+          },
+          {
+            "role": "testlead",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 22.23,
+            "status": "ok"
+          },
+          {
+            "role": "director",
+            "model": "sonnet",
+            "attempt": 1,
+            "wall_s": 10.99,
+            "status": "ok"
+          }
+        ],
+        "status": "ok"
+      },
+      {
+        "mode": "live",
+        "total_wall_s": 37.34,
+        "fallback": false,
+        "removed_unverified": 0,
+        "subprocess_wall_s": [
+          {
+            "role": "logistics",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 9.73,
+            "status": "ok"
+          },
+          {
+            "role": "terrain",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 11.06,
+            "status": "ok"
+          },
+          {
+            "role": "light",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 18.35,
+            "status": "ok"
+          },
+          {
+            "role": "testlead",
+            "model": "haiku",
+            "attempt": 1,
+            "wall_s": 26.23,
+            "status": "ok"
+          },
+          {
+            "role": "director",
+            "model": "sonnet",
+            "attempt": 1,
+            "wall_s": 10.96,
+            "status": "ok"
+          }
+        ],
+        "status": "ok"
+      }
+    ],
+    "median_s": 33.4,
+    "max_s": 37.3,
+    "models": {
+      "fast": "haiku",
+      "strong": "sonnet"
+    },
+    "measured_at": "2026-11-14T10:25:59+00:00",
+    "measured_via": "POST /api/campaign + SSE, total = POST to plan.final"
   }
 }
