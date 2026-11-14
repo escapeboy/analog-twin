@@ -102,6 +102,17 @@ def get_index():
     return _INDEX
 
 
+def warm() -> None:
+    """Startup warm-up: index, and the first-call cost of engine.env (about 1 s)."""
+    get_index()
+    env = _mod("engine.env")
+    if env is not None and hasattr(env, "site_context"):
+        try:
+            env.site_context(0.0, 0.0)
+        except Exception as exc:
+            log.info("env warm-up skipped: %s", exc)
+
+
 def index_status() -> tuple[bool, dict[str, int]]:
     idx = _INDEX if _INDEX is not None else get_index()
     if idx is None:

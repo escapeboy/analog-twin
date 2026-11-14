@@ -39,7 +39,7 @@ async def _check_cli() -> None:
 @contextlib.asynccontextmanager
 async def lifespan(_app):
     task = asyncio.create_task(_check_cli())
-    warm = asyncio.create_task(asyncio.to_thread(service.get_index))  # first query is 3 s cold otherwise
+    warm = asyncio.create_task(asyncio.to_thread(service.warm))  # first query is 3 s cold otherwise
     yield
     task.cancel()
     await asyncio.gather(task, warm, return_exceptions=True)  # let run_claude reap its subprocess before the loop closes
