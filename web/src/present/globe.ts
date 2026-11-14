@@ -89,6 +89,13 @@ export class PresentGlobe {
     if (scene.skyAtmosphere) scene.skyAtmosphere.show = earth;
   }
 
+  /** Put the sun over `lon` (equinox, so the sub-solar point is on the equator): the focused spot is on the day side and the
+   * Black Marble night lights show toward the far limb. Sub-solar longitude = (12 - UTC hours) * 15 deg, equation of time ignored. */
+  sunOver(lon: number) {
+    const hours = (((12 - lon / 15) % 24) + 24) % 24;
+    this.viewer.clock.currentTime = JulianDate.addSeconds(JulianDate.fromIso8601('2027-03-21T00:00:00Z'), hours * 3600, new JulianDate());
+  }
+
   setBody(body: Body) {
     if (body === this.body) return;
     this.body = body;

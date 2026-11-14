@@ -88,6 +88,7 @@ function fitHeight(g: PresentGlobe, frac: number): number {
 const frac = (b: Body) => (roles[b] === 'center' ? 0.6 : 0.86);
 export function aim(b: Body, lat: number, lon: number, duration = 1.6) {
   const g = globeOf(b);
+  if (b === 'earth') g.sunOver(lon);
   if (duration <= 0) g.setView(lat, lon, fitHeight(g, frac(b))); else g.flyTo(lat, lon, fitHeight(g, frac(b)), duration);
 }
 
