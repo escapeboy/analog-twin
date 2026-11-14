@@ -44,11 +44,18 @@ export function initAtlas(getEarth: () => Globe | undefined, host: HTMLElement) 
   let seq = 0;
   let loaded = false;
   let modeDesc: Record<string, string> = {};
+  let barren: { png: string; ndvi_max: number } | null = null; // index.json "barren_mask"
+  let maskOn = false;
+  let topNdvi = '';
 
   const toggle = h('button', { type: 'button', 'aria-pressed': 'false', title: 'Colour the whole Earth by similarity to the selected target' }, 'Atlas');
   const modeBox = h('span', { class: 'atlas-modes', hidden: '' });
   host.append(toggle, modeBox);
   const legend = h('div', { class: 'atlas-legend', hidden: '' });
+  const maskBox = h('input', { type: 'checkbox', id: 'atlas-mask' }) as HTMLInputElement;
+  const maskLabel = h('span', null, 'Mask vegetated land');
+  const maskWrap = h('label', { class: 'atlas-mask', hidden: '', title: 'Grey overlay on land whose MODIS NDVI is above the barren threshold' }, maskBox, maskLabel);
+  host.append(maskWrap);
 
   function modeButtons(t: AtlasTarget | null) {
     clear(modeBox);
@@ -88,22 +95,29 @@ export function initAtlas(getEarth: () => Globe | undefined, host: HTMLElement) 
       h('div', null,
         modeDesc[mode] ? h('div', { class: 'atlas-note' }, modeDesc[mode]) : '',
         mode === 'terrain+light' ? h('div', { class: 'atlas-note' }, "Most of the global colour change comes from sunlight; terrain shape alone is the 'terrain' view.") : '',
-        h('div', { class: 'atlas-note' }, 'Yellow dots: top 10 cells. Rings: known analogs.')));
+        h('div', { class: 'atlas-note' }, 'Yellow dots: top 10 cells. Rings: known analogs.'),
+        topNdvi ? h('div', { class: 'atlas-note' }, topNdvi) : '',
+        maskOn && barren ? h('div', { class: 'atlas-note' }, `Mask: grey = vegetated (NDVI > ${barren.ndvi_max}); light/hatched = no MODIS value; clear = barren.`) : ''));
   }
 
   async function refresh() {
     const earth = getEarth();
     if (!earth) return;
     const my = ++seq;
-    if (!on) { void earth.setAtlas(null); earth.setAtlasMarkers([], []); showLegend(null); modeButtons(null); return; }
+    if (!on) { void earth.setAtlas(null); void earth.setAtlasMask(null); earth.setAtlasMarkers([], []); showLegend(null); modeButtons(null); maskWrap.hidden = true; return; }
     if (!loaded) {
       const idx = await getJson('/atlas/index.json');
       if (my !== seq) return;
       targets = idx ? parseIndex(idx) : [];
       modeDesc = idx?.modes && typeof idx.modes === 'object' && !Array.isArray(idx.modes) ? idx.modes : {};
+      const bm = idx?.barren_mask;
+      barren = bm?.png && Number.isFinite(Number(bm.ndvi_max)) ? { png: String(bm.png), ndvi_max: Number(bm.ndvi_max) } : null;
+      maskLabel.textContent = barren ? `Mask vegetated land (NDVI > ${barren.ndvi_max})` : 'Mask vegetated land';
       loaded = true;
     }
     const t = pickTarget();
+    maskWrap.hidden = !barren;
+    void applyMask(earth);
     if (!t) {
       void earth.setAtlas(null); earth.setAtlasMarkers([], []);
       modeButtons(null);
@@ -124,10 +138,28 @@ export function initAtlas(getEarth: () => Globe | undefined, host: HTMLElement) 
     const top = await getJson(topUrl);
     if (my !== seq) return;
     const pts = (top?.features ?? [])
-      .map((f: any) => ({ lon: f.geometry.coordinates[0], lat: f.geometry.coordinates[1], rank: f.properties?.rank ?? 1e9, score: f.properties?.score ?? 0 }))
+      .map((f: any) => ({ lon: f.geometry.coordinates[0], lat: f.geometry.coordinates[1], rank: f.properties?.rank ?? 1e9, score: f.properties?.score ?? 0,
+        ndvi: f.properties?.ndvi ?? null, barren: f.properties?.barren ?? null }))
       .sort((a: any, b: any) => (a.rank !== b.rank ? a.rank - b.rank : b.score - a.score));
-    earth.setAtlasMarkers(pts.slice(0, 10), knownPts ?? []);
+    const top10 = pts.slice(0, 10);
+    topNdvi = top10.some((p: any) => p.barren != null)
+      ? `Top 10: ${top10.filter((p: any) => p.barren === true).length} barren, ${top10.filter((p: any) => p.barren === false).length} vegetated; NDVI ${top10.map((p: any) => (p.ndvi != null ? p.ndvi.toFixed(2) : 'n/a')).join(', ')}`
+      : '';
+    showLegend(t);
+    earth.setAtlasMarkers(top10, knownPts ?? []);
   }
+
+  async function applyMask(earth: Globe) {
+    await earth.setAtlasMask(on && maskOn && barren ? assetUrl(`/atlas/${barren.png}`) : null).catch(() => {
+      legend.append(h('div', { class: 'atlas-msg err' }, 'Barren mask image unavailable'));
+    });
+  }
+  maskBox.addEventListener('change', () => {
+    maskOn = maskBox.checked;
+    const earth = getEarth();
+    if (earth) void applyMask(earth);
+    void refresh();
+  });
 
   toggle.addEventListener('click', () => {
     on = !on;
