@@ -24,6 +24,10 @@ export function loadGazetteer(): Promise<Gaz | null> {
   return gaz;
 }
 
+// Hand-added range boxes (name, lat0, lon0, lat1, lon1) where Natural Earth has no range polygon and its nearest
+// outline is misleading: Kashmir valley / Ladakh / Zanskar fall only inside "Tibetan Plateau" (nearest "range" to
+// Srinagar there is the Salt Range in Punjab). Checked only when no Natural Earth range contains the point.
+const RANGE_BOXES: [string, number, number, number, number][] = [['Western Himalayas', 32.5, 73.5, 35.3, 78.0]];
 const R = { earth: 6371, moon: 1737.4, mars: 3389.5 } as const;
 const rad = Math.PI / 180;
 function km(body: Body, lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -51,13 +55,18 @@ const kindWord = (name: string, type: string) => {
 
 export function placeName(g: Gaz, body: Body, lat: number, lon: number): PlaceName {
   if (body === 'earth') {
-    let region: string | null = null, best = Infinity;
-    for (const [name, , [x0, y0, x1, y1], rings] of g.earth.regions) {
+    // Prefer a mountain range: the smallest containing range, else a hand-added RANGE_BOXES entry, else the
+    // smallest containing region.
+    let region: string | null = null, best = Infinity, range: string | null = null, rbest = Infinity;
+    for (const [name, cls, [x0, y0, x1, y1], rings] of g.earth.regions) {
       if (lon < x0 || lon > x1 || lat < y0 || lat > y1) continue;
       if (!rings.some((r) => inRing(lon, lat, r))) continue;
       const area = (x1 - x0) * (y1 - y0);
       if (area < best) { best = area; region = name; }
+      if (cls.startsWith('range') && area < rbest) { rbest = area; range = name; }
     }
+    range ??= RANGE_BOXES.find(([, la0, lo0, la1, lo1]) => lat >= la0 && lat <= la1 && lon >= lo0 && lon <= lo1)?.[0] ?? null;
+    if (range) region = range;
     if (!region) {
       let d = 250;
       for (const [name, , la, lo] of g.earth.points) { const k = km('earth', lat, lon, la, lo); if (k < d) { d = k; region = name; } }
