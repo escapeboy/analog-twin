@@ -7,7 +7,7 @@ export type Source = 'live' | 'replay-cache' | 'fixture';
 
 export interface Point { body: Body; lat: number; lon: number }
 export interface Preset extends Point { id: string; label: string; source_url: string }
-export interface LightWindow { start: string; end: string; emd: number; light_sim: number }
+export interface LightWindow { start: string; end: string; emd: number; light_sim: number; earth_range?: [number, number] | null }
 export interface SiteContext {
   country?: string | null; koppen_code?: string | null; koppen_label?: string | null;
   elevation_m?: number | null; nearest_airport?: string | null; airport_km?: number | null; ref?: string | null;

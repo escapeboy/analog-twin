@@ -2,6 +2,14 @@ import { BODY_NAMES, type Body, type Twin } from '../api';
 import { clear, fmt, h } from '../dom';
 import { store } from '../state';
 
+const RANGE_TIP = 'Range of best-window light similarity over all Earth latitudes for this target';
+function lightCell(t: Twin): HTMLElement {
+  const r = t.best_window?.earth_range;
+  const td = h('td', null, r ? `${fmt(t.light_sim)} · ${fmt(r[0])}–${fmt(r[1])}` : fmt(t.light_sim));
+  if (r) td.title = RANGE_TIP;
+  return td;
+}
+
 export function initTwinList(root: HTMLElement, onSelect: (body: Body, t: Twin) => void) {
   function render() {
     clear(root);
@@ -22,7 +30,7 @@ export function initTwinList(root: HTMLElement, onSelect: (body: Body, t: Twin) 
         const sel = store.selected?.twin.id === t.id;
         const tr = h('tr', { tabindex: '0', 'data-id': t.id, class: sel ? 'sel' : '', 'aria-selected': String(sel) },
           h('td', null, String(t.rank)), h('td', null, t.place_label),
-          h('td', null, fmt(t.terrain_sim)), h('td', null, fmt(t.light_sim)), h('td', null, fmt(t.score)));
+          h('td', null, fmt(t.terrain_sim)), lightCell(t), h('td', null, fmt(t.score)));
         const go = () => onSelect(body as Body, t);
         tr.addEventListener('click', go);
         tr.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });

@@ -28,7 +28,7 @@ export function initDetail(root: HTMLElement) {
     const sel = store.selected?.twin;
     if (sel?.best_window) {
       const w = sel.best_window;
-      kids.push(h('p', null, h('b', null, 'Best window: '), `${w.start} to ${w.end} (light similarity ${fmt(w.light_sim)})`));
+      kids.push(h('p', null, h('b', null, 'Best window: '), `${w.start} to ${w.end} (light ${fmt(w.light_sim)}${w.earth_range ? ` (Earth range ${fmt(w.earth_range[0])}–${fmt(w.earth_range[1])})` : ''})`));
     }
     const list = (title: string, items: string[], cls: string) =>
       h('div', { class: cls }, h('b', null, title), h('ul', null, ...items.map((x) => h('li', null, x))));
