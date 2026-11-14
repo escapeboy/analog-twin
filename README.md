@@ -31,6 +31,10 @@ AI agents draft a field campaign from the measured numbers. Built for the NASA S
 - **AI crew.** Four specialist agents and a director run through the Claude Code CLI (`claude -p`) and write a
   campaign plan. In three live runs for the Shackleton rim target the plan took a median of 28.7 seconds, at most 35.0<!-- metrics: crew.median_s, crew.max_s, crew.runs -->. They receive only measured evidence. Every claim must cite an evidence reference, and numbers in the
   plan are checked against that evidence.
+- **3D view.** Two heightfields side by side under the same Sun angle, drawn with three.js, with a Sun slider. See "3D terrain" above for the data used.
+- **Mission View.** A Cesium view of the Earth to Moon trip. The gate numbers come from a two-body transfer; the arc shown
+  is the refined Earth and Moon gravity model, labelled as such. The plane change into a polar lunar orbit is not modelled,
+  so the descent to a polar site is schematic.
 - **Replay.** A recorded crew session can be played back when the CLI or network is not available, and the app says
   when it is doing so.
 
@@ -75,7 +79,14 @@ downloaded file.
 
 `scripts/export_offline_demo.sh` builds a folder that runs without the API server: the web app built in offline mode,
 recorded API answers for the preset targets, the Moon and Mars tiles for zoom 0 to 5, and a recorded crew session
-for the replay. It needs a running server once, to record the answers. See the script header for its options.
+for the replay. It needs a running server once, to record the answers. See the script header for its options. The finished bundle is
+284 MB (measured with `du` on the build host). To copy it to a laptop and start it:
+
+```bash
+rsync -a --delete friday:/data/code/nasa-challenge/offline-demo/ ~/analog-twin-offline/ && ~/analog-twin-offline/start.sh
+```
+
+The folder also has a `START-HERE.txt`.
 
 ## Validation
 
@@ -120,6 +131,11 @@ the same inputs gives byte-identical features<!-- metrics: determinism.identical
 shape and yearly sunlight, marked as already known analog sites or not. Treat them as hypotheses for field scouting,
 not recommendations. For several targets even the best Earth terrain is a weak shape match; the file shows the
 ranges.
+
+## Performance
+
+The owner measured the three-globe page on the demo laptop (Apple M4 Pro): 121 frames per second per globe, 363 renders
+per second in total, with continuous rendering (`?fps=1`). Source: `docs/build-log.md`, entry 13:20. Three viewers are kept.
 
 ## Limitations
 
