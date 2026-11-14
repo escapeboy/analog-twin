@@ -52,7 +52,7 @@ export class Globe {
       baseLayerPicker: false, geocoder: false, timeline: false, animation: false, homeButton: false,
       sceneModePicker: false, navigationHelpButton: false, infoBox: false, selectionIndicator: false,
       fullscreenButton: false, vrButton: false, projectionPicker: false,
-      skyBox: false, skyAtmosphere: false, creditContainer: document.createElement('div'),
+      skyBox: false, skyAtmosphere: false,
       requestRenderMode: !continuousRender, maximumRenderTimeChange: Infinity,
     });
     const scene = this.viewer.scene;

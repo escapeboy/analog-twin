@@ -1,7 +1,7 @@
 :root { --bg:#070a12; --panel:#0e1422; --line:#2a3550; --fg:#f2f5fb; --mut:#a9b4cc; --acc:#4fd1ff; --warn:#ffb020; --err:#ff6b81; --ok:#5be39a; }
 * { box-sizing: border-box; }
 html, body { margin:0; height:100%; background:var(--bg); color:var(--fg); font:18px/1.35 system-ui, "Segoe UI", Roboto, sans-serif; }
-#app { height:100vh; display:grid; grid-template-rows:auto 55fr 45fr auto; min-height:0; }
+#app { height:100vh; display:grid; grid-template-rows:auto 55fr 45fr auto auto; min-height:0; }
 header#top { display:flex; align-items:center; gap:14px; padding:6px 14px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
 h1 { font-size:24px; margin:0 8px 0 0; letter-spacing:.5px; }
 h2 { font-size:20px; margin:0 0 6px; } h3 { font-size:18px; margin:8px 0 4px; } h4 { font-size:17px; margin:10px 0 4px; }
@@ -41,4 +41,7 @@ img.pair { width:100%; max-height:190px; object-fit:contain; background:#000; bo
 .lim { color:var(--mut); font-size:16px; }
 footer { padding:4px 14px; text-align:center; color:var(--mut); font-size:16px; border-top:1px solid var(--line); }
 #fps { position:fixed; right:8px; bottom:34px; background:#000c; color:var(--ok); padding:3px 8px; font:14px ui-monospace, monospace; border-radius:6px; z-index:10; }
-.cesium-widget-credits, .cesium-viewer-bottom { display:none !important; }
+.cesium-viewer-bottom { left:0; right:auto; bottom:0; }
+.cesium-widget-credits { font-size:10px !important; opacity:.75; }
+.cesium-credit-logoContainer img, .cesium-credit-logoContainer { max-height:16px; }
+#credits { padding:2px 14px; text-align:center; color:var(--mut); font-size:13px; }
