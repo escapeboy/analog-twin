@@ -33,6 +33,11 @@ BODIES = ("earth", "moon", "mars")
 
 
 NO_TERRAIN_MSG = "No terrain data here (ocean, ice sheet or beyond the latitude limit). Try a land point."
+NO_TERRAIN_MSG_OFFWORLD = "No terrain data at this point (beyond the latitude limit of the elevation data)."
+
+
+def no_terrain_message(body: str) -> str:
+    return NO_TERRAIN_MSG if body == "earth" else NO_TERRAIN_MSG_OFFWORLD
 
 
 class NoTerrain(Exception):
@@ -310,7 +315,7 @@ def find_twins(req: TwinsRequest, replay: bool = False) -> TwinsResponse:
         return _live_twins(idx, req)
     except ValueError as exc:  # engine.index: no valid terrain window at the query point
         log.info("no terrain at %s %.3f,%.3f: %s", req.body, req.lat, req.lon, exc)
-        raise NoTerrain(NO_TERRAIN_MSG) from exc
+        raise NoTerrain(no_terrain_message(req.body)) from exc
 
 
 # ---------- pair ----------
