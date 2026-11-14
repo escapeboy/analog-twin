@@ -10,8 +10,9 @@ export default defineConfig({
   plugins: [
     viteStaticCopy({
       targets: ['Assets', 'Widgets', 'Workers', 'ThirdParty'].map((d) => ({
-        src: `${cesium}/${d}`,
-        dest: 'cesium',
+        src: `${cesium}/${d}/**/*`,
+        dest: `cesium/${d}`,
+        rename: { stripBase: 5 },
       })),
     }),
   ],

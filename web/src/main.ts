@@ -48,6 +48,7 @@ async function runQuery(p: Point, label: string, presetId?: string) {
     for (const g of globes) {
       const top = res.results[g.body]?.[0];
       if (top) g.flyTo(top.lat, top.lon);
+      else if (g.body === p.body) g.flyTo(p.lat, p.lon);
     }
   } catch (e) {
     store.busy = false;

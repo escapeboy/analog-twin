@@ -143,7 +143,7 @@ export class Globe {
     };
   }
 
-  flyTo(lat: number, lon: number, height = 9_000_000) {
+  flyTo(lat: number, lon: number, height = 13_000_000) {
     this.viewer.camera.flyTo({ destination: Cartesian3.fromDegrees(lon, lat, height), duration: 1.4 });
     this.viewer.scene.requestRender();
   }
