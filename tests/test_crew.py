@@ -168,3 +168,18 @@ def test_retry_timeout_keeps_verified_claims_without_fallback(env, monkeypatch):
     assert not any(e.type == "error" for e in sess.events) and sess.plan
     rep = next(e for e in sess.events if e.type == "agent.report" and e.role == "terrain").data["report"]
     assert rep["removed_unverified"] == 3 and len(rep["claims"]) == 1
+
+
+def test_health_never_raises_when_cli_dies_instantly(env, monkeypatch):
+    monkeypatch.setenv("FAKE_MODE", "die")
+    for _ in range(15):  # the race (reset pipe vs clean exit) is timing dependent
+        h = asyncio.run(runner.claude_health())
+        assert h.ok is False and h.error and h.checked_at
+
+
+def test_pack_has_no_nulls_and_no_koppen(env):
+    pack = make_pack()
+    blob = evidence.pack_json(pack)
+    assert "null" not in blob and "koppen" not in blob.lower() and "None" not in blob
+    mars = [i for i in pack.items if i.kind == "twin" and i.data["body"] == "mars"]
+    assert mars and "light_sim" not in mars[0].data  # a missing value is omitted, not sent as null

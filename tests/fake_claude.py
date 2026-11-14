@@ -8,8 +8,10 @@ import time
 args = sys.argv[1:]
 system = args[args.index("--append-system-prompt") + 1] if "--append-system-prompt" in args else ""
 model = args[args.index("--model") + 1] if "--model" in args else ""
-stdin = sys.stdin.read()
 mode = os.environ.get("FAKE_MODE", "ok")
+if mode == "die":  # exits before reading the prompt: the parent sees a reset pipe
+    sys.exit(2)
+stdin = sys.stdin.read()
 
 
 def out(obj):

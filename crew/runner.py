@@ -99,9 +99,14 @@ async def run_claude(prompt: str, model: str, system: str, on_delta: Optional[Ca
         batch = _Batcher(on_delta)
 
         async def body() -> str:
-            proc.stdin.write(prompt.encode())
-            await proc.stdin.drain()
-            proc.stdin.close()
+            try:
+                proc.stdin.write(prompt.encode())
+                await proc.stdin.drain()
+                proc.stdin.close()
+            except OSError as exc:  # CLI died before reading the prompt (ConnectionResetError, BrokenPipeError)
+                await proc.wait()
+                err = (await err_task).decode(errors="replace")[-300:]
+                raise CrewError(_classify(err), f"claude exited before reading the prompt ({type(exc).__name__}): {err.strip()[:200]}")
             streamed, final, is_error, limited = "", None, False, False
             async for line in proc.stdout:
                 try:
@@ -173,8 +178,10 @@ async def claude_health(timeout: float = 30.0) -> CliHealth:
         ok = "OK" in text
         return CliHealth(ok=ok, latency_ms=round((time.perf_counter() - t0) * 1000), error=None if ok else f"unexpected reply: {text[:80]}",
                          checked_at=stamp)
-    except CrewError as e:
-        return CliHealth(ok=False, latency_ms=round((time.perf_counter() - t0) * 1000), error=f"{e.kind}: {e.message}", checked_at=stamp)
+    except Exception as e:  # any failure, not only CrewError, means unhealthy
+        kind = e.kind if isinstance(e, CrewError) else type(e).__name__
+        msg = e.message if isinstance(e, CrewError) else str(e)
+        return CliHealth(ok=False, latency_ms=round((time.perf_counter() - t0) * 1000), error=f"{kind}: {msg}", checked_at=stamp)
 
 
 async def timed_call(sess: "Session", role: str, prompt: str, model: str, system: str, on_delta, timeout=None, attempt: int = 1) -> str:

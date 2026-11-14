@@ -1,3 +1,4 @@
+import asyncio
 import json
 import pathlib
 import shutil
@@ -424,3 +425,27 @@ def test_calendar_rows_weeks_and_replay_cache(client, monkeypatch, real_calendar
     monkeypatch.setattr(service, "get_index", lambda: None)
     c = client.get("/api/calendar", params={"target_body": "moon", "target_lat": -89.7668, "target_lon": -171.87, "replay": 1}).json()
     assert c["source"] == "replay-cache" and len(c["rows"]) == 3
+
+
+def test_health_task_crash_and_unknown_health_force_replay(client, monkeypatch):
+    import api.main as m
+    monkeypatch.setattr(m, "_cli_health", m.CliHealth(ok=False, error="not checked yet"))
+    monkeypatch.setattr(m, "_started", m.time.monotonic())
+    assert m._replay_forced() is False  # unknown, inside the grace period: try live
+    monkeypatch.setattr(m, "_started", m.time.monotonic() - 100)
+    assert m._replay_forced() is True   # unknown after the grace period
+    started = client.post("/api/campaign", json={"body": "moon", "lat": -89.5, "lon": 0}).json()
+    assert started["mode"] == "replay" and "did not finish" in started["reason"]
+
+    async def boom(*a, **k):
+        raise ConnectionResetError("pipe reset")
+    monkeypatch.setattr(m.runner, "claude_health", boom)
+    asyncio.run(m._check_cli())
+    assert m._cli_health.ok is False and "ConnectionResetError" in m._cli_health.error and m._replay_forced() is True
+
+
+def test_no_terrain_message_is_body_specific(client, monkeypatch):
+    _terrain_stubs(monkeypatch, False)
+    earth = client.post("/api/twins", json={"body": "earth", "lat": 0, "lon": -30}).json()["detail"]
+    moon = client.post("/api/twins", json={"body": "moon", "lat": 0, "lon": 0}).json()["detail"]
+    assert "ocean" in earth and "ocean" not in moon and "ice sheet" not in moon and moon.startswith("No terrain data at this point")

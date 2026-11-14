@@ -8,6 +8,7 @@ import contextlib
 import json
 import os
 import pathlib
+import time
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException
@@ -25,6 +26,8 @@ WEB_DIST = ROOT / "web" / "dist"
 TILES = ROOT / "data" / "tiles"
 
 _cli_health = CliHealth(ok=False, error="not checked yet")
+_started = time.monotonic()
+HEALTH_GRACE_S = float(os.environ.get("HEALTH_GRACE_S", 35))  # health check has 30 s; unknown after that counts as unhealthy
 
 
 def replay_only() -> bool:
@@ -32,8 +35,17 @@ def replay_only() -> bool:
 
 
 async def _check_cli() -> None:
-    global _cli_health
-    _cli_health = CliHealth(ok=False, error="not checked yet") if replay_only() else await runner.claude_health()
+    global _cli_health, _started
+    _started = time.monotonic()
+    if replay_only():
+        _cli_health = CliHealth(ok=False, error="not checked yet")
+        return
+    try:
+        _cli_health = await runner.claude_health()
+    except asyncio.CancelledError:
+        raise
+    except Exception as exc:  # the task must never die silently: unknown health would send campaigns live
+        _cli_health = CliHealth(ok=False, error=f"{type(exc).__name__}: {exc}", checked_at="error")
 
 
 @contextlib.asynccontextmanager
@@ -50,7 +62,11 @@ app = FastAPI(title="Analog Twin", version="0.2.0", lifespan=lifespan)
 
 
 def _replay_forced() -> bool:
-    return replay_only() or (_cli_health.checked_at is not None and not _cli_health.ok)
+    if replay_only():
+        return True
+    if _cli_health.checked_at is None:  # still unknown: only forced once the grace period is over
+        return time.monotonic() - _started > HEALTH_GRACE_S
+    return not _cli_health.ok
 
 
 @app.get("/api/health", response_model=Health)
@@ -233,7 +249,7 @@ async def campaign(req: CampaignRequest) -> CampaignStarted:
     elif replay_only():
         reason = "REPLAY_ONLY is set"
     elif _replay_forced():
-        reason = f"claude CLI unavailable: {_cli_health.error}"
+        reason = f"claude CLI unavailable: {_cli_health.error if _cli_health.checked_at else 'health check did not finish'}"
     sess = runner.start_session(req, force_replay=reason is not None, reason=reason)
     return CampaignStarted(session_id=sess.id, mode=sess.mode, events_url=f"/api/campaign/{sess.id}/events", reason=reason)  # type: ignore[arg-type]
 
