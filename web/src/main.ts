@@ -12,6 +12,12 @@ import { initDetail } from './panels/detail';
 import { initTwinList } from './panels/twinlist';
 import { pairIds, store } from './state';
 
+// Film mode (?film=1): start the 30 s demo film and never run the rest of this module (the pending await stops it).
+if (new URLSearchParams(location.search).get('film') === '1') {
+  void import('./film/film').then((m) => m.startFilm());
+  await new Promise<never>(() => {});
+}
+
 const params = new URLSearchParams(location.search);
 const LAYOUT2 = params.get('layout') === '2';
 const FPS = params.get('fps') === '1';
