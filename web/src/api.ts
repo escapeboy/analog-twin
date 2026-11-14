@@ -47,7 +47,7 @@ export function sitesQuery(w?: SiteWeights): string {
   return w ? `?w_sun=${w.w_sun}&w_earth=${w.w_earth}&w_psr=${w.w_psr}` : '';
 }
 export const getSites = (w?: SiteWeights) => http<SitesResponse>('/api/sites' + sitesQuery(w));
-export const sitesMapUrl = (w?: SiteWeights) => withReplay('/api/sites/map.png' + sitesQuery(w));
+export const sitesMapUrl = (w?: SiteWeights) => assetUrl('/api/sites/map.png' + sitesQuery(w));
 
 export type Role = 'terrain' | 'light' | 'logistics' | 'testlead' | 'director';
 export const ROLE_TITLES: Record<Role, string> = {
@@ -80,14 +80,55 @@ export interface CampaignPlan {
 export interface CampaignStarted { session_id: string; mode: 'live' | 'replay'; events_url: string; reason?: string | null }
 
 const params = new URLSearchParams(location.search);
-export const REPLAY = params.get('replay') === '1';
+// Offline bundle (scripts/export_offline_demo.sh builds with VITE_OFFLINE=1): every API call is answered from
+// static files under ./offline/ and the crew SSE stream is replayed client-side from the golden .jsonl.
+export const OFFLINE = import.meta.env.VITE_OFFLINE === '1';
+export const REPLAY = OFFLINE || params.get('replay') === '1';
+export class OfflineError extends Error {}
+
+const safe = (s: string) => s.replace(/[^A-Za-z0-9._-]/g, '_'); // keep identical to the export script
+let presetCache: Promise<Preset[]> | null = null;
+
+/** Static file (relative to the page) that holds the recorded answer for an API path. */
+async function offlinePath(method: string, url: string, body?: { body: string; lat: number; lon: number }): Promise<string> {
+  const path = decodeURIComponent(url.split('?')[0]);
+  const seg = path.split('/').filter(Boolean); // ['api', ...]
+  if (method === 'POST' && path === '/api/twins' && body) {
+    presetCache ??= fetch('offline/api/presets.json').then((r) => r.json());
+    const p = (await presetCache).find((x) => x.body === body.body && Math.abs(x.lat - body.lat) < 1e-4 && Math.abs(x.lon - body.lon) < 1e-4);
+    if (!p) throw new OfflineError('Offline demo: presets only. Use one of the three preset buttons at the top.');
+    return `offline/api/twins/${safe(p.id)}.json`;
+  }
+  if (path === '/api/health' || path === '/api/presets' || path === '/api/sites' || path === '/api/metrics') return `offline${path}.json`;
+  if (seg[1] === 'pair' && seg.length === 4) return `offline/api/pair/${safe(seg[2])}__${safe(seg[3])}.json`;
+  if (seg[1] === 'terrain' && seg[2] !== 'heights') return `offline/api/terrain/${seg.slice(2).map(safe).join('__')}.json`;
+  if (seg[1] === 'mission' && seg.length === 3 && !/\.[a-z0-9]+$/i.test(seg[2])) return `offline/api/mission/${safe(seg[2])}.json`;
+  return `offline${path}`;
+}
+
+/** URL for a static asset the server names in a response (hillshade PNG, heights, CZML) or a tile template. */
+export function assetUrl(url: string): string {
+  if (!OFFLINE) return url.startsWith('/tiles') ? url : withReplay(url);
+  const path = decodeURIComponent(url.split('?')[0]);
+  return path.startsWith('/tiles') ? path.slice(1) : `offline${path}`;
+}
 
 export function withReplay(url: string): string {
   if (!REPLAY) return url;
   return url + (url.includes('?') ? '&' : '?') + 'replay=1';
 }
 
-async function http<T>(url: string, init?: RequestInit): Promise<T> {
+export async function http<T>(url: string, init?: RequestInit): Promise<T> {
+  if (OFFLINE) {
+    const body = init?.body ? JSON.parse(String(init.body)) : undefined;
+    if (init?.method === 'POST' && url === '/api/campaign') {
+      return { session_id: 'offline', mode: 'replay', events_url: 'offline:golden' } as T;
+    }
+    const f = await offlinePath(init?.method ?? 'GET', url, body);
+    const r = await fetch(f);
+    if (!r.ok) throw new OfflineError(`Offline demo: no recorded answer for ${url}`);
+    return (await r.json()) as T;
+  }
   const r = await fetch(withReplay(url), init);
   if (!r.ok) throw new Error(`${init?.method ?? 'GET'} ${url} failed: HTTP ${r.status}`);
   return (await r.json()) as T;
@@ -114,9 +155,37 @@ export const getTerrain = (id: string) => http<TerrainGrid>(`/api/terrain/${enco
 export const getTerrainPair = (a: string, b: string) =>
   http<TerrainPair>(`/api/terrain/${encodeURIComponent(a)}/${encodeURIComponent(b)}`);
 export async function getHeights(g: TerrainGrid): Promise<Float32Array> {
-  const r = await fetch(withReplay(g.heights_url));
+  const r = await fetch(assetUrl(g.heights_url));
   if (!r.ok) throw new Error(`heights for ${g.id}: HTTP ${r.status}`);
   const buf = await r.arrayBuffer();
   if (buf.byteLength !== g.size * g.size * 4) throw new Error(`heights for ${g.id}: expected ${g.size * g.size * 4} bytes, got ${buf.byteLength}`);
   return new Float32Array(buf);
+}
+
+/** Minimal EventSource stand-in that replays a recorded session with its original timing (offline bundle). */
+class OfflineEventSource {
+  private ls = new Map<string, ((e: MessageEvent) => void)[]>();
+  private timers: number[] = [];
+  onerror: (() => void) | null = null;
+  constructor(speed: number) {
+    void (async () => {
+      try {
+        const text = await (await fetch('offline/golden/default.jsonl')).text();
+        const evs = text.split('\n').filter((l) => l.trim()).map((l) => JSON.parse(l) as { type: string; t: number });
+        for (const ev of evs) {
+          this.timers.push(window.setTimeout(() => {
+            const m = { data: JSON.stringify(ev) } as MessageEvent;
+            this.ls.get(ev.type)?.forEach((f) => f(m));
+          }, (ev.t * 1000) / Math.max(speed, 0.01)));
+        }
+      } catch { this.onerror?.(); }
+    })();
+  }
+  addEventListener(type: string, f: (e: MessageEvent) => void) { this.ls.set(type, [...(this.ls.get(type) ?? []), f]); }
+  close() { this.timers.forEach((t) => window.clearTimeout(t)); this.timers = []; }
+}
+export interface EventSourceLike { addEventListener(type: string, f: (e: MessageEvent) => void): void; close(): void; onerror: ((e?: unknown) => void) | null }
+export function openEvents(url: string): EventSourceLike {
+  if (OFFLINE) return new OfflineEventSource(Number(params.get('speed') ?? 1) || 1) as unknown as EventSourceLike;
+  return new EventSource(url) as unknown as EventSourceLike;
 }

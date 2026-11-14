@@ -5,7 +5,7 @@ import {
   Matrix4, PathGraphics, PolylineGlowMaterialProperty, ReferenceFrame, Simon1994PlanetaryPositions,
   LagrangePolynomialApproximation, TileMapServiceImageryProvider, Transforms, Viewer, buildModuleUrl, ConstantProperty,
 } from 'cesium';
-import { withReplay } from './api';
+import { assetUrl, http } from './api';
 import { clear, fmt, h } from './dom';
 
 export interface MissionEvent { t_utc: string; name: string; detail?: string }
@@ -27,9 +27,7 @@ const REAL_STAGES = { a: 7, b: 5, c: 8, d: 5 }; // seconds of real time per chor
 const EARTH_R = 6378137;
 
 async function fetchMission(siteId: string): Promise<MissionResponse> {
-  const r = await fetch(withReplay(`/api/mission/${encodeURIComponent(siteId)}`));
-  if (!r.ok) throw new Error(`mission data: HTTP ${r.status}`);
-  return (await r.json()) as MissionResponse;
+  return http<MissionResponse>(`/api/mission/${encodeURIComponent(siteId)}`);
 }
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
@@ -101,7 +99,7 @@ export function initMission(overlay: HTMLElement, hooks: MissionHooks) {
     if (scene.skyAtmosphere) scene.skyAtmosphere.show = true;
     scene.highDynamicRange = false;
 
-    const ds = await CzmlDataSource.load(withReplay(data.czml_url));
+    const ds = await CzmlDataSource.load(assetUrl(data.czml_url));
     await v.dataSources.add(ds);
     const ents = ds.entities.values;
     const lower = (e: Entity) => `${e.id} ${e.name ?? ''}`.toLowerCase();

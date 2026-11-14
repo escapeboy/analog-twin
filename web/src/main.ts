@@ -1,4 +1,4 @@
-import { BODIES, BODY_NAMES, getHealth, getPresets, postTwins, REPLAY, type Body, type Point, type Preset, type Site, type Twin } from './api';
+import { OFFLINE, BODIES, BODY_NAMES, getHealth, getPresets, postTwins, REPLAY, type Body, type Point, type Preset, type Site, type Twin } from './api';
 import { h } from './dom';
 import { Globe } from './globes';
 import { initCrew } from './panels/crew';
@@ -20,6 +20,7 @@ let destBody: Body = 'earth'; // layout 2: body shown on the right viewer
 
 function setReplayBadge(on: boolean) { $('badge-replay').hidden = !on; }
 if (REPLAY) setReplayBadge(true);
+if (OFFLINE) $('badge-offline').hidden = false;
 
 function sync() {
   const q = store.query, res = store.twins;
