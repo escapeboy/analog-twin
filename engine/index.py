@@ -109,6 +109,18 @@ class Index:
     def sim(self, d):
         return 1.0 / (1.0 + (np.asarray(d, dtype=np.float64) / self.d_ref) ** 2)
 
+    RANDOM_PAIRS = 200_000
+
+    def random_pairs_closer_pct(self, d) -> np.ndarray:
+        """Share (%) of random pairs of corpus points (pooled 3 bodies, fixed seed) that are closer than distance d.
+        The sample is built once (~1 s). terrain_sim 0.5 sits at about 1 %, by construction of d_ref."""
+        if getattr(self, "_random_d", None) is None:
+            rng = np.random.default_rng(int(self.scaler["sim"].get("seed", 20261114)))
+            n = len(self.feats)
+            i, j = rng.integers(0, n, self.RANDOM_PAIRS), rng.integers(0, n, self.RANDOM_PAIRS)
+            self._random_d = np.sort(np.sqrt(((self.feats[i].astype(np.float64) - self.feats[j]) ** 2).sum(axis=1)))
+        return 100.0 * np.searchsorted(self._random_d, np.asarray(d, dtype=np.float64)) / len(self._random_d)
+
     def group_ref_share(self) -> dict[str, float]:
         """Per feature group: share of the expected squared distance between two random corpus points
         (E|x - y|^2 = 2 * sum of per-feature variances of the weighted features), computed once."""

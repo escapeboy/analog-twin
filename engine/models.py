@@ -56,9 +56,10 @@ class Twin(BaseModel):
     best_window: Optional[LightWindow] = None
     env: Optional[SiteContext] = None
     score: float
-    percentile: Optional[float] = Field(
+    random_closer_pct: Optional[float] = Field(
         default=None, ge=0, le=100,
-        description="share (%) of all index points on the twin's body whose score for this target is lower")
+        description="share (%) of random pairs of places (all three bodies) whose terrain is closer than this pair's; "
+                    "below 0.1 = strong, 0.1-1 = good, above 1 = weak (terrain_sim 0.5 is about 1)")
     rank: int
     ref: str
 

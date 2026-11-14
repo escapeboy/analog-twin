@@ -64,7 +64,6 @@ export function initHud(root: HTMLElement, onSelect: (t: Twin) => void, onClose:
 
     const parts = [`terrain ${Math.round(sel.terrain_sim * 100)}%`];
     if (sel.light_sim != null) parts.push(`sunlight ${Math.round(sel.light_sim * 100)}%`);
-    parts.push(`score ${Math.round(sel.score * 100)}%`);
     const rankOf = store.twins?.results[sel.body]?.length ?? 0;
     const prev = h('button', { type: 'button', class: 'hud-step', 'aria-label': 'Previous twin' }, '‹');
     const next = h('button', { type: 'button', class: 'hud-step', 'aria-label': 'Next twin' }, '›');
@@ -77,18 +76,18 @@ export function initHud(root: HTMLElement, onSelect: (t: Twin) => void, onClose:
     prev.addEventListener('click', () => step(-1));
     next.addEventListener('click', () => step(1));
     const win = sel.best_window;
-    const pctl = sel.percentile;
+    const rc = sel.random_closer_pct;
+    const verdict = rc == null ? null : rc < STRONG_PCT ? 'strong' : rc < GOOD_PCT ? 'good' : 'weak';
     const windowChip = !win
       ? h('div', { class: 'hud-window none' }, h('span', null, 'Terrain only: no sunlight match on this body'))
       : win.distinct === false
         ? h('div', { class: 'hud-window none' }, h('span', null, `No best time · sunlight ≤ ${Math.round(win.light_sim * 100)}% all year`))
         : h('div', { class: 'hud-window' }, h('span', null, 'Best time to go'), h('b', { class: 'mono' }, fmtWindow(win.start, win.end)));
     figure.replaceChildren(
-      pctl != null
-        ? h('div', { class: 'hud-big' }, h('span', { class: 'mono hud-pct' }, fmtPctl(pctl)), h('span', { class: 'hud-pctsign' }, '%'))
-        : h('div', { class: 'hud-big' }, h('span', { class: 'mono hud-pct' }, String(Math.round(sel.score * 100))), h('span', { class: 'hud-pctsign' }, '%')),
+      h('div', { class: `hud-verdict ${verdict ?? ''}` }, verdict ? `${cap(verdict)} match` : `${Math.round(sel.terrain_sim * 100)}% terrain`),
       h('div', { class: 'hud-figtext' },
-        h('p', null, pctl != null ? `closer than this share of ${BODY_NAMES[sel.body]}` : 'match'),
+        rc != null ? h('p', null, `Terrain this alike: ${oneIn(rc)} random pairs of places`) : null,
+        verdict === 'weak' && sel.rank === 1 ? h('p', { class: 'dim' }, sel.body === 'earth' ? 'No bare-ground place on Earth matches this target better.' : `No place on ${BODY_NAMES[sel.body]} matches this target better.`) : null,
         h('p', { class: 'dim' }, parts.join(' · ')),
         windowChip,
         h('p', { class: 'hud-rank' }, prev, h('span', { class: 'mono' }, `twin ${sel.rank} of ${rankOf} on ${BODY_NAMES[sel.body]}`), next)),
@@ -173,11 +172,16 @@ export function initHud(root: HTMLElement, onSelect: (t: Twin) => void, onClose:
   };
 }
 
-/** Percentile as shown: floored (never rounds up to 100), more decimals near the top. */
-function fmtPctl(p: number): string {
-  const d = p >= 99.99 ? 3 : p >= 99.9 ? 2 : p >= 99 ? 1 : 0;
-  const f = 10 ** d;
-  return (Math.floor(p * f) / f).toFixed(d);
+// Match strength bands on random_closer_pct (share of random pairs of places that are closer): terrain_sim 0.5 sits
+// at about 1 % by construction of d_ref, terrain_sim ~0.66 at 0.1 %.
+const STRONG_PCT = 0.1, GOOD_PCT = 1;
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+/** "1 in 44" / "1 in 1,150" / "fewer than 1 in 200,000" */
+function oneIn(pct: number): string {
+  if (pct <= 0) return 'fewer than 1 in 200,000';
+  const n = 100 / pct;
+  const r = n < 100 ? Math.round(n) : Number(n.toPrecision(2));
+  return `1 in ${r.toLocaleString('en-US')}`;
 }
 
 function pixelStd(img: HTMLImageElement): number {

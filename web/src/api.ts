@@ -14,7 +14,7 @@ export interface SiteContext {
 }
 export interface Twin extends Point {
   id: string; place_label: string; terrain_sim: number; light_sim?: number | null;
-  best_window?: LightWindow | null; env?: SiteContext | null; score: number; percentile?: number | null; rank: number; ref: string;
+  best_window?: LightWindow | null; env?: SiteContext | null; score: number; random_closer_pct?: number | null; rank: number; ref: string;
 }
 export interface QueryInfo extends Point {
   label?: string | null; point_id?: string | null; on_grid: boolean; snapped_km?: number | null;

@@ -101,7 +101,7 @@ body.present-mode { background: var(--p-void); overflow: hidden; font-family: va
 .hud-site p { margin: 0; font-size: 17px; }
 .hud-dot { width: 16px; height: 16px; border-radius: 50%; border: 3px solid; margin-top: 8px; }
 .hud-dot.t { border-color: var(--p-amber); } .hud-dot.w { border-color: var(--p-cyan); }
-.hud-figure { display: grid; grid-template-columns: auto 1fr; column-gap: 20px; align-items: center; border-top: 1px solid var(--p-edge); padding-top: 8px; }
+.hud-figure { display: grid; grid-template-columns: 1fr; row-gap: 6px; align-items: center; border-top: 1px solid var(--p-edge); padding-top: 8px; }
 .hud-big { display: flex; align-items: flex-start; line-height: .85; }
 .hud-pct { font-size: 60px; font-weight: 600; letter-spacing: -.04em; color: var(--p-text); }
 .hud-pctsign { font-size: 40px; color: var(--p-amber); margin-left: 4px; font-weight: 700; }
@@ -116,8 +116,8 @@ body.present-mode { background: var(--p-void); overflow: hidden; font-family: va
 .hud-window span { font-size: 19px; color: var(--p-amber); }
 .hud-window b { font-size: 24px; font-weight: 600; }
 .hud-window.none { border-color: var(--p-edge); background: transparent; white-space: normal; border-radius: 14px; } .hud-window.none span { color: var(--p-dim); }
-.hud-radar { display: grid; grid-template-columns: 220px 1fr; gap: 44px; align-items: center; min-height: 220px; }
-.p-radar { width: 220px; height: 220px; overflow: visible; }
+.hud-radar { display: grid; grid-template-columns: 180px 1fr; gap: 44px; align-items: center; min-height: 180px; }
+.p-radar { width: 180px; height: 180px; overflow: visible; }
 .p-radar-grid { fill: none; stroke: rgba(141, 155, 189, .22); stroke-width: 1; }
 .p-radar-avg { fill: none; stroke: rgba(141, 155, 189, .5); stroke-width: 1; stroke-dasharray: 3 4; }
 .p-radar-label { font-family: var(--p-display); font-size: 27px; font-weight: 500; fill: var(--p-text); cursor: help; }
@@ -212,3 +212,9 @@ body.film #mission .m-close, body.film #mission .m-skip { display: none; }
 .hud-3d .t3-controls input[type=range] { width: 80px; vertical-align: middle; }
 @media (max-height: 1000px) { .hud-3d { flex-basis: 230px !important; min-height: 230px; } }
 .hud-twins .n .c { font-size: 14px; margin-left: 6px; }
+
+.hud-verdict { font-family: var(--p-display); font-size: 44px; font-weight: 700; letter-spacing: -.01em; line-height: 1; color: var(--p-text); }
+.hud-verdict.strong { color: var(--p-cyan); }
+.hud-verdict.good { color: var(--p-text); }
+.hud-verdict.weak { color: var(--p-amber); }
+@media (max-height: 1000px) { .hud-verdict { font-size: 34px; } }
