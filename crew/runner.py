@@ -169,6 +169,19 @@ async def claude_health(timeout: float = 30.0) -> CliHealth:
         return CliHealth(ok=False, latency_ms=round((time.perf_counter() - t0) * 1000), error=f"{e.kind}: {e.message}", checked_at=stamp)
 
 
+async def timed_call(sess: "Session", role: str, prompt: str, model: str, system: str, on_delta, timeout=None, attempt: int = 1) -> str:
+    """run_claude plus a per-subprocess wall-time record for the session.end metrics."""
+    t0 = time.monotonic()
+    status = "ok"
+    try:
+        return await run_claude(prompt, model, system, on_delta, timeout)
+    except BaseException:
+        status = "failed"
+        raise
+    finally:
+        sess.calls.append({"role": role, "model": model, "attempt": attempt, "wall_s": round(time.monotonic() - t0, 2), "status": status})
+
+
 # ---------- sessions ----------
 class Session:
     """In-memory event log of one campaign, mirrored to sessions/<id>.jsonl. Late SSE subscribers read from index 0."""
@@ -179,6 +192,7 @@ class Session:
         self.plan: Optional[CampaignPlan] = None
         self.done = False
         self.cond = asyncio.Condition()
+        self.calls: list[dict[str, Any]] = []
         self.t0 = time.monotonic()
         d = service.sessions_dir()
         d.mkdir(parents=True, exist_ok=True)
@@ -282,6 +296,8 @@ async def replay_into(sess: Session, golden: pathlib.Path, speed: Optional[float
     speed = speed or float(os.environ.get("REPLAY_SPEED", 1.5))
     prev = 0.0
     for ev in read_events(golden):
+        if ev.type == "session.end":
+            continue  # run_session emits the real one (with replay status)
         await asyncio.sleep(max(0.0, (ev.t - prev) / speed))
         prev = ev.t
         data = {**ev.data, "replay": True, "replay_source": golden.stem}
@@ -314,8 +330,8 @@ async def _specialist(sess: Session, role: str, pack: Any, pack_json: str) -> tu
     kept = None
     for attempt in (1, 2):
         try:
-            text = await run_claude(_specialist_prompt(role, pack_json, feedback), model, system, delta,
-                                    timeout=RETRY_TIMEOUT_S if attempt == 2 else None)
+            text = await timed_call(sess, role, _specialist_prompt(role, pack_json, feedback), model, system, delta,
+                                    RETRY_TIMEOUT_S if attempt == 2 else None, attempt)
         except CrewError:
             if attempt == 2 and kept is not None:  # validation retry failed or timed out: keep the verified claims of try 1
                 good = kept[0].model_copy(update={"removed_unverified": len(kept[1])})
@@ -363,7 +379,8 @@ async def _director(sess: Session, pack: Any, pack_json: str, reports: list[dict
     feedback: Optional[list[str]] = None
     plan: Optional[CampaignPlan] = None
     for attempt in (1, 2):
-        text = await run_claude(_director_prompt(pack_json, reports, feedback), model, system, delta, timeout=TIMEOUT_S + 15)
+        text = await timed_call(sess, "director", _director_prompt(pack_json, reports, feedback), model, system, delta,
+                                TIMEOUT_S + 15, attempt)
         try:
             plan, problems = validate.validate_plan(parse_json_block(text), pack)
         except (CrewError, ValueError) as exc:
@@ -443,7 +460,8 @@ async def run_session(sess: Session, force_replay: bool = False, reason: Optiona
     except Exception as exc:
         status = "failed"
         await sess.emit("error", None, {"message": str(exc), "kind": getattr(exc, "kind", "internal"), "fallback": None})
-    await sess.emit("session.end", None, {"wall_s": round(time.monotonic() - started, 2), "status": status})
+    await sess.emit("session.end", None, {"wall_s": round(time.monotonic() - started, 2), "status": status,
+                                  "calls": sess.calls})
     await sess.finish()
 
 
