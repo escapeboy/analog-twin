@@ -17,7 +17,8 @@ export function initDetail(root: HTMLElement) {
       img.addEventListener('error', () => img.replaceWith(h('div', { class: 'muted noimg' }, 'Hillshade image unavailable')));
       kids.push(img, h('p', { class: 'muted' }, hs.caption));
     }
-    kids.push(h('p', { class: 'big' }, `Terrain similarity ${fmt(p.terrain_sim)}`));
+    kids.push(h('p', { class: 'big' }, `Terrain texture similarity ${fmt(p.terrain_sim)}`));
+    if (p.terrain_sim < 0.5) kids.push(h('p', { class: 'muted' }, 'Weak match: only overall roughness/relief is comparable.'));
     for (const g of p.groups) {
       const pct = Math.round(g.contribution * 100);
       const bar = h('div', { class: 'bar', role: 'img', 'aria-label': `${g.group}: ${pct}% of the difference` },
