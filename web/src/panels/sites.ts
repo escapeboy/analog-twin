@@ -1,4 +1,4 @@
-import { getSites, sitesMapUrl, type Site, type SiteWeights, type SitesResponse } from '../api';
+import { OFFLINE, getSites, sitesMapUrl, type Site, type SiteWeights, type SitesResponse } from '../api';
 import { clear, fmt, h } from '../dom';
 import { store } from '../state';
 
@@ -32,6 +32,7 @@ export function initSites(
         window.clearTimeout(timer);
         timer = window.setTimeout(() => void load(false), 250);
       });
+      if (OFFLINE) inp.disabled = true;
       sl.append(h('label', null, h('span', null, label), inp, out));
     }
     const t = h('table', { class: 'sites' }, h('thead', null, h('tr', null, ...['#', 'Sun %', 'Earth %', 'Slope', 'To shadow', 'NASA region'].map((x) => h('th', null, x)))));
@@ -40,15 +41,20 @@ export function initSites(
       const tr = h('tr', { tabindex: '0', title: 'Use as target and search Earth twins' },
         h('td', null, String(s.rank)), h('td', null, fmt(s.sun_pct, 0)), h('td', null, fmt(s.earth_pct, 0)),
         h('td', null, `${fmt(s.slope_mean_deg, 1)}° (p90 ${fmt(s.slope_p90_deg, 1)}°)`),
-        h('td', null, s.psr_km == null ? '–' : `${fmt(s.psr_km, 1)} km`),
-        h('td', { class: s.near_nasa_region ? 'nasa' : '' }, s.nearest_nasa_region ? `${s.nearest_nasa_region} (${fmt(s.nearest_nasa_region_km, 0)} km)` : '–'));
+        h('td', null, s.psr_km == null ? '—' : `${fmt(s.psr_km, 1)} km`),
+        h('td', { class: s.near_nasa_region ? 'nasa' : '' }, s.nearest_nasa_region ? `${s.nearest_nasa_region} (${fmt(s.nearest_nasa_region_km, 0)} km)` : '—'));
       const go = () => onPick(s);
       tr.addEventListener('click', go);
       tr.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
       tb.append(tr);
     }
     t.append(tb);
-    if (!dyn) { dyn = h('div'); body.append(sl, dyn); }
+    if (!dyn) {
+      dyn = h('div');
+      body.append(sl);
+      if (OFFLINE) body.append(h('p', { class: 'muted' }, 'Re-ranking is live-only; showing default weights.'));
+      body.append(dyn);
+    }
     clear(dyn);
     dyn.append(map, t, h('p', { class: 'muted' }, `Landing slope limit ${r.slope_max_deg}° (${r.slope_source}). Click a row or a marker to search Earth twins for that site.`),
       h('h4', null, 'Limitations'), h('ul', { class: 'lim' }, ...r.limitations.map((x) => h('li', null, x))));

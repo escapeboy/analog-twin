@@ -34,11 +34,14 @@ function sync() {
 }
 store.subscribe(sync);
 
+let querySeq = 0;
 async function runQuery(p: Point, label: string, presetId?: string) {
+  const my = ++querySeq; // a late answer to an older click must not overwrite a newer one
   store.busy = true; store.error = null; store.selected = null; store.emit();
   status.textContent = 'Searching…';
   try {
     const res = await postTwins(p, 10);
+    if (my !== querySeq) return;
     store.query = { ...p, label: res.query.label ?? label, id: res.query.point_id ?? presetId ?? `${p.body}_${p.lat.toFixed(3)}_${p.lon.toFixed(3)}`, presetId };
     store.twins = res;
     store.busy = false;
@@ -58,8 +61,10 @@ async function runQuery(p: Point, label: string, presetId?: string) {
       else if (g.body === p.body) g.flyTo(p.lat, p.lon);
     }
   } catch (e) {
+    if (my !== querySeq) return;
     store.busy = false;
     store.error = e instanceof Error ? e.message : String(e);
+    store.twins = null; store.query = null; store.selected = null; // drop the previous target's list and markers
     status.textContent = '';
     store.emit();
   }

@@ -28,10 +28,31 @@ export function partialReport(buf: string): { summary?: string; claims: { text: 
   return { summary: sm ? unq(sm[1]) : undefined, claims };
 }
 
-const chips = (refs: string[]) => refs.map((x) => h('span', { class: 'refchip' }, x));
+/** Short human label for an evidence ref (e.g. twin:earth-945271 -> the twin's place name). Full ref stays in the tooltip. */
+function refLabel(ref: string): string {
+  const twins = store.twins ? Object.values(store.twins.results).flat() : [];
+  const byId = (id: string) => twins.find((t) => t.id === id);
+  const [kind, ...rest] = ref.split(':');
+  const tail = rest.join(':');
+  if (kind === 'twin') return byId(tail)?.place_label ?? 'twin ' + short12(tail);
+  if (kind === 'pair') { const b = tail.split(':').pop() ?? ''; return 'comparison with ' + (byId(b)?.place_label ?? short12(b)); }
+  if (kind === 'twins') return 'twin search';
+  if (kind === 'light') return 'light profile';
+  if (kind === 'window') return 'best window';
+  if (kind === 'ctx' || kind === 'context') return 'site context';
+  if (kind === 'site_finder') return 'site finder';
+  if (kind === 'target') return 'target';
+  return short12(ref);
+}
+const short12 = (s: string) => (s.length > 16 ? s.slice(0, 14) + '…' : s);
+/** null/undefined (or the string "null") from the server is shown as an em dash, never as the word null. */
+const nz = (v: unknown): string => (v == null || v === 'null' || v === '' ? '—' : String(v));
+const chips = (refs: string[]) => refs.map((x) => h('span', { class: 'refchip', title: x }, refLabel(x)));
 
 export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => void) {
   let es: EventSourceLike | null = null;
+  let reconnecting = false;
+  void reconnecting;
   const btn = h('button', { class: 'primary', type: 'button' }, 'Plan campaign');
   const note = h('span', { class: 'muted', 'aria-live': 'polite' }, 'Runs the specialist crew on the current target.');
   const cards = h('div', { class: 'cards' });
@@ -92,7 +113,7 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
         const c = card(ev.role);
         c.status.textContent = 'done'; c.status.className = 'chip c-done';
         clear(c.text); // the final report replaces the streamed draft
-        c.out.append(h('p', { class: 'summary' }, r.summary), h('ul', null, ...r.claims.map((x) => h('li', null, x.text, ' ', ...chips(x.refs)))));
+        c.out.append(h('p', { class: 'summary' }, nz(r.summary)), h('ul', null, ...r.claims.map((x) => h('li', null, nz(x.text), ' ', ...chips(x.refs ?? [])))));
         if (r.removed_unverified > 0) c.out.append(h('p', { class: 'warn' }, `${r.removed_unverified} unverified claim(s) removed`));
         break;
       }
@@ -100,6 +121,7 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
       case 'plan.final': { const c = card('director'); clear(c.text); c.status.textContent = 'done'; c.status.className = 'chip c-done'; renderPlan(d.plan as CampaignPlan); break; }
       case 'error': {
         const msg = String(d.message ?? d.error ?? short(d));
+        if (d.fallback) { note.textContent = `Live crew failed (${msg}); replaying the recorded run.`; setReplayBadge(true); break; }
         (ev.role ? card(ev.role).out : planBox).append(h('p', { class: 'err' }, `Error: ${msg}`));
         break;
       }
@@ -113,19 +135,19 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
     if (p.removed_unverified > 0) planBox.append(h('p', { class: 'warn' }, `${p.removed_unverified} unverified claim(s) removed`));
     const sites = h('table', { class: 'plan-t' }, h('thead', null, h('tr', null, ...['Site', 'Terrain', 'Light', 'Window', 'Context', 'Role'].map((x) => h('th', null, x)))));
     const tb = h('tbody');
-    for (const s of p.sites) tb.append(h('tr', null, h('td', null, `${s.label} (${fmt(s.lat, 2)}, ${fmt(s.lon, 2)})`), h('td', null, fmt(s.terrain_sim)), h('td', null, fmt(s.light_sim)), h('td', null, s.window ?? '–'), h('td', null, s.context ?? '–'), h('td', null, s.role_in_campaign)));
+    for (const s of p.sites) tb.append(h('tr', null, h('td', null, `${nz(s.label)} (${fmt(s.lat, 2)}, ${fmt(s.lon, 2)})`), h('td', null, fmt(s.terrain_sim)), h('td', null, fmt(s.light_sim)), h('td', null, nz(s.window)), h('td', null, nz(s.context)), h('td', null, nz(s.role_in_campaign))));
     sites.append(tb);
     planBox.append(sites);
     if (p.tests.length) {
       const t = h('table', { class: 'plan-t' }, h('thead', null, h('tr', null, ...['Test', 'Why', 'Site', 'Window'].map((x) => h('th', null, x)))));
       const b = h('tbody');
-      for (const x of p.tests) b.append(h('tr', null, h('td', null, x.name), h('td', null, x.why), h('td', null, x.site), h('td', null, x.window ?? '–')));
+      for (const x of p.tests) b.append(h('tr', null, h('td', null, nz(x.name)), h('td', null, nz(x.why)), h('td', null, nz(x.site)), h('td', null, nz(x.window))));
       t.append(b);
       planBox.append(h('h4', null, 'Tests'), t);
     }
-    if (p.disagreements.length) planBox.append(h('h4', null, 'Disagreements'), h('ul', null, ...p.disagreements.map((x) => h('li', null, h('b', null, `${x.between.join(' vs ')}: `), `${x.about}. Resolution: ${x.resolution}`))));
-    planBox.append(h('div', { class: 'notrepro' }, h('h4', null, 'Not reproducible on Earth'), h('ul', null, ...p.not_reproducible_on_earth.map((x) => h('li', null, x)))));
-    planBox.append(h('h4', null, 'Limitations'), h('ul', { class: 'lim' }, ...p.limitations.map((x) => h('li', null, x))));
+    if (p.disagreements.length) planBox.append(h('h4', null, 'Disagreements'), h('ul', null, ...p.disagreements.map((x) => h('li', null, h('b', null, `${x.between.join(' vs ')}: `), `${nz(x.about)}. Resolution: ${nz(x.resolution)}`))));
+    planBox.append(h('div', { class: 'notrepro' }, h('h4', null, 'Not reproducible on Earth'), h('ul', null, ...p.not_reproducible_on_earth.map((x) => h('li', null, nz(x))))));
+    planBox.append(h('h4', null, 'Limitations'), h('ul', { class: 'lim' }, ...p.limitations.map((x) => h('li', null, nz(x)))));
   }
 
   function stop() { es?.close(); es = null; btn.disabled = false; }
@@ -140,11 +162,35 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
         try { onEvent(JSON.parse(me.data) as CrewEvent); } catch (e) { console.error('bad event', t, e); }
       });
     }
-    src.onerror = () => {
-      // the server closes the stream after session.end; EventSource would then retry forever
-      if (es === src) { if (btn.disabled) note.textContent = note.textContent || 'Connection closed'; stop(); }
+    let opened = false;
+    src.onopen = () => {
+      // a reconnect replays the session from the start: drop what was drawn so far instead of duplicating cards
+      if (opened) { clear(cards); clear(planBox); byRole.clear(); }
+      opened = true;
+      reconnecting = false;
+    };
+    src.onerror = (e) => {
+      // A server-sent event NAMED "error" fires this handler too (it is the same event type): ignore those, they are
+      // crew events handled by the listener above. Only a real transport error gets here without data.
+      if (typeof (e as MessageEvent | undefined)?.data === 'string') return;
+      if (es !== src) return;
+      if (src.readyState === 2 /* CLOSED */) { note.textContent = note.textContent || 'Connection closed'; stop(); return; }
+      reconnecting = true;
+      note.textContent = 'Connection lost, reconnecting…';
     };
   }
+
+  // a new target (preset or click) invalidates the previous crew run
+  let lastTarget = '';
+  store.subscribe(() => {
+    const q = store.query;
+    const key = q ? `${q.body}:${q.lat}:${q.lon}` : '';
+    if (key !== lastTarget) {
+      lastTarget = key;
+      stop(); clear(cards); clear(planBox); byRole.clear();
+      note.textContent = 'Runs the specialist crew on the current target.';
+    }
+  });
 
   btn.addEventListener('click', async () => {
     stop();
