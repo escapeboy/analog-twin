@@ -17,9 +17,12 @@ def test_endpoints_schema_valid():
     LightProfile.model_validate(c.get("/api/light", params={"body": "moon", "lat": -89.5, "lon": 0}).json())
 
 
-def test_campaign_replay_plan():
-    sid = c.post("/api/campaign", json={"body": "moon", "lat": -89.5, "lon": 0}).json()["session_id"]
-    CampaignPlan.model_validate(c.get(f"/api/campaign/{sid}/plan").json())
+def test_campaign_started_schema():
+    # the plan is built asynchronously (covered end-to-end in tests/test_api.py)
+    from crew.schemas import CampaignStarted
+    r = c.post("/api/campaign", json={"body": "moon", "lat": -89.5, "lon": 0, "replay": True})
+    CampaignStarted.model_validate(r.json())
+    assert CampaignPlan  # schema importable
 
 
 def test_fixture_session_valid():

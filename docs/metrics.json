@@ -1,0 +1,325 @@
+{
+  "light": {
+    "tests": {
+      "earth_equator_equinox_noon_deg": 90.0,
+      "earth_66.56N_june_solstice_min_deg": 3.1805546814635168e-15,
+      "moon_pole_max_abs_elevation_deg": 1.5350000000000037,
+      "hist_sum_max_abs_error": 0.0,
+      "earth_self_match_light_sim_lat42.2": 0.9830704365079367,
+      "pytest": "83 passed in 0.89s",
+      "pytest_ok": true
+    },
+    "constants": {
+      "earth": {
+        "obliquity_deg": 23.44,
+        "solar_day_h": 24.0,
+        "year_d": 365.242,
+        "sources": {
+          "obliquity_deg": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html",
+          "solar_day_h": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html",
+          "year_d": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html"
+        }
+      },
+      "moon": {
+        "obliquity_deg": 1.5350000000000001,
+        "solar_day_h": 708.72,
+        "year_d": 346.62,
+        "sources": {
+          "obliquity_deg": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html (6.68 obliquity to orbit - 5.145 orbit inclination, Cassini state 2: https://en.wikipedia.org/wiki/Cassini%27s_laws; cross-check 1.5424 at https://en.wikipedia.org/wiki/Moon)",
+          "solar_day_h": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html (synodic period 29.53 d)",
+          "year_d": "https://en.wikipedia.org/wiki/Moon (draconic year 346.62 d; cf. 2 x 173.3 d in https://eclipse.gsfc.nasa.gov/SEhelp/moonorbit.html)"
+        }
+      },
+      "mars": {
+        "obliquity_deg": 25.19,
+        "solar_day_h": 24.6597,
+        "year_d": 686.972,
+        "sources": {
+          "obliquity_deg": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html",
+          "solar_day_h": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html",
+          "year_d": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html"
+        }
+      }
+    },
+    "emd_max": 5.0,
+    "limitations": [
+      "circular orbit (no eccentricity)",
+      "mean solar time (no equation of time)",
+      "no local horizon",
+      "Sun as a point, no refraction"
+    ],
+    "spice_crosscheck": {
+      "method": "Hourly true Sun elevation from SPICE (de440s, IAU_EARTH / MOON_ME, LT+S) vs analytic model; analytic phase aligned once per body at SPICE northward equinox and per point at the t0 local hour angle, then free-running over one declination period from 2026-01-01T00:00:00 UTC.",
+      "kernels": [
+        "naif0012.tls",
+        "pck00011.tpc",
+        "de440s.bsp",
+        "moon_pa_de440_200625.bpc",
+        "moon_de440_250416.tf"
+      ],
+      "bodies": {
+        "earth": {
+          "period_days": 365.242,
+          "samples": 8765,
+          "step_h": 1,
+          "spice_max_abs_subsolar_lat_deg": 23.43579568392852,
+          "analytic_obliquity_deg": 23.44,
+          "northward_equinox_utc": "2026-03-20T14:47:51"
+        },
+        "moon": {
+          "period_days": 346.62,
+          "samples": 8318,
+          "step_h": 1,
+          "spice_max_abs_subsolar_lat_deg": 1.5863872428472714,
+          "analytic_obliquity_deg": 1.5350000000000001,
+          "northward_equinox_utc": "2026-02-27T15:27:10"
+        }
+      },
+      "points": [
+        {
+          "body": "earth",
+          "lat": 0.0,
+          "lon": 0.0,
+          "max_abs_diff_deg": 4.899,
+          "mean_abs_diff_deg": 1.569,
+          "p95_abs_diff_deg": 4.374,
+          "spice_min_max_deg": [
+            -88.267,
+            88.256
+          ],
+          "analytic_min_max_deg": [
+            -89.078,
+            89.082
+          ],
+          "hist_emd": 0.0347,
+          "spice_hist": [
+            0.5002,
+            0.0418,
+            0.052,
+            0.0921,
+            0.1759,
+            0.138
+          ],
+          "analytic_hist": [
+            0.5,
+            0.0278,
+            0.0591,
+            0.0873,
+            0.1864,
+            0.1395
+          ]
+        },
+        {
+          "body": "earth",
+          "lat": 45.0,
+          "lon": 25.0,
+          "max_abs_diff_deg": 4.262,
+          "mean_abs_diff_deg": 1.038,
+          "p95_abs_diff_deg": 3.142,
+          "spice_min_max_deg": [
+            -68.125,
+            67.974
+          ],
+          "analytic_min_max_deg": [
+            -67.907,
+            67.907
+          ],
+          "hist_emd": 0.0137,
+          "spice_hist": [
+            0.4973,
+            0.0437,
+            0.0909,
+            0.1546,
+            0.1805,
+            0.033
+          ],
+          "analytic_hist": [
+            0.5,
+            0.0432,
+            0.0902,
+            0.158,
+            0.1778,
+            0.0307
+          ]
+        },
+        {
+          "body": "earth",
+          "lat": -77.5,
+          "lon": 160.0,
+          "max_abs_diff_deg": 2.294,
+          "mean_abs_diff_deg": 0.552,
+          "p95_abs_diff_deg": 1.802,
+          "spice_min_max_deg": [
+            -35.872,
+            35.887
+          ],
+          "analytic_min_max_deg": [
+            -35.865,
+            35.864
+          ],
+          "hist_emd": 0.0261,
+          "spice_hist": [
+            0.5098,
+            0.0769,
+            0.1831,
+            0.1767,
+            0.0535,
+            0.0
+          ],
+          "analytic_hist": [
+            0.5,
+            0.0772,
+            0.1863,
+            0.1823,
+            0.0542,
+            0.0
+          ]
+        },
+        {
+          "body": "moon",
+          "lat": -89.5,
+          "lon": 0.0,
+          "max_abs_diff_deg": 0.115,
+          "mean_abs_diff_deg": 0.04,
+          "p95_abs_diff_deg": 0.096,
+          "spice_min_max_deg": [
+            -1.984,
+            2.023
+          ],
+          "analytic_min_max_deg": [
+            -2.016,
+            2.011
+          ],
+          "hist_emd": 0.0031,
+          "spice_hist": [
+            0.5031,
+            0.4969,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "analytic_hist": [
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "body": "moon",
+          "lat": -60.0,
+          "lon": 30.0,
+          "max_abs_diff_deg": 1.054,
+          "mean_abs_diff_deg": 0.413,
+          "p95_abs_diff_deg": 0.894,
+          "spice_min_max_deg": [
+            -31.479,
+            31.536
+          ],
+          "analytic_min_max_deg": [
+            -31.503,
+            31.521
+          ],
+          "hist_emd": 0.0269,
+          "spice_hist": [
+            0.5093,
+            0.0549,
+            0.1151,
+            0.287,
+            0.0338,
+            0.0
+          ],
+          "analytic_hist": [
+            0.5,
+            0.0557,
+            0.1177,
+            0.2895,
+            0.0371,
+            0.0
+          ]
+        },
+        {
+          "body": "moon",
+          "lat": 0.0,
+          "lon": 0.0,
+          "max_abs_diff_deg": 2.197,
+          "mean_abs_diff_deg": 1.237,
+          "p95_abs_diff_deg": 2.055,
+          "spice_min_max_deg": [
+            -89.678,
+            89.848
+          ],
+          "analytic_min_max_deg": [
+            -89.715,
+            89.753
+          ],
+          "hist_emd": 0.0093,
+          "spice_hist": [
+            0.5018,
+            0.0272,
+            0.0541,
+            0.0818,
+            0.1643,
+            0.1708
+          ],
+          "analytic_hist": [
+            0.5,
+            0.0278,
+            0.0556,
+            0.0833,
+            0.1667,
+            0.1667
+          ]
+        },
+        {
+          "body": "moon",
+          "lat": 45.0,
+          "lon": -60.0,
+          "max_abs_diff_deg": 1.491,
+          "mean_abs_diff_deg": 0.624,
+          "p95_abs_diff_deg": 1.284,
+          "spice_min_max_deg": [
+            -46.558,
+            46.542
+          ],
+          "analytic_min_max_deg": [
+            -46.535,
+            46.505
+          ],
+          "hist_emd": 0.0368,
+          "spice_hist": [
+            0.4885,
+            0.0403,
+            0.0818,
+            0.1338,
+            0.2557,
+            0.0
+          ],
+          "analytic_hist": [
+            0.5,
+            0.0396,
+            0.0794,
+            0.1312,
+            0.2498,
+            0.0
+          ]
+        }
+      ],
+      "summary": {
+        "earth": {
+          "max_abs_diff_deg": 4.899,
+          "mean_abs_diff_deg": 1.053,
+          "max_hist_emd": 0.0347
+        },
+        "moon": {
+          "max_abs_diff_deg": 2.197,
+          "mean_abs_diff_deg": 0.579,
+          "max_hist_emd": 0.0368
+        }
+      }
+    }
+  }
+}
