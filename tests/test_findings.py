@@ -43,9 +43,9 @@ def test_every_number_has_a_source_key():
 def test_analog_gap_and_site_finder_sentences():
     m = _metrics()
     m["findings_inputs"]["analog_gap"] = {
-        "a": {"label": "A", "best_score": 0.9, "lat": 1.0, "lon": 2.0, "country": "X",
+        "a": {"label": "A", "best_score": 0.9, "lat": 1.0, "lon": 2.0, "country": "X", "median_earth_score": 0.1,
               "differs": {"group_label": "relief", "share": 0.5}},
-        "b": {"label": "B", "best_score": 0.5, "lat": 3.0, "lon": 4.0, "country": "Y",
+        "b": {"label": "B", "best_score": 0.5, "lat": 3.0, "lon": 4.0, "country": "Y", "median_earth_score": 0.03,
               "differs": {"group_label": "context", "share": 0.65}}}
     m["site_finder"] = {"passed": True, "top10_near_nasa_region": 4, "top10_not_near_nasa": ["x"] * 6,
                         "median_region_percentile": 0.24, "random_baseline_median_percentile": 8.97}

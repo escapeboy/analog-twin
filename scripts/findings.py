@@ -49,10 +49,20 @@ def _km(lat, lon, lats, lons) -> np.ndarray:
     return index.haversine_km(lat, lon, np.asarray(lats), np.asarray(lons), dem.RADIUS_M["earth"] / 1000.0)
 
 
-def _atlas_cells(atlas: Path, tid: str) -> list[dict] | None:
-    p = atlas / tid / MODE / "top200.geojson"
+def _atlas_entry(atlas: Path, tid: str) -> dict | None:
+    p = atlas / "index.json"
     if not p.exists():
         return None
+    return next((t for t in json.loads(p.read_text()).get("targets", []) if t.get("id") == tid), None)
+
+
+def _atlas_cells(atlas: Path, tid: str, mode: str) -> list[dict] | None:
+    """Top cells of atlas/index.json files[mode].top200 (W1's atlas), best first."""
+    entry = _atlas_entry(atlas, tid)
+    rel = ((entry or {}).get("files") or {}).get(mode, {}).get("top200")
+    if not rel or not (atlas / rel).exists():
+        return None
+    p = atlas / rel
     cells = []
     for f in json.loads(p.read_text())["features"]:
         lon, lat = f["geometry"]["coordinates"][:2]
@@ -80,17 +90,24 @@ def compute_inputs(atlas: Path) -> dict:
            "analog_gap": {}, "overlooked": {}, "balkans": {}, "bulgaria": {}}
     for t in _targets():
         tid = t["id"]
-        cells = _atlas_cells(atlas, tid)
-        if cells:
-            best = cells[0]
-            out["analog_gap"][tid] = {"label": t["label"], "body": t["body"], "best_score": best["score"],
-                                      "terrain_sim": best.get("terrain_sim"), "light_sim": best.get("light_sim"),
-                                      "lat": best["lat"], "lon": best["lon"], "country": best.get("country"),
+        # Analog gap ranks targets by the best TERRAIN score (atlas "terrain" mode): in terrain+light most of the
+        # colour range is the light term, while terrain scores are small for most land (W1's atlas caveat).
+        tcells = _atlas_cells(atlas, tid, "terrain")
+        if tcells:
+            best = tcells[0]
+            stats = ((_atlas_entry(atlas, tid) or {}).get("stats") or {}).get("terrain") or {}
+            out["analog_gap"][tid] = {"label": t["label"], "body": t["body"], "mode": "terrain",
+                                      "best_score": best["score"], "lat": best["lat"], "lon": best["lon"],
+                                      "country": best.get("country"), "median_earth_score": stats.get("p50"),
+                                      "p99_earth_score": stats.get("p99"),
                                       "differs": _differs(idx, t, best["lat"], best["lon"])}
+        cells = _atlas_cells(atlas, tid, MODE)
+        if cells:
             for c in cells:
                 d = float(_km(c["lat"], c["lon"], klat, klon).min())
                 if d > OVERLOOKED_KM:
                     out["overlooked"][tid] = {"label": t["label"], "score": c["score"], "rank_in_atlas": c.get("rank"),
+                                              "terrain_sim": c.get("terrain_sim"), "light_sim": c.get("light_sim"),
                                               "lat": c["lat"], "lon": c["lon"], "country": c.get("country"),
                                               "nearest_known_km": round(d, 1)}
                     break
@@ -134,6 +151,11 @@ class _M:
             raise KeyError(path)
         self.used.append({"key": path, "value": v})
         return v
+
+
+def _short(label: str) -> str:
+    """Display label without the parenthetical qualifier, e.g. 'Haworth (Artemis III region, ...)' -> 'Haworth'."""
+    return label.split(" (")[0]
 
 
 def _sentence(m: dict, fid: str, fn) -> dict | None:
@@ -180,14 +202,15 @@ def _f2(g):
     order = sorted(gap, key=lambda t: -gap[t]["best_score"])
     parts = []
     for t in order:
-        parts.append(f"{gap[t]['label']} {g(f'findings_inputs.analog_gap.{t}.best_score'):.2f}")
+        parts.append(f"{_short(gap[t]['label'])} {g(f'findings_inputs.analog_gap.{t}.best_score'):.2f}")
     worst = order[-1]
     w = f"findings_inputs.analog_gap.{worst}"
-    return (f"Analog gap: ranked from most to least rehearsable on Earth by the best {MODE} score — "
-            + "; ".join(parts) + ". "
-            f"Weakest: {g(f'{w}.label')}, whose best Earth cell ({g(f'{w}.country')}, "
+    return (f"Analog gap: ranked from most to least rehearsable on Earth by the best terrain-shape score (0–1) of "
+            f"any Earth cell — " + "; ".join(parts) + ". "
+            f"Weakest: {_short(g(f'{w}.label'))}, whose best Earth cell ({g(f'{w}.country')}, "
             f"{g(f'{w}.lat'):.2f}, {g(f'{w}.lon'):.2f}) differs most in {g(f'{w}.differs.group_label')} "
-            f"({g(f'{w}.differs.share') * 100:.0f} % of the terrain distance).")
+            f"({g(f'{w}.differs.share') * 100:.0f} % of the terrain distance); the median Earth cell scores "
+            f"{g(f'{w}.median_earth_score'):.2f} for it.")
 
 
 def _f3(g):
@@ -195,11 +218,20 @@ def _f3(g):
     if not ov:
         return None
     km = g("findings_inputs.overlooked_km")
-    best = sorted(ov, key=lambda t: -ov[t]["score"])[:3]
-    parts = [f"{g(f'findings_inputs.overlooked.{t}.country')} for {ov[t]['label']} "
-             f"(score {g(f'findings_inputs.overlooked.{t}.score'):.2f})" for t in best]
-    return (f"Overlooked places: the best Earth cells more than {km:.0f} km from every known analog site include "
-            + "; ".join(parts) + ". These are hypotheses for field scouting, matched on terrain shape and sunlight only.")
+    best = []
+    for t in sorted(ov, key=lambda t: -ov[t]["score"]):     # skip targets whose cell repeats one already listed
+        if all(abs(ov[t]["lat"] - ov[b]["lat"]) + abs(ov[t]["lon"] - ov[b]["lon"]) > 0.5
+               and _km(ov[t]["lat"], ov[t]["lon"], [ov[b]["lat"]], [ov[b]["lon"]])[0] > 50 for b in best):
+            best.append(t)
+        if len(best) == 3:
+            break
+    parts = [f"{g(f'findings_inputs.overlooked.{t}.country')} "
+             f"({g(f'findings_inputs.overlooked.{t}.lat'):.2f}, {g(f'findings_inputs.overlooked.{t}.lon'):.2f}) "
+             f"for {_short(ov[t]['label'])} (terrain_sim {g(f'findings_inputs.overlooked.{t}.terrain_sim'):.2f}, "
+             f"score {g(f'findings_inputs.overlooked.{t}.score'):.2f})" for t in best]
+    return (f"Overlooked places: the best-scoring Earth cells ({MODE}) more than {km:.0f} km from every known analog "
+            f"site include " + "; ".join(parts) + ". These are hypotheses for field scouting, matched on terrain "
+            f"shape and sunlight only.")
 
 
 def _f3b(g):
@@ -210,7 +242,7 @@ def _f3b(g):
     p = f"findings_inputs.balkans.{t}"
     box = g("findings_inputs.balkans_bbox")
     return (f"Closest to home: in the Balkans box (lon {box[0]:g}–{box[2]:g}°E, lat {box[1]:g}–{box[3]:g}°N) the best "
-            f"cell is at {g(f'{p}.lat'):.2f}, {g(f'{p}.lon'):.2f} ({g(f'{p}.country')}) for {g(f'{p}.label')} — "
+            f"cell is at {g(f'{p}.lat'):.2f}, {g(f'{p}.lon'):.2f} ({g(f'{p}.country')}) for {_short(g(f'{p}.label'))} — "
             f"terrain_sim {g(f'{p}.terrain_sim'):.2f}, light_sim {g(f'{p}.light_sim'):.2f} in its best window "
             f"({g(f'{p}.window')}). It differs most in {g(f'{p}.differs.group_label')}: {g(f'{p}.differs.detail')}.")
 
@@ -221,7 +253,7 @@ def _f3c(g):
         return None
     t = max(bg, key=lambda x: bg[x]["score"])
     p = f"findings_inputs.bulgaria.{t}"
-    return (f"In Bulgaria, the best cell is at {g(f'{p}.lat'):.2f}, {g(f'{p}.lon'):.2f} for {g(f'{p}.label')} — "
+    return (f"In Bulgaria, the best cell is at {g(f'{p}.lat'):.2f}, {g(f'{p}.lon'):.2f} for {_short(g(f'{p}.label'))} — "
             f"terrain_sim {g(f'{p}.terrain_sim'):.2f}, light_sim {g(f'{p}.light_sim'):.2f} ({g(f'{p}.window')}). "
             f"It differs most in {g(f'{p}.differs.group_label')}: {g(f'{p}.differs.detail')}.")
 
