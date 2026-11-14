@@ -14,8 +14,9 @@ AI agents draft a field campaign from the measured numbers. Built for the NASA S
   of about 926 m. Every index point is described by 31 measurements<!-- metrics: corpus.n_features -->: 25 shape
   measurements (slope, roughness, topographic position, curvature, relief, slope-direction spread) over a 12 km window,
   plus 6 context measurements over a 36 km window. The index holds 2,315,318 points<!-- metrics: corpus.total_points -->.
-  A query is a nearest-neighbour search in that feature space. Similarity is terrain shape only; see
-  [docs/features.md](docs/features.md). The first version (v1, 25 features, 12 km window) is kept in the metrics file.
+  A query is a nearest-neighbour search in that feature space. Similarity is terrain shape only, and "similar" means shared coarse terrain texture, not identical landforms: a crater
+  target does not get a crater twin at this scale, and a flat target matches flat plains almost anywhere, so a high score
+  for a flat target discriminates little. See [docs/features.md](docs/features.md). The first version (v1, 25 features, 12 km window) is kept in the metrics file.
 - **3D terrain.** The side-by-side 3D view uses the finest DEM available per body: LOLA 80 m or 240 m near the lunar
   south pole, MOLA 463 m for Mars, and Copernicus DEM GLO-30 (30 m) for Earth, fetched on demand with ETOPO as fallback.
   This is for display; the similarity index uses the common 926 m scale.
@@ -112,6 +113,13 @@ used<!-- metrics: light.spice_crosscheck.summary -->.
 **Speed and determinism.** `find_twins` over 120 queries: median 60.6 ms, 95th percentile 90.3 ms, in process, index
 loaded<!-- metrics: performance.find_twins.p50_ms, performance.find_twins.p95_ms -->. Building a small index twice from
 the same inputs gives byte-identical features<!-- metrics: determinism.identical -->.
+
+## Computed candidates
+
+[docs/new-candidates.md](docs/new-candidates.md) lists the Earth places that best match each preset target on terrain
+shape and yearly sunlight, marked as already known analog sites or not. Treat them as hypotheses for field scouting,
+not recommendations. For several targets even the best Earth terrain is a weak shape match; the file shows the
+ranges.
 
 ## Limitations
 

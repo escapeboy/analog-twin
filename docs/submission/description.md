@@ -11,6 +11,10 @@ for the chosen site, and a crew of AI agents drafts a field campaign.
 
 ## How it works
 
+Twins share coarse terrain texture (slope, roughness and relief statistics over 12 and 36 km
+windows at about 1 km pixels), not identical landforms. A crater target does not get a crater twin at this scale, and a
+flat target matches flat plains almost anywhere, so a high score for a flat target discriminates little.
+
 - **Terrain.** Elevation data from LRO LOLA (Moon), MGS MOLA (Mars) and NOAA ETOPO 2022 (Earth) are resampled to one
   ground scale of about 926 m<!-- metrics: corpus.gsd_m -->. Each index point is described by 31 measurements<!-- metrics: corpus.n_features -->: 25 shape
   measurements over a 12 km window and 6 context measurements over a 36 km window (index v2, multiscale). The index
