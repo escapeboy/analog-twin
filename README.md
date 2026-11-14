@@ -1,6 +1,6 @@
 # Analog Twin
 
-**Others answer "which places look like the Moon". We answer: for THIS landing site — where on Earth, in which weeks, how good is the match, what cannot be matched, and proof that it agrees with NASA.**
+**Others answer "which places look like the Moon". We answer: for THIS landing site — where on Earth, in which weeks, how good is the match, what cannot be matched, and how it compares with NASA's own candidate sites.**
 
 Analog Twin finds places on Earth whose terrain shape and sunlight best match a site on the Moon or Mars, and the
 reverse: click any point on any of the three worlds and it lists the closest matches on the other two. It also

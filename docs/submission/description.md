@@ -1,6 +1,6 @@
 # Description
 
-**Others answer "which places look like the Moon". We answer: for THIS landing site — where on Earth, in which weeks, how good is the match, what cannot be matched, and proof that it agrees with NASA.**
+**Others answer "which places look like the Moon". We answer: for THIS landing site — where on Earth, in which weeks, how good is the match, what cannot be matched, and how it compares with NASA's own candidate sites.**
 
 ## What it does
 

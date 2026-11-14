@@ -75,7 +75,7 @@ the line above.*
 ## Video (30 to 60 seconds, due Sunday 14:00)
 
 Positioning sentence for captions and the end card (from Svod `projects/analog-twin/07-differentiators.md`):
-**Others answer "which places look like the Moon". We answer: for THIS landing site — where on Earth, in which weeks, how good is the match, what cannot be matched, and proof that it agrees with NASA.**
+**Others answer "which places look like the Moon". We answer: for THIS landing site — where on Earth, in which weeks, how good is the match, what cannot be matched, and how it compares with NASA's own candidate sites.**
 
 Screen recording from replay mode, captions in English. Shot order follows the differentiators note. Drop a frame if the
 feature has not passed its gate or is not built. Atlas, Rehearsal Calendar and the finding are not built yet as far as
@@ -97,11 +97,9 @@ Mission View, if its gate passed (metrics: mission.status), may replace 5 to 8 s
 2027 UTC <!-- metrics: mission.sites.shackleton-rim.times_utc.launch -->, first-order transfer). It is no longer required for a
 strong video. Read the caption date from the screen on the day, because the view shows the refined arc.
 
-Honesty check on the positioning sentence: it ends with "proof that it agrees with NASA". Our measured agreement with
-practice is weak: the known-analog test is 51.12 against 48.54 for random <!-- metrics: terrain.known_analog_test.median_percentile_all_pairs, terrain.known_analog_test.baseline_random_median_percentile -->.
-Agreement with NASA candidate regions in the site finder is 4 of our top 10 <!-- metrics: site_finder.top10_near_nasa_region -->. If "proof" is
-spoken or shown, say what the test shows ("we check it against NASA's regions and against known analog sites, and we
-report where it does not agree").
+The positioning sentence now says "how it compares with NASA's own candidate sites". The supporting numbers: 4 of our top 10
+base sites are within 25 km of a NASA candidate region <!-- metrics: site_finder.top10_near_nasa_region -->, and 6 are not
+<!-- metrics: site_finder.top10_not_near_nasa -->. Do not call it proof or validation.
 
 ## Live presentation notes
 
