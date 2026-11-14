@@ -81,7 +81,25 @@ class Index:
                 self.trees[b] = cKDTree(_unit(self.lat[r], self.lon[r]))
         self.fset = F.feature_set(self.manifest.get("feature_set", "v1"))
         self.gidx = F.group_indices(self.fset["name"])
+        self.ndvi = self.lst_c = None
+        self._load_modis()
         self.weights = np.asarray(self.scaler["weights"], dtype=np.float32)
+
+    def _load_modis(self) -> None:
+        """MODIS annual means per Earth point (scripts/build_modis.py), aligned to all rows (NaN elsewhere)."""
+        p = self.path / "env_modis.parquet"
+        if not p.exists():
+            return
+        import pyarrow.parquet as pq
+        t = pq.read_table(p)
+        ndvi = np.full(len(self.ids), np.nan, dtype=np.float32)
+        lst = np.full(len(self.ids), np.nan, dtype=np.float32)
+        ids = t.column("id").to_pylist()
+        rows = np.array([self.id_to_row.get(i, -1) for i in ids])
+        ok = rows >= 0
+        ndvi[rows[ok]] = t.column("ndvi").to_numpy()[ok]
+        lst[rows[ok]] = t.column("lst_c").to_numpy()[ok]
+        self.ndvi, self.lst_c = ndvi, lst
 
     # ------------------------------------------------------------------ helpers
     @property
@@ -152,7 +170,18 @@ class Index:
 
     # ------------------------------------------------------------------ search
     def search(self, body: str, lat: float, lon: float, to: Sequence[str] | None = None, k: int = 10,
-               region: Sequence[float] | None = None) -> dict:
+               region: Sequence[float] | None = None, barren: str | None = None) -> dict:
+        """barren (Earth destinations only; default engine.env.BARREN_MODE): "exclude" drops Earth points whose
+        MODIS annual-mean NDVI is above engine.env.BARREN_NDVI_MAX (or unknown), "penalty" ranks them as if
+        PENALTY_DISTANCE_FACTOR x farther (terrain_sim stays the true value), "off" ignores NDVI. Without
+        env_modis.parquet the filter is off."""
+        from engine import env
+        bmode = barren or env.BARREN_MODE
+        if bmode not in env.BARREN_MODES:
+            raise ValueError(f"barren mode must be one of {env.BARREN_MODES}")
+        if self.ndvi is None:
+            bmode = "off"
+        filters = {"barren_mode": bmode, "barren_ndvi_max": env.BARREN_NDVI_MAX, "earth_excluded": 0}
         q = self.resolve((body, lat, lon))
         dests = [b for b in (to or [b for b in BODIES if b != body]) if b in self.rows]
         results: dict[str, list[dict]] = {}
@@ -169,13 +198,23 @@ class Index:
             if dest == q.body:
                 mask &= haversine_km(q.lat, q.lon, self.lat[rows], self.lon[rows], R) > NMS_KM
             d = np.where(mask, d, np.inf)
-            results[dest] = self._nms(rows, d, k, R)
+            d_rank = d
+            if dest == "earth" and bmode != "off":
+                barren_ok = env.is_barren(self.ndvi[rows])
+                if bmode == "exclude":
+                    d_rank = np.where(barren_ok, d, np.inf)
+                    filters["earth_excluded"] = int((~barren_ok & np.isfinite(d)).sum())
+                else:
+                    d_rank = np.where(barren_ok, d, d * env.PENALTY_DISTANCE_FACTOR)
+            results[dest] = self._nms(rows, d_rank, k, R, d_report=d)
         return {"query": {"body": q.body, "lat": float(lat), "lon": float(lon),
                           "point_id": q.point_id, "on_grid": q.on_grid, "snapped_km": q.snapped_km,
                           "grid_lat": q.lat, "grid_lon": q.lon},
-                "results": results}
+                "results": results, "filters": filters}
 
-    def _nms(self, rows: np.ndarray, d: np.ndarray, k: int, R: float) -> list[dict]:
+    def _nms(self, rows: np.ndarray, d: np.ndarray, k: int, R: float, d_report: np.ndarray | None = None) -> list[dict]:
+        """Greedy NMS ranking by d; terrain_sim / distance reported from d_report (defaults to d)."""
+        d_report = d if d_report is None else d_report
         n_valid = int(np.isfinite(d).sum())
         m = min(n_valid, max(256, 64 * k))
         while True:
@@ -200,7 +239,7 @@ class Index:
             i = rows[c]
             out.append({"id": self.ids[i], "body": self.body[i], "lat": float(self.lat[i]),
                         "lon": float(self.lon[i]), "place_label": self.label[i],
-                        "terrain_sim": float(self.sim(d[c])), "distance": float(d[c])})
+                        "terrain_sim": float(self.sim(d_report[c])), "distance": float(d_report[c])})
         return out
 
     # ------------------------------------------------------------------ explain
