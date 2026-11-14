@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-11-14T12:51:49Z",
+ "generated_utc": "2026-11-14T14:15:10Z",
  "metrics": "metrics.json",
  "sentences": [
   {
@@ -293,17 +293,17 @@
   },
   {
    "id": "overlooked",
-   "text": "Overlooked places: the best-scoring Earth cells (terrain+light) more than 300 km from every known analog site include Sudan (14.73, 26.97) for Oxia Planum (terrain_sim 0.91, score 0.95); Ukraine (45.16, 34.99) for Jezero crater (terrain_sim 0.83, score 0.88); United States of America (67.15, -158.12) for Octavia E. Butler Landing (terrain_sim 0.84, score 0.86). These are hypotheses for field scouting, matched on terrain shape and sunlight only.",
+   "text": "Overlooked places: the best-scoring Earth cells (terrain+light) more than 300 km from every known analog site include Libya (27.87, 18.56) for Oxia Planum (terrain_sim 0.90, score 0.92); Thailand (18.54, 98.79) for Octavia E. Butler Landing (terrain_sim 0.77, score 0.84); Ukraine (45.16, 34.99) for Jezero crater (terrain_sim 0.83, score 0.80). These are hypotheses for field scouting, matched on terrain shape and sunlight only.",
    "sources": [
     {
      "key": "findings_inputs.overlooked",
      "value": {
       "shackleton-rim": {
        "label": "Shackleton rim (Moon)",
-       "score": 0.59043,
+       "score": 0.30613,
        "rank_in_atlas": 1,
        "terrain_sim": 0.46738,
-       "light_sim": 0.775,
+       "light_sim": 0.06425,
        "lat": -11.91118,
        "lon": -76.37727,
        "country": "Peru",
@@ -311,10 +311,10 @@
       },
       "connecting-ridge": {
        "label": "Connecting Ridge (Artemis III region, 2022 list)",
-       "score": 0.64449,
+       "score": 0.35817,
        "rank_in_atlas": 1,
        "terrain_sim": 0.55193,
-       "light_sim": 0.78333,
+       "light_sim": 0.06752,
        "lat": -16.69401,
        "lon": -66.93332,
        "country": "Bolivia",
@@ -322,21 +322,21 @@
       },
       "malapert-massif": {
        "label": "Malapert Massif (Artemis III region, 2022 + 2024 lists)",
-       "score": 0.46017,
-       "rank_in_atlas": 2,
-       "terrain_sim": 0.1632,
-       "light_sim": 0.90562,
-       "lat": 51.106,
-       "lon": -119.12433,
-       "country": "Canada",
-       "nearest_known_km": 1662.4
+       "score": 0.2741,
+       "rank_in_atlas": 1,
+       "terrain_sim": 0.05204,
+       "light_sim": 0.60719,
+       "lat": 82.28113,
+       "lon": -32.91029,
+       "country": "Greenland",
+       "nearest_known_km": 844.6
       },
       "nobile-rim-1": {
        "label": "Nobile Rim 1 (Artemis III region, 2022 + 2024 lists)",
-       "score": 0.63135,
+       "score": 0.36373,
        "rank_in_atlas": 1,
        "terrain_sim": 0.52622,
-       "light_sim": 0.78903,
+       "light_sim": 0.12,
        "lat": -11.0055,
        "lon": -76.89951,
        "country": "Peru",
@@ -344,10 +344,10 @@
       },
       "haworth": {
        "label": "Haworth (Artemis III region, 2022 + 2024 lists)",
-       "score": 0.61648,
+       "score": 0.34623,
        "rank_in_atlas": 1,
        "terrain_sim": 0.5071,
-       "light_sim": 0.78056,
+       "light_sim": 0.10493,
        "lat": -13.94839,
        "lon": -69.88199,
        "country": "Peru",
@@ -355,10 +355,10 @@
       },
       "de-gerlache-rim-2": {
        "label": "de Gerlache Rim 2 (Artemis III region, 2022 + 2024 lists)",
-       "score": 0.6031,
+       "score": 0.31629,
        "rank_in_atlas": 1,
        "terrain_sim": 0.47273,
-       "light_sim": 0.79866,
+       "light_sim": 0.08163,
        "lat": -24.42647,
        "lon": -65.72092,
        "country": "Argentina",
@@ -366,10 +366,10 @@
       },
       "jezero": {
        "label": "Jezero crater (Mars)",
-       "score": 0.88241,
+       "score": 0.80091,
        "rank_in_atlas": 1,
        "terrain_sim": 0.82689,
-       "light_sim": 0.96569,
+       "light_sim": 0.76193,
        "lat": 45.16201,
        "lon": 34.992,
        "country": "Ukraine",
@@ -377,21 +377,21 @@
       },
       "perseverance-landing": {
        "label": "Octavia E. Butler Landing (Perseverance)",
-       "score": 0.86359,
-       "rank_in_atlas": 1,
-       "terrain_sim": 0.83988,
-       "light_sim": 0.89915,
-       "lat": 67.14674,
-       "lon": -158.11847,
-       "country": "United States of America",
-       "nearest_known_km": 2437.9
+       "score": 0.83941,
+       "rank_in_atlas": 2,
+       "terrain_sim": 0.76941,
+       "light_sim": 0.94441,
+       "lat": 18.53807,
+       "lon": 98.78611,
+       "country": "Thailand",
+       "nearest_known_km": 7889.9
       },
       "gale": {
        "label": "Gale crater (Mars)",
-       "score": 0.62978,
-       "rank_in_atlas": 3,
+       "score": 0.61654,
+       "rank_in_atlas": 2,
        "terrain_sim": 0.38378,
-       "light_sim": 0.99877,
+       "light_sim": 0.96568,
        "lat": 0.52418,
        "lon": 29.77427,
        "country": "Democratic Republic of the Congo",
@@ -399,14 +399,14 @@
       },
       "oxia-planum": {
        "label": "Oxia Planum (ExoMars Rosalind Franklin site)",
-       "score": 0.94557,
+       "score": 0.92464,
        "rank_in_atlas": 1,
-       "terrain_sim": 0.91404,
-       "light_sim": 0.99286,
-       "lat": 14.72922,
-       "lon": 26.97002,
-       "country": "Sudan",
-       "nearest_known_km": 4082.3
+       "terrain_sim": 0.9007,
+       "light_sim": 0.96055,
+       "lat": 27.8656,
+       "lon": 18.56442,
+       "country": "Libya",
+       "nearest_known_km": 2435.5
       }
      }
     },
@@ -416,23 +416,43 @@
     },
     {
      "key": "findings_inputs.overlooked.oxia-planum.country",
-     "value": "Sudan"
+     "value": "Libya"
     },
     {
      "key": "findings_inputs.overlooked.oxia-planum.lat",
-     "value": 14.72922
+     "value": 27.8656
     },
     {
      "key": "findings_inputs.overlooked.oxia-planum.lon",
-     "value": 26.97002
+     "value": 18.56442
     },
     {
      "key": "findings_inputs.overlooked.oxia-planum.terrain_sim",
-     "value": 0.91404
+     "value": 0.9007
     },
     {
      "key": "findings_inputs.overlooked.oxia-planum.score",
-     "value": 0.94557
+     "value": 0.92464
+    },
+    {
+     "key": "findings_inputs.overlooked.perseverance-landing.country",
+     "value": "Thailand"
+    },
+    {
+     "key": "findings_inputs.overlooked.perseverance-landing.lat",
+     "value": 18.53807
+    },
+    {
+     "key": "findings_inputs.overlooked.perseverance-landing.lon",
+     "value": 98.78611
+    },
+    {
+     "key": "findings_inputs.overlooked.perseverance-landing.terrain_sim",
+     "value": 0.76941
+    },
+    {
+     "key": "findings_inputs.overlooked.perseverance-landing.score",
+     "value": 0.83941
     },
     {
      "key": "findings_inputs.overlooked.jezero.country",
@@ -452,43 +472,23 @@
     },
     {
      "key": "findings_inputs.overlooked.jezero.score",
-     "value": 0.88241
-    },
-    {
-     "key": "findings_inputs.overlooked.perseverance-landing.country",
-     "value": "United States of America"
-    },
-    {
-     "key": "findings_inputs.overlooked.perseverance-landing.lat",
-     "value": 67.14674
-    },
-    {
-     "key": "findings_inputs.overlooked.perseverance-landing.lon",
-     "value": -158.11847
-    },
-    {
-     "key": "findings_inputs.overlooked.perseverance-landing.terrain_sim",
-     "value": 0.83988
-    },
-    {
-     "key": "findings_inputs.overlooked.perseverance-landing.score",
-     "value": 0.86359
+     "value": 0.80091
     }
    ]
   },
   {
    "id": "balkans",
-   "text": "Closest to home: in the Balkans box (lon 13–30°E, lat 39–48°N) the best cell is at 46.91, 17.96 (Hungary) for Oxia Planum — terrain_sim 0.57, light_sim 0.96 in its best window (08-23 to 09-19). It differs most in variety of slope directions: direction entropy 0.97 vs 0.85 (0 = one direction, 1 = all directions).",
+   "text": "Closest to home: in the Balkans box (lon 13–30°E, lat 39–48°N) the best cell is at 46.91, 17.96 (Hungary) for Oxia Planum — terrain_sim 0.57, light_sim 0.74 in its best window (03-26 to 04-22). It differs most in variety of slope directions: direction entropy 0.97 vs 0.85 (0 = one direction, 1 = all directions).",
    "sources": [
     {
      "key": "findings_inputs.balkans",
      "value": {
       "shackleton-rim": {
        "label": "Shackleton rim (Moon)",
-       "score": 0.4672,
+       "score": 0.1601,
        "terrain_sim": 0.193,
-       "light_sim": 0.8785,
-       "window": "12-04 to 12-31",
+       "light_sim": 0.1107,
+       "window": "12-11 to 01-07",
        "lat": 47.0165,
        "lon": 13.0852,
        "country": "Austria",
@@ -502,10 +502,10 @@
       },
       "connecting-ridge": {
        "label": "Connecting Ridge (Artemis III region, 2022 list)",
-       "score": 0.4787,
+       "score": 0.1732,
        "terrain_sim": 0.2109,
-       "light_sim": 0.8805,
-       "window": "12-06 to 01-02",
+       "light_sim": 0.1166,
+       "window": "12-05 to 01-01",
        "lat": 47.6281,
        "lon": 14.0391,
        "country": "Austria",
@@ -519,10 +519,10 @@
       },
       "malapert-massif": {
        "label": "Malapert Massif (Artemis III region, 2022 + 2024 lists)",
-       "score": 0.4257,
+       "score": 0.1516,
        "terrain_sim": 0.1178,
-       "light_sim": 0.8875,
-       "window": "12-07 to 01-03",
+       "light_sim": 0.2022,
+       "window": "12-06 to 01-02",
        "lat": 47.5202,
        "lon": 13.2643,
        "country": "Austria",
@@ -536,27 +536,27 @@
       },
       "nobile-rim-1": {
        "label": "Nobile Rim 1 (Artemis III region, 2022 + 2024 lists)",
-       "score": 0.4837,
-       "terrain_sim": 0.2204,
-       "light_sim": 0.8786,
-       "window": "12-04 to 12-31",
-       "lat": 42.0883,
-       "lon": 14.1053,
-       "country": "Italy",
-       "nearest_known_km": 804.1,
+       "score": 0.2116,
+       "terrain_sim": 0.206,
+       "light_sim": 0.22,
+       "window": "12-05 to 01-01",
+       "lat": 47.4842,
+       "lon": 13.6803,
+       "country": "Austria",
+       "nearest_known_km": 278.3,
        "differs": {
         "group": "context",
         "group_label": "landform context over 36 km (crater, basin or massif scale)",
-        "share": 0.5065,
-        "detail": "36 km relief 4806 m vs 2333 m"
+        "share": 0.7356,
+        "detail": "36 km relief 4806 m vs 1733 m"
        }
       },
       "haworth": {
        "label": "Haworth (Artemis III region, 2022 + 2024 lists)",
-       "score": 0.4227,
+       "score": 0.1416,
        "terrain_sim": 0.1175,
-       "light_sim": 0.8805,
-       "window": "12-06 to 01-02",
+       "light_sim": 0.1778,
+       "window": "12-05 to 01-01",
        "lat": 47.6281,
        "lon": 14.0391,
        "country": "Austria",
@@ -570,10 +570,10 @@
       },
       "de-gerlache-rim-2": {
        "label": "de Gerlache Rim 2 (Artemis III region, 2022 + 2024 lists)",
-       "score": 0.4108,
+       "score": 0.1103,
        "terrain_sim": 0.0979,
-       "light_sim": 0.8802,
-       "window": "12-07 to 01-03",
+       "light_sim": 0.1289,
+       "window": "12-06 to 01-02",
        "lat": 47.4842,
        "lon": 13.6803,
        "country": "Austria",
@@ -587,10 +587,10 @@
       },
       "jezero": {
        "label": "Jezero crater (Mars)",
-       "score": 0.5963,
+       "score": 0.5009,
        "terrain_sim": 0.3522,
-       "light_sim": 0.9623,
-       "window": "08-23 to 09-19",
+       "light_sim": 0.7239,
+       "window": "03-25 to 04-21",
        "lat": 47.8439,
        "lon": 16.7753,
        "country": "Austria",
@@ -604,10 +604,10 @@
       },
       "perseverance-landing": {
        "label": "Octavia E. Butler Landing (Perseverance)",
-       "score": 0.5823,
+       "score": 0.527,
        "terrain_sim": 0.3232,
-       "light_sim": 0.971,
-       "window": "03-15 to 04-11",
+       "light_sim": 0.8329,
+       "window": "03-28 to 04-24",
        "lat": 40.4335,
        "lon": 29.5865,
        "country": "Turkey",
@@ -621,10 +621,10 @@
       },
       "gale": {
        "label": "Gale crater (Mars)",
-       "score": 0.4812,
+       "score": 0.4083,
        "terrain_sim": 0.1605,
-       "light_sim": 0.9624,
-       "window": "08-24 to 09-20",
+       "light_sim": 0.78,
+       "window": "08-08 to 09-04",
        "lat": 41.0091,
        "lon": 20.6886,
        "country": "North Macedonia",
@@ -638,10 +638,10 @@
       },
       "oxia-planum": {
        "label": "Oxia Planum (ExoMars Rosalind Franklin site)",
-       "score": 0.7264,
+       "score": 0.6354,
        "terrain_sim": 0.5685,
-       "light_sim": 0.9633,
-       "window": "08-23 to 09-19",
+       "light_sim": 0.7358,
+       "window": "03-26 to 04-22",
        "lat": 46.9086,
        "lon": 17.9552,
        "country": "Hungary",
@@ -686,11 +686,11 @@
     },
     {
      "key": "findings_inputs.balkans.oxia-planum.light_sim",
-     "value": 0.9633
+     "value": 0.7358
     },
     {
      "key": "findings_inputs.balkans.oxia-planum.window",
-     "value": "08-23 to 09-19"
+     "value": "03-26 to 04-22"
     },
     {
      "key": "findings_inputs.balkans.oxia-planum.differs.group_label",

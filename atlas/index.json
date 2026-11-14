@@ -1,7 +1,7 @@
 {
  "title": "Analog Twin - Global Analog Atlas",
  "licence": "CC BY 4.0",
- "generated_at": "2026-11-14T13:42:12+0100",
+ "generated_at": "2026-11-14T15:15:03+0100",
  "index": {
   "path": "/data/code/nasa-challenge/data/index/full_v2",
   "feature_set": "v2",
@@ -44,7 +44,7 @@
    },
    "value_range": [
     0.019,
-    0.5904
+    0.4674
    ],
    "stats": {
     "terrain": {
@@ -62,18 +62,18 @@
      "top200_barren_frac": 0.315
     },
     "terrain+light": {
-     "min": 0.3042,
-     "p50": 0.3517,
-     "p99": 0.4059,
-     "max": 0.5904,
+     "min": 0.0324,
+     "p50": 0.0526,
+     "p99": 0.1147,
+     "max": 0.3061,
      "top1": {
       "lat": -11.91117951801508,
       "lon": -76.37727344036102,
-      "score": 0.59043,
+      "score": 0.30613,
       "country": "Peru"
      },
-     "top200_frac_abs_lat_ge_60": 0.015,
-     "top200_barren_frac": 0.38
+     "top200_frac_abs_lat_ge_60": 0.045,
+     "top200_barren_frac": 0.355
     }
    },
    "files": {
@@ -93,7 +93,7 @@
     "terrain+light"
    ],
    "vmin": 0.019,
-   "vmax": 0.5904,
+   "vmax": 0.4674,
    "ramp": [
     "#440154",
     "#472d7b",
@@ -113,42 +113,42 @@
     },
     {
      "t": 0.125,
-     "value": 0.0904,
+     "value": 0.075,
      "rgb": "#472d7b"
     },
     {
      "t": 0.25,
-     "value": 0.1618,
+     "value": 0.1311,
      "rgb": "#3b528b"
     },
     {
      "t": 0.375,
-     "value": 0.2333,
+     "value": 0.1871,
      "rgb": "#2c728e"
     },
     {
      "t": 0.5,
-     "value": 0.3047,
+     "value": 0.2432,
      "rgb": "#21908c"
     },
     {
      "t": 0.625,
-     "value": 0.3761,
+     "value": 0.2993,
      "rgb": "#28ae80"
     },
     {
      "t": 0.75,
-     "value": 0.4476,
+     "value": 0.3553,
      "rgb": "#5cc863"
     },
     {
      "t": 0.875,
-     "value": 0.519,
+     "value": 0.4113,
      "rgb": "#aadc32"
     },
     {
      "t": 1.0,
-     "value": 0.5904,
+     "value": 0.4674,
      "rgb": "#fde725"
     }
    ]
@@ -167,7 +167,7 @@
    },
    "value_range": [
     0.0228,
-    0.6445
+    0.5519
    ],
    "stats": {
     "terrain": {
@@ -185,18 +185,18 @@
      "top200_barren_frac": 0.235
     },
     "terrain+light": {
-     "min": 0.3048,
-     "p50": 0.3586,
-     "p99": 0.4374,
-     "max": 0.6445,
+     "min": 0.0331,
+     "p50": 0.0582,
+     "p99": 0.1407,
+     "max": 0.3582,
      "top1": {
       "lat": -16.694009619222875,
       "lon": -66.93331915140152,
-      "score": 0.64449,
+      "score": 0.35817,
       "country": "Bolivia"
      },
-     "top200_frac_abs_lat_ge_60": 0.02,
-     "top200_barren_frac": 0.38
+     "top200_frac_abs_lat_ge_60": 0.05,
+     "top200_barren_frac": 0.315
     }
    },
    "files": {
@@ -214,7 +214,7 @@
     "terrain+light"
    ],
    "vmin": 0.0228,
-   "vmax": 0.6445,
+   "vmax": 0.5519,
    "ramp": [
     "#440154",
     "#472d7b",
@@ -234,42 +234,42 @@
     },
     {
      "t": 0.125,
-     "value": 0.1005,
+     "value": 0.0889,
      "rgb": "#472d7b"
     },
     {
      "t": 0.25,
-     "value": 0.1782,
+     "value": 0.1551,
      "rgb": "#3b528b"
     },
     {
      "t": 0.375,
-     "value": 0.2559,
+     "value": 0.2212,
      "rgb": "#2c728e"
     },
     {
      "t": 0.5,
-     "value": 0.3336,
+     "value": 0.2873,
      "rgb": "#21908c"
     },
     {
      "t": 0.625,
-     "value": 0.4114,
+     "value": 0.3535,
      "rgb": "#28ae80"
     },
     {
      "t": 0.75,
-     "value": 0.4891,
+     "value": 0.4196,
      "rgb": "#5cc863"
     },
     {
      "t": 0.875,
-     "value": 0.5668,
+     "value": 0.4858,
      "rgb": "#aadc32"
     },
     {
      "t": 1.0,
-     "value": 0.6445,
+     "value": 0.5519,
      "rgb": "#fde725"
     }
    ]
@@ -288,7 +288,7 @@
    },
    "value_range": [
     0.0189,
-    0.4646
+    0.2741
    ],
    "stats": {
     "terrain": {
@@ -306,18 +306,18 @@
      "top200_barren_frac": 0.285
     },
     "terrain+light": {
-     "min": 0.3062,
-     "p50": 0.3516,
-     "p99": 0.3987,
-     "max": 0.4646,
+     "min": 0.0492,
+     "p50": 0.0754,
+     "p99": 0.1672,
+     "max": 0.2741,
      "top1": {
-      "lat": 37.59164312740293,
-      "lon": -118.25977301387138,
-      "score": 0.46464,
-      "country": "United States of America"
+      "lat": 82.28113355464176,
+      "lon": -32.9102890426293,
+      "score": 0.2741,
+      "country": "Greenland"
      },
-     "top200_frac_abs_lat_ge_60": 0.13,
-     "top200_barren_frac": 0.455
+     "top200_frac_abs_lat_ge_60": 0.975,
+     "top200_barren_frac": 0.92
     }
    },
    "files": {
@@ -337,7 +337,7 @@
     "terrain+light"
    ],
    "vmin": 0.0189,
-   "vmax": 0.4646,
+   "vmax": 0.2741,
    "ramp": [
     "#440154",
     "#472d7b",
@@ -357,42 +357,42 @@
     },
     {
      "t": 0.125,
-     "value": 0.0746,
+     "value": 0.0508,
      "rgb": "#472d7b"
     },
     {
      "t": 0.25,
-     "value": 0.1303,
+     "value": 0.0827,
      "rgb": "#3b528b"
     },
     {
      "t": 0.375,
-     "value": 0.186,
+     "value": 0.1146,
      "rgb": "#2c728e"
     },
     {
      "t": 0.5,
-     "value": 0.2417,
+     "value": 0.1465,
      "rgb": "#21908c"
     },
     {
      "t": 0.625,
-     "value": 0.2975,
+     "value": 0.1784,
      "rgb": "#28ae80"
     },
     {
      "t": 0.75,
-     "value": 0.3532,
+     "value": 0.2103,
      "rgb": "#5cc863"
     },
     {
      "t": 0.875,
-     "value": 0.4089,
+     "value": 0.2422,
      "rgb": "#aadc32"
     },
     {
      "t": 1.0,
-     "value": 0.4646,
+     "value": 0.2741,
      "rgb": "#fde725"
     }
    ]
@@ -411,7 +411,7 @@
    },
    "value_range": [
     0.0196,
-    0.6313
+    0.5262
    ],
    "stats": {
     "terrain": {
@@ -429,18 +429,18 @@
      "top200_barren_frac": 0.235
     },
     "terrain+light": {
-     "min": 0.3096,
-     "p50": 0.3573,
-     "p99": 0.4086,
-     "max": 0.6313,
+     "min": 0.0537,
+     "p50": 0.0832,
+     "p99": 0.1823,
+     "max": 0.3637,
      "top1": {
       "lat": -11.005500293791854,
       "lon": -76.89951437711716,
-      "score": 0.63135,
+      "score": 0.36373,
       "country": "Peru"
      },
-     "top200_frac_abs_lat_ge_60": 0.01,
-     "top200_barren_frac": 0.3
+     "top200_frac_abs_lat_ge_60": 0.385,
+     "top200_barren_frac": 0.545
     }
    },
    "files": {
@@ -458,7 +458,7 @@
     "terrain+light"
    ],
    "vmin": 0.0196,
-   "vmax": 0.6313,
+   "vmax": 0.5262,
    "ramp": [
     "#440154",
     "#472d7b",
@@ -478,42 +478,42 @@
     },
     {
      "t": 0.125,
-     "value": 0.0961,
+     "value": 0.0829,
      "rgb": "#472d7b"
     },
     {
      "t": 0.25,
-     "value": 0.1725,
+     "value": 0.1463,
      "rgb": "#3b528b"
     },
     {
      "t": 0.375,
-     "value": 0.249,
+     "value": 0.2096,
      "rgb": "#2c728e"
     },
     {
      "t": 0.5,
-     "value": 0.3255,
+     "value": 0.2729,
      "rgb": "#21908c"
     },
     {
      "t": 0.625,
-     "value": 0.4019,
+     "value": 0.3362,
      "rgb": "#28ae80"
     },
     {
      "t": 0.75,
-     "value": 0.4784,
+     "value": 0.3996,
      "rgb": "#5cc863"
     },
     {
      "t": 0.875,
-     "value": 0.5548,
+     "value": 0.4629,
      "rgb": "#aadc32"
     },
     {
      "t": 1.0,
-     "value": 0.6313,
+     "value": 0.5262,
      "rgb": "#fde725"
     }
    ]
@@ -532,7 +532,7 @@
    },
    "value_range": [
     0.0284,
-    0.6165
+    0.5071
    ],
    "stats": {
     "terrain": {
@@ -550,18 +550,18 @@
      "top200_barren_frac": 0.2
     },
     "terrain+light": {
-     "min": 0.3064,
-     "p50": 0.3651,
-     "p99": 0.4414,
-     "max": 0.6165,
+     "min": 0.0472,
+     "p50": 0.083,
+     "p99": 0.1785,
+     "max": 0.3462,
      "top1": {
       "lat": -13.948394157388657,
       "lon": -69.88199454545975,
-      "score": 0.61648,
+      "score": 0.34623,
       "country": "Peru"
      },
-     "top200_frac_abs_lat_ge_60": 0.06,
-     "top200_barren_frac": 0.33
+     "top200_frac_abs_lat_ge_60": 0.37,
+     "top200_barren_frac": 0.475
     }
    },
    "files": {
@@ -579,7 +579,7 @@
     "terrain+light"
    ],
    "vmin": 0.0284,
-   "vmax": 0.6165,
+   "vmax": 0.5071,
    "ramp": [
     "#440154",
     "#472d7b",
@@ -599,42 +599,42 @@
     },
     {
      "t": 0.125,
-     "value": 0.1019,
+     "value": 0.0882,
      "rgb": "#472d7b"
     },
     {
      "t": 0.25,
-     "value": 0.1754,
+     "value": 0.1481,
      "rgb": "#3b528b"
     },
     {
      "t": 0.375,
-     "value": 0.2489,
+     "value": 0.2079,
      "rgb": "#2c728e"
     },
     {
      "t": 0.5,
-     "value": 0.3225,
+     "value": 0.2677,
      "rgb": "#21908c"
     },
     {
      "t": 0.625,
-     "value": 0.396,
+     "value": 0.3276,
      "rgb": "#28ae80"
     },
     {
      "t": 0.75,
-     "value": 0.4695,
+     "value": 0.3874,
      "rgb": "#5cc863"
     },
     {
      "t": 0.875,
-     "value": 0.543,
+     "value": 0.4473,
      "rgb": "#aadc32"
     },
     {
      "t": 1.0,
-     "value": 0.6165,
+     "value": 0.5071,
      "rgb": "#fde725"
     }
    ]
@@ -653,7 +653,7 @@
    },
    "value_range": [
     0.0271,
-    0.6031
+    0.4727
    ],
    "stats": {
     "terrain": {
@@ -671,18 +671,18 @@
      "top200_barren_frac": 0.205
     },
     "terrain+light": {
-     "min": 0.3063,
-     "p50": 0.3612,
-     "p99": 0.415,
-     "max": 0.6031,
+     "min": 0.0375,
+     "p50": 0.0656,
+     "p99": 0.1324,
+     "max": 0.3163,
      "top1": {
       "lat": -24.4264684742331,
       "lon": -65.7209215760231,
-      "score": 0.6031,
+      "score": 0.31629,
       "country": "Argentina"
      },
-     "top200_frac_abs_lat_ge_60": 0.09,
-     "top200_barren_frac": 0.295
+     "top200_frac_abs_lat_ge_60": 0.32,
+     "top200_barren_frac": 0.355
     }
    },
    "files": {
@@ -700,7 +700,7 @@
     "terrain+light"
    ],
    "vmin": 0.0271,
-   "vmax": 0.6031,
+   "vmax": 0.4727,
    "ramp": [
     "#440154",
     "#472d7b",
@@ -720,42 +720,42 @@
     },
     {
      "t": 0.125,
-     "value": 0.0991,
+     "value": 0.0828,
      "rgb": "#472d7b"
     },
     {
      "t": 0.25,
-     "value": 0.1711,
+     "value": 0.1385,
      "rgb": "#3b528b"
     },
     {
      "t": 0.375,
-     "value": 0.2431,
+     "value": 0.1942,
      "rgb": "#2c728e"
     },
     {
      "t": 0.5,
-     "value": 0.3151,
+     "value": 0.2499,
      "rgb": "#21908c"
     },
     {
      "t": 0.625,
-     "value": 0.3871,
+     "value": 0.3056,
      "rgb": "#28ae80"
     },
     {
      "t": 0.75,
-     "value": 0.4591,
+     "value": 0.3613,
      "rgb": "#5cc863"
     },
     {
      "t": 0.875,
-     "value": 0.5311,
+     "value": 0.417,
      "rgb": "#aadc32"
     },
     {
      "t": 1.0,
-     "value": 0.6031,
+     "value": 0.4727,
      "rgb": "#fde725"
     }
    ]
@@ -774,7 +774,7 @@
    },
    "value_range": [
     0.0437,
-    0.8824
+    0.8269
    ],
    "stats": {
     "terrain": {
@@ -792,18 +792,18 @@
      "top200_barren_frac": 0.35
     },
     "terrain+light": {
-     "min": 0.3524,
-     "p50": 0.4728,
-     "p99": 0.6004,
-     "max": 0.8824,
+     "min": 0.1021,
+     "p50": 0.4317,
+     "p99": 0.5708,
+     "max": 0.8009,
      "top1": {
       "lat": 45.162010388254586,
       "lon": 34.99199520051479,
-      "score": 0.88241,
+      "score": 0.80091,
       "country": "Ukraine"
      },
-     "top200_frac_abs_lat_ge_60": 0.02,
-     "top200_barren_frac": 0.38
+     "top200_frac_abs_lat_ge_60": 0.0,
+     "top200_barren_frac": 0.41
     }
    },
    "files": {
@@ -823,7 +823,7 @@
     "terrain+light"
    ],
    "vmin": 0.0437,
-   "vmax": 0.8824,
+   "vmax": 0.8269,
    "ramp": [
     "#440154",
     "#472d7b",
@@ -843,42 +843,42 @@
     },
     {
      "t": 0.125,
-     "value": 0.1485,
+     "value": 0.1416,
      "rgb": "#472d7b"
     },
     {
      "t": 0.25,
-     "value": 0.2534,
+     "value": 0.2395,
      "rgb": "#3b528b"
     },
     {
      "t": 0.375,
-     "value": 0.3582,
+     "value": 0.3374,
      "rgb": "#2c728e"
     },
     {
      "t": 0.5,
-     "value": 0.4631,
+     "value": 0.4353,
      "rgb": "#21908c"
     },
     {
      "t": 0.625,
-     "value": 0.5679,
+     "value": 0.5332,
      "rgb": "#28ae80"
     },
     {
      "t": 0.75,
-     "value": 0.6727,
+     "value": 0.6311,
      "rgb": "#5cc863"
     },
     {
      "t": 0.875,
-     "value": 0.7776,
+     "value": 0.729,
      "rgb": "#aadc32"
     },
     {
      "t": 1.0,
-     "value": 0.8824,
+     "value": 0.8269,
      "rgb": "#fde725"
     }
    ]
@@ -897,7 +897,7 @@
    },
    "value_range": [
     0.0455,
-    0.8636
+    0.844
    ],
    "stats": {
     "terrain": {
@@ -915,18 +915,18 @@
      "top200_barren_frac": 0.43
     },
     "terrain+light": {
-     "min": 0.3536,
-     "p50": 0.4532,
-     "p99": 0.6167,
-     "max": 0.8636,
+     "min": 0.1043,
+     "p50": 0.4202,
+     "p99": 0.583,
+     "max": 0.844,
      "top1": {
-      "lat": 67.14673896796698,
-      "lon": -158.11847158893943,
-      "score": 0.86359,
-      "country": "United States of America"
+      "lat": -23.85000898896473,
+      "lon": -69.93117010816127,
+      "score": 0.84396,
+      "country": "Chile"
      },
-     "top200_frac_abs_lat_ge_60": 0.04,
-     "top200_barren_frac": 0.44
+     "top200_frac_abs_lat_ge_60": 0.0,
+     "top200_barren_frac": 0.47
     }
    },
    "files": {
@@ -944,7 +944,7 @@
     "terrain+light"
    ],
    "vmin": 0.0455,
-   "vmax": 0.8636,
+   "vmax": 0.844,
    "ramp": [
     "#440154",
     "#472d7b",
@@ -964,42 +964,42 @@
     },
     {
      "t": 0.125,
-     "value": 0.1478,
+     "value": 0.1453,
      "rgb": "#472d7b"
     },
     {
      "t": 0.25,
-     "value": 0.25,
+     "value": 0.2451,
      "rgb": "#3b528b"
     },
     {
      "t": 0.375,
-     "value": 0.3523,
+     "value": 0.3449,
      "rgb": "#2c728e"
     },
     {
      "t": 0.5,
-     "value": 0.4546,
+     "value": 0.4447,
      "rgb": "#21908c"
     },
     {
      "t": 0.625,
-     "value": 0.5568,
+     "value": 0.5446,
      "rgb": "#28ae80"
     },
     {
      "t": 0.75,
-     "value": 0.6591,
+     "value": 0.6444,
      "rgb": "#5cc863"
     },
     {
      "t": 0.875,
-     "value": 0.7613,
+     "value": 0.7442,
      "rgb": "#aadc32"
     },
     {
      "t": 1.0,
-     "value": 0.8636,
+     "value": 0.844,
      "rgb": "#fde725"
     }
    ]
@@ -1018,7 +1018,7 @@
    },
    "value_range": [
     0.023,
-    0.7627
+    0.7093
    ],
    "stats": {
     "terrain": {
@@ -1036,18 +1036,18 @@
      "top200_barren_frac": 0.41
     },
     "terrain+light": {
-     "min": 0.3355,
-     "p50": 0.4137,
-     "p99": 0.4495,
-     "max": 0.7627,
+     "min": 0.0848,
+     "p50": 0.3776,
+     "p99": 0.4311,
+     "max": 0.7093,
      "top1": {
       "lat": 36.6923215214842,
       "lon": -118.20560747663552,
-      "score": 0.76272,
+      "score": 0.70929,
       "country": "United States of America"
      },
      "top200_frac_abs_lat_ge_60": 0.0,
-     "top200_barren_frac": 0.395
+     "top200_barren_frac": 0.31
     }
    },
    "files": {
@@ -1065,7 +1065,7 @@
     "terrain+light"
    ],
    "vmin": 0.023,
-   "vmax": 0.7627,
+   "vmax": 0.7093,
    "ramp": [
     "#440154",
     "#472d7b",
@@ -1085,42 +1085,42 @@
     },
     {
      "t": 0.125,
-     "value": 0.1155,
+     "value": 0.1088,
      "rgb": "#472d7b"
     },
     {
      "t": 0.25,
-     "value": 0.2079,
+     "value": 0.1946,
      "rgb": "#3b528b"
     },
     {
      "t": 0.375,
-     "value": 0.3004,
+     "value": 0.2804,
      "rgb": "#2c728e"
     },
     {
      "t": 0.5,
-     "value": 0.3929,
+     "value": 0.3662,
      "rgb": "#21908c"
     },
     {
      "t": 0.625,
-     "value": 0.4853,
+     "value": 0.4519,
      "rgb": "#28ae80"
     },
     {
      "t": 0.75,
-     "value": 0.5778,
+     "value": 0.5377,
      "rgb": "#5cc863"
     },
     {
      "t": 0.875,
-     "value": 0.6702,
+     "value": 0.6235,
      "rgb": "#aadc32"
     },
     {
      "t": 1.0,
-     "value": 0.7627,
+     "value": 0.7093,
      "rgb": "#fde725"
     }
    ]
@@ -1139,7 +1139,7 @@
    },
    "value_range": [
     0.0452,
-    0.9456
+    0.9246
    ],
    "stats": {
     "terrain": {
@@ -1157,18 +1157,18 @@
      "top200_barren_frac": 0.22
     },
     "terrain+light": {
-     "min": 0.3568,
-     "p50": 0.4999,
-     "p99": 0.716,
-     "max": 0.9456,
+     "min": 0.1075,
+     "p50": 0.4484,
+     "p99": 0.683,
+     "max": 0.9246,
      "top1": {
-      "lat": 14.729224205870826,
-      "lon": 26.97002014517784,
-      "score": 0.94557,
-      "country": "Sudan"
+      "lat": 27.865600416207723,
+      "lon": 18.564423009753227,
+      "score": 0.92464,
+      "country": "Libya"
      },
-     "top200_frac_abs_lat_ge_60": 0.06,
-     "top200_barren_frac": 0.22
+     "top200_frac_abs_lat_ge_60": 0.0,
+     "top200_barren_frac": 0.245
     }
    },
    "files": {
@@ -1186,7 +1186,7 @@
     "terrain+light"
    ],
    "vmin": 0.0452,
-   "vmax": 0.9456,
+   "vmax": 0.9246,
    "ramp": [
     "#440154",
     "#472d7b",
@@ -1206,42 +1206,42 @@
     },
     {
      "t": 0.125,
-     "value": 0.1578,
+     "value": 0.1551,
      "rgb": "#472d7b"
     },
     {
      "t": 0.25,
-     "value": 0.2703,
+     "value": 0.2651,
      "rgb": "#3b528b"
     },
     {
      "t": 0.375,
-     "value": 0.3829,
+     "value": 0.375,
      "rgb": "#2c728e"
     },
     {
      "t": 0.5,
-     "value": 0.4954,
+     "value": 0.4849,
      "rgb": "#21908c"
     },
     {
      "t": 0.625,
-     "value": 0.6079,
+     "value": 0.5948,
      "rgb": "#28ae80"
     },
     {
      "t": 0.75,
-     "value": 0.7205,
+     "value": 0.7047,
      "rgb": "#5cc863"
     },
     {
      "t": 0.875,
-     "value": 0.833,
+     "value": 0.8147,
      "rgb": "#aadc32"
     },
     {
      "t": 1.0,
-     "value": 0.9456,
+     "value": 0.9246,
      "rgb": "#fde725"
     }
    ]
@@ -1264,9 +1264,9 @@
     "abs_lat_ge_60": 0.0307
    },
    "terrain+light": {
-    "abs_lat_lt_30": 0.3308,
-    "abs_lat_30_60": 0.3676,
-    "abs_lat_ge_60": 0.3916
+    "abs_lat_lt_30": 0.0455,
+    "abs_lat_30_60": 0.0621,
+    "abs_lat_ge_60": 0.1026
    }
   },
   "connecting-ridge": {
@@ -1276,9 +1276,9 @@
     "abs_lat_ge_60": 0.0429
    },
    "terrain+light": {
-    "abs_lat_lt_30": 0.3371,
-    "abs_lat_30_60": 0.3752,
-    "abs_lat_ge_60": 0.3989
+    "abs_lat_lt_30": 0.0519,
+    "abs_lat_30_60": 0.0699,
+    "abs_lat_ge_60": 0.1102
    }
   },
   "malapert-massif": {
@@ -1288,9 +1288,9 @@
     "abs_lat_ge_60": 0.0276
    },
    "terrain+light": {
-    "abs_lat_lt_30": 0.3319,
-    "abs_lat_30_60": 0.368,
-    "abs_lat_ge_60": 0.3922
+    "abs_lat_lt_30": 0.0643,
+    "abs_lat_30_60": 0.0911,
+    "abs_lat_ge_60": 0.1589
    }
   },
   "nobile-rim-1": {
@@ -1300,9 +1300,9 @@
     "abs_lat_ge_60": 0.0311
    },
    "terrain+light": {
-    "abs_lat_lt_30": 0.3366,
-    "abs_lat_30_60": 0.3733,
-    "abs_lat_ge_60": 0.3965
+    "abs_lat_lt_30": 0.0706,
+    "abs_lat_30_60": 0.1004,
+    "abs_lat_ge_60": 0.1717
    }
   },
   "haworth": {
@@ -1312,9 +1312,9 @@
     "abs_lat_ge_60": 0.0535
    },
    "terrain+light": {
-    "abs_lat_lt_30": 0.3427,
-    "abs_lat_30_60": 0.3817,
-    "abs_lat_ge_60": 0.4052
+    "abs_lat_lt_30": 0.0719,
+    "abs_lat_30_60": 0.0984,
+    "abs_lat_ge_60": 0.1585
    }
   },
   "de-gerlache-rim-2": {
@@ -1324,9 +1324,9 @@
     "abs_lat_ge_60": 0.0438
    },
    "terrain+light": {
-    "abs_lat_lt_30": 0.3386,
-    "abs_lat_30_60": 0.3762,
-    "abs_lat_ge_60": 0.3994
+    "abs_lat_lt_30": 0.0566,
+    "abs_lat_30_60": 0.0757,
+    "abs_lat_ge_60": 0.1203
    }
   },
   "jezero": {
@@ -1336,9 +1336,9 @@
     "abs_lat_ge_60": 0.1392
    },
    "terrain+light": {
-    "abs_lat_lt_30": 0.4876,
-    "abs_lat_30_60": 0.4705,
-    "abs_lat_ge_60": 0.4472
+    "abs_lat_lt_30": 0.4676,
+    "abs_lat_30_60": 0.3972,
+    "abs_lat_ge_60": 0.2652
    }
   },
   "perseverance-landing": {
@@ -1348,9 +1348,9 @@
     "abs_lat_ge_60": 0.1157
    },
    "terrain+light": {
-    "abs_lat_lt_30": 0.4689,
-    "abs_lat_30_60": 0.4599,
-    "abs_lat_ge_60": 0.4331
+    "abs_lat_lt_30": 0.4489,
+    "abs_lat_30_60": 0.3867,
+    "abs_lat_ge_60": 0.2512
    }
   },
   "gale": {
@@ -1360,9 +1360,9 @@
     "abs_lat_ge_60": 0.0355
    },
    "terrain+light": {
-    "abs_lat_lt_30": 0.4197,
-    "abs_lat_30_60": 0.408,
-    "abs_lat_ge_60": 0.3819
+    "abs_lat_lt_30": 0.4066,
+    "abs_lat_30_60": 0.3215,
+    "abs_lat_ge_60": 0.1933
    }
   },
   "oxia-planum": {
@@ -1372,12 +1372,12 @@
     "abs_lat_ge_60": 0.2218
    },
    "terrain+light": {
-    "abs_lat_lt_30": 0.5268,
-    "abs_lat_30_60": 0.4979,
-    "abs_lat_ge_60": 0.4966
+    "abs_lat_lt_30": 0.5071,
+    "abs_lat_30_60": 0.4243,
+    "abs_lat_ge_60": 0.3145
    }
   }
  },
- "build_seconds": 104.6,
- "size_mb": 51.23
+ "build_seconds": 113.0,
+ "size_mb": 53.54
 }
