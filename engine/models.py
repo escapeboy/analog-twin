@@ -23,6 +23,8 @@ class LightWindow(BaseModel):
     end: str = Field(description="MM-DD")
     emd: float
     light_sim: float = Field(ge=0, le=1)
+    earth_range: Optional[list[float]] = Field(
+        default=None, description="[min, max] best-window light_sim over all Earth latitudes for this target")
 
 
 class SiteContext(BaseModel):
