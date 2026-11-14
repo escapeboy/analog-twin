@@ -104,3 +104,19 @@ export const getPair = (a: string, b: string) =>
   http<PairExplanation>(`/api/pair/${encodeURIComponent(a)}/${encodeURIComponent(b)}`);
 export const postCampaign = (body: Record<string, unknown>) =>
   http<CampaignStarted>('/api/campaign', post('', { ...body, replay: REPLAY }));
+
+export interface TerrainGrid {
+  id: string; body: Body; lat: number; lon: number; size: number; gsd_m: number; extent_km: number;
+  min_m: number; max_m: number; dataset: string; heights_url: string;
+}
+export interface TerrainPair { a: TerrainGrid; b: TerrainGrid; sun_azimuth_deg: number; sun_elevation_deg: number; terrain_sim: number }
+export const getTerrain = (id: string) => http<TerrainGrid>(`/api/terrain/${encodeURIComponent(id)}`);
+export const getTerrainPair = (a: string, b: string) =>
+  http<TerrainPair>(`/api/terrain/${encodeURIComponent(a)}/${encodeURIComponent(b)}`);
+export async function getHeights(g: TerrainGrid): Promise<Float32Array> {
+  const r = await fetch(withReplay(g.heights_url));
+  if (!r.ok) throw new Error(`heights for ${g.id}: HTTP ${r.status}`);
+  const buf = await r.arrayBuffer();
+  if (buf.byteLength !== g.size * g.size * 4) throw new Error(`heights for ${g.id}: expected ${g.size * g.size * 4} bytes, got ${buf.byteLength}`);
+  return new Float32Array(buf);
+}

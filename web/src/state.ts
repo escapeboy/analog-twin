@@ -17,3 +17,10 @@ class Store {
   emit() { this.ls.forEach((l) => l()); }
 }
 export const store = new Store();
+
+/** Ids of the (query, selected twin) pair as the pair and terrain endpoints expect them; null if nothing is selected. */
+export function pairIds(): { a: string; b: string } | null {
+  const sel = store.selected, q = store.query;
+  if (!sel || !q) return null;
+  return { a: store.twins?.query.point_id ?? q.presetId ?? q.id, b: sel.twin.id };
+}

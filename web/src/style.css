@@ -53,3 +53,21 @@ img.sitemap { width:100%; max-height:170px; object-fit:contain; background:#000;
 table.sites tbody tr { cursor:pointer; } table.sites tbody tr:hover { background:#18213a; } table.sites tr.sel { outline:2px solid #b36bff; }
 .nasa { color:var(--ok); font-weight:700; }
 .moon-actions { margin-left:auto; }
+
+.t3-wrap { position:relative; display:flex; flex-direction:column; gap:6px; height:calc(100% - 4px); min-height:260px; background:var(--panel); }
+.t3-wrap.full { position:fixed; inset:0; z-index:50; padding:12px; background:var(--bg); }
+.t3-canvas { flex:1; width:100%; min-height:0; border-radius:6px; display:block; background:#05070d; }
+.t3-overlay { position:absolute; left:0; right:0; pointer-events:none; display:grid; grid-template-columns:1fr 1fr; gap:6px; top:34px; font-size:16px; text-shadow:0 0 4px #000, 0 0 2px #000; }
+.t3-wrap.full .t3-overlay { top:52px; }
+.t3-label { padding:2px 8px; overflow:hidden; }
+.t3-controls { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+.t3-head { font-size:18px; }
+
+#detail { display:flex; flex-direction:column; }
+#detail-body, #sites-body { flex:1 1 auto; min-height:0; }
+#terrain-body { flex:1 1 0; min-height:0; overflow:hidden; }
+.t3-wrap { height:100%; min-height:0; }
+.t3-overlay { position:static !important; top:auto !important; pointer-events:auto; text-shadow:none; font-size:16px; }
+.t3-label div:not(:first-child) { font-size:16px; color:var(--mut); } .t3-ds { display:none; } .t3-wrap.full .t3-ds { display:block; }
+.t3-wrap:not(.full) .t3-overlay, .t3-wrap:not(.full) .t3-controls label:nth-of-type(2) { display:none; }
+.t3-wrap:not(.full) .t3-head { font-size:16px; }
