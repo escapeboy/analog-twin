@@ -1,5 +1,5 @@
 import {
-  EVENT_TYPES, REPLAY, openEvents, type EventSourceLike, ROLE_TITLES, postCampaign, type CampaignPlan, type CrewEvent, type Role, type SpecialistReport,
+  AI_DEMO, EVENT_TYPES, OFFLINE, REPLAY, openEvents, type EventSourceLike, ROLE_TITLES, postCampaign, type CampaignPlan, type CrewEvent, type Role, type SpecialistReport,
 } from '../api';
 import { clear, fmt, h } from '../dom';
 import { store } from '../state';
@@ -49,15 +49,25 @@ const short12 = (s: string) => (s.length > 16 ? s.slice(0, 14) + '…' : s);
 const nz = (v: unknown): string => (v == null || v === 'null' || v === '' ? '—' : String(v));
 const chips = (refs: string[]) => refs.map((x) => h('span', { class: 'refchip', title: x }, refLabel(x)));
 
+// The recorded session behind the AI demo (sessions/golden/campaign_shackleton-rim.jsonl).
+const DEMO_TARGET = 'Shackleton rim';
+const DEMO_DATE = '14 Nov 2026';
+
 export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => void) {
   let es: EventSourceLike | null = null;
   let reconnecting = false;
   void reconnecting;
-  const btn = h('button', { class: 'primary', type: 'button' }, 'Plan campaign');
-  const note = h('span', { class: 'muted', 'aria-live': 'polite' }, 'Runs the specialist crew on the current target.');
+  const btn = h('button', { class: 'primary', type: 'button' }, AI_DEMO ? `Play recorded campaign (${DEMO_TARGET})` : 'Plan campaign');
+  const idle = AI_DEMO ? 'Recorded AI output, not generated for your target.' : 'Runs the specialist crew on the current target.';
+  const note = h('span', { class: 'muted', 'aria-live': 'polite' }, idle);
   const cards = h('div', { class: 'cards' });
   const planBox = h('div', { class: 'plan' });
-  root.append(h('h2', null, 'Crew'), h('div', { class: 'row' }, btn, note), cards, planBox);
+  root.append(h('h2', null, 'Crew', AI_DEMO ? h('span', { class: 'badge replay ai-demo' }, 'AI · recorded demo') : ''));
+  if (AI_DEMO) root.append(h('p', { class: 'ai-demo-note' },
+      `Live AI is switched off on this public demo. The button replays a session the AI crew produced for ${DEMO_TARGET} on ${DEMO_DATE}; `
+      + 'it is the same recording for every target. Every number in it comes from the engine, not from the AI. '
+      + (OFFLINE ? 'All other panels show recorded engine answers for the three presets.' : 'All other panels are computed live by the engine.')));
+  root.append(h('div', { class: 'row' }, btn, note), cards, planBox);
   const byRole = new Map<Role, Card>();
 
   function card(role: Role): Card {
@@ -196,7 +206,7 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
     if (key !== lastTarget) {
       lastTarget = key;
       stop(); clear(cards); clear(planBox); byRole.clear();
-      note.textContent = 'Runs the specialist crew on the current target.';
+      note.textContent = idle;
     }
   });
 

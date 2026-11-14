@@ -83,6 +83,10 @@ const params = new URLSearchParams(location.search);
 // Offline bundle (scripts/export_offline_demo.sh builds with VITE_OFFLINE=1): every API call is answered from
 // static files under ./offline/ and the crew SSE stream is replayed client-side from the golden .jsonl.
 export const OFFLINE = import.meta.env.VITE_OFFLINE === '1';
+// Public deploy (VITE_AI_DEMO=1) and the offline bundle: live AI is off; the crew panel plays the recorded session.
+export const AI_DEMO = OFFLINE || import.meta.env.VITE_AI_DEMO === '1';
+// REPLAY switches every API call to recorded answers; the public live deploy keeps live search (its server runs with
+// REPLAY_ONLY=1, so only the crew is replayed).
 export const REPLAY = OFFLINE || params.get('replay') === '1' || params.get('film') === '1'; // film mode uses recorded data only
 export class OfflineError extends Error {}
 

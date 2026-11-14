@@ -90,6 +90,8 @@ def digest(item: EvidenceItem) -> str:
         return f"{d['place_label'] or d['id']} ({d['body']}): terrain_sim {d['terrain_sim']:.2f}" + (
             f", light_sim {d['light_sim']:.2f}" if d.get("light_sim") is not None else "")
     if item.kind == "window":
+        if d.get("distinct") is False:
+            return f"no best window: light_sim at most {d['light_sim']:.2f} in any 28-day window, similar all year"
         return f"best window {d['start']} to {d['end']}, light_sim {d['light_sim']:.2f}"
     if item.kind == "pair":
         return f"pair terrain_sim {d['terrain_sim']:.2f}"

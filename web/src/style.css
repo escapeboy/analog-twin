@@ -103,3 +103,6 @@ table.sites tbody tr { cursor:pointer; } table.sites tbody tr:hover { background
 
 /* Cesium ion is not used (empty token): no ion logo; data credits live in the footer */
 .cesium-credit-logoContainer { display: none !important; }
+
+.badge.ai-demo { margin-left:10px; font-size:14px; vertical-align:middle; }
+.ai-demo-note { margin:4px 0 10px; padding:8px 12px; border-left:3px solid var(--warn); background:rgba(255,193,7,.08); font-size:15px; line-height:1.4; }

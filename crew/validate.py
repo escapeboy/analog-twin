@@ -18,6 +18,14 @@ _NUM = re.compile(r"(?<![\w.])\d+(?:\.\d+)?")
 _DIGITS = re.compile(r"\d+(?:\.\d+)?")
 
 
+
+def window_text(d: dict) -> str:
+    """Plan window from window evidence. A window that does not beat the year's median (engine.light distinct=false)
+    is not a best time, so the plan says so instead of printing dates."""
+    if d.get("distinct") is False:
+        return "any time (light similar all year)"
+    return f"{d['start']} to {d['end']}"
+
 def _strip_refs(text: str) -> str:
     return _REF_TOKEN.sub(" ", text)
 
@@ -128,7 +136,7 @@ def validate_plan(raw: dict[str, Any], pack: EvidencePack) -> tuple[CampaignPlan
         tw = idx.items[twin_ref].data
         win = idx.items.get(f"window:{tw['id']}")
         ctx = next((it for it in pack.items if it.kind == "context" and it.data.get("twin") == twin_ref), None)
-        window = f"{win.data['start']} to {win.data['end']}" if win else None
+        window = window_text(win.data) if win else None
         context = s.get("context")
         if ctx:
             context = ", ".join(str(x) for x in (ctx.data.get("country"), ctx.data.get("koppen_label")) if x) or context
@@ -153,7 +161,7 @@ def validate_plan(raw: dict[str, Any], pack: EvidencePack) -> tuple[CampaignPlan
         window = x.get("window")
         wref = next((r for r in refs if idx.items[r].kind == "window"), None)
         if wref:
-            window = f"{idx.items[wref].data['start']} to {idx.items[wref].data['end']}"
+            window = window_text(idx.items[wref].data)
         elif window and check_text(str(window), refs, idx):
             window = None
         if site not in labels and sites:
