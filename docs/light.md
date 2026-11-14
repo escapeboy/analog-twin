@@ -70,8 +70,38 @@ phases to those dates.
 * Earth target vs. itself at the same latitude: light_sim ≥ 0.97 for |lat| ≤ 60° (tested). At higher latitudes it
   falls (0.87 at a pole) because one 28-day window cannot contain both polar day and polar night; that is a
   property of the problem, not a bug.
-* Speed: tables cached per latitude (rounded to 0.01°). Measured: 10 `best_window` calls with distinct Earth
-  latitudes, cold caches, 26 ms; warm, 0.4 ms (`tests/test_light.py::test_best_window_speed` asserts < 50 ms).
+* Speed: latitude-independent declination terms are computed once; window tables are cached per Earth latitude
+  (rounded to 0.01°) and binned in sine space without arcsin. Measured on Friday under load average ~17
+  (5 runs, `time.perf_counter`): 10 `best_window` calls with distinct Earth latitudes and all caches cold
+  19–27 ms (includes the 13 ms target profile); warm 0.4 ms. `tests/test_light.py::test_best_window_speed`
+  asserts < 50 ms.
+
+## SPICE cross-check (validation only)
+
+`engine/spice_check.py` computes the true Sun elevation hourly over one declination period from 2026-01-01 (Earth:
+365.242 d, Moon: 346.62 d) with `de440s.bsp`, `pck00011.tpc` (IAU_EARTH), `moon_pa_de440_200625.bpc` +
+`moon_de440_250416.tf` (MOON_ME), aberration correction LT+S. The analytic phase is aligned once: equinox = the time
+SPICE's sub-solar latitude first crosses zero going north; hour angle at t0 = site longitude − SPICE sub-solar
+longitude. After that the analytic model runs free. Results (written to `docs/metrics.json` → `light.spice_crosscheck`):
+
+| Point (generic test point) | max abs diff (°) | mean abs diff (°) | SPICE min/max (°) | analytic min/max (°) | histogram EMD |
+|---|---|---|---|---|---|
+| Moon −89.5, 0 | 0.115 | 0.040 | −1.98 / 2.02 | −2.02 / 2.01 | 0.003 |
+| Moon −60, 30 | 1.054 | 0.413 | −31.48 / 31.54 | −31.50 / 31.52 | 0.027 |
+| Moon 0, 0 | 2.197 | 1.237 | −89.68 / 89.85 | −89.72 / 89.75 | 0.009 |
+| Moon 45, −60 | 1.491 | 0.624 | −46.56 / 46.54 | −46.54 / 46.51 | 0.037 |
+| Earth 0, 0 | 4.899 | 1.569 | −88.27 / 88.26 | −89.08 / 89.08 | 0.035 |
+| Earth 45, 25 | 4.262 | 1.038 | −68.13 / 67.97 | −67.91 / 67.91 | 0.014 |
+| Earth −77.5, 160 | 2.294 | 0.552 | −35.87 / 35.89 | −35.87 / 35.86 | 0.026 |
+
+* Ranges agree within 0.1° except the Earth equator (0.8°, eccentricity/obliquity interplay near the zenith).
+  Histogram EMD ≤ 0.037, i.e. a light_sim change of at most 0.0074 (EMD_max = 5).
+* SPICE's 2026 northward equinox for Earth is 2026-03-20 14:47:51 UT, within 2 minutes of the USNO value used as the
+  analytic anchor. SPICE's largest lunar sub-solar latitude over the period is 1.586° (analytic 1.535°), so the lunar
+  pole test bound of ±1.6° also holds for the ephemeris.
+* Hypothesis (not separately tested): the larger instantaneous Earth differences (up to 4.9°) come mostly from the
+  equation of time (true vs mean solar time, up to ~16 min ≈ 4° of hour angle) that the circular-orbit model ignores;
+  on the Moon the analogous effect comes from its orbital eccentricity.
 
 ## Matched-light hillshade
 
