@@ -12,7 +12,7 @@ for the chosen site, and a crew of AI agents drafts a field campaign.
 ## How it works
 
 - **Terrain.** Elevation data from LRO LOLA (Moon), MGS MOLA (Mars) and NOAA ETOPO 2022 (Earth) are resampled to one
-  ground scale of about 926 m. Each index point is described by 31 measurements<!-- metrics: corpus.n_features -->: 25 shape
+  ground scale of about 926 m<!-- metrics: corpus.gsd_m -->. Each index point is described by 31 measurements<!-- metrics: corpus.n_features -->: 25 shape
   measurements over a 12 km window and 6 context measurements over a 36 km window (index v2, multiscale). The index
   has 2,315,318 points<!-- metrics: corpus.total_points --> and answers a query in a median of 60.6 ms<!-- metrics: performance.find_twins.p50_ms -->.
 - **Light.** A published solar-geometry formula with each body's tilt and day length. It was cross-checked against NASA
