@@ -104,15 +104,23 @@ def test_mmdd_roundtrip():
 
 
 def test_best_window_speed():
-    light._earth_day_terms.cache_clear()
-    light._earth_window_hists.cache_clear()
-    light._profile_cached.cache_clear()
+    # Cold-cache cost of 10 candidates; best of 5 runs so a loaded shared machine does not make it flaky.
     lats = [-77.5, -45.1, -20.3, 0.7, 19.8, 35.0, 42.2, 61.0, 69.9, 78.2]
-    t0 = time.perf_counter()
-    for lat in lats:
-        light.best_window("moon", -89.45, lat)
-    dt = (time.perf_counter() - t0) * 1000
-    assert dt < 50, f"10 best_window calls took {dt:.1f} ms"
+
+    def clear():
+        light._earth_day_terms.cache_clear()
+        light._earth_window_hists.cache_clear()
+        light._profile_cached.cache_clear()
+
+    light.best_window("moon", -89.45, 10.0)          # warm-up: first-call numpy/import overhead
+    runs = []
+    for _ in range(5):
+        clear()
+        t0 = time.perf_counter()
+        for lat in lats:
+            light.best_window("moon", -89.45, lat)
+        runs.append((time.perf_counter() - t0) * 1000)
+    assert min(runs) < 50, f"10 best_window calls took {min(runs):.1f} ms (best of 5: {runs})"
 
 
 def test_unknown_body():

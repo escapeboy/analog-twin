@@ -10,6 +10,7 @@ class Store {
   selected: Selected | null = null;
   presets: Preset[] = [];
   busy = false;
+  error: string | null = null;
   private ls: Listener[] = [];
   subscribe(l: Listener) { this.ls.push(l); }
   emit() { this.ls.forEach((l) => l()); }

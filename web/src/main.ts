@@ -30,14 +30,16 @@ function sync() {
 store.subscribe(sync);
 
 async function runQuery(p: Point, label: string, presetId?: string) {
-  store.busy = true; store.selected = null; store.emit();
+  store.busy = true; store.error = null; store.selected = null; store.emit();
   status.textContent = 'Searching…';
   try {
     const res = await postTwins(p, 10);
     store.query = { ...p, label: res.query.label ?? label, id: res.query.point_id ?? presetId ?? `${p.body}_${p.lat.toFixed(3)}_${p.lon.toFixed(3)}`, presetId };
     store.twins = res;
     store.busy = false;
-    status.textContent = `${res.latency_ms.toFixed(0)} ms` + (res.source !== 'live' ? ` · ${res.source}` : '');
+    status.textContent = `${res.latency_ms.toFixed(0)} ms`;
+    const sb = $('badge-source');
+    sb.textContent = `data: ${res.source}`; sb.hidden = res.source === 'live';
     if (LAYOUT2) {
       const first = Object.keys(res.results)[0] as Body | undefined;
       if (!res.results[destBody] && first) setDest(first);
@@ -52,7 +54,8 @@ async function runQuery(p: Point, label: string, presetId?: string) {
     }
   } catch (e) {
     store.busy = false;
-    status.textContent = e instanceof Error ? e.message : String(e);
+    store.error = e instanceof Error ? e.message : String(e);
+    status.textContent = '';
     store.emit();
   }
 }
@@ -125,7 +128,7 @@ async function initPresets() {
   const box = $('presets');
   try {
     store.presets = await getPresets();
-  } catch (e) { status.textContent = `Presets unavailable: ${e instanceof Error ? e.message : e}`; return; }
+  } catch (e) { store.error = `Presets unavailable: ${e instanceof Error ? e.message : e}`; store.emit(); return; }
   for (const p of store.presets as Preset[]) {
     const b = h('button', { type: 'button', class: 'preset', title: p.label }, p.label);
     b.addEventListener('click', () => void runQuery({ body: p.body, lat: p.lat, lon: p.lon }, p.label, p.id));
@@ -153,4 +156,4 @@ void initPresets();
 void initGated();
 if (FPS) initFps();
 window.addEventListener('resize', () => globes.forEach((g) => g.resize()));
-(window as unknown as { __globes: Globe[] }).__globes = globes; // debug handle for browser checks
+if (params.get('debug') === '1') (window as unknown as { __globes: Globe[] }).__globes = globes; // debug handle for browser checks

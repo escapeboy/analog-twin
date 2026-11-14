@@ -4,54 +4,84 @@ Serve: .venv/bin/uvicorn api.main:app --host <tailscale-ip> --port 8742"""
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import os
 import pathlib
-import uuid
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sse_starlette.sse import EventSourceResponse
 
-from api import fixtures
+from api import fixtures, service
+from crew import runner
 from crew.schemas import CampaignPlan, CampaignRequest, CampaignStarted, Event
 from engine.models import CliHealth, Health, LightProfile, PairExplanation, Preset, TerrainGrid, TwinsRequest, TwinsResponse
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SESSIONS = ROOT / "sessions"
-GOLDEN = SESSIONS / "golden"
 WEB_DIST = ROOT / "web" / "dist"
 TILES = ROOT / "data" / "tiles"
 
-app = FastAPI(title="Analog Twin", version="0.1.0")
-_campaigns: dict[str, str] = {}  # session id -> golden session name to replay (contracts stage)
+_cli_health = CliHealth(ok=False, error="not checked yet")
+
+
+def replay_only() -> bool:
+    return os.environ.get("REPLAY_ONLY") == "1"
+
+
+async def _check_cli() -> None:
+    global _cli_health
+    _cli_health = CliHealth(ok=False, error="not checked yet") if replay_only() else await runner.claude_health()
+
+
+@contextlib.asynccontextmanager
+async def lifespan(_app):
+    task = asyncio.create_task(_check_cli())
+    yield
+    task.cancel()
+
+
+app = FastAPI(title="Analog Twin", version="0.2.0", lifespan=lifespan)
+
+
+def _replay_forced() -> bool:
+    return replay_only() or (_cli_health.checked_at is not None and not _cli_health.ok)
 
 
 @app.get("/api/health", response_model=Health)
 def health() -> Health:
-    return Health(status="degraded", claude_cli=CliHealth(ok=False, error="not checked (contracts stage)"),
-                  index_loaded=False, replay_forced=True)
+    loaded, counts = service.index_status()
+    return Health(status="ok" if (_cli_health.ok and loaded) else "degraded", claude_cli=_cli_health, index_loaded=loaded,
+                  index_points=counts, replay_forced=_replay_forced())
 
 
 @app.get("/api/presets", response_model=list[Preset])
 def presets() -> list[Preset]:
-    return fixtures.FIXTURE_PRESETS
+    return service.presets()
 
 
 @app.post("/api/twins", response_model=TwinsResponse)
-def twins(req: TwinsRequest) -> TwinsResponse:
-    return fixtures.twins(req)
+def twins(req: TwinsRequest, replay: int = 0) -> TwinsResponse:
+    return service.find_twins(req, replay=bool(replay))
 
 
 @app.get("/api/pair/{a}/{b}", response_model=PairExplanation)
-def pair(a: str, b: str) -> PairExplanation:
-    return fixtures.pair(a, b)
+def pair(a: str, b: str, replay: int = 0) -> PairExplanation:
+    return service.pair(a, b, replay=bool(replay))
 
 
 @app.get("/api/light", response_model=LightProfile)
 def light(body: str, lat: float, lon: float) -> LightProfile:
-    return fixtures.light(body, lat, lon)
+    return service.light(body, lat, lon)
+
+
+@app.get("/api/hillshade/{name}.png")
+def hillshade(name: str):
+    p = service.hillshade_file(name)
+    if p is None:
+        raise HTTPException(404, "no such hillshade")
+    return FileResponse(p, media_type="image/png")
 
 
 @app.get("/api/terrain/{point_id}", response_model=TerrainGrid)
@@ -67,22 +97,18 @@ def metrics():
     return JSONResponse(json.loads(p.read_text()))
 
 
-def _read_session(path: pathlib.Path) -> list[Event]:
-    return [Event.model_validate_json(line) for line in path.read_text().splitlines() if line.strip()]
-
-
-async def _stream(events: list[Event], speed: float, session_id: str | None = None):
-    prev = 0.0
-    for ev in events:
-        await asyncio.sleep(max(0.0, (ev.t - prev) / max(speed, 0.01)))
-        prev = ev.t
-        if session_id:
-            ev = ev.model_copy(update={"session_id": session_id})
+async def _sse(events):
+    async for ev in events:
         yield {"event": ev.type, "data": ev.model_dump_json()}
 
 
+async def _iter_list(events: list[Event]):
+    for ev in events:
+        yield ev
+
+
 def _golden(name: str) -> pathlib.Path:
-    p = GOLDEN / f"{pathlib.Path(name).name}.jsonl"
+    p = service.golden_dir() / f"{pathlib.Path(name).name}.jsonl"
     if not p.exists():
         raise HTTPException(404, f"no recorded session {name}")
     return p
@@ -90,32 +116,49 @@ def _golden(name: str) -> pathlib.Path:
 
 @app.get("/api/replay/{name}/events")
 async def replay(name: str, speed: float = 1.0):
-    return EventSourceResponse(_stream(_read_session(_golden(name)), speed))
+    events = runner.read_events(_golden(name))
+    return EventSourceResponse(_sse_timed(events, speed))
+
+
+async def _sse_timed(events: list[Event], speed: float):
+    prev = 0.0
+    for ev in events:
+        await asyncio.sleep(max(0.0, (ev.t - prev) / max(speed, 0.01)))
+        prev = ev.t
+        yield {"event": ev.type, "data": ev.model_dump_json()}
 
 
 @app.post("/api/campaign", response_model=CampaignStarted)
-def campaign(req: CampaignRequest) -> CampaignStarted:
-    sid = uuid.uuid4().hex[:12]
-    _campaigns[sid] = os.environ.get("GOLDEN_SESSION", "fixture")
-    return CampaignStarted(session_id=sid, mode="replay", events_url=f"/api/campaign/{sid}/events",
-                           reason="contracts stage: crew not wired yet")
+async def campaign(req: CampaignRequest) -> CampaignStarted:
+    reason = None
+    if req.replay:
+        reason = "replay requested"
+    elif replay_only():
+        reason = "REPLAY_ONLY is set"
+    elif _replay_forced():
+        reason = f"claude CLI unavailable: {_cli_health.error}"
+    sess = runner.start_session(req, force_replay=reason is not None, reason=reason)
+    return CampaignStarted(session_id=sess.id, mode=sess.mode, events_url=f"/api/campaign/{sess.id}/events", reason=reason)  # type: ignore[arg-type]
 
 
 @app.get("/api/campaign/{sid}/events")
-async def campaign_events(sid: str, speed: float = 1.0):
-    if sid not in _campaigns:
+async def campaign_events(sid: str):
+    sess = runner.get_session(sid)
+    if sess is not None:
+        return EventSourceResponse(_sse(sess.stream()))
+    path = service.sessions_dir() / f"{pathlib.Path(sid).name}.jsonl"
+    if not path.exists():
         raise HTTPException(404, "unknown session")
-    return EventSourceResponse(_stream(_read_session(_golden(_campaigns[sid])), speed, sid))
+    return EventSourceResponse(_sse(_iter_list(runner.read_events(path))))
 
 
 @app.get("/api/campaign/{sid}/plan", response_model=CampaignPlan)
 def campaign_plan(sid: str) -> CampaignPlan:
-    if sid not in _campaigns:
-        raise HTTPException(404, "unknown session")
-    for ev in reversed(_read_session(_golden(_campaigns[sid]))):
-        if ev.type == "plan.final":
-            return CampaignPlan.model_validate(ev.data["plan"])
-    raise HTTPException(404, "plan not ready")
+    sess = runner.get_session(sid)
+    plan = sess.plan if sess else runner.load_plan_from_disk(sid)
+    if plan is None:
+        raise HTTPException(404, "plan not ready" if sess else "unknown session")
+    return plan
 
 
 TILES.mkdir(parents=True, exist_ok=True)

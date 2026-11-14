@@ -11,7 +11,7 @@ interface Card { root: HTMLElement; status: HTMLElement; text: HTMLElement; tool
 export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => void) {
   let es: EventSource | null = null;
   const btn = h('button', { class: 'primary', type: 'button' }, 'Plan campaign');
-  const note = h('span', { class: 'muted', 'aria-live': 'polite' });
+  const note = h('span', { class: 'muted', 'aria-live': 'polite' }, 'Runs the specialist crew on the current target.');
   const cards = h('div', { class: 'cards' });
   const planBox = h('div', { class: 'plan' });
   root.append(h('h2', null, 'Crew'), h('div', { class: 'row' }, btn, note), cards, planBox);
