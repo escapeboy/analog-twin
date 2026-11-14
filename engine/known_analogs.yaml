@@ -1,0 +1,115 @@
+# Established Earth analog sites, copied from data/sources.md (cited, fetched 2026-11-14).
+# analog_for: target ids from targets.yaml used for the percentile test (spec 13.1).
+# status_source: page establishing the analog use; status_verified false = seen only in a search snippet.
+# Excluded because no analog-status source was found: Mauna Kea summit, Mars Desert Research Station.
+- id: haughton
+  label: Haughton crater, Devon Island (HMP)
+  body: earth
+  lat: 75.383
+  lon: -89.667
+  analog_for: [jezero, gale, perseverance-landing, oxia-planum, shackleton-rim, connecting-ridge, malapert-massif, nobile-rim-1, haworth, de-gerlache-rim-2]
+  type: impact crater, polar desert
+  source_url: https://en.wikipedia.org/wiki/Haughton_impact_crater
+  status_source: https://marsinstitute.no/hmp
+  status_verified: true
+- id: university-valley
+  label: McMurdo Dry Valleys, University Valley
+  body: earth
+  lat: -77.867
+  lon: 160.667
+  analog_for: [jezero, gale, perseverance-landing, oxia-planum]
+  type: hyperarid polar permafrost
+  source_url: https://openpolar.no/Record/ftnasantrs:oai:casi.ntrs.nasa.gov:20150023012/Details
+  status_source: https://ntrs.nasa.gov/citations/20150023012
+  status_verified: true
+- id: yungay
+  label: Atacama Desert, Yungay
+  body: earth
+  lat: -24.08459
+  lon: -69.91531
+  analog_for: [jezero, gale, perseverance-landing, oxia-planum]
+  type: hyperarid soil
+  source_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC7645800
+  status_source: https://astrobiology.nasa.gov/news/nasa-tests-life-detection-drill-in-the-atacama-desert/
+  status_verified: true
+- id: death-valley
+  label: Death Valley, California
+  body: earth
+  lat: 36.24694
+  lon: -116.81694
+  analog_for: [jezero, gale, perseverance-landing, oxia-planum]
+  type: desert, dunes
+  source_url: https://en.wikipedia.org/wiki/Death_Valley
+  status_source: https://www.jpl.nasa.gov/news/nasa-tests-drones-in-death-valley-preps-for-martian-sands-and-skies/
+  status_verified: false
+- id: bockfjorden
+  label: Svalbard, Bockfjorden (AMASE)
+  body: earth
+  lat: 79.469
+  lon: 13.3287
+  analog_for: [jezero, gale, perseverance-landing, oxia-planum]
+  type: volcanic and carbonate, Arctic
+  source_url: https://en.wikipedia.org/wiki/Bockfjorden
+  status_source: https://astrobiology.com/2008/08/04/nasa-amase-2008-welcome-to-arctic-mars-analog-svalbard-expedition-amase/
+  status_verified: true
+  note: coordinate is the fjord (water); use the nearest land grid point and report the snap distance
+- id: holuhraun
+  label: Holuhraun lava field, Iceland
+  body: earth
+  lat: 64.85
+  lon: -16.83
+  analog_for: [jezero, gale, perseverance-landing, oxia-planum]
+  type: young basaltic lava
+  source_url: https://en.wikipedia.org/wiki/Holuhraun
+  status_source: https://www.usgs.gov/publications/2014-2015-holuhraun-lava-flow-field-iceland-a-planetary-analog-young-volcanic-terrains
+  status_verified: false
+- id: lanzarote
+  label: Lanzarote, Timanfaya National Park (ESA PANGAEA)
+  body: earth
+  lat: 28.99417
+  lon: -13.79333
+  analog_for: [jezero, gale, perseverance-landing, oxia-planum, shackleton-rim, connecting-ridge, malapert-massif, nobile-rim-1, haworth, de-gerlache-rim-2]
+  type: volcanic
+  source_url: https://en.wikipedia.org/wiki/Timanfaya_National_Park
+  status_source: https://www.esa.int/ESA_Multimedia/Images/2021/03/Geological_training_in_terrestrial_Moon_and_Mars_analogue_environments
+  status_verified: true
+- id: hi-seas
+  label: HI-SEAS habitat, Mauna Loa, Hawaii
+  body: earth
+  lat: 19.602378
+  lon: -155.487192
+  analog_for: [jezero, gale, perseverance-landing, oxia-planum]
+  type: lava terrain, habitat simulation
+  source_url: https://en.wikipedia.org/wiki/HI-SEAS
+  status_source: https://earth.gsfc.nasa.gov/acd/campaigns/hi-seas
+  status_verified: true
+- id: rio-tinto
+  label: Rio Tinto, Spain (Peña de Hierro)
+  body: earth
+  lat: 37.72186
+  lon: -6.55923
+  analog_for: [jezero, gale, perseverance-landing, oxia-planum]
+  type: acidic sulfate (geochemical analog; terrain shape not expected to match)
+  source_url: https://msaweb.org/MSA/AmMin/products/AmMin/AM099P1199.pdf
+  status_source: https://ntrs.nasa.gov/api/citations/20050167747/downloads/20050167747.pdf
+  status_verified: true
+- id: meteor-crater
+  label: Meteor Crater (Barringer), Arizona
+  body: earth
+  lat: 35.02806
+  lon: -111.02333
+  analog_for: [shackleton-rim, connecting-ridge, malapert-massif, nobile-rim-1, haworth, de-gerlache-rim-2]
+  type: impact crater (astronaut geology training)
+  source_url: https://en.wikipedia.org/wiki/Meteor_Crater
+  status_source: https://www.lpi.usra.edu/publications/books/astronaut_training_impactcraters/Kring_AstronautTraining2023_AppendixI_SW-US-AstronautTraining.pdf
+  status_verified: false
+- id: ries
+  label: Nördlinger Ries, Germany (ESA PANGAEA)
+  body: earth
+  lat: 48.88333
+  lon: 10.56667
+  analog_for: [shackleton-rim, connecting-ridge, malapert-massif, nobile-rim-1, haworth, de-gerlache-rim-2]
+  type: impact crater
+  source_url: https://en.wikipedia.org/wiki/N%C3%B6rdlinger_Ries
+  status_source: https://www.esa.int/Our_Activities/Human_Spaceflight/Caves/What_is_Pangaea
+  status_verified: false
