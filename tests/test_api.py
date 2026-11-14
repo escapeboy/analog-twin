@@ -445,6 +445,7 @@ def test_calendar_rows_weeks_and_replay_cache(client, monkeypatch, real_calendar
 def test_health_task_crash_and_unknown_health_force_replay(client, monkeypatch):
     import api.main as m
     monkeypatch.setattr(m, "_cli_health", m.CliHealth(ok=False, error="not checked yet"))
+    monkeypatch.setattr(m, "_health_task", None)  # the startup task is not part of this scenario
     monkeypatch.setattr(m, "_started", m.time.monotonic())
     assert m._replay_forced() is False  # unknown, inside the grace period: try live
     monkeypatch.setattr(m, "_started", m.time.monotonic() - 100)
