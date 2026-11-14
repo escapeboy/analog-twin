@@ -109,6 +109,15 @@ class Index:
     def sim(self, d):
         return 1.0 / (1.0 + (np.asarray(d, dtype=np.float64) / self.d_ref) ** 2)
 
+    def group_ref_share(self) -> dict[str, float]:
+        """Per feature group: share of the expected squared distance between two random corpus points
+        (E|x - y|^2 = 2 * sum of per-feature variances of the weighted features), computed once."""
+        if getattr(self, "_group_ref_share", None) is None:
+            var = self.feats.astype(np.float64).var(axis=0)
+            tot = float(var.sum())
+            self._group_ref_share = {g: float(var[idx].sum() / tot) if tot > 0 else 0.0 for g, idx in self.gidx.items()}
+        return self._group_ref_share
+
     def point(self, pid: str) -> dict:
         i = self.id_to_row.get(pid)
         if i is None:
@@ -249,11 +258,19 @@ class Index:
         zb = F.apply_scaler(rb.raw[None], self.scaler, weighted=False)[0]
         diff2 = (ra.vec - rb.vec).astype(np.float64) ** 2
         total = float(diff2.sum())
+        ref_share = self.group_ref_share()
         groups = []
         for g, idx in self.gidx.items():
             share = float(diff2[idx].sum() / total) if total > 0 else 0.0
+            # same mapping as terrain_sim, on this group's part of the distance; d_ref split across groups by their
+            # share of the corpus's random-pair squared distance, so equal relative distance in every group gives
+            # every spoke the overall terrain_sim
+            dg = float(np.sqrt(diff2[idx].sum()))
+            dref_g = self.d_ref * float(np.sqrt(ref_share[g]))
+            gsim = 1.0 / (1.0 + (dg / dref_g) ** 2) if dref_g > 0 else 1.0
             groups.append({"group": g, "label": self.fset["groups"][g], "a": [round(float(v), 4) for v in za[idx]],
-                           "b": [round(float(v), 4) for v in zb[idx]], "contribution": round(share, 4)})
+                           "b": [round(float(v), 4) for v in zb[idx]], "contribution": round(share, 4),
+                           "similarity": round(gsim, 4)})
         order = sorted(groups, key=lambda x: x["contribution"])
         top_similar = [f"Closest in {x['label']}: {_detail(x['group'], ra.raw, rb.raw)}" for x in order[:3]]
         top_different = [f"Most different in {x['label']}: {_detail(x['group'], ra.raw, rb.raw)}"

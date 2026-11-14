@@ -8,7 +8,7 @@ Analog sites are places on Earth where people rehearse for the Moon and Mars. Th
 tradition. Analog Twin measures terrain similarity instead. Pick a target (a Moon or Mars site, or a point on Earth)
 and it lists the ten closest matches on each of the other two bodies, shows the target and a match side by side under
 the same sun angle, and, for Earth matches, gives the 28-day window of the year when the sunlight best matches the
-target's. A separate view searches the lunar south pole for base sites, a Mission View draws the Earth to Moon geometry
+target's, or says that no month stands out. A separate view searches the lunar south pole for base sites, a Mission View draws the Earth to Moon geometry
 for the chosen site, and a crew of AI agents drafts a field campaign.
 
 ## How it works
@@ -49,7 +49,7 @@ systematic literature search.
   not clearly better than chance, and v2 can evaluate only 8 of the 11 analog sites<!-- metrics: terrain.known_analog_test.sites_evaluable, terrain.known_analog_test.sites_total -->. We do not claim that
   this validates the method. The terrain match is a measured shape similarity, not proof that two places are good analogs.
 - The common scale is 926 m, so landforms smaller than about 2 km are not seen.
-- The light similarity score has a high floor for polar lunar targets, so it is shown next to the range of scores found on Earth.
+- For polar lunar targets no Earth place has lunar-like light: the best light score anywhere on indexed Earth is 0.36 (0 to 1), and the top terrain matches score 0.06–0.09 in every month, so no best time is given for them.
 - The sunlight model ignores local horizons. It is a poor guide to what is lit at a polar crater rim.
 - The site finder uses NASA's long-term average illumination, not a mission date. Its agreement with NASA's candidate
   regions is a weak test: random points also score well on that statistic.

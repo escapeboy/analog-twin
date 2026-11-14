@@ -68,19 +68,61 @@ def test_emd_formula():
     assert light.emd_1d([0.2] * 5 + [0], [0.2] * 5 + [0]) == 0.0
 
 
-@pytest.mark.parametrize("lat", [0.0, 23.0, 42.2, -45.0, -60.0, 60.0])
-def test_best_window_self_match(lat):
+@pytest.mark.parametrize("lat,floor", [(0.0, 0.95), (23.0, 0.9), (42.2, 0.85), (-45.0, 0.85), (-60.0, 0.8), (60.0, 0.8)])
+def test_best_window_self_match(lat, floor):
+    # Target = the full year; one 28-day window cannot hold every season, so mid latitudes stay below 1.
     w = light.best_window("earth", lat, lat)
     LightWindow(**w)
-    assert w["light_sim"] == pytest.approx(1.0, abs=0.03)
+    assert floor <= w["light_sim"] <= 1.0
 
 
-@pytest.mark.parametrize("lat", [70.0, -80.0, 90.0])
-def test_best_window_self_match_polar(lat):
-    # A 28-day window cannot hold both polar day and polar night, so the full-year mix is only
-    # approximated at high latitude (docs/light.md). Still a strong match.
-    w = light.best_window("earth", lat, lat)
-    assert 0.85 <= w["light_sim"] < 1.0
+def test_best_window_self_match_polar_needs_day_fraction():
+    # At 90 deg a 28-day window is all day or all night, while the full year is half and half:
+    # the day-fraction term makes that a poor match, and a 60 deg equinox window (sun up ~half the time,
+    # low sun) is closer. Documents the separate day-fraction term.
+    pole = light.best_window("earth", 90.0, 90.0)
+    assert pole["light_sim"] < 0.3
+    assert light.best_window("earth", 90.0, 60.0)["light_sim"] > pole["light_sim"]
+
+
+SHACKLETON_LAT = -89.7668
+
+
+def _equinox_window_starts():
+    """Window start days whose 28-day window centre lies within 14 days of an Earth equinox."""
+    eqs = (light.EARTH_EQUINOX_DOY, light.EARTH_EQUINOX_DOY + light.BODIES["earth"].year_d / 2)
+    return [d for d in range(365) if min(abs(d + light.WINDOW_DAYS / 2 - e) for e in eqs) <= 14]
+
+
+@pytest.mark.parametrize("high_lat", [70.0, 75.0, 80.0, -75.0])
+def test_lunar_pole_high_latitude_equinox_beats_34_deg_any_window(high_lat):
+    eq = light.window_light_sims("moon", SHACKLETON_LAT, high_lat)[_equinox_window_starts()].max()
+    mid = light.window_light_sims("moon", SHACKLETON_LAT, 34.4).max()        # best of ALL windows at 34.4 N
+    assert eq > 2 * mid, (eq, mid)
+
+
+def test_lunar_pole_equatorial_site_scores_near_zero():
+    assert light.best_window("moon", SHACKLETON_LAT, 0.0)["light_sim"] < 0.1
+
+
+def test_light_sim_spreads_for_lunar_pole():
+    # Old 6-bin annual score put every latitude between 0.74 and 0.95; the revised one must spread them.
+    sims = [light.best_window("moon", SHACKLETON_LAT, la)["light_sim"] for la in (0.0, 34.4, 60.0, 80.0)]
+    assert sims == sorted(sims) and sims[-1] - sims[0] > 0.2
+
+
+def test_mars_low_latitude_target_prefers_low_latitude_earth():
+    assert light.best_window("mars", 18.4, 20.0)["light_sim"] > 0.85
+    assert light.best_window("mars", 18.4, 75.0)["light_sim"] < 0.4
+
+
+def test_sunup_profile():
+    p = light.sunup_profile("moon", SHACKLETON_LAT)
+    assert p["day_fraction"] == pytest.approx(0.5, abs=0.02)
+    assert sum(p["up_hist"]) == pytest.approx(1.0)
+    assert len(p["up_hist"]) == len(p["edges_deg"]) - 1
+    # all lunar polar daylight is below 2 deg
+    assert sum(v for v, e in zip(p["up_hist"], p["edges_deg"]) if e >= 2.0) == 0.0
 
 
 @pytest.mark.parametrize("target", [("moon", -89.5), ("moon", 0.0), ("mars", 18.4), ("mars", -60.0)])
@@ -111,6 +153,8 @@ def test_best_window_speed():
     def clear():
         light._earth_day_terms.cache_clear()
         light._earth_window_hists.cache_clear()
+        light._earth_window_up.cache_clear()
+        light._target_up.cache_clear()
         light._profile_cached.cache_clear()
 
     light.best_window("moon", -89.45, 10.0)          # warm-up: first-call numpy/import overhead
@@ -161,11 +205,12 @@ def test_earth_light_range_default_span_and_fallback(monkeypatch):
 
 def test_earth_light_range_values_and_speed():
     lo, hi = light.earth_light_range("moon", -89.7668, -85.0, 85.0)
-    assert 0.70 < lo < 0.78 and 0.90 < hi < 0.97
-    assert light.earth_light_range("earth", 30.0)[1] == pytest.approx(1.0, abs=0.03)
+    assert 0.03 < lo < 0.1 and 0.25 < hi < 0.5
+    assert light.earth_light_range("earth", 30.0)[1] > 0.9
     light.earth_light_range("moon", -85.0)                  # tables built for the default span
     light._earth_range_cached.cache_clear()
     light._profile_cached.cache_clear()
+    light._target_up.cache_clear()
     runs = []
     for lat in (-88.0, -60.0, 10.0, 45.0, 80.0):
         t0 = time.perf_counter()
@@ -196,7 +241,7 @@ def test_weekly_light_seasonality_and_speed():
     light.weekly_light("mars", 18.41, 10.0)                               # warm tables
     t0 = time.perf_counter()
     for lat in (12.3, 25.1, -14.2, 45.6, 61.0):
-        light._earth_window_hists(round(lat, 2))                          # twin latitude tables warm
+        light._earth_window_up(round(lat, 2))                             # twin latitude tables warm
     t0 = time.perf_counter()
     for lat in (12.3, 25.1, -14.2, 45.6, 61.0):
         light.weekly_light("mars", 18.41, lat)

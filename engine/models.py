@@ -21,8 +21,11 @@ class LightWindow(BaseModel):
     """Best 28-day window on Earth matching the target's full-year sun-elevation profile."""
     start: str = Field(description="MM-DD")
     end: str = Field(description="MM-DD")
-    emd: float
+    emd: float = Field(description="sun-up elevation Wasserstein distance, units of ln(1 + elevation / 1 deg)")
     light_sim: float = Field(ge=0, le=1)
+    distinct: Optional[bool] = Field(
+        default=None, description="true when this window beats the year's median window by >= 0.05 light_sim, "
+                                  "i.e. there is a best time to go; false = similar light all year")
     earth_range: Optional[list[float]] = Field(
         default=None, description="[min, max] best-window light_sim over all Earth latitudes for this target")
 
@@ -53,6 +56,9 @@ class Twin(BaseModel):
     best_window: Optional[LightWindow] = None
     env: Optional[SiteContext] = None
     score: float
+    percentile: Optional[float] = Field(
+        default=None, ge=0, le=100,
+        description="share (%) of all index points on the twin's body whose score for this target is lower")
     rank: int
     ref: str
 
@@ -90,6 +96,9 @@ class FeatureGroup(BaseModel):
     a: list[float]
     b: list[float]
     contribution: float = Field(description="share of the total distance, 0-1")
+    similarity: Optional[float] = Field(
+        default=None, ge=0, le=1,
+        description="terrain_sim mapping applied to this group's part of the distance (1 = identical in this group)")
 
 
 class Hillshade(BaseModel):

@@ -12,6 +12,7 @@ import os
 import pathlib
 import re
 import shutil
+import threading
 import time
 from collections import OrderedDict
 from typing import Any, Literal, Optional
@@ -235,7 +236,8 @@ def presets() -> list[Preset]:
 def _window(light_mod, req: TwinsRequest, lat: float) -> Optional[LightWindow]:
     try:
         w = _as_dict(light_mod.best_window(req.body, req.lat, lat))
-        return LightWindow(start=w["start"], end=w["end"], emd=w["emd"], light_sim=min(1.0, max(0.0, w["light_sim"])))
+        return LightWindow(start=w["start"], end=w["end"], emd=w["emd"], light_sim=min(1.0, max(0.0, w["light_sim"])),
+                           distinct=w.get("distinct"))
     except Exception as exc:
         log.warning("best_window failed at %.2f: %s", lat, exc)
         return None
@@ -251,6 +253,40 @@ def _env(env_mod, tid: str, lat: float, lon: float) -> Optional[SiteContext]:
     except Exception as exc:
         log.warning("site_context failed for %s: %s", tid, exc)
         return None
+
+
+_PCT_CACHE: dict[tuple, Any] = {}
+_PCT_LOCK = threading.Lock()
+
+
+def _sorted_body_scores(idx, req: TwinsRequest, dest: str, with_light: bool):
+    """Sorted scores of every index point on `dest` for this query, same formula as the twin ranking
+    (terrain_sim, or w_terrain * terrain_sim + w_light * light_sim with light per 0.1 deg of Earth latitude)."""
+    import numpy as np
+    key = (req.body, round(req.lat, 4), round(req.lon, 4), dest, with_light)
+    with _PCT_LOCK:
+        hit = _PCT_CACHE.get(key)
+    if hit is not None:
+        return hit
+    rows = idx.rows[dest]
+    q = idx.resolve((req.body, float(req.lat), float(req.lon)))
+    score = idx.sim(idx.distances(q.vec, rows, body=dest))
+    if with_light:
+        from engine import atlas
+        w = weights()
+        ls, _, _ = atlas.light_for_lats(req.body, float(req.lat), idx.lat[rows])
+        score = w["terrain"] * score + w["light"] * ls
+    out = np.sort(np.asarray(score, dtype=np.float64))
+    with _PCT_LOCK:
+        if len(_PCT_CACHE) >= 16:
+            _PCT_CACHE.pop(next(iter(_PCT_CACHE)))
+        _PCT_CACHE[key] = out
+    return out
+
+
+def _percentile(sorted_scores, score: float) -> float:
+    import numpy as np
+    return round(100.0 * float(np.searchsorted(sorted_scores, score, side="left")) / max(1, len(sorted_scores)), 4)
 
 
 def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
@@ -288,13 +324,19 @@ def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
             score = (w["terrain"] * ts + w["light"] * ls) if ls is not None else ts
             rows.append((score, r, ts, ls, win))
         rows.sort(key=lambda x: -x[0])
+        try:
+            ranked = _sorted_body_scores(idx, req, dest, use_light[dest]) if rows else None
+        except Exception as exc:
+            log.warning("percentile scores failed for %s: %s", dest, exc)
+            ranked = None
         twins = []
         for i, (score, r, ts, ls, win) in enumerate(rows[: req.k]):
             tid = str(r["id"])
             twins.append(Twin(
                 id=tid, body=dest, lat=r["lat"], lon=r["lon"], place_label=r.get("place_label") or "", terrain_sim=ts,
                 light_sim=ls, best_window=win, env=_env(env_mod, tid, r["lat"], r["lon"]) if dest == "earth" else None,
-                score=round(score, 4), rank=i + 1, ref=f"twin:{tid}"))
+                score=round(score, 4), percentile=_percentile(ranked, score) if ranked is not None else None,
+                rank=i + 1, ref=f"twin:{tid}"))
         results[dest] = twins
     return TwinsResponse(
         query=QueryInfo(body=req.body, lat=req.lat, lon=req.lon, label=q.get("label"), point_id=q.get("point_id") or f"{req.body}@{req.lat:.6f},{req.lon:.6f}",
@@ -811,17 +853,10 @@ def _known_analog_for(body: str, lat: float, lon: float) -> Optional[dict]:
 
 
 def _weekly(lm, target_body: str, target_lat: float, earth_lat: float) -> list[dict]:
-    """52 weekly light_sim values: a 28-day window starting at each week, same EMD as best_window. Uses engine.light internals
-    until engine.light.calendar is available."""
-    import numpy as np
-    target = np.array(lm.light_profile(target_body, target_lat)["hist"])
-    windows = lm._earth_window_hists(round(float(earth_lat), 2))
-    emd = np.abs(np.cumsum(windows - target[None, :], axis=1)[:, :-1]).sum(axis=1)
-    out = []
-    for w in range(52):
-        day = w * 7
-        out.append({"week": w + 1, "start": lm.doy_to_mmdd(day), "light_sim": round(float(min(1.0, max(0.0, 1.0 - emd[day] / lm.EMD_MAX))), 4)})
-    return out
+    """52 weekly light_sim values: a 28-day window starting at each week, same score as best_window (fallback when
+    engine.light.calendar is unavailable)."""
+    sim = lm.window_light_sims(target_body, target_lat, earth_lat)
+    return [{"week": w + 1, "start": lm.doy_to_mmdd(w * 7), "light_sim": round(float(sim[w * 7]), 4)} for w in range(52)]
 
 
 def calendar(body: str, lat: float, lon: float, twin_ids: Optional[list[str]] = None, replay: bool = False) -> dict:

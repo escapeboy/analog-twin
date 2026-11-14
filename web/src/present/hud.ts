@@ -61,9 +61,9 @@ export function initHud(root: HTMLElement, onSelect: (t: Twin) => void, onClose:
         h('div', { class: 'hud-site t' }, h('span', { class: 'hud-dot t' }), h('div', null, h('h2', { title: tl.title }, target), h('p', { class: 'mono' }, `${BODY_NAMES[q.body]} · ${tl.coords}`), null)),
         h('div', { class: 'hud-site w' }, h('span', { class: 'hud-dot w' }), h('div', null, h('h2', { title: wl.source }, wl.title), h('p', { class: 'mono' }, `${BODY_NAMES[sel.body]} · ${wl.coords}`), wl.sub && sel.body === 'earth' ? h('p', { class: 'dim' }, wl.sub) : null))));
 
-    const pct = Math.round(sel.score * 100);
-    const parts = [`terrain shape ${Math.round(sel.terrain_sim * 100)}%`];
+    const parts = [`terrain ${Math.round(sel.terrain_sim * 100)}%`];
     if (sel.light_sim != null) parts.push(`sunlight ${Math.round(sel.light_sim * 100)}%`);
+    parts.push(`score ${Math.round(sel.score * 100)}%`);
     const rankOf = store.twins?.results[sel.body]?.length ?? 0;
     const prev = h('button', { type: 'button', class: 'hud-step', 'aria-label': 'Previous twin' }, '‹');
     const next = h('button', { type: 'button', class: 'hud-step', 'aria-label': 'Next twin' }, '›');
@@ -76,22 +76,31 @@ export function initHud(root: HTMLElement, onSelect: (t: Twin) => void, onClose:
     prev.addEventListener('click', () => step(-1));
     next.addEventListener('click', () => step(1));
     const win = sel.best_window;
+    const pctl = sel.percentile;
+    const windowChip = !win
+      ? h('div', { class: 'hud-window none' }, h('span', null, 'Terrain only: no sunlight match on this body'))
+      : win.distinct === false
+        ? h('div', { class: 'hud-window none' }, h('span', null, `No best time: sunlight similar all year (${Math.round(win.light_sim * 100)}% at best)`))
+        : h('div', { class: 'hud-window' }, h('span', null, 'Best time to go'), h('b', { class: 'mono' }, fmtWindow(win.start, win.end)));
     figure.replaceChildren(
-      h('div', { class: 'hud-big' }, h('span', { class: 'mono hud-pct' }, String(pct)), h('span', { class: 'hud-pctsign' }, '%')),
+      pctl != null
+        ? h('div', { class: 'hud-big' }, h('span', { class: 'mono hud-pct' }, fmtPctl(pctl)), h('span', { class: 'hud-pctsign' }, '%'))
+        : h('div', { class: 'hud-big' }, h('span', { class: 'mono hud-pct' }, String(Math.round(sel.score * 100))), h('span', { class: 'hud-pctsign' }, '%')),
       h('div', { class: 'hud-figtext' },
-        h('p', null, 'match'),
+        h('p', null, pctl != null ? `closer than ${fmtPctl(pctl)}% of ${BODY_NAMES[sel.body]}` : 'match'),
         h('p', { class: 'dim' }, parts.join(' · ')),
-        win ? h('div', { class: 'hud-window' }, h('span', null, 'Best time to go'), h('b', { class: 'mono' }, fmtWindow(win.start, win.end))) : h('div', { class: 'hud-window none' }, h('span', null, 'Terrain only: no sunlight match on this body')),
+        windowChip,
         h('p', { class: 'hud-rank' }, prev, h('span', { class: 'mono' }, `twin ${sel.rank} of ${rankOf} on ${BODY_NAMES[sel.body]}`), next)),
     );
     chart.replaceChildren(h('p', { class: 'dim' }, 'Loading feature profile…'));
     try {
       pair = await getPair(ids.a, ids.b);
       if (my !== seq) return;
-      chart.replaceChildren(radar(pair.groups),
+      if (pair.groups.some((g) => g.similarity == null)) throw new Error('per-group similarity missing (old cached pair)');
+      chart.replaceChildren(radar(pair.groups, pair.terrain_sim),
         h('div', { class: 'hud-legend' },
-          h('span', { class: 'lg t' }, 'target'), h('span', { class: 'lg w' }, 'twin'),
-          h('span', { class: 'dim' }, 'Each spoke: where the site sits among all sites (centre low, ring average, edge high).')));
+          h('span', { class: 'lg t' }, 'target (identical)'), h('span', { class: 'lg w' }, 'twin'),
+          h('span', { class: 'dim' }, `Each spoke: how similar the twin is in that feature group. Edge = identical, dashed ring = overall terrain ${Math.round(pair.terrain_sim * 100)}%.`)));
     } catch (e) {
       if (my === seq) chart.replaceChildren(h('p', { class: 'err' }, `Feature profile unavailable: ${e instanceof Error ? e.message : e}`));
     }
@@ -161,6 +170,13 @@ export function initHud(root: HTMLElement, onSelect: (t: Twin) => void, onClose:
     showTab,
     terrain,
   };
+}
+
+/** Percentile as shown: floored (never rounds up to 100), more decimals near the top. */
+function fmtPctl(p: number): string {
+  const d = p >= 99.99 ? 3 : p >= 99.9 ? 2 : p >= 99 ? 1 : 0;
+  const f = 10 ** d;
+  return (Math.floor(p * f) / f).toFixed(d);
 }
 
 function pixelStd(img: HTMLImageElement): number {

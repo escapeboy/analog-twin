@@ -38,10 +38,13 @@ Changes from the original, so you can see what was rewritten:
 > what 'match' means. At this scale, twins share terrain texture: how steep, how rough, how much relief, measured over
 > windows of 12 and 36 kilometres. They do not share identical landforms, and a crater does not get a crater twin.
 > Sunlight is where the Moon is extreme: at the lunar pole the Sun stays within about 1.5 degrees of the horizon
-> <!-- metrics: light.tests.moon_pole_max_abs_elevation_deg -->. No Earth place matches that exactly, so the tool does not
-> only say where. It says when, the time of year that comes closest. For this target the top-ranked place is in Peru, at
-> 11.9 degrees south, 76.4 degrees west, and the best 28-day window is 23 May to 19 June
-> <!-- candidates: Shackleton rim, rank 1: lat -11.911, lon -76.377, window 05-23 to 06-19 -->."
+> <!-- metrics: light.tests.moon_pole_max_abs_elevation_deg -->. No Earth place matches that. For this target the
+> top-ranked place is in the Peruvian Andes, at 15.4 degrees south, 73.1 degrees west, and its sunlight match is
+> under 10 percent in every month, so the tool says plainly that there is no best time to go. The Arctic comes
+> closer: Haughton crater on Devon Island, a NASA analog site, gets its most Moon-like light from late September to
+> late October."
+> <!-- live /api/twins 14.11.2026: Shackleton rim rank 1 lat -15.43, lon -73.13, light_sim 0.064, distinct false;
+>      engine.light.calendar known analog Haughton 09-29 to 10-26, light_sim 0.236 -->
 
 *Check before the pitch: the live app must show the same first result. If it does not, say the live one and ignore
 the line above.*

@@ -61,15 +61,23 @@ phases to those dates.
   Local time zone and longitude are ignored (one day-of-year applies to the whole Earth).
 * For an Earth latitude, every day of the year is sampled at 144 hour angles (10 min). Daily histograms are summed
   over each 28-day window (365 start days, wrapping across the year end).
-* **EMD.** Histograms share the same 6 ordered bins, and the ground distance between bins i and j is |i − j|
-  (bin-index units). For 1-D histograms the Earth-Mover's Distance then equals the sum of absolute differences of
-  the cumulative distributions: `EMD = Σ_{k=0..4} |CDF_p(k) − CDF_q(k)|`.
-* **EMD_max = 5**: all mass in the first bin against all mass in the last bin. `light_sim = 1 − EMD / 5`, in [0, 1].
-* The window with the smallest EMD to the target's full-year profile is returned as `start`/`end` (MM-DD, both
-  inclusive), `emd`, `light_sim`.
-* Earth target vs. itself at the same latitude: light_sim ≥ 0.97 for |lat| ≤ 60° (tested). At higher latitudes it
-  falls (0.87 at a pole) because one 28-day window cannot contain both polar day and polar night; that is a
-  property of the problem, not a bug.
+* **Score (revised 14.11.2026).** The 6-bin profile above is for display only. `light_sim` compares two things:
+  1. **Sun-up elevation distribution.** Only the time the sun is above the horizon, on fine bins
+     `0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12.5, 15, 20, 25, 30, 40, 50, 60, 75, 90` degrees. Ground distance
+     u = ln(1 + elevation / 1°), so 1° against 2° weighs about as much as 10° against 20°. `W` = 1-D Wasserstein
+     distance in u (sum of |ΔCDF| × Δu over the inner bin edges). `up_sim = exp(−W / 1)`.
+  2. **Day fraction** f (share of time with the sun up): `day_sim = 1 − |f_target − f_earth| / max(f_target, 1 − f_target)`.
+  `light_sim = up_sim × day_sim`. An Earth window with no sun at all scores 0.
+* The window with the highest light_sim against the target's full year is returned as `start`/`end` (MM-DD, both
+  inclusive), `emd` (= W), `light_sim`, `day_fraction`, `target_day_fraction` and **`distinct`**: true when the
+  window beats the year's median window by ≥ 0.05. `distinct = false` means the light is about the same all year,
+  so the UI shows no "best time to go".
+* **Why it changed.** The old score was `1 − EMD/5` on the 6 annual bins (night included). For Shackleton rim every
+  Earth latitude scored 0.74–0.95: about half of every histogram is night, all lunar daylight (0–1.8°) fell into
+  the single 0–5° bin, and 5 is the theoretical maximum EMD while real differences were ~0.3–1.3. The top twin at
+  34.4°N scored 0.83 for a December window with a 32° noon sun.
+* Earth target vs. itself (full year vs. the best 28-day window): 0.97 at the equator, 0.94 at 23°, 0.90 at 42°,
+  0.82 at ±60°. At the pole a window is all day or all night against a half-and-half year, so it scores 0.25.
 * Speed: latitude-independent declination terms are computed once; window tables are cached per Earth latitude
   (rounded to 0.01°) and binned in sine space without arcsin. Measured on Friday under load average ~17
   (5 runs, `time.perf_counter`): 10 `best_window` calls with distinct Earth latitudes and all caches cold
@@ -95,7 +103,7 @@ longitude. After that the analytic model runs free. Results (written to `docs/me
 | Earth −77.5, 160 | 2.294 | 0.552 | −35.87 / 35.89 | −35.87 / 35.86 | 0.026 |
 
 * Ranges agree within 0.1° except the Earth equator (0.8°, eccentricity/obliquity interplay near the zenith).
-  Histogram EMD ≤ 0.037, i.e. a light_sim change of at most 0.0074 (EMD_max = 5).
+  Histogram EMD ≤ 0.037 on the 6 display bins (measured with the old score, where it meant a light_sim change of at most 0.0074).
 * SPICE's 2026 northward equinox for Earth is 2026-03-20 14:47:51 UT, within 2 minutes of the USNO value used as the
   analytic anchor. SPICE's largest lunar sub-solar latitude over the period is 1.586° (analytic 1.535°), so the lunar
   pole test bound of ±1.6° also holds for the ephemeris.
@@ -105,16 +113,9 @@ longitude. After that the analytic model runs free. Results (written to `docs/me
 
 ### Reading light_sim: per-target Earth range
 
-With EMD_max = 5, light_sim has a high, target-specific floor. Over 1,000 random Earth land points (index
-full_v2, seed 0) the median and the 5th–95th percentiles were:
-* Moon south pole: median 0.82 (0.75–0.93).
-* Jezero: median 0.985 (0.92–0.998).
-* Moon equator: median 0.975 (0.90–1.00).
-
-A rescaled EMD_max (the maximum EMD over Earth latitudes for that target) would only raise light's effective weight
-from 0.4 to about 1.5 against terrain's 0.6, and would let the analytic light proxy dominate the ranking. On the
-real candidate pools, the correlation of score with terrain_sim dropped from 0.88 to 0.38 for Shackleton. So
-**EMD_max stays 5** (decision logged in build-log), and the value is shown with its range instead.
+Sanity checks (tests/test_light.py): for Shackleton rim, the best window near an equinox at 70–80° latitude scores
+more than twice the best window of any season at 34.4°N (0.22 vs 0.08); an equatorial site scores 0.06; a Mars
+target at 18°N scores 0.94 at 20°N and 0.30 at 75°N.
 
 `earth_light_range(target_body, target_lat, lat_min=None, lat_max=None) -> (min, max)` is the best-window
 light_sim over Earth latitudes **[lat_min, lat_max] in 1° steps plus both end points**.
@@ -126,13 +127,10 @@ light_sim over Earth latitudes **[lat_min, lat_max] in 1° steps plus both end p
 
 | Target | Earth range (default span, full_v2) |
 |---|---|
-| Moon south pole (Shackleton rim, −89.77) | 0.739–0.953 |
-| Malapert (−85.99) | 0.746–0.960 |
-| Moon equator | 0.776–1.000 |
-| Jezero (18.41) | 0.797–0.999 |
-
-For comparison, with −85..85 the polar maxima were 0.966 (Shackleton) and 0.973 (Malapert). Those came from
-latitudes near 85°S, where no indexed land exists.
+| Moon south pole (Shackleton rim, −89.77) | 0.059–0.355 |
+| Malapert (−85.99) | 0.104–0.622 |
+| Moon equator | 0.148–0.994 |
+| Jezero (18.41) | 0.169–0.967 |
 
 Speed: on the first call, the parquet read took 97 ms and the latitude tables (139 × 365 windows) 78 ms. Each new
 target after that takes about 7 ms; a cached target takes microseconds. The API can call it once at start-up to warm
@@ -147,7 +145,7 @@ it.
 * `window_definition`.
 
 **Each week's value is the light_sim of the 28-day window centred on that week** (window start = week start − 11
-days, wrapping across the year end). It uses the same tables and EMD as `best_window`. A 7-day window was not used:
+days, wrapping across the year end). It uses the same score as `best_window`. A 7-day window was not used:
 its histogram could match better than any 28-day window, and the strip would then contradict its bracket. With the
 centred window, no week exceeds the bracketed best window (tested), and the best week is within 0.05 of it (tested).
 Warm cost is ~0.2 ms per twin.
@@ -156,15 +154,7 @@ Warm cost is ~0.2 ms per twin.
 (`kind: "twin"`) plus one comparison row (`kind: "known analog"`, label `"known analog: <site>"`). The comparison
 site is the one from `engine/known_analogs.yaml` with the highest best-window light_sim among the sites whose
 `analog_for` lists `target_id`. If `target_id` is not given, or no site lists it, all known Earth analogs are
-candidates. Example, Shackleton rim: Haughton crater, Devon Island, best window 09-28 to 10-25, light_sim 0.935.
-
-### Caveat: ground distance in bin-index units
-
-The EMD uses the bin index as ground distance, so moving mass from `0–5` to `5–15` costs the same as moving it from
-`15–30` to `30–60`, although those bins differ up to 6× in width (5° vs 30°). A ground distance in degrees between
-bin centres (−5, 2.5, 10, 22.5, 45, 75) would weight high-sun mismatches more and low-sun mismatches less. It would
-also change EMD_max. We keep bin-index units: they are simple, documented and symmetric across bins. Read light_sim
-as a coarse regime match, not a physical distance in degrees.
+candidates. Example, Shackleton rim: Haughton crater, Devon Island, best window 09-29 to 10-26, light_sim 0.236 (distinct; the old score gave 0.935).
 
 ## Matched-light hillshade
 

@@ -65,13 +65,33 @@ BODIES: dict[str, BodyLight] = {
 EARTH_EQUINOX_DOY = 78 + (14 + 46 / 60) / 24
 NON_LEAP_MONTH_DAYS = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
+# Display histogram (API /api/light, UI bars): 6 coarse bins including night. NOT used for scoring.
 BIN_EDGES = np.array([-90.0, 0.0, 5.0, 15.0, 30.0, 60.0, 90.0])
 N_BINS = len(LIGHT_BINS)
-# 1-D EMD between histograms on ordered bins with ground distance |i - j| (bin index units) equals
-# sum_k |CDF_p(k) - CDF_q(k)|. Its maximum is all mass in the first bin vs all mass in the last: N_BINS - 1.
+# 1-D EMD on the display bins with ground distance |i - j|; kept for emd_1d() only.
 EMD_MAX = float(N_BINS - 1)
 
+# ---- light_sim (scoring), revised 14.11.2026 ----
+# The old score (EMD of the 6-bin annual histogram / 5) put every Earth site between 0.74 and 0.95 for a lunar polar
+# target: half the mass is night at almost every latitude, all lunar daylight fell into one 0-5 deg bin, and the
+# divisor was the theoretical maximum. The revised score compares two things separately:
+#   1. the distribution of sun elevation WHILE THE SUN IS UP, on fine bins below 10 deg (UP_EDGES). Ground distance
+#      is u = ln(1 + elevation / 1 deg), so 1 deg vs 2 deg weighs about as much as 10 deg vs 20 deg.
+#      W = 1-D Wasserstein distance in u; up_sim = exp(-W / UP_TAU).
+#   2. the fraction of time the sun is up: day_sim = 1 - |f_target - f_earth| / max(f_target, 1 - f_target)
+#      (0 = the largest gap possible for this target).
+#   light_sim = up_sim * day_sim.
+UP_EDGES = np.array([0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0,
+                     12.5, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0, 60.0, 75.0, 90.0])
+N_UP = len(UP_EDGES) - 1
+_UP_U = np.log1p(UP_EDGES)
+_UP_DU = np.diff(_UP_U)[:-1]      # widths between consecutive inner CDF points (the CDF at 90 deg is always 1)
+UP_TAU = 1.0                      # one unit of ln(1 + el / 1 deg): W = 1 gives up_sim = 0.37
+
 WINDOW_DAYS = 28
+# A best window is a "best time to go" claim only if it beats the year's median window by this much. For lunar polar
+# targets every Earth twin found by terrain sits at 5-9 % light match all year (14.11.2026), so there is no best time.
+WINDOW_DISTINCT_MIN = 0.05
 _YEAR_SAMPLES = 720      # profile: samples across the body's year
 _HOUR_SAMPLES = 288      # profile: samples across one solar day
 _EARTH_DAY_HOURS = 144   # best_window: samples per Earth day (10 min)
@@ -110,6 +130,37 @@ def sun_elevation_at(body: str, lat_deg: float, t_days, phase_days: float = 0.0,
     decl = declination(body, (t - phase_days) / b.year_d)
     h = hour0_deg + 360.0 * t * 24.0 / b.solar_day_h
     return sun_elevation(body, lat_deg, decl, h)
+
+
+def _up_hist(elev: np.ndarray) -> tuple[float, np.ndarray]:
+    """(fraction of samples with the sun up, histogram of sun-up elevations on UP_EDGES summing to 1 or all 0)."""
+    e = elev.ravel()
+    up = e[e > 0]
+    if not up.size:
+        return 0.0, np.zeros(N_UP)
+    idx = np.clip(np.searchsorted(UP_EDGES, up, side="right") - 1, 0, N_UP - 1)
+    return up.size / e.size, np.bincount(idx, minlength=N_UP) / up.size
+
+
+def light_score(day_t: float, up_t, day_e, up_e) -> np.ndarray:
+    """light_sim for a target (day fraction, sun-up histogram) against Earth windows (arrays over the last axis).
+
+    Returns up_sim * day_sim (see the comment at UP_EDGES). An Earth window without any sun scores 0."""
+    up_t = np.asarray(up_t, dtype=float)
+    up_e = np.asarray(up_e, dtype=float)
+    day_e = np.asarray(day_e, dtype=float)
+    w = (np.abs(np.cumsum(up_e - up_t, axis=-1)[..., :-1]) * _UP_DU).sum(axis=-1)
+    if day_t <= 0:
+        up_sim = np.where(day_e <= 0, 1.0, 0.0)
+    else:
+        up_sim = np.where(day_e > 0, np.exp(-w / UP_TAU), 0.0)
+    day_sim = 1.0 - np.abs(day_e - day_t) / max(day_t, 1.0 - day_t)
+    return np.clip(up_sim * day_sim, 0.0, 1.0)
+
+
+def _sunup_w(up_t, up_e) -> np.ndarray:
+    """Wasserstein distance (units of ln(1 + el / 1 deg)) between sun-up elevation histograms."""
+    return (np.abs(np.cumsum(np.asarray(up_e) - np.asarray(up_t), axis=-1)[..., :-1]) * _UP_DU).sum(axis=-1)
 
 
 def _hist(elev: np.ndarray) -> np.ndarray:
@@ -163,6 +214,25 @@ def _profile_cached(body: str, lat: float, period: Optional[str]) -> tuple[tuple
     return tuple(float(x) for x in _hist(elev)), median
 
 
+@lru_cache(maxsize=4096)
+def _target_up(body: str, lat: float) -> tuple[float, tuple[float, ...]]:
+    """Full-year (day fraction, sun-up elevation histogram on UP_EDGES) for a target latitude."""
+    _body(body)
+    hours = (np.arange(_HOUR_SAMPLES) + 0.5) / _HOUR_SAMPLES * 360.0 - 180.0
+    frac = (np.arange(_YEAR_SAMPLES) + 0.5) / _YEAR_SAMPLES
+    elev = sun_elevation(body, lat, declination(body, frac)[:, None], hours[None, :])
+    day, up = _up_hist(elev)
+    return float(day), tuple(float(x) for x in up)
+
+
+def sunup_profile(body: str, lat: float) -> dict:
+    """Day fraction and sun-up elevation histogram (UP_EDGES) over the body's full year: the inputs of light_sim."""
+    if not -90.0 <= lat <= 90.0:
+        raise ValueError(f"lat out of range: {lat}")
+    day, up = _target_up(body, round(float(lat), 2))
+    return {"edges_deg": [float(x) for x in UP_EDGES], "day_fraction": day, "up_hist": list(up)}
+
+
 def light_profile(body: str, lat: float, period: Optional[str] = None) -> dict:
     """Fraction of time per sun-elevation bin over the body's full year (or an Earth 'MM-DD/MM-DD' period).
 
@@ -186,6 +256,32 @@ def _earth_day_terms() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 
 
 _SIN_INNER_EDGES = np.sin(np.radians(BIN_EDGES[1:-1]))
+_SIN_UP_EDGES = np.sin(np.radians(UP_EDGES[:-1]))    # class 0 = night, 1..N_UP = sun-up bins
+
+
+@lru_cache(maxsize=2048)
+def _earth_window_up(lat: float) -> tuple[np.ndarray, np.ndarray]:
+    """Per 28-day window starting on each day of a non-leap year at latitude lat: (day fraction (365,),
+    sun-up elevation histogram (365, N_UP), rows sum to 1, or 0 where the sun never rises)."""
+    sin_dec, cos_dec_cos_h, _ = _earth_day_terms()
+    phi = np.radians(lat)
+    s = np.sin(phi) * sin_dec + np.cos(phi) * cos_dec_cos_h
+    k = N_UP + 1
+    idx = np.searchsorted(_SIN_UP_EDGES, s, side="right") + (np.arange(365) * k)[:, None]
+    daily = np.bincount(idx.ravel(), minlength=365 * k).reshape(365, k) / _EARTH_DAY_HOURS
+    ext = np.concatenate([daily, daily[: WINDOW_DAYS - 1]], axis=0)
+    csum = np.concatenate([np.zeros((1, k)), np.cumsum(ext, axis=0)], axis=0)
+    win = (csum[WINDOW_DAYS:WINDOW_DAYS + 365] - csum[:365]) / WINDOW_DAYS
+    day = 1.0 - win[:, 0]
+    up = np.divide(win[:, 1:], day[:, None], out=np.zeros((365, N_UP)), where=day[:, None] > 1e-12)
+    return day, up
+
+
+def window_light_sims(target_body: str, target_lat: float, earth_lat: float) -> np.ndarray:
+    """(365,) light_sim of the 28-day Earth window starting on each day, against the target's full year."""
+    day_t, up_t = _target_up(target_body, round(float(target_lat), 2))
+    day_e, up_e = _earth_window_up(round(float(earth_lat), 2))
+    return light_score(day_t, up_t, day_e, up_e)
 
 
 @lru_cache(maxsize=2048)
@@ -211,16 +307,19 @@ def best_window(target_body: str, target_lat: float, earth_lat: float) -> dict:
     """Best 28-day window on Earth at earth_lat matching the target's full-year sun-elevation profile."""
     if not -90.0 <= earth_lat <= 90.0:
         raise ValueError(f"earth_lat out of range: {earth_lat}")
-    target = np.array(light_profile(target_body, target_lat)["hist"])
-    windows = _earth_window_hists(round(float(earth_lat), 2))
-    emd = np.abs(np.cumsum(windows - target[None, :], axis=1)[:, :-1]).sum(axis=1)
-    start = int(np.argmin(emd))
-    e = float(emd[start])
+    _body(target_body)
+    sims = window_light_sims(target_body, target_lat, earth_lat)
+    start = int(np.argmax(sims))
+    day_t, up_t = _target_up(target_body, round(float(target_lat), 2))
+    day_e, up_e = _earth_window_up(round(float(earth_lat), 2))
     return {
         "start": doy_to_mmdd(start),
         "end": doy_to_mmdd(start + WINDOW_DAYS - 1),
-        "emd": e,
-        "light_sim": float(min(1.0, max(0.0, 1.0 - e / EMD_MAX))),
+        "emd": float(_sunup_w(up_t, up_e[start])),      # sun-up Wasserstein distance, ln(1 + el / 1 deg) units
+        "day_fraction": float(day_e[start]),
+        "target_day_fraction": float(day_t),
+        "light_sim": float(sims[start]),
+        "distinct": bool(sims[start] - float(np.median(sims)) >= WINDOW_DISTINCT_MIN),
     }
 
 
@@ -252,17 +351,17 @@ def _range_lats(lat_min: float, lat_max: float) -> tuple[float, ...]:
 
 
 @lru_cache(maxsize=8)
-def _earth_range_cdfs(lats: tuple[float, ...]) -> np.ndarray:
-    """(n_lat, 365, N_BINS - 1) cumulative window histograms for the given Earth latitudes (target-independent)."""
-    w = np.stack([_earth_window_hists(la) for la in lats])
-    return np.cumsum(w, axis=-1)[..., :-1]
+def _earth_range_tables(lats: tuple[float, ...]) -> tuple[np.ndarray, np.ndarray]:
+    """(n_lat, 365) day fractions and (n_lat, 365, N_UP) sun-up histograms for the given Earth latitudes."""
+    t = [_earth_window_up(la) for la in lats]
+    return np.stack([x[0] for x in t]), np.stack([x[1] for x in t])
 
 
 @lru_cache(maxsize=4096)
 def _earth_range_cached(target_body: str, target_lat: float, lats: tuple[float, ...]) -> tuple[float, float]:
-    tc = np.cumsum(np.array(light_profile(target_body, target_lat)["hist"]))[:-1]
-    best_emd = np.abs(_earth_range_cdfs(lats) - tc).sum(axis=-1).min(axis=1)     # best window per latitude
-    sim = np.clip(1.0 - best_emd / EMD_MAX, 0.0, 1.0)
+    day_t, up_t = _target_up(target_body, target_lat)
+    day_e, up_e = _earth_range_tables(lats)
+    sim = light_score(day_t, up_t, day_e, up_e).max(axis=1)      # best window per latitude
     return float(sim.min()), float(sim.max())
 
 
@@ -293,13 +392,10 @@ def weekly_light(target_body: str, target_lat: float, earth_lat: float) -> dict:
 
     Week w (1..52) starts on day 7(w-1) of a non-leap year. Its value is the light_sim of the 28-day window CENTRED on
     the week (start = week start + 3.5 - 14 days, rounded down; wraps across the year end), computed with the same
-    tables and EMD as best_window. So no week exceeds the best window, and `best_window` is exactly best_window()."""
+    score as best_window. So no week exceeds the best window, and `best_window` is exactly best_window()."""
     if not -90.0 <= earth_lat <= 90.0:
         raise ValueError(f"earth_lat out of range: {earth_lat}")
-    target = np.array(light_profile(target_body, target_lat)["hist"])
-    windows = _earth_window_hists(round(float(earth_lat), 2))
-    emd = np.abs(np.cumsum(windows - target[None, :], axis=1)[:, :-1]).sum(axis=1)     # by window start day
-    sim = np.clip(1.0 - emd / EMD_MAX, 0.0, 1.0)
+    sim = window_light_sims(target_body, target_lat, earth_lat)     # by window start day
     weeks = []
     for w in range(N_WEEKS):
         start = 7 * w
