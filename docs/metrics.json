@@ -321,5 +321,838 @@
         }
       }
     }
+  },
+  "site_finder": {
+    "passed": true,
+    "criteria": {
+      "median_region_percentile_le_10": true,
+      "top10_near_nasa_ge_3": true,
+      "layers_aligned": true,
+      "sanity": true
+    },
+    "weights": {
+      "sun": 0.45,
+      "earth": 0.25,
+      "psr": 0.3
+    },
+    "slope_limit_deg": 10.0,
+    "slope_limit_source": "https://ntrs.nasa.gov/api/citations/20250009323/downloads/ArtemisOverview2025IntSPAPPSChallenge.pdf (NTRS 20250009323, p.21)",
+    "slope_constraint": "p90 of the four 240 m LDSM slopes in each 480 m cell <= limit",
+    "scored_cells": 739505,
+    "cells_in_80_90S": 1260112,
+    "region_percentiles": [
+      {
+        "id": "faustini-rim-a",
+        "name": "Faustini Rim A",
+        "lat": -87.8897,
+        "lon": 90.0,
+        "lists": [
+          "2022"
+        ],
+        "percentile": 3.0,
+        "best_score_within_15km": 0.703
+      },
+      {
+        "id": "peak-near-shackleton",
+        "name": "Peak Near Shackleton",
+        "lat": -88.811,
+        "lon": 123.6901,
+        "lists": [
+          "2022"
+        ],
+        "percentile": 0.0,
+        "best_score_within_15km": 0.8047
+      },
+      {
+        "id": "connecting-ridge",
+        "name": "Connecting Ridge",
+        "lat": -89.4632,
+        "lon": -137.49,
+        "lists": [
+          "2022"
+        ],
+        "percentile": 0.24,
+        "best_score_within_15km": 0.7667
+      },
+      {
+        "id": "connecting-ridge-ext",
+        "name": "Connecting Ridge Extension",
+        "lat": -89.0324,
+        "lon": -101.999,
+        "lists": [
+          "2022"
+        ],
+        "percentile": 0.24,
+        "best_score_within_15km": 0.7667
+      },
+      {
+        "id": "de-gerlache-rim-1",
+        "name": "de Gerlache Rim 1",
+        "lat": -88.6834,
+        "lon": -67.9321,
+        "lists": [
+          "2022"
+        ],
+        "percentile": 0.06,
+        "best_score_within_15km": 0.777
+      },
+      {
+        "id": "de-gerlache-rim-2",
+        "name": "de Gerlache Rim 2",
+        "lat": -88.23,
+        "lon": -64.6284,
+        "lists": [
+          "2022",
+          "2024"
+        ],
+        "percentile": 0.06,
+        "best_score_within_15km": 0.777
+      },
+      {
+        "id": "de-gerlache-kocher",
+        "name": "de Gerlache-Kocher Massif",
+        "lat": -85.8296,
+        "lon": -116.322,
+        "lists": [
+          "2022"
+        ],
+        "percentile": 5.34,
+        "best_score_within_15km": 0.6697
+      },
+      {
+        "id": "haworth",
+        "name": "Haworth",
+        "lat": -86.7639,
+        "lon": -22.777,
+        "lists": [
+          "2022",
+          "2024"
+        ],
+        "percentile": 1.61,
+        "best_score_within_15km": 0.7303
+      },
+      {
+        "id": "malapert-massif",
+        "name": "Malapert Massif",
+        "lat": -85.9948,
+        "lon": -0.23578,
+        "lists": [
+          "2022",
+          "2024"
+        ],
+        "percentile": 0.44,
+        "best_score_within_15km": 0.7598
+      },
+      {
+        "id": "leibnitz-beta",
+        "name": "Leibnitz Beta Plateau",
+        "lat": -85.4266,
+        "lon": 31.74276,
+        "lists": [
+          "2022"
+        ],
+        "percentile": 0.0,
+        "best_score_within_15km": 0.8191
+      },
+      {
+        "id": "nobile-rim-1",
+        "name": "Nobile Rim 1",
+        "lat": -85.4381,
+        "lon": 37.36667,
+        "lists": [
+          "2022",
+          "2024"
+        ],
+        "percentile": 0.0,
+        "best_score_within_15km": 0.8191
+      },
+      {
+        "id": "nobile-rim-2",
+        "name": "Nobile Rim 2",
+        "lat": -83.954,
+        "lon": 58.82206,
+        "lists": [
+          "2022",
+          "2024"
+        ],
+        "percentile": 1.23,
+        "best_score_within_15km": 0.7394
+      },
+      {
+        "id": "amundsen-rim",
+        "name": "Amundsen Rim",
+        "lat": -84.2287,
+        "lon": 69.44396,
+        "lists": [
+          "2022"
+        ],
+        "percentile": 3.55,
+        "best_score_within_15km": 0.694
+      }
+    ],
+    "median_region_percentile": 0.24,
+    "random_baseline_median_percentile": 8.97,
+    "random_baseline_n": 1000,
+    "other_lsdb_sites": [
+      {
+        "id": "shackleton-rim",
+        "name": "Shackleton Rim",
+        "lat": -89.7668,
+        "lon": -171.87,
+        "percentile": 0.25
+      },
+      {
+        "id": "shackleton-rim-b",
+        "name": "Shackleton Rim B",
+        "lat": -89.5244,
+        "lon": 56.30993,
+        "percentile": 1.33
+      }
+    ],
+    "top10": [
+      {
+        "rank": 1,
+        "id": "sp-0386-0786",
+        "lat": -85.4007,
+        "lon": 31.6398,
+        "score": 0.8191,
+        "sun_pct": 59.8,
+        "earth_pct": 99.9,
+        "slope_mean_deg": 4.83,
+        "slope_p90_deg": 6.22,
+        "psr_km": 6.48,
+        "nearest_nasa_region": "Leibnitz Beta Plateau",
+        "nearest_nasa_region_km": 0.8
+      },
+      {
+        "rank": 2,
+        "id": "sp-0383-0818",
+        "lat": -85.0783,
+        "lon": 36.3726,
+        "score": 0.8135,
+        "sun_pct": 59.1,
+        "earth_pct": 98.9,
+        "slope_mean_deg": 5.11,
+        "slope_p90_deg": 8.67,
+        "psr_km": 6.5,
+        "nearest_nasa_region": "Nobile Rim 1",
+        "nearest_nasa_region_km": 11.2
+      },
+      {
+        "rank": 3,
+        "id": "sp-0675-0696",
+        "lat": -88.8125,
+        "lon": 123.5842,
+        "score": 0.8047,
+        "sun_pct": 78.5,
+        "earth_pct": 60.5,
+        "slope_mean_deg": 3.76,
+        "slope_p90_deg": 5.37,
+        "psr_km": 4.38,
+        "nearest_nasa_region": "Peak Near Shackleton",
+        "nearest_nasa_region_km": 0.1
+      },
+      {
+        "rank": 4,
+        "id": "sp-0174-0803",
+        "lat": -82.2591,
+        "lon": 20.248,
+        "score": 0.8016,
+        "sun_pct": 57.1,
+        "earth_pct": 97.8,
+        "slope_mean_deg": 4.57,
+        "slope_p90_deg": 6.34,
+        "psr_km": 1.68,
+        "nearest_nasa_region": "Leibnitz Beta Plateau",
+        "nearest_nasa_region_km": 102.9
+      },
+      {
+        "rank": 5,
+        "id": "sp-0301-0749",
+        "lat": -84.4326,
+        "lon": 19.1556,
+        "score": 0.7981,
+        "sun_pct": 55.1,
+        "earth_pct": 100.0,
+        "slope_mean_deg": 5.18,
+        "slope_p90_deg": 6.7,
+        "psr_km": 2.74,
+        "nearest_nasa_region": "Leibnitz Beta Plateau",
+        "nearest_nasa_region_km": 45.2
+      },
+      {
+        "rank": 6,
+        "id": "sp-0309-0400",
+        "lat": -83.6782,
+        "lon": -35.7376,
+        "score": 0.7971,
+        "sun_pct": 55.2,
+        "earth_pct": 100.0,
+        "slope_mean_deg": 3.92,
+        "slope_p90_deg": 5.5,
+        "psr_km": 10.17,
+        "nearest_nasa_region": "Haworth",
+        "nearest_nasa_region_km": 98.7
+      },
+      {
+        "rank": 7,
+        "id": "sp-0373-0849",
+        "lat": -84.6522,
+        "lon": 39.5994,
+        "score": 0.7971,
+        "sun_pct": 57.0,
+        "earth_pct": 98.9,
+        "slope_mean_deg": 5.54,
+        "slope_p90_deg": 6.29,
+        "psr_km": 10.87,
+        "nearest_nasa_region": "Nobile Rim 1",
+        "nearest_nasa_region_km": 24.6
+      },
+      {
+        "rank": 8,
+        "id": "sp-0064-0554",
+        "lat": -80.9168,
+        "lon": -7.9469,
+        "score": 0.7968,
+        "sun_pct": 56.5,
+        "earth_pct": 97.0,
+        "slope_mean_deg": 4.96,
+        "slope_p90_deg": 7.89,
+        "psr_km": 3.23,
+        "nearest_nasa_region": "Malapert Massif",
+        "nearest_nasa_region_km": 156.5
+      },
+      {
+        "rank": 9,
+        "id": "sp-0164-0897",
+        "lat": -81.4933,
+        "lon": 29.3027,
+        "score": 0.7966,
+        "sun_pct": 54.8,
+        "earth_pct": 100.0,
+        "slope_mean_deg": 3.83,
+        "slope_p90_deg": 5.38,
+        "psr_km": 9.45,
+        "nearest_nasa_region": "Leibnitz Beta Plateau",
+        "nearest_nasa_region_km": 119.9
+      },
+      {
+        "rank": 10,
+        "id": "sp-0095-0701",
+        "lat": -81.4252,
+        "lon": 7.1447,
+        "score": 0.7959,
+        "sun_pct": 54.6,
+        "earth_pct": 100.0,
+        "slope_mean_deg": 4.48,
+        "slope_p90_deg": 7.24,
+        "psr_km": 8.64,
+        "nearest_nasa_region": "Malapert Massif",
+        "nearest_nasa_region_km": 140.9
+      }
+    ],
+    "top10_near_nasa_region": 4,
+    "top10_not_near_nasa": [
+      "sp-0174-0803",
+      "sp-0301-0749",
+      "sp-0309-0400",
+      "sp-0064-0554",
+      "sp-0164-0897",
+      "sp-0095-0701"
+    ],
+    "alignment": {
+      "passed": true,
+      "shackleton_centre": [
+        -89.67,
+        129.78
+      ],
+      "shackleton_floor_offset_km": {
+        "ldem_floor": 0.6,
+        "ldsm_flat_floor": 0.55,
+        "sun_permanent_shadow": 0.12,
+        "earth_never_visible": 0.81
+      },
+      "tolerance_km": 2.0,
+      "grid_shift_ldem_slope_vs_ldsm": {
+        "shift_cells": [
+          0,
+          0
+        ],
+        "corr": 0.996
+      },
+      "per_quadrant": {
+        "near_side": {
+          "dem_lows_vs_sun_psr": {
+            "shift_cells": [
+              0,
+              0
+            ],
+            "corr": 0.376
+          },
+          "dem_lows_vs_earth_zero": {
+            "shift_cells": [
+              -3,
+              0
+            ],
+            "corr": 0.328
+          }
+        },
+        "far_side": {
+          "dem_lows_vs_sun_psr": {
+            "shift_cells": [
+              1,
+              0
+            ],
+            "corr": 0.292
+          },
+          "dem_lows_vs_earth_zero": {
+            "shift_cells": [
+              -4,
+              0
+            ],
+            "corr": 0.314
+          }
+        },
+        "west": {
+          "dem_lows_vs_sun_psr": {
+            "shift_cells": [
+              0,
+              -1
+            ],
+            "corr": 0.359
+          },
+          "dem_lows_vs_earth_zero": {
+            "shift_cells": [
+              -3,
+              0
+            ],
+            "corr": 0.318
+          }
+        },
+        "east": {
+          "dem_lows_vs_sun_psr": {
+            "shift_cells": [
+              0,
+              1
+            ],
+            "corr": 0.395
+          },
+          "dem_lows_vs_earth_zero": {
+            "shift_cells": [
+              -3,
+              0
+            ],
+            "corr": 0.346
+          }
+        }
+      },
+      "sun_psr_unshifted_vs_dem": true,
+      "earth_shadow_shift_towards_earth_only": true,
+      "earth_and_sun_same_source_grid": true,
+      "diagnostic_sun_psr_vs_earth_zero": {
+        "shift_cells": [
+          -3,
+          0
+        ],
+        "corr": 0.196,
+        "note": "not a criterion: Earth shadows are displaced towards the Earth"
+      },
+      "revision_note": "First run used 'sun PSR vs Earth-zero shift == 0' as a criterion; it gave (-3, 0). Debug pass showed the Earth-zero shift is towards the Earth (dc = 0, dr < 0) in all quadrants while sun PSRs match DEM lows with no shift, i.e. shadow geometry, not misalignment. Criterion replaced by the per-quadrant checks above. Weights unchanged."
+    },
+    "sanity": {
+      "sunniest_50": {
+        "frac_lat_le_85S": 0.88,
+        "frac_above_5km_mean_elevation": 1.0,
+        "max_sun_pct": 78.5,
+        "lat_range": [
+          -89.85,
+          -83.69
+        ],
+        "passed": true
+      },
+      "crater_floor_psr_fraction_2km": {
+        "Shackleton": 1.0,
+        "Faustini": 1.0
+      },
+      "crater_floors_passed": true,
+      "passed": true
+    },
+    "layers_meta": {
+      "cell_m": 480.0,
+      "psr": {
+        "min_area_km2": 5.0,
+        "components_total": 11039,
+        "components_kept": 507,
+        "margin_km": 60.0
+      },
+      "aggregation": "2x2 blocks of 240 m pixels: mean (sun, earth, slope, elevation), p90 of the 4 slopes, min PSR distance, PSR pixel fraction",
+      "built_utc": "2026-11-14T09:35:35Z"
+    },
+    "limitations": [
+      "Sunlight and Earth visibility are averages over an 18.6-year cycle, not a specific mission date.",
+      "Grid cell 480 m; slopes are from a 240 m map, smoother than the 100 m landing-slope baseline.",
+      "Communication = line of sight to Earth only (no relay, antenna or link budget).",
+      "No thermal, dust or trafficability modelling.",
+      "Illumination and Earth-visibility layers are NASA LOLA team products (Mazarico et al. 2011), not our computation."
+    ],
+    "seconds": 4.5,
+    "map_png": "/data/code/nasa-challenge/data/site_finder/south_pole_sites.png"
+  },
+  "corpus": {
+    "index_path": "/data/code/nasa-challenge/data/index/full",
+    "points_per_body": {
+      "earth": 1026242,
+      "moon": 286543,
+      "mars": 1056208
+    },
+    "uniform_points_per_body": {
+      "earth": 881847,
+      "moon": 261418,
+      "mars": 1002711
+    },
+    "dense_points_per_body": {
+      "earth": 144395,
+      "moon": 25125,
+      "mars": 53497
+    },
+    "total_points": 2368993,
+    "gsd_m": 926.0,
+    "gsd_note": "all bodies resampled to ~926 m (Earth has only ETOPO 2022 30\" globally)",
+    "window_km": 12.038,
+    "n_features": 25,
+    "spacing_km": 12.0,
+    "dense_spacing_km": 4.0,
+    "lat_limits": {
+      "earth": [
+        -85.0,
+        85.0
+      ],
+      "moon": [
+        -90.0,
+        80.0
+      ],
+      "mars": [
+        -85.0,
+        85.0
+      ]
+    },
+    "moon_south_polar_product_poleward_of": -80.0,
+    "datasets": {
+      "moon": "LRO LOLA LDEM_64 (LRO-L-LOLA-4-GDR-V1.0), 2x2 block mean to 32 px/deg",
+      "moon_sp": "LRO LOLA LDEM_60S_240MPP_ADJ south-polar stereographic, 4x4 block mean to 960 m",
+      "earth": "NOAA NCEI ETOPO 2022 v1 30 arc-second surface elevation (ETOPO_2022_v1_30s_N90W180_surface)",
+      "mars": "MGS MOLA DEM mosaic global 463 m (Mars_MGS_MOLA_DEM_mosaic_global_463m), 2x2 block mean"
+    },
+    "dataset_files": {
+      "moon": "/data/code/nasa-challenge/data/raw/moon_global/LDEM_64.IMG",
+      "moon_sp": "/data/code/nasa-challenge/data/raw/moon_sp/LDEM_60S_240MPP_ADJ.TIF",
+      "earth": "/data/code/nasa-challenge/data/raw/earth_seg/ETOPO_2022_v1_30s_N90W180_surface.tif",
+      "mars": "/data/code/nasa-challenge/data/raw/mars/Mars_MGS_MOLA_DEM_mosaic_global_463m.tif"
+    },
+    "features_sha256": "e92819a8981caad391f35fbc037a46dea3b55196c38fcfc16239e66410a285d9",
+    "build_seconds": 238.3,
+    "built_at": "2026-11-14T10:33:43+0100",
+    "index_load_seconds": 2.72
+  },
+  "terrain": {
+    "known_analog_test": {
+      "method": "percentile rank of each known analog site among all uniformly sampled Earth index points by terrain-feature distance to each target it is an analog for (0 % = best). Baseline: 1000 random Earth index points (seed 1000), each paired with a target drawn in turn from the same (site, target) list.",
+      "earth_points_ranked": 881847,
+      "targets": {
+        "shackleton-rim": {
+          "on_grid": false,
+          "snapped_km": null
+        },
+        "connecting-ridge": {
+          "on_grid": true,
+          "snapped_km": 1.4640143095406435
+        },
+        "malapert-massif": {
+          "on_grid": true,
+          "snapped_km": 0.6089713244783115
+        },
+        "nobile-rim-1": {
+          "on_grid": true,
+          "snapped_km": 1.7692900659135207
+        },
+        "haworth": {
+          "on_grid": true,
+          "snapped_km": 1.8554826355217033
+        },
+        "de-gerlache-rim-2": {
+          "on_grid": true,
+          "snapped_km": 0.6983242573083037
+        },
+        "jezero": {
+          "on_grid": true,
+          "snapped_km": 1.0752519061761787
+        },
+        "perseverance-landing": {
+          "on_grid": true,
+          "snapped_km": 1.2577657651778564
+        },
+        "gale": {
+          "on_grid": true,
+          "snapped_km": 1.5744966154460733
+        },
+        "oxia-planum": {
+          "on_grid": false,
+          "snapped_km": null
+        }
+      },
+      "sites": [
+        {
+          "id": "haughton",
+          "label": "Haughton crater, Devon Island (HMP)",
+          "type": "impact crater, polar desert",
+          "lat": 75.383,
+          "lon": -89.667,
+          "source_url": "https://en.wikipedia.org/wiki/Haughton_impact_crater",
+          "evaluable": true,
+          "on_grid": false,
+          "snapped_km": null,
+          "percentile_by_target": {
+            "jezero": 73.61,
+            "gale": 36.25,
+            "perseverance-landing": 31.79,
+            "oxia-planum": 18.69,
+            "shackleton-rim": 61.52,
+            "connecting-ridge": 67.35,
+            "malapert-massif": 87.85,
+            "nobile-rim-1": 62.2,
+            "haworth": 70.84,
+            "de-gerlache-rim-2": 63.97
+          },
+          "median_percentile": 63.09,
+          "best_percentile": 18.69
+        },
+        {
+          "id": "university-valley",
+          "label": "McMurdo Dry Valleys, University Valley",
+          "type": "hyperarid polar permafrost",
+          "lat": -77.867,
+          "lon": 160.667,
+          "source_url": "https://openpolar.no/Record/ftnasantrs:oai:casi.ntrs.nasa.gov:20150023012/Details",
+          "evaluable": false,
+          "reason": "no valid terrain at earth -77.8670,160.6670 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km"
+        },
+        {
+          "id": "yungay",
+          "label": "Atacama Desert, Yungay",
+          "type": "hyperarid soil",
+          "lat": -24.08459,
+          "lon": -69.91531,
+          "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7645800",
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 1.96,
+          "percentile_by_target": {
+            "jezero": 83.11,
+            "gale": 18.35,
+            "perseverance-landing": 27.16,
+            "oxia-planum": 50.66
+          },
+          "median_percentile": 38.91,
+          "best_percentile": 18.35
+        },
+        {
+          "id": "death-valley",
+          "label": "Death Valley, California",
+          "type": "desert, dunes",
+          "lat": 36.24694,
+          "lon": -116.81694,
+          "source_url": "https://en.wikipedia.org/wiki/Death_Valley",
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 2.0,
+          "percentile_by_target": {
+            "jezero": 97.92,
+            "gale": 0.01,
+            "perseverance-landing": 90.26,
+            "oxia-planum": 99.67
+          },
+          "median_percentile": 94.09,
+          "best_percentile": 0.01
+        },
+        {
+          "id": "bockfjorden",
+          "label": "Svalbard, Bockfjorden (AMASE)",
+          "type": "volcanic and carbonate, Arctic",
+          "lat": 79.469,
+          "lon": 13.3287,
+          "source_url": "https://en.wikipedia.org/wiki/Bockfjorden",
+          "evaluable": false,
+          "reason": "no valid terrain at earth 79.4690,13.3287 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km"
+        },
+        {
+          "id": "holuhraun",
+          "label": "Holuhraun lava field, Iceland",
+          "type": "young basaltic lava",
+          "lat": 64.85,
+          "lon": -16.83,
+          "source_url": "https://en.wikipedia.org/wiki/Holuhraun",
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 5.39,
+          "percentile_by_target": {
+            "jezero": 14.21,
+            "gale": 16.25,
+            "perseverance-landing": 12.48,
+            "oxia-planum": 40.87
+          },
+          "median_percentile": 15.23,
+          "best_percentile": 12.48
+        },
+        {
+          "id": "lanzarote",
+          "label": "Lanzarote, Timanfaya National Park (ESA PANGAEA)",
+          "type": "volcanic",
+          "lat": 28.99417,
+          "lon": -13.79333,
+          "source_url": "https://en.wikipedia.org/wiki/Timanfaya_National_Park",
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 5.48,
+          "percentile_by_target": {
+            "jezero": 71.32,
+            "gale": 57.76,
+            "perseverance-landing": 73.39,
+            "oxia-planum": 73.38,
+            "shackleton-rim": 12.44,
+            "connecting-ridge": 9.38,
+            "malapert-massif": 8.3,
+            "nobile-rim-1": 15.34,
+            "haworth": 6.75,
+            "de-gerlache-rim-2": 19.15
+          },
+          "median_percentile": 17.24,
+          "best_percentile": 6.75
+        },
+        {
+          "id": "hi-seas",
+          "label": "HI-SEAS habitat, Mauna Loa, Hawaii",
+          "type": "lava terrain, habitat simulation",
+          "lat": 19.602378,
+          "lon": -155.487192,
+          "source_url": "https://en.wikipedia.org/wiki/HI-SEAS",
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 1.61,
+          "percentile_by_target": {
+            "jezero": 76.54,
+            "gale": 2.0,
+            "perseverance-landing": 35.6,
+            "oxia-planum": 97.03
+          },
+          "median_percentile": 56.07,
+          "best_percentile": 2.0
+        },
+        {
+          "id": "rio-tinto",
+          "label": "Rio Tinto, Spain (Peña de Hierro)",
+          "type": "acidic sulfate (geochemical analog; terrain shape not expected to match)",
+          "lat": 37.72186,
+          "lon": -6.55923,
+          "source_url": "https://msaweb.org/MSA/AmMin/products/AmMin/AM099P1199.pdf",
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 1.12,
+          "percentile_by_target": {
+            "jezero": 72.95,
+            "gale": 41.63,
+            "perseverance-landing": 44.15,
+            "oxia-planum": 62.45
+          },
+          "median_percentile": 53.3,
+          "best_percentile": 41.63
+        },
+        {
+          "id": "meteor-crater",
+          "label": "Meteor Crater (Barringer), Arizona",
+          "type": "impact crater (astronaut geology training)",
+          "lat": 35.02806,
+          "lon": -111.02333,
+          "source_url": "https://en.wikipedia.org/wiki/Meteor_Crater",
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 1.06,
+          "percentile_by_target": {
+            "shackleton-rim": 50.03,
+            "connecting-ridge": 71.25,
+            "malapert-massif": 22.3,
+            "nobile-rim-1": 54.57,
+            "haworth": 47.55,
+            "de-gerlache-rim-2": 18.67
+          },
+          "median_percentile": 48.79,
+          "best_percentile": 18.67
+        },
+        {
+          "id": "ries",
+          "label": "Nördlinger Ries, Germany (ESA PANGAEA)",
+          "type": "impact crater",
+          "lat": 48.88333,
+          "lon": 10.56667,
+          "source_url": "https://en.wikipedia.org/wiki/N%C3%B6rdlinger_Ries",
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 0.69,
+          "percentile_by_target": {
+            "shackleton-rim": 75.5,
+            "connecting-ridge": 72.89,
+            "malapert-massif": 76.72,
+            "nobile-rim-1": 82.06,
+            "haworth": 78.32,
+            "de-gerlache-rim-2": 88.89
+          },
+          "median_percentile": 77.52,
+          "best_percentile": 72.89
+        }
+      ],
+      "median_percentile_all_pairs": 56.16,
+      "median_of_site_medians": 53.3,
+      "pairs_evaluated": 52,
+      "sites_evaluable": 9,
+      "sites_total": 11,
+      "baseline_random_median_percentile": 48.07,
+      "baseline_random_n": 1000,
+      "by_target_body": {
+        "mars": {
+          "pairs": 28,
+          "median_percentile": 47.41,
+          "baseline_random_median_percentile": 47.45
+        },
+        "moon": {
+          "pairs": 24,
+          "median_percentile": 61.86,
+          "baseline_random_median_percentile": 48.78
+        }
+      },
+      "notes": [
+        "McMurdo Dry Valleys (University Valley) are inside the Natural Earth 10 m 'Antarctic Ice Sheet' polygon, so the ice mask removes them; not evaluable with this mask.",
+        "Sites on narrow coasts or islands have no fully valid 12 km land window; they are snapped to the nearest valid index point within 25 km (snapped_km) or reported as not evaluable.",
+        "Analog sites were chosen by their operators for geology, climate or logistics; terrain shape at 926 m / 12 km is only one aspect, so poor ranks are expected for some (e.g. Rio Tinto)."
+      ]
+    },
+    "validated_at": "2026-11-14T10:46:36+0100"
+  },
+  "determinism": {
+    "method": "built the small index (50 km spacing, 12 km dense zones, 3 bodies) twice from the same inputs and compared sha256 of features.npy",
+    "hash_run_1": "bc37244e637b719b9cb9f77b5c73064b069d395deadc59037a6373ece3b6f214",
+    "hash_run_2": "bc37244e637b719b9cb9f77b5c73064b069d395deadc59037a6373ece3b6f214",
+    "identical": true
+  },
+  "performance": {
+    "find_twins": {
+      "queries": 120,
+      "k": 10,
+      "destinations": "the two other bodies",
+      "p50_ms": 39.0,
+      "p95_ms": 57.4,
+      "max_ms": 70.5,
+      "on_grid_queries": 70,
+      "no_terrain_errors": 0,
+      "method": "Index.search in-process on this machine (12 threads, shared host), index already loaded; half the queries offset off-grid (features computed on the fly)."
+    }
   }
 }
