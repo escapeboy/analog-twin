@@ -257,7 +257,7 @@ def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
                 score=round(score, 4), rank=i + 1, ref=f"twin:{tid}"))
         results[dest] = twins
     return TwinsResponse(
-        query=QueryInfo(body=req.body, lat=req.lat, lon=req.lon, label=q.get("label"), point_id=q.get("point_id"),
+        query=QueryInfo(body=req.body, lat=req.lat, lon=req.lon, label=q.get("label"), point_id=q.get("point_id") or f"{req.body}@{req.lat:.4f},{req.lon:.4f}",
                         on_grid=bool(q.get("on_grid", False)), snapped_km=q.get("snapped_km")),
         mode=modes, weights=w, results=results, latency_ms=round((time.perf_counter() - t0) * 1000, 1), source="live",
         ref=f"twins:{req.body}:{req.lat:.3f}:{req.lon:.3f}")
