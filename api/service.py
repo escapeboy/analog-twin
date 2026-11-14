@@ -542,7 +542,7 @@ class TerrainPair(BaseModel):
     sun_azimuth_deg: float
     sun_elevation_deg: float
     terrain_sim: float
-    source: Literal["live", "fallback-dem"]
+    source: Literal["live", "fallback-dem", "replay-cache"]
 
 
 _HEIGHTS: "OrderedDict[str, bytes]" = OrderedDict()
@@ -554,8 +554,34 @@ def terrain3d_available() -> bool:
     return m is not None and hasattr(m, "terrain_pair")
 
 
+TERRAIN_EXTENT_KM = 36.0
+TERRAIN_SIZE = 256
+
+
 def terrain_heights(name: str) -> Optional[bytes]:
-    return _HEIGHTS.get(_safe(name))
+    name = _safe(name)
+    if name in _HEIGHTS:
+        return _HEIGHTS[name]
+    p = cache_dir() / "terrain" / f"{name}.f32"
+    return p.read_bytes() if p.is_file() else None
+
+
+def _terrain_key(a: str, b: str) -> str:
+    return f"terrain_{_safe(a)}__{_safe(b)}.json"
+
+
+def cache_put_terrain(tp: TerrainPair, a_id: str, b_id: str) -> None:
+    d = cache_dir() / "terrain"
+    d.mkdir(parents=True, exist_ok=True)
+    for g in (tp.a, tp.b):
+        name = pathlib.PurePosixPath(g.heights_url).name.removesuffix(".f32")
+        (d / f"{name}.f32").write_bytes(_HEIGHTS[name])
+    (cache_dir() / _terrain_key(a_id, b_id)).write_text(tp.model_dump_json(indent=1))
+
+
+def cache_get_terrain(a: str, b: str) -> Optional[TerrainPair]:
+    p = cache_dir() / _terrain_key(a, b)
+    return TerrainPair.model_validate_json(p.read_text()).model_copy(update={"source": "replay-cache"}) if p.exists() else None
 
 
 def _grid(pid: str, g: dict, dataset: str) -> TerrainGrid:
@@ -575,21 +601,37 @@ def _grid(pid: str, g: dict, dataset: str) -> TerrainGrid:
                        heights_url=f"/api/terrain/heights/{name}.f32")
 
 
-def terrain_pair(a_id: str, b_id: str) -> TerrainPair:
-    """Both heightfields under identical sun. Uses engine.terrain3d.terrain_pair when W1 has delivered it; otherwise a
-    low-resolution fallback cropped straight from the DEMs (source flag says which)."""
+def terrain_pair(a_id: str, b_id: str, replay: bool = False) -> TerrainPair:
+    """Both heightfields under identical sun. Uses engine.terrain3d.terrain_pair; if that module is missing, a low-resolution
+    crop straight from the DEMs (source "fallback-dem"). Replay cache when asked for or when the index is unavailable."""
+    if replay:
+        cached = cache_get_terrain(a_id, b_id)
+        if cached:
+            return cached
     idx = get_index()
     if idx is None:
+        cached = cache_get_terrain(a_id, b_id)
+        if cached:
+            return cached
         raise LookupError("engine index not available")
     ex = _as_dict(idx.explain(_resolve_arg(a_id), _resolve_arg(b_id)))
     ca, cb = ex["a_id"], ex["b_id"]
     t3 = _mod("engine.terrain3d")
     if t3 is not None and hasattr(t3, "terrain_pair"):
-        res = _as_dict(t3.terrain_pair(_resolve_arg(a_id), _resolve_arg(b_id)))  # ASSUMED shape: a, b dicts with heights/body/lat/lon
-        ga, gb = _as_dict(res["a"]), _as_dict(res["b"])
-        az, el = float(res["sun_azimuth_deg"]), float(res["sun_elevation_deg"])
-        return TerrainPair(a=_grid(ca, ga, "engine.terrain3d"), b=_grid(cb, gb, "engine.terrain3d"), sun_azimuth_deg=az,
-                           sun_elevation_deg=el, terrain_sim=float(res.get("terrain_sim", ex["terrain_sim"])), source="live")
+        pa, pb = ex["a"], ex["b"]
+        res = t3.terrain_pair((pa["body"], pa["lat"], pa["lon"]), (pb["body"], pb["lat"], pb["lon"]),
+                              extent_km=TERRAIN_EXTENT_KM, size=TERRAIN_SIZE)
+        hs = _mod("engine.hillshade")
+        tgt = pa if pa["body"] in ("moon", "mars") else (pb if pb["body"] in ("moon", "mars") else pa)
+        az, el = _sun(hs, tgt["body"], tgt["lat"])
+
+        def mk(pid, pt, hm):
+            h, meta = hm
+            ds = f"{meta.get('dataset', 'engine.terrain3d')} ({meta.get('source_res_m', 0):.0f} m source, {meta.get('effective_res_m', 0):.0f} m effective)"
+            return _grid(pid, {**pt, "heights": h, "gsd_m": meta.get("gsd_m", gsd_m()), "extent_km": TERRAIN_EXTENT_KM, "dataset": ds}, ds)
+
+        return TerrainPair(a=mk(ca, pa, res["a"]), b=mk(cb, pb, res["b"]), sun_azimuth_deg=az, sun_elevation_deg=el,
+                           terrain_sim=float(ex["terrain_sim"]), source="live")
     dem, hs = _mod("engine.dem"), _mod("engine.hillshade")
     if dem is None or hs is None:
         raise LookupError("terrain modules not available")
@@ -622,62 +664,36 @@ def mission_czml(site_id: str) -> Optional[pathlib.Path]:
     return _mission_file(site_id, "czml")
 
 
-MISSION_LIMITATIONS = [
-    "Lunar orbit is near the transfer plane; the plane change to a polar orbit is not modelled. Descent to the site is schematic.",
-    "Headline delta-v and time of flight come from a two-body transfer; the displayed arc is refined with an Earth-Moon gravity model.",
-]
+def _two_body(gate: dict) -> dict:
+    c = (gate or {}).get("checks") or {}
+    v = lambda n, k: (c.get(n) or {}).get(k)  # noqa: E731
+    return {"tli_dv_kms": v("tli_dv", "value_km_s"), "loi_dv_kms": v("loi_dv", "value_km_s"), "tof_days": v("tof_equals_config", "value_days")}
+
+
+def _mission_limitations(tb: dict) -> list[str]:
+    tli, tof = tb.get("tli_dv_kms"), tb.get("tof_days")
+    gate_txt = f" (TLI {tli:.2f} km/s, TOF {tof:g} d)" if tli is not None and tof is not None else ""
+    return [
+        "Lunar orbit is near the transfer plane; the plane change to a polar orbit is not modelled. Descent to the site is schematic.",
+        f"Gate checks use a two-body transfer{gate_txt}; the drawn arc and these numbers use an Earth\u2013Moon point-mass gravity model.",
+    ]
 
 
 def _mission_summary(raw: dict, site_id: str) -> dict:
-    """Maps a W8 mission file to the API contract. Headline tli/loi/tof = the two-body GATE values (top-level fields, else
-    gate.checks); the refined (Earth-Moon gravity) values go to summary.refined. Times come from top-level times_utc,
-    else from the file's summary block."""
-    sm = raw.get("summary") if isinstance(raw.get("summary"), dict) else {}
-    disp, refi = raw.get("display") or {}, raw.get("refinement") or {}
-    t = raw.get("times_utc") or {}
+    """The file's own `summary` (the values the view draws) passes through as-is; adds summary.two_body from the gate checks
+    and the standing limitations. launch_utc is hidden when the gate has not passed or show_launch_time is false."""
     gate = raw.get("gate") or {}
     status = gate.get("status", "unknown")
-    checks = gate.get("checks") or {}
-
-    def chk(name: str, key: str):
-        return (checks.get(name) or {}).get(key)
-
-    def head(top: str, check: tuple, sm_key: str):
-        for v in (raw.get(top), chk(*check) if check else None):
-            if v is not None:
-                return v
-        return sm.get(sm_key)
-
-    tli_dv = head("tli_dv_km_s", ("tli_dv", "value_km_s"), "tli_dv_kms")
-    loi_dv = head("loi_dv_km_s", ("loi_dv", "value_km_s"), "loi_dv_kms")
-    tof = head("tof_days", ("tof_equals_config", "value_days"), "tof_days")
-    show = raw.get("show_launch_time", True) and status == "pass"
-    site = raw.get("site") or sm.get("site") or {}
-    events = sm.get("events") or [{"t_utc": e.get("utc") or e.get("t_utc"), "name": e.get("name"), "detail": e.get("detail", "")}
-                                  for e in raw.get("events") or []]
-    launch = t.get("launch", sm.get("launch_utc"))
-    refined = {"tli_dv_kms": sm.get("tli_dv_kms", refi.get("tli_dv_km_s", disp.get("tli_dv_km_s"))),
-               "loi_dv_kms": sm.get("loi_dv_kms", refi.get("loi_dv_km_s", disp.get("loi_dv_km_s"))),
-               "tof_days": sm.get("tof_days", refi.get("tof_days"))}
-    out = {
-        "launch_utc": launch if show else None,
-        "tli_utc": t.get("tli", sm.get("tli_utc")),
-        "arrival_utc": t.get("arrival", sm.get("arrival_utc")),
-        "landing_utc": t.get("landing", sm.get("landing_utc")),
-        "tli_dv_kms": tli_dv,
-        "loi_dv_kms": loi_dv,
-        "tof_days": tof,
-        "arrival_vinf_kms": raw.get("arrival_v_inf_km_s", sm.get("arrival_vinf_kms")),
-        "site": {"id": site.get("id", site_id), "label": site.get("label"), "lat": site.get("lat"), "lon": site.get("lon")},
-        "launch_time_computed": bool(show and launch),
-        "landing_sun_elevation_deg": raw.get("landing_sun_elevation_deg", sm.get("landing_sun_elevation_deg")),
-        "landing_earth_elevation_deg": raw.get("landing_earth_elevation_deg", sm.get("landing_earth_elevation_deg")),
-        "label": disp.get("label") or sm.get("label") or raw.get("label"),
-        "events": [e for e in events if e.get("t_utc")],
-        "refined": refined if any(v is not None for v in refined.values()) and refined != {"tli_dv_kms": tli_dv, "loi_dv_kms": loi_dv, "tof_days": tof} else None,
-        "limitations": list(MISSION_LIMITATIONS) + [x for x in sm.get("limitations", []) if x not in MISSION_LIMITATIONS],
-    }
-    return {"czml_url": f"/api/mission/{_safe(site_id)}.czml", "summary": out, "gate": {"status": status}}
+    sm = dict(raw.get("summary") or {})
+    show = raw.get("show_launch_time", True) and status == "pass" and sm.get("launch_time_computed", True)
+    if not show:
+        sm["launch_utc"], sm["launch_time_computed"] = None, False
+    tb = _two_body(gate)
+    sm["two_body"] = tb
+    sm["limitations"] = _mission_limitations(tb) + [x for x in sm.get("limitations", []) if x not in _mission_limitations(tb)]
+    sm.setdefault("site", {"id": site_id})
+    sm.setdefault("events", [])
+    return {"czml_url": f"/api/mission/{_safe(site_id)}.czml", "summary": sm, "gate": {"status": status}}
 
 
 def mission(site_id: str) -> Optional[dict]:
