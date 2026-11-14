@@ -127,3 +127,40 @@ on the 42 pairs both versions can evaluate: 61.86 % -> 51.12 %, 23 of 42 better)
 p95 60.1 ms. The rule passed, so `current` -> `full_v2`. Caveats: v2 has 972,567 Earth points vs 1,026,242 (coastal
 loss); Lanzarote and Bockfjorden become non-evaluable; the median of per-site medians got worse (54.69 % -> 57.97 %);
 and v2 still does not rank the known analogs clearly better than random points.
+
+## Environment layer: MODIS vegetation and surface temperature (Earth only)
+
+Computed by `scripts/build_modis.py` into `data/index/<index>/env_modis.parquet` and used by `engine/env.py` and
+`engine/index.py`.
+
+- **Source.** NASA LP DAAC MODIS Collection 6.1 tiles, read from the Microsoft Planetary Computer mirror, which needs
+  no login. On 2026-11-14 NASA NEO had been decommissioned (September 2026), LP DAAC needed an Earthdata login and
+  GIBS served only coloured PNG renders.
+  - NDVI: MOD13A1 v061 (Terra, 16-day, 500 m), https://doi.org/10.5067/MODIS/MOD13A1.061.
+  - Daytime land surface temperature: MOD11A2 v061 (Terra, 8-day, 1 km), https://doi.org/10.5067/MODIS/MOD11A2.061.
+  - Scale factors, fill values and valid ranges are read from each file's own attributes (NDVI: int16 / 10000,
+    fill -3000, valid -2000..10000; LST: uint16 x 0.02 K, fill 0, valid 7500..65535).
+- **Sampling.**
+  - Years 2022-2024, one composite per month: the first one starting in that month.
+  - The catalogue has a multi-month gap in 2025, so 2025 is not used.
+  - Each Earth index point takes the mean of the valid pixels in a box around it: 5.1 km for NDVI, 6.5 km for LST.
+  - The annual mean is the mean over all months with a valid value. Points with fewer than half of the months valid
+    get no value.
+- **Barren.** Annual-mean NDVI at or below `BARREN_NDVI_MAX` = 0.2. NASA Earth Observatory, "Measuring Vegetation",
+  https://earthobservatory.nasa.gov/features/MeasuringVegetation/measuring_vegetation_2.php : "Very low values of
+  NDVI (0.1 and below) correspond to barren areas of rock, sand, or snow. Moderate values represent shrub and
+  grassland (0.2 to 0.3)". So 0.2 keeps barren ground plus the sparsest cover below the shrub/grassland range.
+  The quote is about NDVI values in general. Applying it to a multi-year annual mean is our choice.
+- **Barren filter in twin search.** For Earth results only:
+  - `exclude` (default): drops points whose NDVI is above the threshold or unknown.
+  - `penalty`: ranks those points as if 1.5x farther in feature space. The reported terrain_sim stays the true value.
+  - `off`: ignores NDVI.
+  - Configure with the environment variables `ANALOG_BARREN_MODE` and `ANALOG_BARREN_NDVI_MAX`, or per call with
+    `Index.search(..., barren=...)`.
+- **cold_dry (0-1).** dryness x coldness. Dryness = clip((0.3 - NDVI) / 0.3, 0, 1). Coldness =
+  clip((30 - LST_C) / 50, 0, 1), which is 1 at an annual-mean daytime LST of -20 C or below and 0 at 30 C or above.
+  The anchors are design choices, not from a source. It is used only in the "full" scoring mode.
+- **Limitations.**
+  - The NDVI of snow and ice is also low, so permanently snowy points count as barren and score high on cold_dry.
+    Glaciated areas are already removed by the Natural Earth ice mask.
+  - The values are 2022-2024 averages over a 5-7 km box, not the conditions at a single spot or date.

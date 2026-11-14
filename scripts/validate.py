@@ -45,10 +45,18 @@ def percentile_rank(d_earth: np.ndarray, d_site: float) -> float:
     return float(100.0 * (d_earth < d_site).mean())
 
 
-def known_analog_test(ix: Index) -> dict:
+def known_analog_test(ix: Index, barren: bool = False) -> dict:
+    """barren=True: rank sites only among barren Earth points (MODIS annual-mean NDVI <= engine.env.BARREN_NDVI_MAX),
+    i.e. the corpus the twin search uses with the barren filter in "exclude" mode; the baseline is drawn from it too."""
+    from engine import env
     targets = {t["id"]: t for t in _yaml("targets.yaml")}
     sites = _yaml("known_analogs.yaml")
     earth_rows = ix.rows["earth"][~ix.dense[ix.rows["earth"]]]
+    n_uniform = len(earth_rows)
+    if barren:
+        if ix.ndvi is None:
+            raise RuntimeError("barren test needs env_modis.parquet in the index folder")
+        earth_rows = earth_rows[env.is_barren(ix.ndvi[earth_rows])]
     tvec, tinfo = {}, {}
     for tid, t in targets.items():
         if t["body"] == "earth":
@@ -77,6 +85,11 @@ def known_analog_test(ix: Index) -> dict:
                 continue
             r = ix.resolve(str(ix.ids[int(rows[0])]))
             r.snapped_km = float(km[0])
+        if ix.ndvi is not None:  # NDVI of the site's grid point, or of the nearest Earth point within 15 km
+            rr, kk = ix.nearest("earth", r.lat, r.lon, k=1)
+            v = float(ix.ndvi[int(rr[0])]) if kk[0] <= env.MODIS_SNAP_KM else float("nan")
+            entry["site_ndvi"] = round(v, 4) if np.isfinite(v) else None
+            entry["site_barren"] = bool(env.is_barren(v)) if np.isfinite(v) else None
         entry.update({"evaluable": True, "on_grid": r.on_grid,
                       "snapped_km": None if r.snapped_km is None else round(r.snapped_km, 2),
                       "evaluated_at": {"lat": round(r.lat, 4), "lon": round(r.lon, 4)}})
@@ -118,6 +131,9 @@ def known_analog_test(ix: Index) -> dict:
                   f"{len(base)} random Earth index points (seed {SEED}), each paired with a target drawn in turn "
                   "from the same (site, target) list.",
         "earth_points_ranked": int(len(earth_rows)),
+        "barren_filter": {"on": barren, "ndvi_max": env.BARREN_NDVI_MAX,
+                          "uniform_earth_points": int(n_uniform),
+                          "excluded_points": int(n_uniform - len(earth_rows)) if barren else 0},
         "targets": tinfo,
         "sites": per_site,
         "median_percentile_all_pairs": round(float(np.median(all_pcts)), 2) if all_pcts else None,
@@ -216,12 +232,27 @@ def main(argv=None):
     ap.add_argument("--index", type=Path, default=dem.ROOT / "data" / "index" / "current")
     ap.add_argument("--metrics", type=Path, default=METRICS)
     ap.add_argument("--skip-determinism", action="store_true")
+    ap.add_argument("--barren-compare", action="store_true",
+                    help="write terrain.known_analog_test_barren_on / _off (needs env_modis.parquet) and exit")
     ap.add_argument("--tag", default=None,
                     help="write results only under terrain.<tag> (experiment comparison); other keys untouched")
     a = ap.parse_args(argv)
     t0 = time.perf_counter()
     ix = Index(a.index)
     load_s = time.perf_counter() - t0
+    if a.barren_compare:
+        on, off = known_analog_test(ix, barren=True), known_analog_test(ix, barren=False)
+        cur = json.loads(a.metrics.read_text()) if a.metrics.exists() else {}
+        terrain = cur.get("terrain") if isinstance(cur.get("terrain"), dict) else {}
+        terrain["known_analog_test_barren_on"] = on
+        terrain["known_analog_test_barren_off"] = off
+        merge_write(a.metrics, {"terrain": terrain}, None)
+        print(json.dumps({k: {"median_percentile_all_pairs": v["median_percentile_all_pairs"],
+                              "median_of_site_medians": v["median_of_site_medians"],
+                              "baseline": v["baseline_random_median_percentile"], "pairs": v["pairs_evaluated"],
+                              "earth_points_ranked": v["earth_points_ranked"], "by_target_body": v["by_target_body"]}
+                          for k, v in (("barren_on", on), ("barren_off", off))}, indent=1))
+        return
     if a.tag:
         kat = known_analog_test(ix)
         perf = latency_test(ix)
