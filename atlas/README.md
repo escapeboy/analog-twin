@@ -10,8 +10,9 @@ at every Earth point of the terrain index. No new model is involved.
 |---|---|
 | `index.json` | Targets, modes, file paths, value range per target, colour-ramp stops for a legend, summary statistics |
 | `<target>/<mode>/score.png` | 4096 x 2048 RGBA, equirectangular (plate carree, EPSG:4326); row 0 = 90 N, column 0 = 180 W; 0.0879 deg per pixel (~9.8 km at the equator). Transparent = no data |
-| `<target>/<mode>/top200.geojson` | Top 200 Earth points by score after 50 km non-maximum suppression: rank, id, score, terrain_sim, light_sim, best 28-day window, country |
+| `<target>/<mode>/top200.geojson` | Top 200 Earth points by score after 50 km non-maximum suppression: rank, id, score, terrain_sim, light_sim, best 28-day window, country, `ndvi` (annual mean, 4 decimals or null) and `barren` (true, false or null when NDVI is unknown) |
 | `<target>/<mode>/score.tif` | Float32 score GeoTIFF, 2048 x 1024, EPSG:4326, NaN = no data. Only for `shackleton-rim`, `malapert-massif`, `jezero` |
+| `barren_mask.png` | 4096 x 2048 RGBA on the same grid and rasterisation as `score.png`. Transparent = barren (NDVI <= 0.2) or no data; neutral grey = vegetated (NDVI > 0.2); light diagonal hatch = Earth point without a MODIS value. One global file, shared by all targets and modes |
 | `known_analogs.geojson` | Established analog sites from `engine/known_analogs.yaml`, each with its source URL |
 
 `<mode>` is `terrain` or `terrain_light`. Targets and their coordinates come from `engine/targets.yaml`, where every
@@ -36,6 +37,16 @@ coordinate cites its source.
 - **Colour:** viridis (32 stops of matplotlib's table, linear interpolation).
   t = (score - vmin) / (vmax - vmin), with one range per target shared by both modes (`value_range` in
   `index.json`), so switching mode shows the real change.
+
+- **Barren mask:** the scores say nothing about vegetation, so the map also ships a mask layer. NDVI is the MODIS
+  MOD13A1 v061 annual mean 2022-2024 (Microsoft Planetary Computer), joined to each Earth point
+  (`data/index/<index>/env_modis.parquet`). An Earth point is barren when NDVI <= **0.2** (`engine/env.py`,
+  `BARREN_NDVI_MAX`, override with `ANALOG_BARREN_NDVI_MAX`). Source of the threshold: NASA Earth Observatory,
+  "Measuring Vegetation (NDVI & EVI)": barren areas of rock, sand or snow give very low values (0.1 or less), sparse
+  vegetation such as shrubs and grassland moderate values (0.2 to 0.3). 0.2 is our choice for the annual mean, which
+  that text does not address. `index.json` > `barren_mask` has `ndvi_max`, `source`, `barren_frac` (share of Earth
+  points that are barren) and `unknown_frac` (no MODIS value); each target and mode has `top200_barren_frac`.
+  The score PNGs are not changed by the mask.
 
 ## Limitations
 

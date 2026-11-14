@@ -43,10 +43,12 @@ export class Globe {
   private query: Point | null = null;
   private twins: Twin[] = [];
   private sites: Site[] = [];
-  private topSites: { lat: number; lon: number }[] = [];
+  private topSites: { lat: number; lon: number; rank?: number; score?: number; ndvi?: number | null; barren?: boolean | null }[] = [];
   private known: { lat: number; lon: number; name?: string }[] = [];
   private atlasLayer: ImageryLayer | null = null;
   private atlasSeq = 0;
+  private maskLayer: ImageryLayer | null = null;
+  private maskSeq = 0;
   private pulseTimer = 0;
   private selectedId: string | null = null;
   private entities = new Map<string, Entity>();
@@ -123,7 +125,7 @@ export class Globe {
   }
 
   /** Atlas overlay (Earth): top sites pulse subtly, known analog sites are outlined rings. */
-  setAtlasMarkers(top: { lat: number; lon: number }[], known: { lat: number; lon: number; name?: string }[]) {
+  setAtlasMarkers(top: { lat: number; lon: number; rank?: number; score?: number; ndvi?: number | null; barren?: boolean | null }[], known: { lat: number; lon: number; name?: string }[]) {
     this.topSites = top;
     this.known = known;
     this.render();
@@ -141,6 +143,7 @@ export class Globe {
       if (my !== this.atlasSeq) return;
       layer = this.viewer.imageryLayers.addImageryProvider(provider);
       layer.alpha = 0;
+      if (this.maskLayer && !this.maskLayer.isDestroyed()) this.viewer.imageryLayers.raiseToTop(this.maskLayer); // mask stays above the score layer
     }
     this.atlasLayer = layer;
     const t0 = performance.now();
@@ -153,6 +156,22 @@ export class Globe {
       else if (old && !old.isDestroyed()) this.viewer.imageryLayers.remove(old, true);
     };
     step();
+  }
+
+  /** Barren-mask overlay (global equirectangular PNG, same grid as the atlas); sits above the score layer; null removes it. */
+  async setAtlasMask(url: string | null, alpha = 1) {
+    const my = ++this.maskSeq;
+    const old = this.maskLayer;
+    this.maskLayer = null;
+    if (old && !old.isDestroyed()) this.viewer.imageryLayers.remove(old, true);
+    if (url) {
+      const provider = await SingleTileImageryProvider.fromUrl(url, { rectangle: Rectangle.fromDegrees(-180, -90, 180, 90) });
+      if (my !== this.maskSeq) return;
+      const layer = this.viewer.imageryLayers.addImageryProvider(provider);
+      layer.alpha = alpha;
+      this.maskLayer = layer;
+    }
+    this.viewer.scene.requestRender();
   }
 
   setSites(sites: Site[]) {
@@ -179,7 +198,10 @@ export class Globe {
       });
     }
     this.topSites.slice(0, 10).forEach((s, i) => {
+      const veg = s.barren == null ? 'no MODIS value' : s.barren ? 'barren' : 'vegetated';
       ents.add({
+        name: `Atlas top ${s.rank ?? i + 1}`,
+        description: `score ${s.score?.toFixed(3) ?? '-'}; NDVI ${s.ndvi != null ? s.ndvi.toFixed(2) : 'n/a'} (${veg})`,
         position: Cartesian3.fromDegrees(s.lon, s.lat),
         point: {
           pixelSize: new CallbackProperty(() => 10 + 3 * Math.sin(performance.now() / 500 + i), false) as never,
