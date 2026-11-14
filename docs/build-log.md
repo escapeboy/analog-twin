@@ -29,3 +29,6 @@ Times are Europe/Sofia.
 - Light tests green (59 passed). SPICE cross-check done.
 - Open: the known-analog test does not beat the random baseline (see 11:47); /api/health index_points and features are not yet filled in (W3).
 - Fallbacks used: none.
+- **11:58** Earth labels relabelled with the Natural Earth DEU point of view (e.g. 45.16N 34.99E → Ukraine; Morocco → Western Sahara for 2,614 points; 85 points "Disputed area"). The API was restarted.
+- **11:58** W3: campaign time over 3 live runs via the HTTP API: median 30.1 s, max 37.2 s, no fallback, 0 unverified claims removed. The integrator read one plan: 5 real disagreements resolved, refs valid.
+- **11:58** W8 trajectory merged; its own gate PASSES for 7 sites (TLI 3.172–3.177 km/s, LOI 0.841–0.849 km/s, Cesium Moon position within 0.10° of SPICE).

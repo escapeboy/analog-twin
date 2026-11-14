@@ -39,8 +39,28 @@ solution."
    * LOI Δv = √(v∞² + 2μ☾/r) − √(μ☾/r), with r = 1837.4 km (100 km circular orbit). This is a patched-conic
      approximation.
 4. **Launch.** The launch instant is when KSC (IAU_EARTH rotation) crosses the parking-orbit plane, at most
-   1.5 orbits before TLI, allowing a 10 min schematic ascent. If no crossing exists, arrival is shifted in 5 min steps
-   by up to ±12 h, closest shift first. The RAAN solution with the shorter coast is kept. Landing = arrival + 24 h.
+   1.5 orbits before TLI, allowing a 10 min schematic ascent. For each arrival time, the RAAN solution with the
+   shorter coast is kept. Arrival is searched in 5 min steps over ±12 h around the nominal time. The chosen shift is
+   the one whose parking-orbit position at insertion is closest to KSC (the "ascent gap", 0.6–3.8° for our sites;
+   it was 24–137° with closest-shift-first). The launch instant only fixes the plane, and this choice keeps the
+   schematic ascent short. Landing = arrival + 24 h.
+5. **Refinement (optional step, converged for all sites).** The transfer is propagated under Earth + Moon point-mass
+   gravity: Earth-centred, with the indirect term, Moon from DE440s through a 10 min cubic spline, DOP853,
+   rtol 1e-11.
+   * Start: a Lambert arc aimed at the Moon offset by the patched-conic impact parameter, in the transfer plane.
+     The side with the smaller TLI Δv is used.
+   * Correction: minimum-norm Newton steps on the TLI velocity until the closest approach is a 100 km-altitude
+     periselene (|error| < 1 km). This took 3 iterations everywhere.
+   * The time of flight is left free; it comes out at 4.29–4.32 d, because lunar gravity pulls the craft in.
+   * LOI Δv = periselene speed relative to the Moon − circular speed.
+   * The CZML then draws this arc and the label changes to "…Earth–Moon gravity model…". Landing = periselene + 24 h.
+   * The gate numbers stay the two-body ones from steps 1–4, as the spec defines them. The refined numbers are
+     recorded next to them (`refinement`), and `display` holds what the view shows.
+   * Two failed formulations were tried first, both noted here. Fixed-time position targeting near the Moon gave a
+     wrong branch with TLI 3.8 km/s. Aiming at a polar periselene needs an out-of-plane change the 172.5° transfer
+     barely allows: the smallest singular value of the Jacobian was ~5.7e3 km per km/s.
+     So the periselene lies near the transfer plane (latitude −0.7° to −14.6°), and a polar lunar orbit would need
+     a plane change that is not modelled. The descent to the polar site is schematic.
 
 **Checked independently, not by construction:**
 * The Lambert departure state is re-integrated with `solve_ivp` (DOP853, Earth two-body, rtol 1e-11) for the TOF.
@@ -58,8 +78,8 @@ solution."
 |---|---|---|
 | Ascent | 30 s | schematic straight-ish line from KSC to the orbit |
 | Parking orbit | 30 s | circular orbit |
-| Translunar coast | integrated arc; 1 min near the ends, 10 min between | until the craft is 1837.4 km from the Moon (LOI event) |
-| Lunar orbit | 2 min | 100 km circle around the moving Moon, in the plane of the entry point and the landing site |
+| Translunar coast | integrated arc; 1 min near the ends, 10 min between | refined: Earth + Moon arc to periselene; two-body: until 1837.4 km from the Moon (LOI event) |
+| Lunar orbit | 2 min | 100 km circle around the moving Moon. Refined: in the arrival plane, starting at periselene. Two-body: in the plane of the entry point and the landing site |
 | Descent | 1 min | schematic, final 60 min |
 
 Packets:
@@ -84,28 +104,43 @@ Thresholds (spec 06):
 * KSC < 1° from the parking plane
 * Cesium agreement < 3° ("a few degrees"; fixed before the first run)
 
-| Site | Launch (UTC) | TLI (UTC) | Arrival | Landing | TLI Δv | LOI Δv | coast | KSC∠ GMST-only | Cesium max |
-|---|---|---|---|---|---|---|---|---|---|
-| shackleton-rim | 2027-12-31 19:38:54 | 2027-12-31 22:00 | 2028-01-05 10:00 | 2028-01-06 10:00 | 3.172 | 0.849 | 131 min | 0.13° | 0.05° |
-| connecting-ridge | 2027-12-31 19:38:54 | 2027-12-31 22:00 | 2028-01-05 10:00 | 2028-01-06 10:00 | 3.172 | 0.849 | 131 min | 0.13° | 0.05° |
-| malapert-massif | 2028-01-02 22:49:48 | 2028-01-03 00:00 | 2028-01-07 12:00 | 2028-01-08 12:00 | 3.175 | 0.844 | 60 min | 0.18° | 0.09° |
-| nobile-rim-1 | 2028-01-01 21:14:44 | 2028-01-01 23:35 | 2028-01-06 11:35 | 2028-01-07 11:35 | 3.173 | 0.847 | 130 min | 0.17° | 0.06° |
-| haworth | 2028-01-02 22:49:48 | 2028-01-03 00:00 | 2028-01-07 12:00 | 2028-01-08 12:00 | 3.175 | 0.844 | 60 min | 0.18° | 0.09° |
-| de-gerlache-rim-2 | 2028-01-03 23:28:39 | 2028-01-04 00:00 | 2028-01-08 12:00 | 2028-01-09 12:00 | 3.177 | 0.841 | 21 min | 0.13° | 0.10° |
-| site-finder #1 (sp-0386-0786) | 2028-01-01 21:14:44 | 2028-01-01 23:35 | 2028-01-06 11:35 | 2028-01-07 11:35 | 3.173 | 0.847 | 130 min | 0.17° | 0.06° |
+The first table is two-body (gate). The KSC angle is 0 by construction; the GMST-only rotation is shown as a
+cross-check.
 
-* TOF = 4.5 d exactly for every site.
-* The re-integrated end point is within 3.6e-5 km of the Moon's position (~1e-8 % of the Earth–Moon distance).
-* The Sun direction agrees with Cesium within 0.0004°.
-* Landing-instant angles (Sun / Earth elevation): Shackleton rim 0.39° / 6.35°, Connecting Ridge 0.02° / 6.23°,
-  Malapert 3.41° / 9.86°, Nobile Rim 1 4.84° / 9.66°, Haworth 1.83° / 9.00°, de Gerlache Rim 2 0.28° / 5.90°.
-  These are instantaneous values at the landing time. Long-term averages come from the site finder.
+| Site | Launch (UTC) | TLI (UTC) | Arrival (2-body) | TLI Δv | LOI Δv | coast | KSC∠ GMST-only | Cesium max | end-point err % |
+|---|---|---|---|---|---|---|---|---|---|
+| shackleton-rim | 2027-12-31 19:34:07 | 2027-12-31 20:45:00 | 2028-01-05 08:45:00 | 3.171 | 0.850 | 61 min | 0.12° | 0.05° | 9e-09 |
+| connecting-ridge | 2027-12-31 19:34:07 | 2027-12-31 20:45:00 | 2028-01-05 08:45:00 | 3.171 | 0.850 | 61 min | 0.12° | 0.05° | 9e-09 |
+| malapert-massif | 2028-01-02 21:47:32 | 2028-01-02 22:55:00 | 2028-01-07 10:55:00 | 3.175 | 0.844 | 58 min | 0.13° | 0.08° | 7e-09 |
+| nobile-rim-1 | 2028-01-02 04:28:14 | 2028-01-02 06:40:00 | 2028-01-06 18:40:00 | 3.173 | 0.827 | 122 min | 0.02° | 0.07° | 2e-08 |
+| haworth | 2028-01-02 21:47:32 | 2028-01-02 22:55:00 | 2028-01-07 10:55:00 | 3.175 | 0.844 | 58 min | 0.13° | 0.08° | 7e-09 |
+| de-gerlache-rim-2 | 2028-01-03 23:31:08 | 2028-01-04 00:35:00 | 2028-01-08 12:35:00 | 3.177 | 0.841 | 54 min | 0.13° | 0.10° | 6e-09 |
+| site-finder #1 (sp-0386-0786) | 2028-01-02 04:28:14 | 2028-01-02 06:40:00 | 2028-01-06 18:40:00 | 3.173 | 0.827 | 122 min | 0.02° | 0.07° | 2e-08 |
+
+The second table is the refined Earth + Moon gravity arc, which is what the view shows. Landing = periselene + 24 h,
+and the angles are at the landing instant.
+
+| Site | TLI Δv | LOI Δv | periselene alt (km) | TOF (d) | Landing (UTC) | Sun / Earth elevation |
+|---|---|---|---|---|---|---|
+| shackleton-rim | 3.167 | 0.842 | 100.01 | 4.316 | 2028-01-06 04:20:44 | 0.41° / 6.33° |
+| connecting-ridge | 3.167 | 0.842 | 100.01 | 4.316 | 2028-01-06 04:20:44 | 0.04° / 6.21° |
+| malapert-massif | 3.171 | 0.837 | 100.00 | 4.309 | 2028-01-08 06:20:11 | 3.28° / 10.02° |
+| nobile-rim-1 | 3.170 | 0.820 | 100.01 | 4.287 | 2028-01-07 13:32:57 | 4.86° / 9.63° |
+| haworth | 3.171 | 0.837 | 100.00 | 4.309 | 2028-01-08 06:20:11 | 1.69° / 9.15° |
+| de-gerlache-rim-2 | 3.173 | 0.833 | 100.00 | 4.304 | 2028-01-09 07:52:51 | 0.22° / 6.09° |
+| site-finder #1 | 3.170 | 0.820 | 100.01 | 4.287 | 2028-01-07 13:32:57 | 4.75° / 9.96° |
+
+* The re-integrated two-body end point is within ~1e-8 % of the Earth–Moon distance.
+* The Sun direction agrees with Cesium within 0.0004°, the Moon within 0.10°.
+* `display.times_utc.launch` is filled only when the gate status is "pass" (spec: Partial hides the launch time).
+* Shackleton rim and Connecting Ridge share the same landing day, so their missions are identical apart from the
+  site.
 
 ## Limitations (state with the view)
 
-* Two-body Earth gravity for the transfer, targeting the Moon's centre. The Moon's gravity and the Sun are ignored.
-  LOI Δv is a patched-conic estimate.
-* The ascent and the descent are drawn schematically. The parking-orbit phase at launch is not matched to the
-  pad position; only the orbit plane is.
+* Gate numbers come from a two-body transfer that targets the Moon's centre. The view shows the Earth + Moon
+  point-mass refinement. The Sun's gravity, Earth oblateness and finite burns are ignored everywhere.
+* The ascent (10 min) and the descent (final 60 min) are drawn schematically. The plane change into a polar lunar
+  orbit is not modelled.
 * The landing-day score is a simple sum of two instantaneous elevations at noon UTC on each day.
 * Not a flight plan; launch times are not launch-window predictions.

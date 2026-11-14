@@ -6,7 +6,29 @@ import { store } from '../state';
 
 const ORDER: Role[] = ['terrain', 'light', 'logistics', 'testlead', 'director'];
 
-interface Card { root: HTMLElement; status: HTMLElement; text: HTMLElement; tools: HTMLElement; out: HTMLElement }
+interface Card { root: HTMLElement; status: HTMLElement; text: HTMLElement; tools: HTMLElement; out: HTMLElement; buf: string }
+
+const looksJson = (b: string) => /^\s*(```(json)?\s*)?\{/.test(b);
+const unq = (x: string) => { try { return JSON.parse(`"${x}"`) as string; } catch { return x; } };
+
+/** Pull the complete "summary" and claim "text"/"refs" values out of a possibly unfinished SpecialistReport JSON. */
+export function partialReport(buf: string): { summary?: string; claims: { text: string; refs: string[] }[] } {
+  const sm = /"summary"\s*:\s*"((?:[^"\\]|\\.)*)"/.exec(buf);
+  const claims: { text: string; refs: string[] }[] = [];
+  const re = /"text"\s*:\s*"((?:[^"\\]|\\.)*)"/g;
+  let m: RegExpExecArray | null;
+  const starts: { text: string; end: number }[] = [];
+  while ((m = re.exec(buf))) starts.push({ text: unq(m[1]), end: re.lastIndex });
+  starts.forEach((c, i) => {
+    const seg = buf.slice(c.end, i + 1 < starts.length ? buf.indexOf('"text"', c.end) : undefined);
+    const rm = /"refs"\s*:\s*\[([^\]]*)\]/.exec(seg);
+    const refs = rm ? [...rm[1].matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((x) => unq(x[1])) : [];
+    claims.push({ text: c.text, refs });
+  });
+  return { summary: sm ? unq(sm[1]) : undefined, claims };
+}
+
+const chips = (refs: string[]) => refs.map((x) => h('span', { class: 'refchip' }, x));
 
 export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => void) {
   let es: EventSource | null = null;
@@ -25,7 +47,7 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
     const tools = h('div', { class: 'tools' });
     const out = h('div', { class: 'out' });
     const el = h('section', { class: `card role-${role}` }, h('h3', null, ROLE_TITLES[role] ?? role, ' ', status), tools, text, out);
-    c = { root: el, status, text, tools, out };
+    c = { root: el, status, text, tools, out, buf: '' };
     byRole.set(role, c);
     // keep roles in canonical order
     const later = ORDER.slice(ORDER.indexOf(role) + 1).map((r) => byRole.get(r)?.root).find(Boolean);
@@ -34,6 +56,21 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
   }
 
   const short = (v: unknown) => { const s = typeof v === 'string' ? v : JSON.stringify(v); return s.length > 140 ? s.slice(0, 140) + '…' : s; };
+
+  function streamText(c: Card, role: Role, chunk: string) {
+    c.buf += chunk;
+    if (!looksJson(c.buf)) { c.text.append(chunk); return; }
+    clear(c.text);
+    if (role === 'director') {
+      const sites = (c.buf.match(/"role_in_campaign"/g) ?? []).length, tests = (c.buf.match(/"why"/g) ?? []).length;
+      c.text.append(h('div', { class: 'draft' }, `Drafting plan… ${sites} site${sites === 1 ? '' : 's'}, ${tests} test${tests === 1 ? '' : 's'}`));
+      return;
+    }
+    const p = partialReport(c.buf);
+    if (p.summary) c.text.append(h('div', { class: 'draft' }, p.summary));
+    for (const x of p.claims) c.text.append(h('div', { class: 'draft' }, '• ', x.text, ' ', ...chips(x.refs)));
+    if (!p.summary && !p.claims.length) c.text.append(h('div', { class: 'draft muted' }, 'Writing report…'));
+  }
 
   function onEvent(ev: CrewEvent) {
     const d = ev.data ?? {};
@@ -45,7 +82,7 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
         break;
       case 'agent.start': if (ev.role) card(ev.role); break;
       case 'agent.delta': case 'director.delta':
-        if (ev.role || ev.type === 'director.delta') card(ev.role ?? 'director').text.append(String(d.text ?? ''));
+        if (ev.role || ev.type === 'director.delta') streamText(card(ev.role ?? 'director'), ev.role ?? 'director', String(d.text ?? ''));
         break;
       case 'tool.call': if (ev.role) card(ev.role).tools.append(h('div', { class: 'tool' }, h('b', null, `▶ ${d.name ?? 'tool'} `), short(d.args ?? d.input ?? ''))); break;
       case 'tool.result': if (ev.role) card(ev.role).tools.append(h('div', { class: 'tool res' }, h('b', null, `✔ ${d.name ?? 'tool'} `), d.ref ? `${d.ref}: ` : '', short(d.digest ?? d.output ?? ''))); break;
@@ -54,12 +91,13 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
         const r = d.report as SpecialistReport;
         const c = card(ev.role);
         c.status.textContent = 'done'; c.status.className = 'chip c-done';
-        c.out.append(h('p', { class: 'summary' }, r.summary), h('ul', null, ...r.claims.map((x) => h('li', null, x.text, ' ', h('span', { class: 'refs' }, x.refs.join(', '))))));
+        clear(c.text); // the final report replaces the streamed draft
+        c.out.append(h('p', { class: 'summary' }, r.summary), h('ul', null, ...r.claims.map((x) => h('li', null, x.text, ' ', ...chips(x.refs)))));
         if (r.removed_unverified > 0) c.out.append(h('p', { class: 'warn' }, `${r.removed_unverified} unverified claim(s) removed`));
         break;
       }
       case 'director.question': card('director').out.append(h('p', { class: 'warn' }, (d.to ? `To ${d.to}: ` : '') + String(d.question ?? d.text ?? short(d)))); break;
-      case 'plan.final': { const c = card('director'); c.status.textContent = 'done'; c.status.className = 'chip c-done'; renderPlan(d.plan as CampaignPlan); break; }
+      case 'plan.final': { const c = card('director'); clear(c.text); c.status.textContent = 'done'; c.status.className = 'chip c-done'; renderPlan(d.plan as CampaignPlan); break; }
       case 'error': {
         const msg = String(d.message ?? d.error ?? short(d));
         (ev.role ? card(ev.role).out : planBox).append(h('p', { class: 'err' }, `Error: ${msg}`));

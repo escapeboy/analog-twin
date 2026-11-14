@@ -101,10 +101,13 @@ def test_crop_metric_shape_and_centre():
 
 @needs_mars
 def test_mars_heights_plausible():
-    h = dem.sample_heights("mars", np.array([18.4, -5.4, 0.0, 18.65]), np.array([77.7, 137.7, 0.0, -133.8]))
+    # Olympus Mons centre: USGS Gazetteer of Planetary Nomenclature, feature 4453,
+    # https://planetarynames.wr.usgs.gov/Feature/4453 : 18.40 N, 226.00 E planetocentric (= -134.00 E).
+    # Used as an orientation check: the grid's longitude convention must put the volcano far above datum.
+    h = dem.sample_heights("mars", np.array([18.4, -5.4, 0.0, 18.40]), np.array([77.7, 137.7, 0.0, -134.00]))
     assert np.isfinite(h).all()
     assert (h > -9000).all() and (h < 22500).all()
-    assert h[3] > 15000  # Olympus Mons summit region is far above datum
+    assert h[3] > 15000
 
 
 @needs_earth

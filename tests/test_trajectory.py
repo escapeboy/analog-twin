@@ -78,6 +78,7 @@ def test_plan_times_and_gate_values(mission):
     assert 0 <= m.launch["coast_s"] <= cfg.max_coast_orbits * m.launch["period_s"]
     assert m.launch["ksc_plane_angle_deg"] < 1e-3
     assert m.launch["ksc_plane_angle_gmst_deg"] < 1.0
+    assert m.launch["ascent_gap_deg"] < 10.0                           # insertion point near KSC
     chk = T.endpoint_check(m)
     assert chk["endpoint_error_pct"] < 1.0
     s = T.summary(m)
@@ -115,3 +116,18 @@ def test_ephemeris_agrees_with_cesium(mission):
     spec.loader.exec_module(bm)
     res = bm.cesium_check(CESIUM, {"a": et(), "b": et() + 10 * T.DAY})
     assert res["passed"] and res["max_deg"] < 1.0
+
+
+def test_refinement_reaches_100km_periselene(mission):
+    r = T.refine(mission)
+    assert r["converged"]
+    assert r["periselene_alt_km"] == pytest.approx(100.0, abs=1.0)
+    assert 3.0 <= r["tli_dv"] <= 3.3 and 0.7 <= r["loi_dv"] <= 1.1
+    assert abs(r["tli_dv"] - mission.tr["tli_dv"]) < 0.05              # Moon gravity changes TLI only slightly
+    from engine import czml as C
+    doc, info = C.build_czml(mission, r)
+    assert info["refined"] and "Earth-Moon gravity model" in info["label"]
+    xyz = np.array(next(p for p in doc if p["id"] == "spacecraft")["position"]["cartesian"]).reshape(-1, 4)
+    t0 = mission.launch["t_launch"]
+    d = [np.linalg.norm(xyz[i, 1:] / 1000 - T.moon_state(t0 + xyz[i, 0])[:3]) for i in range(0, len(xyz), 7)]
+    assert min(d) >= T.R_MOON - 1.0                                     # never drawn inside the Moon

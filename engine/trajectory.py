@@ -10,7 +10,9 @@ Steps:
    angle 172.5 deg, time of flight 4.5 d. TLI dv = |v_lambert - v_circular|; LOI dv = patched-conic burn from the
    hyperbolic excess speed relative to the Moon into a 100 km circular lunar orbit.
 4. Launch: the instant KSC LC-39B rotates into the parking-orbit plane, with a parking-orbit coast of at most
-   1.5 orbits before TLI. Arrival time may shift by up to +-12 h from the nominal landing-day epoch to find one.
+   1.5 orbits before TLI (per arrival time, the RAAN solution with the shorter coast). Arrival time may shift by up to
+   +-12 h from the nominal landing-day epoch; the shift whose parking-orbit position at insertion is closest to KSC
+   (smallest schematic ascent) is chosen.
    Landing = arrival + DESCENT_HOURS (descent drawn schematically).
 """
 from __future__ import annotations
@@ -200,6 +202,21 @@ def angle_to_plane_deg(p: np.ndarray, h: np.ndarray) -> float:
     return math.degrees(math.asin(abs(float(np.dot(_unit(p), h)))))
 
 
+def parking_position(tr: dict, t: float) -> np.ndarray:
+    rp = tr["r_park"]
+    n_orb = math.sqrt(GM_EARTH / rp ** 3)
+    a = n_orb * (t - tr["t_tli"])
+    return rp * (math.cos(a) * _unit(tr["r1"]) + math.sin(a) * _unit(np.cross(tr["h"], tr["r1"])))
+
+
+def ascent_gap_deg(tr: dict, ln: dict, cfg: MissionConfig) -> float:
+    """Angle between KSC at launch and the parking-orbit position at insertion (launch + ascent). The launch instant
+    fixes only the plane; this measures how far the schematic ascent has to reach."""
+    a = ksc_inertial(ln["t_launch"])
+    b = parking_position(tr, ln["t_launch"] + cfg.ascent_minutes * 60)
+    return math.degrees(math.acos(max(-1.0, min(1.0, float(_unit(a) @ _unit(b))))))
+
+
 def find_launch(tr: dict, cfg: MissionConfig) -> Optional[dict]:
     """Latest instant (shortest coast) when KSC crosses the parking plane with 0 <= coast <= max_coast_orbits."""
     period = 2 * math.pi * math.sqrt(tr["r_park"] ** 3 / GM_EARTH)
@@ -239,7 +256,7 @@ def plan(site_lat: float, site_lon: float, cfg: Optional[MissionConfig] = None, 
     step = cfg.arrival_step_minutes * 60
     n = int(cfg.arrival_search_hours * 3600 / step)
     best = None
-    for k in sorted(range(-n, n + 1), key=abs):
+    for k in range(-n, n + 1):
         t_arr = t_nominal + k * step
         sols = raan_solutions(moon_state(t_arr)[:3], cfg.inclination_deg)
         cands = []
@@ -249,9 +266,12 @@ def plan(site_lat: float, site_lon: float, cfg: Optional[MissionConfig] = None, 
             if ln:
                 cands.append((ln["coast_s"], tr, ln))
         if cands:
-            _, tr, ln = min(cands, key=lambda c: c[0])
-            best = (k, tr, ln, len(sols))
-            break
+            _, tr, ln = min(cands, key=lambda c: c[0])          # spec: RAAN solution with the shorter coast
+            ln["ascent_gap_deg"] = ascent_gap_deg(tr, ln, cfg)
+            key = (round(ln["ascent_gap_deg"], 3), abs(k))
+            if best is None or key < best[0]:
+                best = (key, (k, tr, ln, len(sols)))
+    best = best[1] if best else None
     if best is None:   # no launch instant found: keep the nominal transfer (Partial at best)
         sols = raan_solutions(moon_state(t_nominal)[:3], cfg.inclination_deg)
         if not sols:
@@ -296,6 +316,7 @@ def summary(m: Mission) -> dict:
                           "raan_deg": round(math.degrees(tr["raan"]), 3), "raan_solutions": m.raan_choices},
         "coast_min": round(ln["coast_s"] / 60, 1) if ln else None,
         "coast_orbits": round(ln["coast_s"] / ln["period_s"], 3) if ln else None,
+        "ascent_gap_deg": round(ln["ascent_gap_deg"], 2) if ln else None,
         "ksc_plane_angle_deg": round(ln["ksc_plane_angle_deg"], 6) if ln else None,
         "ksc_plane_angle_gmst_only_deg": round(ln["ksc_plane_angle_gmst_deg"], 4) if ln else None,
         "landing_sun_elevation_deg": round(m.landing_angles[0], 3),
@@ -304,3 +325,72 @@ def summary(m: Mission) -> dict:
         "label": "First-order mission geometry: real ephemerides, two-body transfer. Not a flight-dynamics solution.",
     }
     return out
+
+
+# ---- step 5 (optional): Earth + Moon point-mass refinement ----
+def refine(m: Mission, max_iter: int = 12, tol_km: float = 1.0) -> dict:
+    """Propagate under Earth + Moon point-mass gravity (Earth-centred frame, with the indirect term) and correct the
+    TLI velocity (minimum-norm Newton steps) until the closest approach to the Moon is a 100 km-altitude periselene.
+
+    Start: Lambert arc aimed at the Moon's position offset by the patched-conic impact parameter, in the transfer
+    plane (the side with the smaller TLI dv). Time of flight is free (reported). Returns converged=False if not."""
+    from scipy.interpolate import CubicSpline
+    from scipy.optimize import minimize_scalar
+
+    tr, cfg = m.tr, m.cfg
+    t0, tof = tr["t_tli"], tr["t_arr"] - tr["t_tli"]
+    span = tof + 1.0 * DAY
+    grid_t = np.arange(0.0, span + 600.0, 600.0)
+    moon = CubicSpline(grid_t, np.array([moon_state(t0 + x)[:3] for x in grid_t]))
+    r_lo = R_MOON + cfg.lunar_orbit_alt_km
+
+    def rhs(t, y):
+        r, rm = y[:3], moon(t)
+        d = rm - r
+        acc = -GM_EARTH * r / np.linalg.norm(r) ** 3 + GM_MOON * (d / np.linalg.norm(d) ** 3 - rm / np.linalg.norm(rm) ** 3)
+        return np.concatenate([y[3:], acc])
+
+    def run(v1):
+        return solve_ivp(rhs, (0.0, span), np.concatenate([tr["r1"], v1]), method="DOP853", rtol=1e-11, atol=1e-9,
+                         dense_output=True)
+
+    def peri(sol):
+        g = np.arange(tof - DAY, span, 30.0)
+        d = np.linalg.norm(sol.sol(g)[:3].T - moon(g), axis=1)
+        i = int(np.argmin(d))
+        f = lambda x: float(np.linalg.norm(sol.sol(x)[:3] - moon(x)))  # noqa: E731
+        r = minimize_scalar(f, bounds=(g[max(i - 1, 0)], g[min(i + 1, len(g) - 1)]), method="bounded",
+                            options={"xatol": 1e-2})
+        st = sol.sol(r.x)
+        return float(r.x), st[:3] - moon(r.x), st[3:] - moon(r.x, 1)
+
+    vinf_vec = tr["v2"] - tr["v_moon"]
+    vinf = float(np.linalg.norm(vinf_vec))
+    b = r_lo * math.sqrt(1 + 2 * GM_MOON / (r_lo * vinf ** 2))          # impact parameter for periselene r_lo
+    h_tr = _unit(np.cross(tr["r1"], tr["v1"]))
+    side = _unit(np.cross(h_tr, vinf_vec))
+    starts = []
+    for sgn in (1.0, -1.0):
+        v1, _ = lambert(tr["r1"], tr["r_moon"] + sgn * b * side, tof)
+        starts.append((float(np.linalg.norm(v1 - tr["v_circ"])), v1))
+    v1 = min(starts, key=lambda s: s[0])[1]
+    hist = []
+    for _ in range(max_iter):
+        tp, rel, vrel = peri(run(v1))
+        err = float(np.linalg.norm(rel)) - r_lo
+        hist.append(round(err, 3))
+        if abs(err) < tol_km:
+            break
+        grad = np.array([(np.linalg.norm(peri(run(v1 + 1e-6 * e))[1]) - r_lo - err) / 1e-6 for e in np.eye(3)])
+        v1 = v1 - err * grad / float(grad @ grad)
+    sol = run(v1)
+    tp, rel, vrel = peri(sol)
+    rp = float(np.linalg.norm(rel))
+    converged = abs(rp - r_lo) < tol_km
+    loi = float(np.linalg.norm(vrel)) - math.sqrt(GM_MOON / rp)
+    return {"converged": bool(converged), "iterations": len(hist), "periselene_error_km_history": hist,
+            "tli_dv": float(np.linalg.norm(v1 - tr["v_circ"])), "v1": v1, "loi_dv": loi,
+            "periselene_alt_km": rp - R_MOON, "t_periselene": t0 + tp, "tof_days": tp / DAY,
+            "sol": sol, "moon_spline": moon,
+            "periselene_lat_deg": math.degrees(math.asin(float(
+                _unit(np.array(_sp().pxform("J2000", "IAU_MOON", t0 + tp)) @ rel)[2])))}

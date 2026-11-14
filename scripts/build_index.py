@@ -152,7 +152,8 @@ def earth_country_labels(lat: np.ndarray, lon: np.ndarray) -> list[str]:
         if p not in seen:
             seen.add(p)
             lab[p] = names[int(gi[k])]
-    return [s if s else "Earth (no country polygon)" for s in lab]
+    # Land points outside every DEU-view country polygon are areas that view leaves unassigned (disputed).
+    return [s if s else "Disputed area" for s in lab]
 
 
 def coord_label(body: str, lat: float, lon: float) -> str:
