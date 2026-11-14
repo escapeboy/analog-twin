@@ -629,35 +629,55 @@ MISSION_LIMITATIONS = [
 
 
 def _mission_summary(raw: dict, site_id: str) -> dict:
-    """Maps the current W8 file shape (or an already-shaped `summary`) to the API contract."""
-    if isinstance(raw.get("summary"), dict):  # reshaped file: trust it, fill the gaps below
-        base = dict(raw["summary"])
-    else:
-        base = {}
+    """Maps a W8 mission file to the API contract. Headline tli/loi/tof = the two-body GATE values (top-level fields, else
+    gate.checks); the refined (Earth-Moon gravity) values go to summary.refined. Times come from top-level times_utc,
+    else from the file's summary block."""
+    sm = raw.get("summary") if isinstance(raw.get("summary"), dict) else {}
+    disp, refi = raw.get("display") or {}, raw.get("refinement") or {}
     t = raw.get("times_utc") or {}
-    gate = (raw.get("gate") or {}).get("status", "unknown")
-    show = raw.get("show_launch_time", True) and gate == "pass"
-    site = raw.get("site") or {}
-    events = base.get("events") or [{"t_utc": e.get("utc") or e.get("t_utc"), "name": e.get("name"), "detail": e.get("detail", "")}
-                                    for e in raw.get("events") or []]
+    gate = raw.get("gate") or {}
+    status = gate.get("status", "unknown")
+    checks = gate.get("checks") or {}
+
+    def chk(name: str, key: str):
+        return (checks.get(name) or {}).get(key)
+
+    def head(top: str, check: tuple, sm_key: str):
+        for v in (raw.get(top), chk(*check) if check else None):
+            if v is not None:
+                return v
+        return sm.get(sm_key)
+
+    tli_dv = head("tli_dv_km_s", ("tli_dv", "value_km_s"), "tli_dv_kms")
+    loi_dv = head("loi_dv_km_s", ("loi_dv", "value_km_s"), "loi_dv_kms")
+    tof = head("tof_days", ("tof_equals_config", "value_days"), "tof_days")
+    show = raw.get("show_launch_time", True) and status == "pass"
+    site = raw.get("site") or sm.get("site") or {}
+    events = sm.get("events") or [{"t_utc": e.get("utc") or e.get("t_utc"), "name": e.get("name"), "detail": e.get("detail", "")}
+                                  for e in raw.get("events") or []]
+    launch = t.get("launch", sm.get("launch_utc"))
+    refined = {"tli_dv_kms": sm.get("tli_dv_kms", refi.get("tli_dv_km_s", disp.get("tli_dv_km_s"))),
+               "loi_dv_kms": sm.get("loi_dv_kms", refi.get("loi_dv_km_s", disp.get("loi_dv_km_s"))),
+               "tof_days": sm.get("tof_days", refi.get("tof_days"))}
     out = {
-        "launch_utc": base.get("launch_utc", t.get("launch")) if show else None,
-        "tli_utc": base.get("tli_utc", t.get("tli")),
-        "arrival_utc": base.get("arrival_utc", t.get("arrival")),
-        "landing_utc": base.get("landing_utc", t.get("landing")),
-        "tli_dv_kms": base.get("tli_dv_kms", raw.get("tli_dv_km_s")),
-        "loi_dv_kms": base.get("loi_dv_kms", raw.get("loi_dv_km_s")),
-        "tof_days": base.get("tof_days", raw.get("tof_days")),
-        "arrival_vinf_kms": base.get("arrival_vinf_kms", raw.get("arrival_v_inf_km_s")),
+        "launch_utc": launch if show else None,
+        "tli_utc": t.get("tli", sm.get("tli_utc")),
+        "arrival_utc": t.get("arrival", sm.get("arrival_utc")),
+        "landing_utc": t.get("landing", sm.get("landing_utc")),
+        "tli_dv_kms": tli_dv,
+        "loi_dv_kms": loi_dv,
+        "tof_days": tof,
+        "arrival_vinf_kms": raw.get("arrival_v_inf_km_s", sm.get("arrival_vinf_kms")),
         "site": {"id": site.get("id", site_id), "label": site.get("label"), "lat": site.get("lat"), "lon": site.get("lon")},
-        "launch_time_computed": bool(show and (base.get("launch_utc") or t.get("launch"))),
-        "landing_sun_elevation_deg": base.get("landing_sun_elevation_deg", raw.get("landing_sun_elevation_deg")),
-        "landing_earth_elevation_deg": base.get("landing_earth_elevation_deg", raw.get("landing_earth_elevation_deg")),
-        "label": base.get("label") or (raw.get("display") or {}).get("label") or raw.get("label"),
+        "launch_time_computed": bool(show and launch),
+        "landing_sun_elevation_deg": raw.get("landing_sun_elevation_deg", sm.get("landing_sun_elevation_deg")),
+        "landing_earth_elevation_deg": raw.get("landing_earth_elevation_deg", sm.get("landing_earth_elevation_deg")),
+        "label": disp.get("label") or sm.get("label") or raw.get("label"),
         "events": [e for e in events if e.get("t_utc")],
-        "limitations": list(MISSION_LIMITATIONS) + [x for x in base.get("limitations", []) if x not in MISSION_LIMITATIONS],
+        "refined": refined if any(v is not None for v in refined.values()) and refined != {"tli_dv_kms": tli_dv, "loi_dv_kms": loi_dv, "tof_days": tof} else None,
+        "limitations": list(MISSION_LIMITATIONS) + [x for x in sm.get("limitations", []) if x not in MISSION_LIMITATIONS],
     }
-    return {"czml_url": f"/api/mission/{_safe(site_id)}.czml", "summary": out, "gate": {"status": gate}}
+    return {"czml_url": f"/api/mission/{_safe(site_id)}.czml", "summary": out, "gate": {"status": status}}
 
 
 def mission(site_id: str) -> Optional[dict]:
@@ -685,7 +705,7 @@ def mission_evidence_item(lat: float, lon: float) -> Optional[dict]:
         for p in sorted(d.glob("*.json")) if d.is_dir() else []:
             try:
                 raw = json.loads(p.read_text())
-                site = raw.get("site") or {}
+                site = raw.get("site") or (raw.get("summary") or {}).get("site") or {}
                 if abs(site.get("lat", 999) - lat) < 0.01 and abs(site.get("lon", 999) - lon) < 0.01:
                     s = _mission_summary(raw, p.stem)["summary"]
                     keep = ("launch_utc", "tli_utc", "arrival_utc", "landing_utc", "tli_dv_kms", "loi_dv_kms", "tof_days",

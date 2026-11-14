@@ -297,12 +297,22 @@ def test_mission_routes_adapter_and_evidence(client, monkeypatch, tmp_path):
     raw["summary"] = {"tli_dv_kms": 3.2, "events": [{"t_utc": "2028-01-01T00:00:00Z", "name": "x", "detail": "y"}]}
     (mdir / "shackleton-rim.json").write_text(json.dumps(raw))
     s3 = client.get("/api/mission/shackleton-rim").json()["summary"]
-    assert s3["tli_dv_kms"] == 3.2 and len(s3["events"]) == 1
+    assert s3["tli_dv_kms"] == pytest.approx(3.1715) and s3["tof_days"] == 4.5  # headline stays the two-body gate value
+    assert s3["refined"]["tli_dv_kms"] == 3.2 and len(s3["events"]) == 1
+    # file shape of the final W8/W2 output: no top-level numbers, gate values only in gate.checks, refined values in summary
+    final = {"site": {"id": "shackleton-rim", "label": "S", "lat": -89.7668, "lon": -171.87}, "show_launch_time": True, "gate": {"status": "pass", "checks": {
+        "tli_dv": {"value_km_s": 3.1715}, "loi_dv": {"value_km_s": 0.8495}, "tof_equals_config": {"value_days": 4.5}}},
+        "summary": {"launch_utc": "2027-12-31T19:34:07Z", "tli_utc": "x", "arrival_utc": "y", "landing_utc": "z", "tli_dv_kms": 3.1672,
+                    "loi_dv_kms": 0.8421, "tof_days": 4.3165, "arrival_vinf_kms": 0.91, "label": "L", "events": []}}
+    (mdir / "shackleton-rim.json").write_text(json.dumps(final))
+    s4 = client.get("/api/mission/shackleton-rim").json()["summary"]
+    assert (s4["tli_dv_kms"], s4["loi_dv_kms"], s4["tof_days"]) == (3.1715, 0.8495, 4.5)
+    assert s4["refined"] == {"tli_dv_kms": 3.1672, "loi_dv_kms": 0.8421, "tof_days": 4.3165} and s4["arrival_utc"] == "y"
     # replay cache copy serves when the data dir has no mission
     service.record_mission_cache()
     shutil.rmtree(mdir)
     assert client.get("/api/mission/shackleton-rim.czml").status_code == 200
     # evidence item
     ev = service.mission_evidence_item(-89.7668, -171.87)
-    assert ev and ev["ref"] == "mission:shackleton-rim" and ev["kind"] == "mission" and ev["data"]["tli_dv_kms"] == 3.2
+    assert ev and ev["ref"] == "mission:shackleton-rim" and ev["kind"] == "mission" and ev["data"]["tli_dv_kms"] == 3.1715
     assert service.mission_evidence_item(10.0, 10.0) is None

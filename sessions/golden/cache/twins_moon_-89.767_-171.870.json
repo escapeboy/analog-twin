@@ -19,107 +19,12 @@
  "results": {
   "earth": [
    {
-    "id": "earth-945271",
-    "body": "earth",
-    "lat": 40.18168935244888,
-    "lon": 20.198796756473968,
-    "place_label": "Albania",
-    "terrain_sim": 0.5655672709813908,
-    "light_sim": 0.8618551587301574,
-    "best_window": {
-     "start": "12-05",
-     "end": "01-01",
-     "emd": 0.6907242063492132,
-     "light_sim": 0.8618551587301574
-    },
-    "env": null,
-    "score": 0.6841,
-    "rank": 1,
-    "ref": "twin:earth-945271"
-   },
-   {
-    "id": "earth-956430",
-    "body": "earth",
-    "lat": 42.088251156996584,
-    "lon": 13.959876127642389,
-    "place_label": "Italy",
-    "terrain_sim": 0.5217603817300492,
-    "light_sim": 0.8645833333333324,
-    "best_window": {
-     "start": "12-04",
-     "end": "12-31",
-     "emd": 0.6770833333333384,
-     "light_sim": 0.8645833333333324
-    },
-    "env": null,
-    "score": 0.6589,
-    "rank": 2,
-    "ref": "twin:earth-956430"
-   },
-   {
-    "id": "earth-229110",
-    "body": "earth",
-    "lat": 46.701672880537174,
-    "lon": 8.001938946545124,
-    "place_label": "Switzerland",
-    "terrain_sim": 0.508019019698313,
-    "light_sim": 0.8767857142857104,
-    "best_window": {
-     "start": "12-10",
-     "end": "01-06",
-     "emd": 0.6160714285714481,
-     "light_sim": 0.8767857142857104
-    },
-    "env": null,
-    "score": 0.6555,
-    "rank": 3,
-    "ref": "twin:earth-229110"
-   },
-   {
-    "id": "earth-947752",
-    "body": "earth",
-    "lat": 40.685309451763366,
-    "lon": 20.160758993279757,
-    "place_label": "Albania",
-    "terrain_sim": 0.5069110611103097,
-    "light_sim": 0.861408730158729,
-    "best_window": {
-     "start": "12-03",
-     "end": "12-30",
-     "emd": 0.6929563492063551,
-     "light_sim": 0.861408730158729
-    },
-    "env": null,
-    "score": 0.6487,
-    "rank": 4,
-    "ref": "twin:earth-947752"
-   },
-   {
-    "id": "earth-375908",
-    "body": "earth",
-    "lat": 32.474735600229046,
-    "lon": 50.00706538558006,
-    "place_label": "Iran",
-    "terrain_sim": 0.5248605841623263,
-    "light_sim": 0.8241567460317476,
-    "best_window": {
-     "start": "12-02",
-     "end": "12-29",
-     "emd": 0.8792162698412618,
-     "light_sim": 0.8241567460317476
-    },
-    "env": null,
-    "score": 0.6446,
-    "rank": 5,
-    "ref": "twin:earth-375908"
-   },
-   {
-    "id": "earth-730329",
+    "id": "earth-695538",
     "body": "earth",
     "lat": -11.91117951801508,
     "lon": -76.37727344036102,
     "place_label": "Peru",
-    "terrain_sim": 0.5440878687328196,
+    "terrain_sim": 0.4673833530885734,
     "light_sim": 0.7749999999999961,
     "best_window": {
      "start": "05-23",
@@ -128,74 +33,17 @@
      "light_sim": 0.7749999999999961
     },
     "env": null,
-    "score": 0.6365,
-    "rank": 6,
-    "ref": "twin:earth-730329"
+    "score": 0.5904,
+    "rank": 1,
+    "ref": "twin:earth-695538"
    },
    {
-    "id": "earth-990451",
-    "body": "earth",
-    "lat": 46.620832050826984,
-    "lon": 11.051942383238753,
-    "place_label": "Italy",
-    "terrain_sim": 0.45855382357021685,
-    "light_sim": 0.8764880952380916,
-    "best_window": {
-     "start": "12-11",
-     "end": "01-07",
-     "emd": 0.6175595238095423,
-     "light_sim": 0.8764880952380916
-    },
-    "env": null,
-    "score": 0.6257,
-    "rank": 7,
-    "ref": "twin:earth-990451"
-   },
-   {
-    "id": "earth-995976",
-    "body": "earth",
-    "lat": 47.12445215014147,
-    "lon": 9.41107357908649,
-    "place_label": "Switzerland",
-    "terrain_sim": 0.4420819436359268,
-    "light_sim": 0.879166666666662,
-    "best_window": {
-     "start": "12-05",
-     "end": "01-01",
-     "emd": 0.6041666666666902,
-     "light_sim": 0.879166666666662
-    },
-    "env": null,
-    "score": 0.6169,
-    "rank": 8,
-    "ref": "twin:earth-995976"
-   },
-   {
-    "id": "earth-393898",
-    "body": "earth",
-    "lat": 30.842621592664756,
-    "lon": 50.9031380712986,
-    "place_label": "Iran",
-    "terrain_sim": 0.48209016742306054,
-    "light_sim": 0.8162698412698439,
-    "best_window": {
-     "start": "12-04",
-     "end": "12-31",
-     "emd": 0.9186507936507802,
-     "light_sim": 0.8162698412698439
-    },
-    "env": null,
-    "score": 0.6158,
-    "rank": 9,
-    "ref": "twin:earth-393898"
-   },
-   {
-    "id": "earth-233576",
+    "id": "earth-220129",
     "body": "earth",
     "lat": 46.301895332199216,
     "lon": 9.042948558926582,
     "place_label": "Switzerland",
-    "terrain_sim": 0.4305954716898459,
+    "terrain_sim": 0.3902741970898543,
     "light_sim": 0.8745535714285675,
     "best_window": {
      "start": "12-11",
@@ -204,9 +52,161 @@
      "light_sim": 0.8745535714285675
     },
     "env": null,
-    "score": 0.6082,
+    "score": 0.584,
+    "rank": 2,
+    "ref": "twin:earth-220129"
+   },
+   {
+    "id": "earth-394422",
+    "body": "earth",
+    "lat": 28.833463214389944,
+    "lon": 96.64474955201149,
+    "place_label": "China",
+    "terrain_sim": 0.4098973245723385,
+    "light_sim": 0.8113095238095249,
+    "best_window": {
+     "start": "12-02",
+     "end": "12-29",
+     "emd": 0.9434523809523752,
+     "light_sim": 0.8113095238095249
+    },
+    "env": null,
+    "score": 0.5705,
+    "rank": 3,
+    "ref": "twin:earth-394422"
+   },
+   {
+    "id": "earth-336612",
+    "body": "earth",
+    "lat": 34.43026373282588,
+    "lon": 75.95825792849064,
+    "place_label": "India",
+    "terrain_sim": 0.3901276880685022,
+    "light_sim": 0.8328869047619044,
+    "best_window": {
+     "start": "12-05",
+     "end": "01-01",
+     "emd": 0.835565476190478,
+     "light_sim": 0.8328869047619044
+    },
+    "env": null,
+    "score": 0.5672,
+    "rank": 4,
+    "ref": "twin:earth-336612"
+   },
+   {
+    "id": "earth-716665",
+    "body": "earth",
+    "lat": -15.431326181960165,
+    "lon": -73.13177990913391,
+    "place_label": "Peru",
+    "terrain_sim": 0.4162456026880065,
+    "light_sim": 0.7805555555555571,
+    "best_window": {
+     "start": "06-02",
+     "end": "06-29",
+     "emd": 1.0972222222222143,
+     "light_sim": 0.7805555555555571
+    },
+    "env": null,
+    "score": 0.562,
+    "rank": 5,
+    "ref": "twin:earth-716665"
+   },
+   {
+    "id": "earth-718852",
+    "body": "earth",
+    "lat": -15.770672859362504,
+    "lon": -72.19158238172531,
+    "place_label": "Peru",
+    "terrain_sim": 0.40794494297706063,
+    "light_sim": 0.7805555555555571,
+    "best_window": {
+     "start": "06-04",
+     "end": "07-01",
+     "emd": 1.0972222222222143,
+     "light_sim": 0.7805555555555571
+    },
+    "env": null,
+    "score": 0.557,
+    "rank": 6,
+    "ref": "twin:earth-718852"
+   },
+   {
+    "id": "earth-360602",
+    "body": "earth",
+    "lat": 32.00828904099593,
+    "lon": 77.1896556019783,
+    "place_label": "India",
+    "terrain_sim": 0.3715941678322735,
+    "light_sim": 0.8222222222222243,
+    "best_window": {
+     "start": "12-05",
+     "end": "01-01",
+     "emd": 0.8888888888888786,
+     "light_sim": 0.8222222222222243
+    },
+    "env": null,
+    "score": 0.5518,
+    "rank": 7,
+    "ref": "twin:earth-360602"
+   },
+   {
+    "id": "earth-704165",
+    "body": "earth",
+    "lat": -13.397497566142125,
+    "lon": -73.34596645832062,
+    "place_label": "Peru",
+    "terrain_sim": 0.3883904752745474,
+    "light_sim": 0.7799603174603131,
+    "best_window": {
+     "start": "06-05",
+     "end": "07-02",
+     "emd": 1.100198412698434,
+     "light_sim": 0.7799603174603131
+    },
+    "env": null,
+    "score": 0.545,
+    "rank": 8,
+    "ref": "twin:earth-704165"
+   },
+   {
+    "id": "earth-319912",
+    "body": "earth",
+    "lat": 36.19251143876246,
+    "lon": 73.35399779677391,
+    "place_label": "Pakistan",
+    "terrain_sim": 0.3408912813981345,
+    "light_sim": 0.8449404761904764,
+    "best_window": {
+     "start": "12-04",
+     "end": "12-31",
+     "emd": 0.7752976190476177,
+     "light_sim": 0.8449404761904764
+    },
+    "env": null,
+    "score": 0.5425,
+    "rank": 9,
+    "ref": "twin:earth-319912"
+   },
+   {
+    "id": "earth-696294",
+    "body": "earth",
+    "lat": -12.046507426620906,
+    "lon": -74.60678070783615,
+    "place_label": "Peru",
+    "terrain_sim": 0.3861270772016102,
+    "light_sim": 0.7749999999999961,
+    "best_window": {
+     "start": "05-23",
+     "end": "06-19",
+     "emd": 1.1250000000000195,
+     "light_sim": 0.7749999999999961
+    },
+    "env": null,
+    "score": 0.5417,
     "rank": 10,
-    "ref": "twin:earth-233576"
+    "ref": "twin:earth-696294"
    }
   ],
   "mars": [
@@ -216,27 +216,13 @@
     "lat": -8.267876795024067,
     "lon": -73.19447216391563,
     "place_label": "Mars 8.27°S 73.19°W",
-    "terrain_sim": 0.7293097262582366,
+    "terrain_sim": 0.7406238301183535,
     "light_sim": null,
     "best_window": null,
     "env": null,
-    "score": 0.7293,
+    "score": 0.7406,
     "rank": 1,
     "ref": "twin:mars-573726"
-   },
-   {
-    "id": "mars-556743",
-    "body": "mars",
-    "lat": -6.318550817538419,
-    "lon": -47.55133394896984,
-    "place_label": "Mars 6.32°S 47.55°W",
-    "terrain_sim": 0.6941285781439352,
-    "light_sim": null,
-    "best_window": null,
-    "env": null,
-    "score": 0.6941,
-    "rank": 2,
-    "ref": "twin:mars-556743"
    },
    {
     "id": "mars-628553",
@@ -244,115 +230,129 @@
     "lat": -14.639877067018478,
     "lon": -55.014900743961334,
     "place_label": "Mars 14.64°S 55.01°W",
-    "terrain_sim": 0.679834604707603,
+    "terrain_sim": 0.6890071547087121,
     "light_sim": null,
     "best_window": null,
     "env": null,
-    "score": 0.6798,
-    "rank": 3,
+    "score": 0.689,
+    "rank": 2,
     "ref": "twin:mars-628553"
    },
    {
-    "id": "mars-1016345",
+    "id": "mars-552258",
     "body": "mars",
-    "lat": -3.171673713325661,
-    "lon": 134.01163882110006,
-    "place_label": "Mars 3.17°S 134.01°E",
-    "terrain_sim": 0.6745357580231991,
+    "lat": -5.805074745627327,
+    "lon": -89.87309837341309,
+    "place_label": "Mars 5.81°S 89.87°W",
+    "terrain_sim": 0.6302865497072438,
     "light_sim": null,
     "best_window": null,
     "env": null,
-    "score": 0.6745,
+    "score": 0.6303,
+    "rank": 3,
+    "ref": "twin:mars-552258"
+   },
+   {
+    "id": "mars-556743",
+    "body": "mars",
+    "lat": -6.318550817538419,
+    "lon": -47.55133394896984,
+    "place_label": "Mars 6.32°S 47.55°W",
+    "terrain_sim": 0.6289808243888413,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.629,
     "rank": 4,
-    "ref": "twin:mars-1016345"
+    "ref": "twin:mars-556743"
    },
    {
-    "id": "mars-826954",
+    "id": "mars-559434",
     "body": "mars",
-    "lat": -40.313254522464334,
-    "lon": 102.88039082288742,
-    "place_label": "Mars 40.31°S 102.88°E",
-    "terrain_sim": 0.6535300566411422,
+    "lat": -6.626878546976371,
+    "lon": -94.15827530622482,
+    "place_label": "Mars 6.63°S 94.16°W",
+    "terrain_sim": 0.6211103603474469,
     "light_sim": null,
     "best_window": null,
     "env": null,
-    "score": 0.6535,
+    "score": 0.6211,
     "rank": 5,
-    "ref": "twin:mars-826954"
+    "ref": "twin:mars-559434"
    },
    {
-    "id": "mars-581363",
+    "id": "mars-558379",
     "body": "mars",
-    "lat": -9.147472563444879,
-    "lon": -46.400422021746635,
-    "place_label": "Mars 9.15°S 46.40°W",
-    "terrain_sim": 0.6492341145013948,
+    "lat": -6.50597693783342,
+    "lon": -84.84934809803963,
+    "place_label": "Mars 6.51°S 84.85°W",
+    "terrain_sim": 0.5983287811254314,
     "light_sim": null,
     "best_window": null,
     "env": null,
-    "score": 0.6492,
+    "score": 0.5983,
     "rank": 6,
-    "ref": "twin:mars-581363"
+    "ref": "twin:mars-558379"
    },
    {
-    "id": "mars-1019589",
+    "id": "mars-572676",
     "body": "mars",
-    "lat": -1.2821659692167566,
-    "lon": 137.2360772548284,
-    "place_label": "Mars 1.28°S 137.24°E",
-    "terrain_sim": 0.6320863692602544,
+    "lat": -8.147100500566017,
+    "lon": -96.34672470390797,
+    "place_label": "Mars 8.15°S 96.35°W",
+    "terrain_sim": 0.5926983459934683,
     "light_sim": null,
     "best_window": null,
     "env": null,
-    "score": 0.6321,
+    "score": 0.5927,
     "rank": 7,
-    "ref": "twin:mars-1019589"
+    "ref": "twin:mars-572676"
    },
    {
-    "id": "mars-532369",
+    "id": "mars-566741",
     "body": "mars",
-    "lat": -3.5330859754465735,
-    "lon": -61.79228958487511,
-    "place_label": "Mars 3.53°S 61.79°W",
-    "terrain_sim": 0.6255549261657647,
+    "lat": -7.465095364884378,
+    "lon": -84.92636168003082,
+    "place_label": "Mars 7.47°S 84.93°W",
+    "terrain_sim": 0.5916404543834347,
     "light_sim": null,
     "best_window": null,
     "env": null,
-    "score": 0.6256,
+    "score": 0.5916,
     "rank": 8,
-    "ref": "twin:mars-532369"
+    "ref": "twin:mars-566741"
    },
    {
-    "id": "mars-474577",
+    "id": "mars-559413",
     "body": "mars",
-    "lat": 3.0500322353564036,
-    "lon": 89.5077306330204,
-    "place_label": "Mars 3.05°N 89.51°E",
-    "terrain_sim": 0.6197635059597957,
+    "lat": -6.624471687330189,
+    "lon": -101.8213203549385,
+    "place_label": "Mars 6.62°S 101.82°W",
+    "terrain_sim": 0.5912146880748183,
     "light_sim": null,
     "best_window": null,
     "env": null,
-    "score": 0.6198,
+    "score": 0.5912,
     "rank": 9,
-    "ref": "twin:mars-474577"
+    "ref": "twin:mars-559413"
    },
    {
-    "id": "mars-821265",
+    "id": "mars-581130",
     "body": "mars",
-    "lat": -39.46911102349126,
-    "lon": 101.21071015298367,
-    "place_label": "Mars 39.47°S 101.21°E",
-    "terrain_sim": 0.618448405441007,
+    "lat": -9.120605556167627,
+    "lon": -45.70944568514824,
+    "place_label": "Mars 9.12°S 45.71°W",
+    "terrain_sim": 0.5701802105837558,
     "light_sim": null,
     "best_window": null,
     "env": null,
-    "score": 0.6184,
+    "score": 0.5702,
     "rank": 10,
-    "ref": "twin:mars-821265"
+    "ref": "twin:mars-581130"
    }
   ]
  },
- "latency_ms": 471.2,
+ "latency_ms": 88.1,
  "source": "live",
  "ref": "twins:moon:-89.767:-171.870"
 }
