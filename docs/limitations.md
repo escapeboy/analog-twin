@@ -4,19 +4,29 @@ This is the full list. The app prints the short version next to every result.
 
 ## Terrain similarity
 
-- Similarity is terrain shape only (25 features in 6 groups: slope, roughness, position, curvature, relief, aspect).
+What "similar" means here: twins share coarse terrain texture (slope, roughness and relief statistics over 12 and 36 km
+windows at about 1 km pixels), not identical landforms. A crater target does not get a crater twin at this scale, and a
+flat target matches flat plains almost anywhere, so a high score for a flat target discriminates little.
+
+- Similarity is terrain shape only (31 features in 7 groups: slope, roughness, position, curvature, relief, aspect, and a 36 km context group; index v2).
   It does not see geology, chemistry, regolith, climate or absolute altitude. A site can be a good analog for
   reasons this tool cannot measure (Rio Tinto is the standard example).
+- The candidates in [new-candidates.md](new-candidates.md) are hypotheses for field scouting. For some targets even the best
+  Earth terrain is a weak shape match (see the ranges in that file).
 - Common scale: all three bodies are resampled to about 926 m, because Earth's only global DEM here is ETOPO 2022 at
-  30 arc-seconds. Each point is described by a 12 km window. Landforms smaller than about 2 km are not resolved
+  30 arc-seconds. Each point is described by a 12 km window plus a 36 km context window. Landforms smaller than about 2 km are not resolved
   (for example Meteor Crater, 1.2 km across).
 - The Moon grids are 2 to 4 percent coarser than Earth's and Mars's before resampling (948 m and 960 m).
 - Heights are on different datums (Earth: EGM2008 geoid, Moon: 1737.4 km sphere, Mars: MOLA datum). Only shape is
   compared, so this does not matter for the score.
-- Earth points within about 6 km of a coast or an ice sheet have no full valid window and are not indexed. Ocean and
+- v2 needs a fully valid 36 km window, so Earth points near coasts or ice sheets, and small islands, are not indexed
+  (972,567 Earth points in v2 against 1,026,242 in v1; metrics: terrain.multiscale_decision.caveats). Ocean and
   glaciated areas are masked with Natural Earth 10 m polygons.
 - The McMurdo Dry Valleys (University Valley) lie inside Natural Earth's "Antarctic Ice Sheet" polygon, so the ice
   mask removes them. That analog site cannot be tested.
+- The 3D terrain view uses finer DEMs than the index (Copernicus GLO-30 for Earth, fetched on demand; LOLA 80 m near
+  the lunar south pole). The two sides of a pair are drawn at the coarser of the two resolutions. If a Copernicus tile
+  cannot be fetched, the Earth side falls back to ETOPO 30 arc-seconds.
 - Latitude coverage: Earth and Mars 85 S to 85 N. Moon 90 S to 80 N: no north-polar product was downloaded, so the
   Moon north of 80 N is not indexed.
 - Place labels for Earth use Natural Earth's German point-of-view country file. Disputed areas follow that view; 85
@@ -24,14 +34,23 @@ This is the full list. The app prints the short version next to every result.
 
 ## Validation of the terrain method
 
-- The known-analog test does not show that the method works. Established analog sites rank no better than random
-  places on average (see the numbers in the [README](../README.md#validation)). We report this as measured.
+- The known-analog test does not show that the method works. The first index (v1) ranked established analog sites
+  worse than random places (median percentile 59.64 against 48.07 for random; metrics: terrain.v1.known_analog_test).
+  The shipped index (v2, multiscale) improves this to 51.12 against 48.54 for random (metrics:
+  terrain.known_analog_test, terrain.multiscale_decision), which is still not clearly better than chance. We report
+  this as measured.
+- v2 can evaluate only 8 of the 11 analog sites (42 pairs): coastal and island sites such as Lanzarote and Bockfjorden
+  drop out, and the McMurdo Dry Valleys are masked. The median of per-site medians got worse (54.69 to 57.97; metrics:
+  terrain.multiscale_decision). The gain is in pairs, led by Haughton.
 - Analog sites were chosen by their operators for geology, climate or logistics. Terrain shape at 926 m is only one
   aspect of that choice, so poor ranks are expected for some sites.
 - Some analog-status sources were seen only in search snippets (marked in [sources.md](sources.md)).
 
 ## Sunlight model
 
+- The light similarity score (`light_sim`) has a high floor: even unrelated Earth places score well for a polar lunar
+  target, because the score is scaled by the largest possible distance between elevation histograms. The app shows each
+  target's Earth range next to the score, and a light score should be read against that range, not on its own scale.
 - Analytic model: circular orbit, constant obliquity, mean solar time. No orbital eccentricity, no equation of time,
   no refraction, Sun as a point.
 - No local horizon and no terrain shadowing in the sun-elevation numbers. This matters most at the lunar poles,

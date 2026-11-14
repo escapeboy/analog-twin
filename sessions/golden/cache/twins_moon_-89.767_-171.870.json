@@ -4,7 +4,7 @@
   "lat": -89.7668,
   "lon": -171.87,
   "label": null,
-  "point_id": "moon@-89.7668,-171.8700",
+  "point_id": "moon@-89.766800,-171.870000",
   "on_grid": false,
   "snapped_km": null
  },
@@ -30,9 +30,21 @@
      "start": "05-23",
      "end": "06-19",
      "emd": 1.1250000000000195,
-     "light_sim": 0.7749999999999961
+     "light_sim": 0.7749999999999961,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
     },
-    "env": null,
+    "env": {
+     "country": "Peru",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 4388.5,
+     "nearest_airport": "Jorge Chávez International Airport (LIM / SPIM)",
+     "airport_km": 80.4,
+     "ref": "ctx:earth-695538"
+    },
     "score": 0.5904,
     "rank": 1,
     "ref": "twin:earth-695538"
@@ -49,9 +61,21 @@
      "start": "12-11",
      "end": "01-07",
      "emd": 0.6272321428571628,
-     "light_sim": 0.8745535714285675
+     "light_sim": 0.8745535714285675,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
     },
-    "env": null,
+    "env": {
+     "country": "Switzerland",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 2012.9,
+     "nearest_airport": "Milan–Malpensa Airport (MXP / LIMC)",
+     "airport_km": 79.2,
+     "ref": "ctx:earth-220129"
+    },
     "score": 0.584,
     "rank": 2,
     "ref": "twin:earth-220129"
@@ -68,9 +92,21 @@
      "start": "12-02",
      "end": "12-29",
      "emd": 0.9434523809523752,
-     "light_sim": 0.8113095238095249
+     "light_sim": 0.8113095238095249,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
     },
-    "env": null,
+    "env": {
+     "country": "China",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 4032.1,
+     "nearest_airport": "Lhasa Gonggar Airport (LXA / ZULS)",
+     "airport_km": 560.6,
+     "ref": "ctx:earth-394422"
+    },
     "score": 0.5705,
     "rank": 3,
     "ref": "twin:earth-394422"
@@ -87,9 +123,21 @@
      "start": "12-05",
      "end": "01-01",
      "emd": 0.835565476190478,
-     "light_sim": 0.8328869047619044
+     "light_sim": 0.8328869047619044,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
     },
-    "env": null,
+    "env": {
+     "country": "India",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 4568.9,
+     "nearest_airport": "Sheikh ul-Alam International Airport (SXR / VISR)",
+     "airport_km": 119.0,
+     "ref": "ctx:earth-336612"
+    },
     "score": 0.5672,
     "rank": 4,
     "ref": "twin:earth-336612"
@@ -106,9 +154,21 @@
      "start": "06-02",
      "end": "06-29",
      "emd": 1.0972222222222143,
-     "light_sim": 0.7805555555555571
+     "light_sim": 0.7805555555555571,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
     },
-    "env": null,
+    "env": {
+     "country": "Peru",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 3242.9,
+     "nearest_airport": "Rodríguez Ballón International Airport (AQP / SPQU)",
+     "airport_km": 195.7,
+     "ref": "ctx:earth-716665"
+    },
     "score": 0.562,
     "rank": 5,
     "ref": "twin:earth-716665"
@@ -125,9 +185,21 @@
      "start": "06-04",
      "end": "07-01",
      "emd": 1.0972222222222143,
-     "light_sim": 0.7805555555555571
+     "light_sim": 0.7805555555555571,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
     },
-    "env": null,
+    "env": {
+     "country": "Peru",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 3725.9,
+     "nearest_airport": "Rodríguez Ballón International Airport (AQP / SPQU)",
+     "airport_km": 92.3,
+     "ref": "ctx:earth-718852"
+    },
     "score": 0.557,
     "rank": 6,
     "ref": "twin:earth-718852"
@@ -144,9 +216,21 @@
      "start": "12-05",
      "end": "01-01",
      "emd": 0.8888888888888786,
-     "light_sim": 0.8222222222222243
+     "light_sim": 0.8222222222222243,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
     },
-    "env": null,
+    "env": {
+     "country": "India",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 2968.1,
+     "nearest_airport": "Adampur Air force base (VIAX)",
+     "airport_km": 149.7,
+     "ref": "ctx:earth-360602"
+    },
     "score": 0.5518,
     "rank": 7,
     "ref": "twin:earth-360602"
@@ -163,9 +247,21 @@
      "start": "06-05",
      "end": "07-02",
      "emd": 1.100198412698434,
-     "light_sim": 0.7799603174603131
+     "light_sim": 0.7799603174603131,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
     },
-    "env": null,
+    "env": {
+     "country": "Peru",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 3662.8,
+     "nearest_airport": "Alejandro Velasco Astete International Airport (CUZ / SPZO)",
+     "airport_km": 152.4,
+     "ref": "ctx:earth-704165"
+    },
     "score": 0.545,
     "rank": 8,
     "ref": "twin:earth-704165"
@@ -182,9 +278,21 @@
      "start": "12-04",
      "end": "12-31",
      "emd": 0.7752976190476177,
-     "light_sim": 0.8449404761904764
+     "light_sim": 0.8449404761904764,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
     },
-    "env": null,
+    "env": {
+     "country": "Pakistan",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 4589.1,
+     "nearest_airport": "Sheikh ul-Alam International Airport (SXR / VISR)",
+     "airport_km": 277.9,
+     "ref": "ctx:earth-319912"
+    },
     "score": 0.5425,
     "rank": 9,
     "ref": "twin:earth-319912"
@@ -201,9 +309,21 @@
      "start": "05-23",
      "end": "06-19",
      "emd": 1.1250000000000195,
-     "light_sim": 0.7749999999999961
+     "light_sim": 0.7749999999999961,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
     },
-    "env": null,
+    "env": {
+     "country": "Peru",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 3169.5,
+     "nearest_airport": "Jorge Chávez International Airport (LIM / SPIM)",
+     "airport_km": 272.0,
+     "ref": "ctx:earth-696294"
+    },
     "score": 0.5417,
     "rank": 10,
     "ref": "twin:earth-696294"
@@ -352,7 +472,7 @@
    }
   ]
  },
- "latency_ms": 88.1,
+ "latency_ms": 972.4,
  "source": "live",
  "ref": "twins:moon:-89.767:-171.870"
 }

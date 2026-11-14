@@ -228,7 +228,8 @@ class Index:
 
 
 def _coord_id(r: Resolved) -> str:
-    return f"{r.body}@{r.lat:.4f},{r.lon:.4f}"
+    # 6 decimals (~0.1 m): re-resolving the id must give the same on-the-fly features as the original query
+    return f"{r.body}@{r.lat:.6f},{r.lon:.6f}"
 
 
 def _inv_log(v: float) -> float:

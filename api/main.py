@@ -39,9 +39,10 @@ async def _check_cli() -> None:
 @contextlib.asynccontextmanager
 async def lifespan(_app):
     task = asyncio.create_task(_check_cli())
+    warm = asyncio.create_task(asyncio.to_thread(service.warm))  # first query is 3 s cold otherwise
     yield
     task.cancel()
-    await asyncio.gather(task, return_exceptions=True)  # let run_claude reap its subprocess before the loop closes
+    await asyncio.gather(task, warm, return_exceptions=True)  # let run_claude reap its subprocess before the loop closes
     await runner.shutdown()
 
 
@@ -146,12 +147,12 @@ def terrain_heights(name: str):
 
 
 @app.get("/api/terrain/{a}/{b}", response_model=service.TerrainPair)
-def terrain_pair(a: str, b: str):
+def terrain_pair(a: str, b: str, replay: int = 0):
     try:
-        return service.terrain_pair(a, b)
+        return service.terrain_pair(a, b, bool(replay))
     except service.NoTerrain as exc:
         raise HTTPException(422, str(exc))
-    except (KeyError, ValueError) as exc:
+    except (KeyError, ValueError, LookupError) as exc:
         raise HTTPException(404, f"unknown point: {exc}")
 
 

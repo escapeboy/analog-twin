@@ -4,7 +4,7 @@
   "lat": 42.17972,
   "lon": 23.58667,
   "label": null,
-  "point_id": "earth@42.1797,23.5867",
+  "point_id": "earth@42.179720,23.586670",
   "on_grid": false,
   "snapped_km": null
  },
@@ -302,7 +302,7 @@
    }
   ]
  },
- "latency_ms": 33.3,
+ "latency_ms": 31.8,
  "source": "live",
  "ref": "twins:earth:42.180:23.587"
 }

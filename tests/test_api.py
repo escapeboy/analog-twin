@@ -113,7 +113,8 @@ def test_live_scoring_blend_and_ranking(monkeypatch):
                     "query": {"point_id": "q1", "on_grid": True, "snapped_km": 0.0}}
 
     light = types.SimpleNamespace(best_window=lambda tb, tl, el: {"start": "01-01", "end": "01-28", "emd": 0.1,
-                                                                  "light_sim": 0.1 if el == 10.0 else 0.9})
+                                                                  "light_sim": 0.1 if el == 10.0 else 0.9},
+                                  earth_light_range=lambda tb, tl: (0.05, 0.95))
     monkeypatch.setattr(service, "get_index", lambda: Idx())
     monkeypatch.setattr(service, "_mod", lambda n: light if n == "engine.light" else None)
     r = service.find_twins(TwinsRequest(body="moon", lat=-89.5, lon=0, k=5))
@@ -121,6 +122,7 @@ def test_live_scoring_blend_and_ranking(monkeypatch):
     e = r.results["earth"]
     assert [t.id for t in e] == ["B", "A"] and e[0].rank == 1
     assert e[0].score == pytest.approx(0.6 * 0.8 + 0.4 * 0.9) and e[0].best_window.light_sim == 0.9
+    assert e[0].best_window.earth_range == [0.05, 0.95] and e[1].best_window.earth_range == [0.05, 0.95]
     assert r.results["mars"][0].light_sim is None and r.query.point_id == "q1"
     r2 = service.find_twins(TwinsRequest(body="moon", lat=-89.5, lon=0, k=5, mode="terrain"))
     assert r2.mode["earth"] == "terrain" and [t.id for t in r2.results["earth"]] == ["A", "B"]
@@ -162,7 +164,7 @@ def test_coord_id_limits_and_hillshade_cap(tmp_path, monkeypatch):
     assert service._resolve_arg("earth-123") == "earth-123"
     with pytest.raises(ValueError):
         service._resolve_arg("moon@95.0000,2")
-    assert service._resolve_arg("moon@1.123456,2") == "moon@1.123456,2"  # too many decimals: not a coordinate id, index raises KeyError
+    assert service._resolve_arg("moon@1.1234567,2") == "moon@1.1234567,2"  # more than 6 decimals: not a coordinate id, index raises KeyError
     monkeypatch.setattr(service, "HILLSHADE_MAX_FILES", 5)
     for i in range(9):
         (tmp_path / f"f{i}.png").write_bytes(b"x")
@@ -233,10 +235,14 @@ def _terrain_stubs(monkeypatch, with_t3):
     rng = np.random.default_rng(1)
     dem = types.SimpleNamespace(crop_metric=lambda body, lat, lon, ext, gsd: rng.random((43, 43)) * 300)
     hs = importlib.import_module("engine.hillshade")
-    t3 = types.SimpleNamespace(terrain_pair=lambda a, b: {
-        "a": {"body": "moon", "lat": -85.0, "lon": 10.0, "heights": rng.random((64, 64)) * 100, "gsd_m": 600.0},
-        "b": {"body": "earth", "lat": 42.0, "lon": 23.0, "heights": rng.random((64, 64)) * 100, "gsd_m": 600.0},
-        "sun_azimuth_deg": 12.0, "sun_elevation_deg": 4.0})
+    def t3_pair(a, b, extent_km=36, size=256, with_sim=True):
+        assert isinstance(a, tuple) and a[0] == "moon" and extent_km == 36 and size == 256 and with_sim is False
+        g = lambda body, lat, lon: {"heights": rng.random((64, 64)) * 100, "body": body, "lat": lat, "lon": lon, "gsd_m": 140.0,  # noqa: E731
+                                    "extent_km": 36.0, "dataset": "stub DEM", "source": "x", "source_res_m": 80.0}
+        return {"a": g("moon", -85.0, 10.0), "b": g("earth", 42.0, 23.0), "common_gsd_m": 140.0, "sun_azimuth_deg": 12.0,
+                "sun_elevation_deg": 4.0, "terrain_sim": None}
+
+    t3 = types.SimpleNamespace(terrain_pair=t3_pair)
     mods = {"engine.dem": dem, "engine.hillshade": hs, **({"engine.terrain3d": t3} if with_t3 else {})}
     monkeypatch.setattr(service, "get_index", lambda: Idx())
     monkeypatch.setattr(service, "_mod", lambda n: mods.get(n))
@@ -275,44 +281,74 @@ def test_mission_routes_adapter_and_evidence(client, monkeypatch, tmp_path):
     mdir.mkdir(parents=True)
     for ext in ("json", "czml"):
         shutil.copy(src / f"shackleton-rim.{ext}", mdir / f"shackleton-rim.{ext}")
+    raw = json.loads((mdir / "shackleton-rim.json").read_text())
     r = client.get("/api/mission/shackleton-rim")
     assert r.status_code == 200
     d = r.json()
     s = d["summary"]
     assert d["gate"]["status"] == "pass" and d["czml_url"] == "/api/mission/shackleton-rim.czml"
-    assert s["launch_utc"] and s["launch_time_computed"] and 3.0 <= s["tli_dv_kms"] <= 3.3 and s["site"]["id"] == "shackleton-rim"
+    # the file's summary passes through as-is (the values the view draws)
+    for k in ("tli_dv_kms", "loi_dv_kms", "tof_days", "label", "launch_utc", "landing_utc", "site"):
+        assert s[k] == raw["summary"][k]
+    assert s["launch_time_computed"] and 3.0 <= s["tli_dv_kms"] <= 3.3
+    # two-body numbers come from the gate checks
+    chk = raw["gate"]["checks"]
+    assert s["two_body"] == {"tli_dv_kms": chk["tli_dv"]["value_km_s"], "loi_dv_kms": chk["loi_dv"]["value_km_s"],
+                             "tof_days": chk["tof_equals_config"]["value_days"]}
     assert s["limitations"][0].startswith("Lunar orbit is near the transfer plane") and "Descent to the site is schematic." in s["limitations"][0]
-    assert s["label"] and s["tof_days"] == 4.5 and s["tli_dv_kms"] == pytest.approx(3.1715)  # two-body gate numbers stay the headline
+    tb = s["two_body"]
+    assert s["limitations"][1] == (f"Gate checks use a two-body transfer (TLI {tb['tli_dv_kms']:.2f} km/s, TOF {tb['tof_days']:g} d); "
+                                   "the drawn arc and these numbers use an Earth\u2013Moon point-mass gravity model.")
     assert s["events"] and set(s["events"][0]) == {"t_utc", "name", "detail"}
     c = client.get(d["czml_url"])
     assert c.status_code == 200 and isinstance(c.json(), list)
     assert client.get("/api/mission/nope").status_code == 404 and client.get("/api/mission/nope.czml").status_code == 404
-    # gate not passed or launch hidden -> launch_utc null
-    raw = json.loads((mdir / "shackleton-rim.json").read_text())
-    raw["show_launch_time"] = False
-    (mdir / "shackleton-rim.json").write_text(json.dumps(raw))
+    # launch hidden when the file says so
+    hidden = {**raw, "show_launch_time": False}
+    (mdir / "shackleton-rim.json").write_text(json.dumps(hidden))
     s2 = client.get("/api/mission/shackleton-rim").json()["summary"]
     assert s2["launch_utc"] is None and s2["launch_time_computed"] is False
-    # reshaped file with its own summary block is accepted
-    raw["summary"] = {"tli_dv_kms": 3.2, "events": [{"t_utc": "2028-01-01T00:00:00Z", "name": "x", "detail": "y"}]}
     (mdir / "shackleton-rim.json").write_text(json.dumps(raw))
-    s3 = client.get("/api/mission/shackleton-rim").json()["summary"]
-    assert s3["tli_dv_kms"] == pytest.approx(3.1715) and s3["tof_days"] == 4.5  # headline stays the two-body gate value
-    assert s3["refined"]["tli_dv_kms"] == 3.2 and len(s3["events"]) == 1
-    # file shape of the final W8/W2 output: no top-level numbers, gate values only in gate.checks, refined values in summary
-    final = {"site": {"id": "shackleton-rim", "label": "S", "lat": -89.7668, "lon": -171.87}, "show_launch_time": True, "gate": {"status": "pass", "checks": {
-        "tli_dv": {"value_km_s": 3.1715}, "loi_dv": {"value_km_s": 0.8495}, "tof_equals_config": {"value_days": 4.5}}},
-        "summary": {"launch_utc": "2027-12-31T19:34:07Z", "tli_utc": "x", "arrival_utc": "y", "landing_utc": "z", "tli_dv_kms": 3.1672,
-                    "loi_dv_kms": 0.8421, "tof_days": 4.3165, "arrival_vinf_kms": 0.91, "label": "L", "events": []}}
-    (mdir / "shackleton-rim.json").write_text(json.dumps(final))
-    s4 = client.get("/api/mission/shackleton-rim").json()["summary"]
-    assert (s4["tli_dv_kms"], s4["loi_dv_kms"], s4["tof_days"]) == (3.1715, 0.8495, 4.5)
-    assert s4["refined"] == {"tli_dv_kms": 3.1672, "loi_dv_kms": 0.8421, "tof_days": 4.3165} and s4["arrival_utc"] == "y"
     # replay cache copy serves when the data dir has no mission
     service.record_mission_cache()
     shutil.rmtree(mdir)
     assert client.get("/api/mission/shackleton-rim.czml").status_code == 200
-    # evidence item
+    assert client.get("/api/mission/shackleton-rim").json()["summary"]["tli_dv_kms"] == raw["summary"]["tli_dv_kms"]
     ev = service.mission_evidence_item(-89.7668, -171.87)
-    assert ev and ev["ref"] == "mission:shackleton-rim" and ev["kind"] == "mission" and ev["data"]["tli_dv_kms"] == 3.1715
+    assert ev and ev["ref"] == "mission:shackleton-rim" and ev["kind"] == "mission" and ev["data"]["tli_dv_kms"] == raw["summary"]["tli_dv_kms"]
     assert service.mission_evidence_item(10.0, 10.0) is None
+
+
+def test_terrain_replay_cache_roundtrip(client, monkeypatch):
+    _terrain_stubs(monkeypatch, True)
+    tp = service.terrain_pair("m1", "e1")
+    assert tp.source == "live" and "stub DEM" in tp.a.dataset and tp.a.size == 64 and tp.a.gsd_m == 140.0 and tp.sun_elevation_deg > 0
+    service.cache_put_terrain(tp, "m1", "e1")
+    service._HEIGHTS.clear()
+    monkeypatch.setattr(service, "get_index", lambda: None)
+    r = client.get("/api/terrain/m1/e1").json()
+    assert r["source"] == "replay-cache" and r["a"]["id"] == "m1"
+    assert len(client.get(r["a"]["heights_url"]).content) == 64 * 64 * 4
+    assert client.get("/api/terrain/x/y").status_code == 404
+
+
+def test_real_terrain3d_pair_through_service(client, monkeypatch):
+    """Calls the REAL engine.terrain3d.terrain_pair (Moon vs Mars: local DEMs only, no network)."""
+    import importlib
+    t3 = importlib.import_module("engine.terrain3d")
+
+    class Idx:
+        def explain(self, a, b):
+            return {"a_id": "A", "b_id": "B", "terrain_sim": 0.66, "a": {"body": "moon", "lat": -85.0, "lon": 10.0},
+                    "b": {"body": "mars", "lat": 18.4, "lon": 77.7}}
+
+    monkeypatch.setattr(service, "get_index", lambda: Idx())
+    monkeypatch.setattr(service, "_mod", lambda n: importlib.import_module(n) if n.startswith("engine.") and n != "engine.env" else None)
+    try:
+        tp = service.terrain_pair("A", "B")
+    except FileNotFoundError:
+        pytest.skip("DEM data not available")
+    assert tp.source == "live" and tp.terrain_sim == 0.66 and tp.a.size >= 32 and tp.a.gsd_m == tp.b.gsd_m
+    assert tp.a.max_m > tp.a.min_m and tp.sun_elevation_deg > 0 and "m source" in tp.a.dataset
+    assert len(service.terrain_heights(tp.a.heights_url.rsplit("/", 1)[1].removesuffix(".f32"))) == tp.a.size ** 2 * 4
+    assert t3 is not None
