@@ -51,3 +51,5 @@ Times are Europe/Sofia.
 - Crew produces a valid CampaignPlan from the UI: W4 ran it live in 28.8 s. metrics.crew (3 runs via the HTTP API): median 28.7 s, max 35.0 s, no fallback, 0 claims removed.
 - Every session is recorded to sessions/<id>.jsonl. Golden replay: 136 events, ends with session.end.
 - Fallbacks used: none. The follow-up round is off, as the spec defaults.
+- **13:16** 3D view lighting fixed (W4): cast shadows with fitted shadow cameras, 1.2 % fill, and a display exposure gain of up to ×8 at low sun. At 3° the Shackleton floor is black and only the rims are lit. The exposure gain is display-only, applied identically to both terrains.
+- **13:16** Mission View: the wide shot is at true scale (Earth ~50 px disc, Moon a dot, with rings and labels); the close approach fills the frame with the Moon. Cosmetic choice: `scene.moon.onlySunLighting = false` keeps the Moon visible although its near side is unlit at that date. `?mspeed=0.12` slows the clock for screen recording. Offline bundle re-exported (284 MB) and re-verified with all other origins blocked.
