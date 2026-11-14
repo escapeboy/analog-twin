@@ -38,6 +38,15 @@ The NDVI threshold for "barren" comes from NASA Earth Observatory, "Measuring Ve
 Python and npm dependencies not listed here are build tools and libraries under their own licences; see
 `web/package-lock.json` and the installed packages.
 
+## Globe textures (Presentation view)
+
+| Dataset | File in repo | Source | Licence / terms | Used for |
+|---|---|---|---|---|
+| NASA Blue Marble Next Generation, December 2004, with topography and bathymetry (NASA Earth Observatory / Visible Earth, image 73909) | `web/public/textures/blue-marble-8k.jpg` (8192×4096, downsampled from `world.topo.bathy.200412.3x21600x10800.jpg`) | https://visibleearth.nasa.gov/images/73909/december-blue-marble-next-generation-w-topography-and-bathymetry · file https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200412.3x21600x10800.jpg | Not verified: the Visible Earth pages now redirect to science.nasa.gov and showed no use statement when fetched on 14.11.2026. NASA imagery is generally not copyrighted; credit "NASA Earth Observatory". | Earth globe day side |
+| NASA Black Marble 2016 (Earth at Night, color maps; NASA Earth Observatory / Suomi NPP VIIRS, image 144898) | `web/public/textures/black-marble-4k.jpg` (4096×2048) | https://visibleearth.nasa.gov/images/144898/earth-at-night-black-marble-2016-color-maps · file https://eoimages.gsfc.nasa.gov/images/imagerecords/144000/144898/BlackMarble_2016_3km.jpg | Not verified (same as above); credit "NASA Earth Observatory / Suomi NPP". | Earth globe night side |
+
+The exact source file of each texture is taken from the download URLs in the build session's log, not from image metadata (the JPEGs carry none).
+
 ## Coordinates
 
 Target, analog-site, landing-region and launch-pad coordinates, each with its source URL, are in
