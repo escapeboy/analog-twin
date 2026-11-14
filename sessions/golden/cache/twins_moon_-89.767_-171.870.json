@@ -19,99 +19,6 @@
  "results": {
   "earth": [
    {
-    "id": "earth-695538",
-    "body": "earth",
-    "lat": -11.91117951801508,
-    "lon": -76.37727344036102,
-    "place_label": "Peru",
-    "terrain_sim": 0.4673833530885734,
-    "light_sim": 0.7749999999999961,
-    "best_window": {
-     "start": "05-23",
-     "end": "06-19",
-     "emd": 1.1250000000000195,
-     "light_sim": 0.7749999999999961,
-     "earth_range": [
-      0.7389,
-      0.9527
-     ]
-    },
-    "env": {
-     "country": "Peru",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 4388.5,
-     "nearest_airport": "Jorge Chávez International Airport (LIM / SPIM)",
-     "airport_km": 80.4,
-     "ref": "ctx:earth-695538"
-    },
-    "score": 0.5904,
-    "rank": 1,
-    "ref": "twin:earth-695538"
-   },
-   {
-    "id": "earth-220129",
-    "body": "earth",
-    "lat": 46.301895332199216,
-    "lon": 9.042948558926582,
-    "place_label": "Switzerland",
-    "terrain_sim": 0.3902741970898543,
-    "light_sim": 0.8745535714285675,
-    "best_window": {
-     "start": "12-11",
-     "end": "01-07",
-     "emd": 0.6272321428571628,
-     "light_sim": 0.8745535714285675,
-     "earth_range": [
-      0.7389,
-      0.9527
-     ]
-    },
-    "env": {
-     "country": "Switzerland",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 2012.9,
-     "nearest_airport": "Milan–Malpensa Airport (MXP / LIMC)",
-     "airport_km": 79.2,
-     "ref": "ctx:earth-220129"
-    },
-    "score": 0.584,
-    "rank": 2,
-    "ref": "twin:earth-220129"
-   },
-   {
-    "id": "earth-394422",
-    "body": "earth",
-    "lat": 28.833463214389944,
-    "lon": 96.64474955201149,
-    "place_label": "China",
-    "terrain_sim": 0.4098973245723385,
-    "light_sim": 0.8113095238095249,
-    "best_window": {
-     "start": "12-02",
-     "end": "12-29",
-     "emd": 0.9434523809523752,
-     "light_sim": 0.8113095238095249,
-     "earth_range": [
-      0.7389,
-      0.9527
-     ]
-    },
-    "env": {
-     "country": "China",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 4032.1,
-     "nearest_airport": "Lhasa Gonggar Airport (LXA / ZULS)",
-     "airport_km": 560.6,
-     "ref": "ctx:earth-394422"
-    },
-    "score": 0.5705,
-    "rank": 3,
-    "ref": "twin:earth-394422"
-   },
-   {
     "id": "earth-336612",
     "body": "earth",
     "lat": 34.43026373282588,
@@ -136,10 +43,14 @@
      "elevation_m": 4568.9,
      "nearest_airport": "Sheikh ul-Alam International Airport (SXR / VISR)",
      "airport_km": 119.0,
+     "ndvi": 0.0561,
+     "lst_c": 7.92,
+     "barren": true,
+     "cold_dry": 0.359,
      "ref": "ctx:earth-336612"
     },
     "score": 0.5672,
-    "rank": 4,
+    "rank": 1,
     "ref": "twin:earth-336612"
    },
    {
@@ -167,104 +78,15 @@
      "elevation_m": 3242.9,
      "nearest_airport": "Rodríguez Ballón International Airport (AQP / SPQU)",
      "airport_km": 195.7,
+     "ndvi": 0.1907,
+     "lst_c": 28.11,
+     "barren": true,
+     "cold_dry": 0.0138,
      "ref": "ctx:earth-716665"
     },
     "score": 0.562,
-    "rank": 5,
+    "rank": 2,
     "ref": "twin:earth-716665"
-   },
-   {
-    "id": "earth-718852",
-    "body": "earth",
-    "lat": -15.770672859362504,
-    "lon": -72.19158238172531,
-    "place_label": "Peru",
-    "terrain_sim": 0.40794494297706063,
-    "light_sim": 0.7805555555555571,
-    "best_window": {
-     "start": "06-04",
-     "end": "07-01",
-     "emd": 1.0972222222222143,
-     "light_sim": 0.7805555555555571,
-     "earth_range": [
-      0.7389,
-      0.9527
-     ]
-    },
-    "env": {
-     "country": "Peru",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 3725.9,
-     "nearest_airport": "Rodríguez Ballón International Airport (AQP / SPQU)",
-     "airport_km": 92.3,
-     "ref": "ctx:earth-718852"
-    },
-    "score": 0.557,
-    "rank": 6,
-    "ref": "twin:earth-718852"
-   },
-   {
-    "id": "earth-360602",
-    "body": "earth",
-    "lat": 32.00828904099593,
-    "lon": 77.1896556019783,
-    "place_label": "India",
-    "terrain_sim": 0.3715941678322735,
-    "light_sim": 0.8222222222222243,
-    "best_window": {
-     "start": "12-05",
-     "end": "01-01",
-     "emd": 0.8888888888888786,
-     "light_sim": 0.8222222222222243,
-     "earth_range": [
-      0.7389,
-      0.9527
-     ]
-    },
-    "env": {
-     "country": "India",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 2968.1,
-     "nearest_airport": "Adampur Air force base (VIAX)",
-     "airport_km": 149.7,
-     "ref": "ctx:earth-360602"
-    },
-    "score": 0.5518,
-    "rank": 7,
-    "ref": "twin:earth-360602"
-   },
-   {
-    "id": "earth-704165",
-    "body": "earth",
-    "lat": -13.397497566142125,
-    "lon": -73.34596645832062,
-    "place_label": "Peru",
-    "terrain_sim": 0.3883904752745474,
-    "light_sim": 0.7799603174603131,
-    "best_window": {
-     "start": "06-05",
-     "end": "07-02",
-     "emd": 1.100198412698434,
-     "light_sim": 0.7799603174603131,
-     "earth_range": [
-      0.7389,
-      0.9527
-     ]
-    },
-    "env": {
-     "country": "Peru",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 3662.8,
-     "nearest_airport": "Alejandro Velasco Astete International Airport (CUZ / SPZO)",
-     "airport_km": 152.4,
-     "ref": "ctx:earth-704165"
-    },
-    "score": 0.545,
-    "rank": 8,
-    "ref": "twin:earth-704165"
    },
    {
     "id": "earth-319912",
@@ -291,42 +113,260 @@
      "elevation_m": 4589.1,
      "nearest_airport": "Sheikh ul-Alam International Airport (SXR / VISR)",
      "airport_km": 277.9,
+     "ndvi": 0.0368,
+     "lst_c": 4.45,
+     "barren": true,
+     "cold_dry": 0.4483,
      "ref": "ctx:earth-319912"
     },
     "score": 0.5425,
-    "rank": 9,
+    "rank": 3,
     "ref": "twin:earth-319912"
    },
    {
-    "id": "earth-696294",
+    "id": "earth-364817",
     "body": "earth",
-    "lat": -12.046507426620906,
-    "lon": -74.60678070783615,
-    "place_label": "Peru",
-    "terrain_sim": 0.3861270772016102,
-    "light_sim": 0.7749999999999961,
+    "lat": 31.60157985449982,
+    "lon": 50.14076620340347,
+    "place_label": "Iran",
+    "terrain_sim": 0.3533824139769623,
+    "light_sim": 0.8213293650793672,
     "best_window": {
-     "start": "05-23",
-     "end": "06-19",
-     "emd": 1.1250000000000195,
-     "light_sim": 0.7749999999999961,
+     "start": "12-04",
+     "end": "12-31",
+     "emd": 0.893353174603164,
+     "light_sim": 0.8213293650793672,
      "earth_range": [
       0.7389,
       0.9527
      ]
     },
     "env": {
-     "country": "Peru",
+     "country": "Iran",
      "koppen_code": null,
      "koppen_label": null,
-     "elevation_m": 3169.5,
-     "nearest_airport": "Jorge Chávez International Airport (LIM / SPIM)",
-     "airport_km": 272.0,
-     "ref": "ctx:earth-696294"
+     "elevation_m": 2963.4,
+     "nearest_airport": "Ahvaz International Airport (AWZ / OIAW)",
+     "airport_km": 135.3,
+     "ndvi": 0.1433,
+     "lst_c": 16.1,
+     "barren": true,
+     "cold_dry": 0.1452,
+     "ref": "ctx:earth-364817"
     },
-    "score": 0.5417,
+    "score": 0.5406,
+    "rank": 4,
+    "ref": "twin:earth-364817"
+   },
+   {
+    "id": "earth-330909",
+    "body": "earth",
+    "lat": 35.010819459470184,
+    "lon": 76.43851986527443,
+    "place_label": "Pakistan",
+    "terrain_sim": 0.34260730346907364,
+    "light_sim": 0.8356150793650807,
+    "best_window": {
+     "start": "12-03",
+     "end": "12-30",
+     "emd": 0.8219246031745965,
+     "light_sim": 0.8356150793650807,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
+    },
+    "env": {
+     "country": "Pakistan",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 4949.0,
+     "nearest_airport": "Sheikh ul-Alam International Airport (SXR / VISR)",
+     "airport_km": 190.0,
+     "ndvi": 0.049,
+     "lst_c": 1.72,
+     "barren": true,
+     "cold_dry": 0.4732,
+     "ref": "ctx:earth-330909"
+    },
+    "score": 0.5398,
+    "rank": 5,
+    "ref": "twin:earth-330909"
+   },
+   {
+    "id": "earth-271969",
+    "body": "earth",
+    "lat": 41.284496217957184,
+    "lon": 47.96437260508537,
+    "place_label": "Azerbaijan",
+    "terrain_sim": 0.32099240851597455,
+    "light_sim": 0.862896825396825,
+    "best_window": {
+     "start": "11-30",
+     "end": "12-27",
+     "emd": 0.6855158730158748,
+     "light_sim": 0.862896825396825,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
+    },
+    "env": {
+     "country": "Azerbaijan",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 3668.2,
+     "nearest_airport": "Heydar Aliyev International Airport (GYD / UBBB)",
+     "airport_km": 197.7,
+     "ndvi": 0.093,
+     "lst_c": 2.98,
+     "barren": true,
+     "cold_dry": 0.3729,
+     "ref": "ctx:earth-271969"
+    },
+    "score": 0.5378,
+    "rank": 6,
+    "ref": "twin:earth-271969"
+   },
+   {
+    "id": "earth-817194",
+    "body": "earth",
+    "lat": -31.45811189090604,
+    "lon": -70.84630364179611,
+    "place_label": "Chile",
+    "terrain_sim": 0.33752287781878526,
+    "light_sim": 0.8206349206349182,
+    "best_window": {
+     "start": "06-03",
+     "end": "06-30",
+     "emd": 0.8968253968254092,
+     "light_sim": 0.8206349206349182,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
+    },
+    "env": {
+     "country": "Chile",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 2972.5,
+     "nearest_airport": "Viña del Mar Airport (KNA / SCVM)",
+     "airport_km": 176.1,
+     "ndvi": 0.1273,
+     "lst_c": 18.71,
+     "barren": true,
+     "cold_dry": 0.13,
+     "ref": "ctx:earth-817194"
+    },
+    "score": 0.5308,
+    "rank": 7,
+    "ref": "twin:earth-817194"
+   },
+   {
+    "id": "earth-313988",
+    "body": "earth",
+    "lat": 36.8528060040847,
+    "lon": 71.00804907083511,
+    "place_label": "Afghanistan",
+    "terrain_sim": 0.3146541013699245,
+    "light_sim": 0.8530257936507943,
+    "best_window": {
+     "start": "12-04",
+     "end": "12-31",
+     "emd": 0.7348710317460286,
+     "light_sim": 0.8530257936507943,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
+    },
+    "env": {
+     "country": "Afghanistan",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 3675.1,
+     "nearest_airport": "Hamid Karzai International Airport (KBL / OAKB)",
+     "airport_km": 301.9,
+     "ndvi": 0.1257,
+     "lst_c": 12.4,
+     "barren": true,
+     "cold_dry": 0.2045,
+     "ref": "ctx:earth-313988"
+    },
+    "score": 0.53,
+    "rank": 8,
+    "ref": "twin:earth-313988"
+   },
+   {
+    "id": "earth-363070",
+    "body": "earth",
+    "lat": 31.76939126842118,
+    "lon": 50.87024934589863,
+    "place_label": "Iran",
+    "terrain_sim": 0.3321245967212894,
+    "light_sim": 0.821875000000002,
+    "best_window": {
+     "start": "12-05",
+     "end": "01-01",
+     "emd": 0.8906249999999898,
+     "light_sim": 0.821875000000002,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
+    },
+    "env": {
+     "country": "Iran",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 2824.0,
+     "nearest_airport": "Isfahan International Airport (IFN / OIFM)",
+     "airport_km": 144.0,
+     "ndvi": 0.1674,
+     "lst_c": 18.63,
+     "barren": true,
+     "cold_dry": 0.1005,
+     "ref": "ctx:earth-363070"
+    },
+    "score": 0.528,
+    "rank": 9,
+    "ref": "twin:earth-363070"
+   },
+   {
+    "id": "earth-822750",
+    "body": "earth",
+    "lat": -32.79347210152908,
+    "lon": -69.44617050886154,
+    "place_label": "Argentina",
+    "terrain_sim": 0.32992475953060746,
+    "light_sim": 0.8249503968253951,
+    "best_window": {
+     "start": "06-06",
+     "end": "07-03",
+     "emd": 0.8752480158730249,
+     "light_sim": 0.8249503968253951,
+     "earth_range": [
+      0.7389,
+      0.9527
+     ]
+    },
+    "env": {
+     "country": "Argentina",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 3864.9,
+     "nearest_airport": "Governor Francisco Gabrielli International Airport (MDZ / SAME)",
+     "airport_km": 60.7,
+     "ndvi": 0.0936,
+     "lst_c": 12.04,
+     "barren": true,
+     "cold_dry": 0.2471,
+     "ref": "ctx:earth-822750"
+    },
+    "score": 0.5279,
     "rank": 10,
-    "ref": "twin:earth-696294"
+    "ref": "twin:earth-822750"
    }
   ],
   "mars": [
@@ -472,7 +512,7 @@
    }
   ]
  },
- "latency_ms": 972.4,
+ "latency_ms": 2055.0,
  "source": "live",
  "ref": "twins:moon:-89.767:-171.870"
 }

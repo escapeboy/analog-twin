@@ -155,9 +155,9 @@
   "pair_url": "/api/hillshade/moon_-89.766800_-171.870000__earth-336612_lbl_az0_el3.0_f0.15_pair.png",
   "sun_azimuth_deg": 0.0,
   "sun_elevation_deg": 3.0,
-  "extent_km": 39.818,
+  "extent_km": 40.0,
   "gsd_m": 926.0,
-  "caption": "Sun azimuth 0°, elevation 3.0° (identical for both) · 40 x 40 km · GSD 926 m · Lambertian + cast shadows + 15% fill light, no vertical exaggeration"
+  "caption": "Sun azimuth 0 deg, elevation 3 deg; 40 km wide; 926 m per pixel"
  },
  "source": "live",
  "ref": "pair:moon@-89.766800,-171.870000:earth-336612"

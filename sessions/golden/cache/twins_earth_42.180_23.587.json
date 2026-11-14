@@ -302,7 +302,7 @@
    }
   ]
  },
- "latency_ms": 31.8,
+ "latency_ms": 98.2,
  "source": "live",
  "ref": "twins:earth:42.180:23.587"
 }
