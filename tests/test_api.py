@@ -137,7 +137,7 @@ def test_live_pair_with_real_hillshade_and_stub_dem(tmp_path, monkeypatch):
         def explain(self, a, b):
             return {"groups": [{"group": "slope", "label": "steepness", "a": [1.0], "b": [2.0], "contribution": 1.0}],
                     "top_similar": ["x"], "top_different": ["y"], "terrain_sim": 0.8,
-                    "a": {"body": "moon", "lat": -89.5, "lon": 0.0}, "b": {"body": "earth", "lat": 42.0, "lon": 23.0}}
+                    "a_id": "m1", "b_id": "e1", "a": {"body": "moon", "lat": -89.5, "lon": 0.0}, "b": {"body": "earth", "lat": 42.0, "lon": 23.0}}
 
     rng = np.random.default_rng(0)
     dem = types.SimpleNamespace(crop_metric=lambda body, lat, lon, ext, gsd: rng.random((44, 44)) * 200)
@@ -155,3 +155,18 @@ def test_live_pair_with_real_hillshade_and_stub_dem(tmp_path, monkeypatch):
     assert p2.hillshade.pair_url == p.hillshade.pair_url
     service.cache_put_pair(p)
     assert (service.cache_dir() / "hillshade" / f.name).exists()
+
+
+def test_coord_id_limits_and_hillshade_cap(tmp_path, monkeypatch):
+    assert service._resolve_arg("moon@-89.7668,-171.8700") == ("moon", -89.7668, -171.87)
+    assert service._resolve_arg("earth-123") == "earth-123"
+    with pytest.raises(ValueError):
+        service._resolve_arg("moon@95.0000,2")
+    assert service._resolve_arg("moon@1.123456,2") == "moon@1.123456,2"  # too many decimals: not a coordinate id, index raises KeyError
+    monkeypatch.setattr(service, "HILLSHADE_MAX_FILES", 5)
+    for i in range(9):
+        (tmp_path / f"f{i}.png").write_bytes(b"x")
+        import os
+        os.utime(tmp_path / f"f{i}.png", (i, i))
+    service._prune_hillshade(tmp_path)
+    assert sorted(p.name for p in tmp_path.glob("*.png")) == [f"f{i}.png" for i in range(4, 9)]

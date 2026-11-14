@@ -299,6 +299,16 @@ def _outputs(result: Any, out_dir: pathlib.Path, pair_id: str) -> Optional[tuple
     return (a, b, pr) if a and b and pr else None  # type: ignore[return-value]
 
 
+HILLSHADE_MAX_FILES = int(os.environ.get("HILLSHADE_MAX_FILES", 500))
+
+
+def _prune_hillshade(d: pathlib.Path) -> None:
+    """Keeps the live hillshade cache bounded: drops the least recently written PNGs beyond the cap."""
+    files = sorted(d.glob("*.png"), key=lambda p: p.stat().st_mtime)
+    for p in files[: max(0, len(files) - HILLSHADE_MAX_FILES)]:
+        p.unlink(missing_ok=True)
+
+
 def _hillshade(a: dict, b: dict, a_id: str, b_id: str) -> Optional[Hillshade]:
     hs, dem = _mod("engine.hillshade"), _mod("engine.dem")
     if hs is None or dem is None:
@@ -320,6 +330,7 @@ def _hillshade(a: dict, b: dict, a_id: str, b_id: str) -> Optional[Hillshade]:
         if names is None:
             return None
         res = _as_dict(res)
+        _prune_hillshade(out_dir)
         u = lambda n: f"/api/hillshade/{n}.png"  # noqa: E731
         return Hillshade(a_url=u(names[0]), b_url=u(names[1]), pair_url=u(names[2]), sun_azimuth_deg=az, sun_elevation_deg=el,
                          extent_km=float(res.get("extent_km", EXTENT_KM)), gsd_m=gsd,
@@ -329,13 +340,18 @@ def _hillshade(a: dict, b: dict, a_id: str, b_id: str) -> Optional[Hillshade]:
         return None
 
 
-_COORD_ID = re.compile(r"^(earth|moon|mars)@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$")
+_COORD_ID = re.compile(r"^(earth|moon|mars)@(-?\d{1,3}(?:\.\d{1,4})?),(-?\d{1,3}(?:\.\d{1,4})?)$")
 
 
 def _resolve_arg(pid: str):
     """Point id, or the coordinate id 'body@lat,lon' that engine.index issues for off-grid query points."""
     m = _COORD_ID.match(pid)
-    return (m.group(1), float(m.group(2)), float(m.group(3))) if m else pid
+    if not m:
+        return pid
+    lat, lon = float(m.group(2)), float(m.group(3))
+    if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+        raise ValueError(f"coordinates out of range: {pid}")
+    return (m.group(1), lat, lon)
 
 
 def pair(a_id: str, b_id: str, replay: bool = False) -> PairExplanation:
@@ -348,12 +364,13 @@ def pair(a_id: str, b_id: str, replay: bool = False) -> PairExplanation:
         return cache_get_pair(a_id, b_id) or fixtures.pair(a_id, b_id)
     ex = _as_dict(idx.explain(_resolve_arg(a_id), _resolve_arg(b_id)))  # KeyError/ValueError for unknown ids
     pa, pb = ex["a"], ex["b"]
+    ca, cb = ex["a_id"], ex["b_id"]  # canonical ids: renders and files are keyed on these, not on the raw request strings
     groups = [FeatureGroup(**{k: v for k, v in _as_dict(g).items() if k in FeatureGroup.model_fields}) for g in ex["groups"]]
     return PairExplanation(
         a=Point(body=pa["body"], lat=pa["lat"], lon=pa["lon"]), b=Point(body=pb["body"], lat=pb["lat"], lon=pb["lon"]),
-        a_id=a_id, b_id=b_id, terrain_sim=float(ex["terrain_sim"]), groups=groups, top_similar=list(ex["top_similar"]),
-        top_different=list(ex["top_different"]), hillshade=_hillshade(pa, pb, a_id, b_id), source="live",
-        ref=f"pair:{a_id}:{b_id}")
+        a_id=ca, b_id=cb, terrain_sim=float(ex["terrain_sim"]), groups=groups, top_similar=list(ex["top_similar"]),
+        top_different=list(ex["top_different"]), hillshade=_hillshade(pa, pb, ca, cb), source="live",
+        ref=f"pair:{ca}:{cb}")
 
 
 # ---------- light ----------
