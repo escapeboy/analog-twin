@@ -170,3 +170,48 @@ def test_coord_id_limits_and_hillshade_cap(tmp_path, monkeypatch):
         os.utime(tmp_path / f"f{i}.png", (i, i))
     service._prune_hillshade(tmp_path)
     assert sorted(p.name for p in tmp_path.glob("*.png")) == [f"f{i}.png" for i in range(4, 9)]
+
+
+def test_sites_routes_with_real_engine_data(client, monkeypatch):
+    import os
+    os.environ.setdefault("ANALOG_TWIN_DATA", "/data/code/nasa-challenge/data")
+    from engine import site_finder
+    monkeypatch.setattr(site_finder, "DATA_DIR", pathlib.Path(os.environ["ANALOG_TWIN_DATA"]) / "site_finder")
+    monkeypatch.setattr(service, "_SF_LAYERS", None)
+    monkeypatch.setattr(service, "_mod", lambda n: site_finder if n == "engine.site_finder" else None)
+    if not (site_finder.DATA_DIR / "layers.npz").exists():
+        pytest.skip("site finder data not built")
+    r = client.get("/api/sites").json()
+    assert len(r["sites"]) == 10 and len(r["limitations"]) == 5 and r["weights"]["sun"] == 0.45 and r["slope_max_deg"] == 10.0
+    assert r["sites"][0]["rank"] == 1 and r["sites"][0]["ref"].startswith("site_finder:")
+    r2 = client.get("/api/sites", params={"w_sun": 0.1, "w_earth": 0.1, "w_psr": 1.0, "slope_max": 5}).json()
+    assert r2["slope_max_deg"] == 5.0 and r2["sites"][0]["id"] != r["sites"][0]["id"] or r2["weights"]["psr"] == 1.0
+    assert client.get("/api/sites", params={"w_sun": -1}).status_code == 422
+    assert client.get("/api/sites", params={"slope_max": 0}).status_code == 422
+    sid = r["sites"][0]["id"]
+    p = client.get(f"/api/sites/{sid}").json()
+    assert p["kind"] == "site_finder" and p["ref"] == f"site_finder:{sid}"
+    assert client.get("/api/sites/garbage").status_code in (404, 422)
+    m = client.get("/api/sites/map.png")
+    assert m.status_code == 200 and m.headers["content-type"] == "image/png" and m.content[:4] == b"\x89PNG"
+    assert client.get("/api/health").json()["features"]["site_finder"] in (True, False)
+    # replay cache
+    service.record_sites_cache()
+    monkeypatch.setattr(service, "_mod", lambda n: None)
+    monkeypatch.setattr(service, "_SF_LAYERS", None)
+    assert client.get("/api/sites").json()["source"] == "replay-cache"
+    assert client.get("/api/sites/map.png").status_code == 200
+    assert client.get("/api/sites", params={"w_sun": 0.3}).status_code == 404
+    # crew evidence for a lunar south-pole target
+    monkeypatch.setattr(service, "_mod", lambda n: site_finder if n == "engine.site_finder" else None)
+    monkeypatch.setattr(service, "_SF_LAYERS", None)
+    import asyncio
+    from crew import evidence
+    from crew.schemas import CampaignRequest
+
+    async def noop(*a, **k):
+        pass
+    pack = asyncio.run(evidence.collect(CampaignRequest(body="moon", lat=-85.4007, lon=31.6398), "t", noop))
+    sf = [i for i in pack.items if i.kind == "site_finder"]
+    assert len(sf) == 1 and sf[0].data["sun_pct"] and "sources" not in sf[0].data
+    assert not [i for i in asyncio.run(evidence.collect(CampaignRequest(body="moon", lat=10, lon=10), "t", noop)).items if i.kind == "site_finder"]

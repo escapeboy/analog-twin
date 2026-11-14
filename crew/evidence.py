@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import math
 from typing import Any, Awaitable, Callable, Optional
 
 from api import service
@@ -60,6 +61,10 @@ def build_pack(session_id: str, target: dict[str, Any], twins: TwinsResponse, pa
     return EvidencePack(session_id=session_id, target=target, items=items)
 
 
+def _clean(d: dict) -> dict:
+    return {k: (None if isinstance(v, float) and not math.isfinite(v) else v) for k, v in d.items()}
+
+
 def digest(item: EvidenceItem) -> str:
     d = item.data
     if item.kind == "twin":
@@ -103,6 +108,12 @@ async def collect(req: CampaignRequest, session_id: str, emit: Emit, replay_cach
         await emit("tool.result", "light", {"name": "light_profile", "ref": lp.ref,
                                             "digest": f"median sun-up elevation {lp.median_sun_up_elevation_deg}"})
     pack = build_pack(session_id, target, twins, pairs, lights, req.twin_ids or None)
+    if req.body == "moon":
+        sf = await asyncio.to_thread(service.site_evidence_item, req.lat, req.lon)
+        if sf and sf["ref"] not in {i.ref for i in pack.items}:
+            await emit("tool.call", "terrain", {"name": "site_properties", "args": {"lat": req.lat, "lon": req.lon}})
+            pack.items.append(EvidenceItem(ref=sf["ref"], kind="site_finder", data=_clean({k: v for k, v in sf["data"].items() if k != "sources"})))
+            await emit("tool.result", "terrain", {"name": "site_properties", "ref": sf["ref"], "digest": "site-finder properties of the target cell"})
     for it in pack.items:
         if it.kind in ("window", "context"):
             await emit("tool.result", "light" if it.kind == "window" else "logistics",
