@@ -114,14 +114,43 @@ def run_site(site: dict, cfg: T.MissionConfig, out: Path, cesium_js: Path) -> di
     m = T.plan(site["lat"], site["lon"], cfg, site=site)
     summ = T.summary(m)
     endpoint = T.endpoint_check(m)
-    doc, info = C.build_czml(m)
+    try:
+        ref = T.refine(m)
+    except Exception as e:  # noqa: BLE001 - optional step 5; failure keeps the two-body view
+        ref = {"converged": False, "error": str(e)}
+    doc, info = C.build_czml(m, ref)
     ets = {k: info["times_et"][k] for k in ("t_launch", "t_tli", "t_arrival", "t_landing")}
     try:
         ces = cesium_check(cesium_js, ets)
     except Exception as e:  # noqa: BLE001 - recorded as a failed check, never hidden
         ces = {"passed": False, "error": str(e)}
     g = gate(summ, endpoint, ces, cfg, m.launch is not None)
+    refined = bool(ref.get("converged"))
+    refinement = {"converged": refined, "error": ref.get("error")}
+    if "tli_dv" in ref:
+        refinement.update({
+            "model": "Earth + Moon point masses (DE440s Moon), Earth-centred with indirect term, DOP853 rtol 1e-11",
+            "iterations": ref["iterations"], "periselene_error_km_history": ref["periselene_error_km_history"],
+            "tli_dv_km_s": round(ref["tli_dv"], 4), "loi_dv_km_s": round(ref["loi_dv"], 4),
+            "periselene_alt_km": round(ref["periselene_alt_km"], 3), "tof_days": round(ref["tof_days"], 4),
+            "periselene_utc": T.et_to_utc(ref["t_periselene"]),
+            "periselene_lat_deg": round(ref["periselene_lat_deg"], 2),
+            "tli_in_range": TLI_RANGE[0] <= ref["tli_dv"] <= TLI_RANGE[1],
+            "loi_in_range": LOI_RANGE[0] <= ref["loi_dv"] <= LOI_RANGE[1]})
+    t_land = info["times_et"]["t_landing"]
+    land_angles = T.site_angles(site["lat"], site["lon"], t_land)
+    display = {
+        "label": info["label"], "model": "earth-moon-gravity" if refined else "two-body",
+        "tli_dv_km_s": refinement["tli_dv_km_s"] if refined else summ["tli_dv_km_s"],
+        "loi_dv_km_s": refinement["loi_dv_km_s"] if refined else summ["loi_dv_km_s"],
+        "times_utc": {"launch": summ["times_utc"]["launch"] if g["status"] == "pass" else None,
+                      "tli": summ["times_utc"]["tli"], "loi": T.et_to_utc(info["times_et"]["t_loi"]),
+                      "landing": T.et_to_utc(t_land)},
+        "landing_sun_elevation_deg": round(land_angles[0], 3),
+        "landing_earth_elevation_deg": round(land_angles[1], 3),
+    }
     summ.update({
+        "refinement": refinement, "display": display,
         "events": info["events"], "czml_interval": info["interval"], "czml_samples": info["samples"],
         "times_utc_extra": {"loi_burn": T.et_to_utc(info["times_et"]["t_loi"]),
                             "parking_insertion": T.et_to_utc(info["times_et"]["t_insertion"])},
@@ -151,10 +180,13 @@ def main(argv=None) -> int:
                                                  "arrival_v_inf_km_s", "tof_days", "coast_min", "ksc_plane_angle_deg",
                                                  "ksc_plane_angle_gmst_only_deg", "landing_sun_elevation_deg",
                                                  "landing_earth_elevation_deg", "landing_day_choice",
-                                                 "arrival_shift_from_nominal_h", "gate")}
+                                                 "arrival_shift_from_nominal_h", "gate", "refinement",
+                                                 "display")}
         results[s["id"]]["endpoint_error_pct"] = summ["endpoint_check"]["endpoint_error_pct"]
         results[s["id"]]["cesium_max_deg"] = summ["cesium_check"].get("max_deg")
-        print(s["id"], summ["gate"]["status"], summ["tli_dv_km_s"], summ["loi_dv_km_s"], flush=True)
+        print(s["id"], summ["gate"]["status"], summ["tli_dv_km_s"], summ["loi_dv_km_s"],
+              "refined" if summ["refinement"]["converged"] else "two-body", summ["display"]["tli_dv_km_s"],
+              summ["display"]["loi_dv_km_s"], flush=True)
     statuses = [r["gate"]["status"] for r in results.values()]
     overall = "pass" if all(x == "pass" for x in statuses) else (
         "fail" if any(x == "fail" for x in statuses) else "partial")
