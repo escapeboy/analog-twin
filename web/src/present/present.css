@@ -189,3 +189,20 @@ body.film #mission .m-close, body.film #mission .m-skip { display: none; }
 .hud-3d .t3-head .muted { display: none; }
 .hud-legend .dim { display: none; }
 .hud-3d .t3-head b::after { content: ' \00b7\00a0'; font-weight: 400; }
+
+/* short screens (laptops, 1440x900): compress the HUD so the 3D tab and its Expand button fit without scrolling */
+@media (max-height: 1000px) {
+  .p-hud { padding-top: 56px; gap: 6px; }
+  .hud-pct { font-size: 68px; }
+  .hud-pctsign { font-size: 32px; }
+  .hud-window { padding: 5px 12px; gap: 8px; }
+  .hud-window span { font-size: 16px; }
+  .hud-window b { font-size: 20px; }
+  .hud-radar { grid-template-columns: 170px 1fr; gap: 28px; min-height: 170px; }
+  .p-radar { width: 170px; height: 170px; }
+  .hud-3d { flex-basis: 250px !important; min-height: 250px; }
+  .hud-tab { min-height: 0; }
+}
+.hud-3d .t3-controls { gap: 10px; flex-wrap: nowrap; white-space: nowrap; }
+.hud-3d .t3-controls input[type=range] { width: 80px; vertical-align: middle; }
+@media (max-height: 1000px) { .hud-3d { flex-basis: 230px !important; min-height: 230px; } }
