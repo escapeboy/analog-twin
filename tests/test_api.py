@@ -107,9 +107,9 @@ def test_live_scoring_blend_and_ranking(monkeypatch):
     """Stub engine: Earth candidate B has lower terrain_sim but a much better light window; blend must rank it first."""
     class Idx:
         def search(self, body, lat, lon, to, k, region):
-            return {"earth": [{"id": "A", "body": "earth", "lat": 10.0, "lon": 1.0, "place_label": "A", "terrain_sim": 0.9},
+            return {"results": {"earth": [{"id": "A", "body": "earth", "lat": 10.0, "lon": 1.0, "place_label": "A", "terrain_sim": 0.9},
                               {"id": "B", "body": "earth", "lat": 20.0, "lon": 2.0, "place_label": "B", "terrain_sim": 0.8}],
-                    "mars": [{"id": "M", "body": "mars", "lat": 1.0, "lon": 1.0, "place_label": "M", "terrain_sim": 0.7}],
+                    "mars": [{"id": "M", "body": "mars", "lat": 1.0, "lon": 1.0, "place_label": "M", "terrain_sim": 0.7}]},
                     "query": {"point_id": "q1", "on_grid": True, "snapped_km": 0.0}}
 
     light = types.SimpleNamespace(best_window=lambda tb, tl, el: {"start": "01-01", "end": "01-28", "emd": 0.1,
@@ -136,10 +136,8 @@ def test_live_pair_with_real_hillshade_and_stub_dem(tmp_path, monkeypatch):
     class Idx:
         def explain(self, a, b):
             return {"groups": [{"group": "slope", "label": "steepness", "a": [1.0], "b": [2.0], "contribution": 1.0}],
-                    "top_similar": ["x"], "top_different": ["y"], "terrain_sim": 0.8}
-
-        def point(self, pid):
-            return {"id": pid, "body": "moon", "lat": -89.5, "lon": 0.0} if pid == "m1" else {"id": pid, "body": "earth", "lat": 42.0, "lon": 23.0}
+                    "top_similar": ["x"], "top_different": ["y"], "terrain_sim": 0.8,
+                    "a": {"body": "moon", "lat": -89.5, "lon": 0.0}, "b": {"body": "earth", "lat": 42.0, "lon": 23.0}}
 
     rng = np.random.default_rng(0)
     dem = types.SimpleNamespace(crop_metric=lambda body, lat, lon, ext, gsd: rng.random((44, 44)) * 200)

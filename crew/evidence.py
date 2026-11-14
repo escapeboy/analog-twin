@@ -88,7 +88,7 @@ async def collect(req: CampaignRequest, session_id: str, emit: Emit, replay_cach
     main = "earth" if req.body != "earth" else "moon"
     top = [t for t in twins.results.get(main, []) if not req.twin_ids or t.id in req.twin_ids] or twins.results.get(main, [])
     pairs: list[PairExplanation] = []
-    pid = twins.query.point_id
+    pid = twins.query.point_id or f"{req.body}@{req.lat:.4f},{req.lon:.4f}"
     if pid:
         for t in top[:N_PAIRS]:
             await emit("tool.call", "terrain", {"name": "explain_pair", "args": {"a": pid, "b": t.id}})

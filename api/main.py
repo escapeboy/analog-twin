@@ -68,7 +68,10 @@ def twins(req: TwinsRequest, replay: int = 0) -> TwinsResponse:
 
 @app.get("/api/pair/{a}/{b}", response_model=PairExplanation)
 def pair(a: str, b: str, replay: int = 0) -> PairExplanation:
-    return service.pair(a, b, replay=bool(replay))
+    try:
+        return service.pair(a, b, replay=bool(replay))
+    except (KeyError, ValueError) as exc:
+        raise HTTPException(404, f"unknown point: {exc}")
 
 
 @app.get("/api/light", response_model=LightProfile)
