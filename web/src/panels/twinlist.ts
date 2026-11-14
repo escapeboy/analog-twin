@@ -5,7 +5,7 @@ import { store } from '../state';
 export function initTwinList(root: HTMLElement, onSelect: (body: Body, t: Twin) => void) {
   function render() {
     clear(root);
-    root.append(h('h2', null, 'Ranked twins'));
+    root.append(h('h2', null, 'Ranked twins'), h('p', { class: 'muted legend' }, 'Terrain match = slope, roughness and relief statistics over 12 km and 36 km windows (~1 km pixels). It finds similar terrain texture, not identical landforms.'));
     const res = store.twins;
     if (store.error) root.append(h('p', { class: 'err', role: 'alert' }, store.error));
     if (!res) {

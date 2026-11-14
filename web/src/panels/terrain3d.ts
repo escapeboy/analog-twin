@@ -70,7 +70,7 @@ export function initTerrain3d(root: HTMLElement) {
     const overlay = h('div', { class: 't3-overlay' });
     const sunLabel = h('span');
     const header = h('div', { class: 't3-head' },
-      h('b', null, `Similarity ${fmt(pair.terrain_sim)}`), h('span', { class: 'muted' }, ' · same extent, scale and sun · '), sunLabel);
+      h('b', null, `Terrain texture similarity ${fmt(pair.terrain_sim)}`), h('span', { class: 'muted' }, ' · same extent, scale and sun · '), sunLabel);
 
     // ---- controls ----
     let az = pair.sun_azimuth_deg;
