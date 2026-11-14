@@ -117,3 +117,9 @@ window to be valid, so v2 has fewer Earth points near coasts. Decision rule, dec
 `current` index only if the known-analog median percentile improves by at least 5 points over v1, the random
 baseline stays near 50 % and find_twins p95 stays below 1 s. The analog list and the weights are not tuned.
 Results: `docs/metrics.json` -> `terrain.v1` and `terrain.v2_multiscale`.
+
+**Result (2026-11-14):** known-analog median percentile over all pairs v1 59.64 % -> v2 51.12 % (8.52 points better;
+on the 42 pairs both versions can evaluate: 61.86 % -> 51.12 %, 23 of 42 better). Random baseline 48.54 %, find_twins
+p95 60.1 ms. The rule passed, so `current` -> `full_v2`. Caveats: v2 has 972,567 Earth points vs 1,026,242 (coastal
+loss); Lanzarote and Bockfjorden become non-evaluable; the median of per-site medians got worse (54.69 % -> 57.97 %);
+and v2 still does not rank the known analogs clearly better than random points.

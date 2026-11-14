@@ -249,7 +249,9 @@ def build(out: Path, spacing_km: float, dense_km: float | None, bodies=BODIES, w
 
 
 def update_current_link(root: Path = INDEX_ROOT) -> Path | None:
-    for name in ("full", "small"):
+    # full_v2 (multiscale) won the pre-declared experiment on 2026-11-14 (docs/features.md, metrics.json
+    # terrain.v1 vs terrain.v2_multiscale), so it is preferred when present.
+    for name in ("full_v2", "full", "small"):
         m = root / name / "manifest.json"
         if m.exists() and json.loads(m.read_text()).get("complete"):
             link = root / "current"

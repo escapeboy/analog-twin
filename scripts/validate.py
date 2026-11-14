@@ -166,17 +166,18 @@ def latency_test(ix: Index) -> dict:
                       "half the queries offset off-grid (features computed on the fly)."}
 
 
-def determinism_test() -> dict:
+def determinism_test(set_name: str = "v1") -> dict:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import build_index
     tmp = Path(tempfile.mkdtemp(prefix="w1det-"))
     try:
         hashes = []
         for name in ("a", "b"):
-            m = build_index.build(tmp / name, spacing_km=50.0, dense_km=12.0, workers=8, log=lambda *a: None)
+            m = build_index.build(tmp / name, spacing_km=50.0, dense_km=12.0, workers=8, log=lambda *a: None,
+                                  set_name=set_name)
             hashes.append(m["features_sha256"])
-        return {"method": "built the small index (50 km spacing, 12 km dense zones, 3 bodies) twice from the same "
-                          "inputs and compared sha256 of features.npy",
+        return {"method": f"built the small index (50 km spacing, 12 km dense zones, 3 bodies, feature set "
+                          f"{set_name}) twice from the same inputs and compared sha256 of features.npy",
                 "hash_run_1": hashes[0], "hash_run_2": hashes[1], "identical": hashes[0] == hashes[1]}
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -187,7 +188,8 @@ def corpus_facts(ix: Index, load_s: float) -> dict:
     return {"index_path": str(ix.path), "points_per_body": {b: v["points"] for b, v in m["bodies"].items()},
             "uniform_points_per_body": {b: v["uniform_points"] for b, v in m["bodies"].items()},
             "dense_points_per_body": {b: v["dense_points"] for b, v in m["bodies"].items()},
-            "total_points": m["total_points"], "gsd_m": m["gsd_m"],
+            "total_points": m["total_points"], "gsd_m": m["gsd_m"], "feature_set": ix.fset["name"],
+            "context_window_px": m.get("context_window_px", m["window_px"]),
             "gsd_note": "all bodies resampled to ~926 m (Earth has only ETOPO 2022 30\" globally)",
             "window_km": m["window_km"], "n_features": m["n_features"], "spacing_km": m["spacing_km"],
             "dense_spacing_km": m["dense_spacing_km"], "lat_limits": m["lat_limits"],
@@ -243,7 +245,7 @@ def main(argv=None):
     upd = {"corpus": corpus_facts(ix, load_s), "terrain": terrain}
     perf = latency_test(ix)
     if not a.skip_determinism:
-        upd["determinism"] = determinism_test()
+        upd["determinism"] = determinism_test(ix.fset["name"])
     upd["terrain"]["validated_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
     merge_write(a.metrics, upd, perf)
     k = upd["terrain"]["known_analog_test"]
