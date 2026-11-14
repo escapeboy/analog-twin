@@ -7,8 +7,9 @@ export function initTwinList(root: HTMLElement, onSelect: (body: Body, t: Twin) 
     clear(root);
     root.append(h('h2', null, 'Ranked twins'));
     const res = store.twins;
+    if (store.error) root.append(h('p', { class: 'err', role: 'alert' }, store.error));
     if (!res) {
-      root.append(h('p', { class: 'muted' }, store.busy ? 'Searching…' : 'Pick a preset or click any globe.'));
+      root.append(h('p', { class: 'muted' }, store.busy ? 'Searching for twins…' : 'Pick a preset or click any globe.'));
       return;
     }
     for (const [body, rows] of Object.entries(res.results)) {
