@@ -1,9 +1,9 @@
 // V2 Mission View: one full-screen Cesium viewer playing a CZML trajectory (INERTIAL) with a ~25 s skippable
 // camera choreography. All HUD numbers are computed client-side from the sampled CZML positions.
 import {
-  Cartesian3, Color, CzmlDataSource, Entity, HeadingPitchRange, ImageryLayer, JulianDate, Math as CMath, Matrix3,
+  CallbackPositionProperty, Cartesian2, Cartesian3, Color, CzmlDataSource, DistanceDisplayCondition, LabelStyle, Entity, HeadingPitchRange, ImageryLayer, JulianDate, Math as CMath, Matrix3,
   Matrix4, PathGraphics, PolylineGlowMaterialProperty, ReferenceFrame, Simon1994PlanetaryPositions,
-  LagrangePolynomialApproximation, TileMapServiceImageryProvider, Transforms, Viewer, buildModuleUrl, ConstantProperty,
+  TileMapServiceImageryProvider, Transforms, Viewer, buildModuleUrl, ConstantProperty,
 } from 'cesium';
 import { assetUrl, http } from './api';
 import { clear, fmt, h } from './dom';
@@ -114,15 +114,17 @@ export function initMission(overlay: HTMLElement, hooks: MissionHooks) {
     const tArr = JulianDate.fromIso8601(sum.arrival_utc);
     const totalS = JulianDate.secondsDifference(tArr, t0);
 
-    (sc.position as unknown as { setInterpolationOptions?: (o: object) => void }).setInterpolationOptions?.({
-      interpolationAlgorithm: LagrangePolynomialApproximation, interpolationDegree: 5, // smooth curve between the samples
-    });
-    // glowing trajectory: whole path visible (lead + trail), spacecraft marker with trail
-    sc.path = new PathGraphics({
-      show: new ConstantProperty(true), leadTime: totalS, trailTime: totalS, width: 8, resolution: 600,
-      material: new PolylineGlowMaterialProperty({ glowPower: 0.3, color: Color.fromCssColorString('#4fd1ff') }),
-    });
+    // the CZML carries its own interpolation and styled paths; only add a glowing path when it has none
+    if (!sc.path) {
+      sc.path = new PathGraphics({
+        show: new ConstantProperty(true), leadTime: totalS, trailTime: totalS, width: 8, resolution: 600,
+        material: new PolylineGlowMaterialProperty({ glowPower: 0.3, color: Color.fromCssColorString('#4fd1ff') }),
+      });
+    }
     if (!sc.point) sc.point = { pixelSize: 11, color: Color.fromCssColorString('#ffd34d'), outlineColor: Color.WHITE, outlineWidth: 2 } as never;
+
+    // thin CZML lines are hard to see on a projector: widen the styled paths, keep their colours
+    for (const e of ents) if (e.path) e.path.width = new ConstantProperty(Math.max(5, e === sc ? 7 : 3));
 
     // ---- geometry helpers (all from the sampled positions) ----
     const inertial = (e: Entity, t: JulianDate) => e.position?.getValueInReferenceFrame(t, ReferenceFrame.INERTIAL, new Cartesian3());
@@ -132,6 +134,16 @@ export function initMission(overlay: HTMLElement, hooks: MissionHooks) {
       const m = Transforms.computeIcrfToCentralBodyFixedMatrix(t) ?? Transforms.computeTemeToPseudoFixedMatrix(t);
       return m ? Matrix3.multiplyByVector(m, p, new Cartesian3()) : p;
     };
+    const clockOf = () => v.clock.currentTime;
+    v.entities.add({
+      id: 'mv-moon', position: new CallbackPositionProperty(() => toFixed(moonInertial(clockOf()), clockOf()), false),
+      point: { pixelSize: 9, color: Color.fromCssColorString('#cfd8e6') },
+      label: { text: 'Moon', font: 'bold 22px sans-serif', fillColor: Color.WHITE, outlineColor: Color.BLACK, outlineWidth: 4, style: LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cartesian2(0, -18), distanceDisplayCondition: new DistanceDisplayCondition(2e7, Number.POSITIVE_INFINITY) },
+    });
+    v.entities.add({
+      id: 'mv-earth', position: Cartesian3.ZERO,
+      label: { text: 'Earth', font: 'bold 22px sans-serif', fillColor: Color.WHITE, outlineColor: Color.BLACK, outlineWidth: 4, style: LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cartesian2(0, -22), disableDepthTestDistance: Number.POSITIVE_INFINITY, distanceDisplayCondition: new DistanceDisplayCondition(5e7, Number.POSITIVE_INFINITY) },
+    });
     const scFixed = (t: JulianDate) => sc.position!.getValue(t, new Cartesian3()) ?? new Cartesian3();
     const tmpA = new JulianDate(), tmpB = new JulianDate();
     function speedKms(t: JulianDate): number {
@@ -172,11 +184,12 @@ export function initMission(overlay: HTMLElement, hooks: MissionHooks) {
       if (r < a + b) return { center: p, range: lerp(1.4e7, 6e7, ease((r - a) / b)), pitch: CMath.toRadians(-35) };
       const m = toFixed(moonInertial(t), t);
       if (r < a + b + c) {
-        const mid = Cartesian3.multiplyByScalar(Cartesian3.add(p, m, new Cartesian3()), 0.5, new Cartesian3());
-        return { center: mid, range: Math.max(1.6e8, Cartesian3.distance(p, m) * 1.6), pitch: CMath.toRadians(-45) };
+        // frame Earth and Moon together: midpoint of the Earth centre (origin) and the Moon
+        const mid = Cartesian3.multiplyByScalar(m, 0.5, new Cartesian3());
+        return { center: mid, range: Math.max(2e8, Cartesian3.magnitude(m) * 1.9), pitch: CMath.toRadians(-75) };
       }
       const f = ease(clamp01((r - a - b - c) / d));
-      return { center: Cartesian3.lerp(Cartesian3.multiplyByScalar(Cartesian3.add(p, m, new Cartesian3()), 0.5, new Cartesian3()), m, f, new Cartesian3()), range: lerp(1.6e8, 2.5e6, f), pitch: CMath.toRadians(-40) };
+      return { center: Cartesian3.lerp(Cartesian3.multiplyByScalar(m, 0.5, new Cartesian3()), m, f, new Cartesian3()), range: lerp(Math.max(2e8, Cartesian3.magnitude(m) * 1.9), 2.5e6, f), pitch: CMath.toRadians(-40) };
     }
 
     const started = performance.now();

@@ -94,8 +94,27 @@ export function initTerrain3d(root: HTMLElement) {
     renderer.setClearColor(0x05070d);
     const extentKm = pair.a.extent_km;
 
-    const makePane = (g: TerrainGrid, heights: Float32Array, name: string): Pane => {
-      const n = g.size;
+    // Display only: coarse grids (e.g. 43 x 43 at 926 m) look faceted, so the mesh is bilinearly upsampled to >= ~170
+    // vertices per side. The labelled resolution (gsd_m) stays the source resolution.
+    const upsample = (src: Float32Array, n: number): { data: Float32Array; n: number } => {
+      if (n >= 128) return { data: src, n };
+      let lo = Infinity;
+      for (const v of src) if (Number.isFinite(v) && v < lo) lo = v;
+      const f = Math.ceil(170 / (n - 1)), m = (n - 1) * f + 1;
+      const get = (r: number, c: number) => { const v = src[r * n + c]; return Number.isFinite(v) ? v : lo; };
+      const out = new Float32Array(m * m);
+      for (let r = 0; r < m; r++) {
+        const fr = r / f, r0 = Math.min(n - 2, Math.floor(fr)), tr = fr - r0;
+        for (let c = 0; c < m; c++) {
+          const fc = c / f, c0 = Math.min(n - 2, Math.floor(fc)), tc = fc - c0;
+          out[r * m + c] = (1 - tr) * ((1 - tc) * get(r0, c0) + tc * get(r0, c0 + 1)) + tr * ((1 - tc) * get(r0 + 1, c0) + tc * get(r0 + 1, c0 + 1));
+        }
+      }
+      return { data: out, n: m };
+    };
+
+    const makePane = (g: TerrainGrid, rawHeights: Float32Array, name: string): Pane => {
+      const { data: heights, n } = upsample(rawHeights, g.size);
       let lo = Infinity, hi = -Infinity;
       for (const v of heights) if (Number.isFinite(v)) { if (v < lo) lo = v; if (v > hi) hi = v; }
       if (!Number.isFinite(lo)) { lo = 0; hi = 0; }
