@@ -29,7 +29,7 @@ AI agents draft a field campaign from the measured numbers. Built for the NASA S
   Kennedy Space Center to the chosen site, drawn in Cesium. It is labelled as not a flight plan.
   [docs/mission.md](docs/mission.md).
 - **AI crew.** Four specialist agents and a director run through the Claude Code CLI (`claude -p`) and write a
-  campaign plan. They receive only measured evidence. Every claim must cite an evidence reference, and numbers in the
+  campaign plan. In three live runs for the Shackleton rim target the plan took a median of 28.7 seconds, at most 35.0<!-- metrics: crew.median_s, crew.max_s, crew.runs -->. They receive only measured evidence. Every claim must cite an evidence reference, and numbers in the
   plan are checked against that evidence.
 - **Replay.** A recorded crew session can be played back when the CLI or network is not available, and the app says
   when it is doing so.

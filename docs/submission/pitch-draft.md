@@ -2,8 +2,7 @@
 
 Draft of the script in the Svod note `projects/analog-twin/03-pitch.md`, with every placeholder filled from
 `docs/metrics.json` (written `metrics: key.path`), `data/new_candidates.json` (written `candidates: ...`, the same
-numbers as `docs/new-candidates.md`) or the golden crew plan (written `{golden: ...}`; the golden session is being
-re-recorded, so these stay open). Sentences that would have needed an unsupported number or claim are rewritten.
+numbers as `docs/new-candidates.md`) or the golden crew plan (`sessions/golden/campaign_shackleton-rim.jsonl`, event `plan.final`, written `golden: ...`). Sentences that would have needed an unsupported number or claim are rewritten.
 Do not say any number on stage that is not in this file.
 
 Changes from the original, so you can see what was rewritten:
@@ -53,10 +52,10 @@ the line above.*
 **[1:30] Back to Shackleton, click "Plan campaign". The agent panel starts.**
 > "Finding matches is half of it. Now a small crew of AI agents plans the field campaign: a terrain analyst, a
 > lighting planner, logistics, a test lead. They do not calculate anything. Every number they use comes from the
-> engine, and every claim has to point to the measurement behind it. Claims that do not are removed."
+> engine, and every claim has to point to the measurement behind it. Claims that do not are removed. In our three live runs the plan took a median of 28.7 seconds <!-- metrics: crew.median_s -->, at most 35.0 <!-- metrics: crew.max_s -->, and no claim had to be removed <!-- metrics: crew.runs[].removed_unverified -->."
 
 **[2:00] The plan appears. Point at the disagreement and the red block.**
-> "They disagree about {golden: disagreement, one line}, and the director resolves it. And notice this block: not
+> "They disagree: Peru has the best terrain match, Switzerland the best light match <!-- golden: disagreements[0] -->. The director splits the campaign, with terrain tests in Peru and light-driven tests in Switzerland. And notice this block: not
 > reproducible on Earth. Vacuum, lunar dust, one-sixth gravity. An honest tool says what an analog cannot give you."
 
 **[2:25] Show the validation slide.**
@@ -169,6 +168,61 @@ screen on the day.
 
 ## Open items
 
-- {golden: disagreement line} and any plan-specific names, once the golden session is re-recorded.
-- Crew timing: not stated until `metrics.crew` exists.
-- Confirm the live first result for Shackleton matches the candidates file.
+- Golden plan sites, for reference <!-- golden: sites -->: Switzerland Alpine (46.30, 9.04; window 12-11 to 01-07), Peru Andes (-11.91, -76.38; window 05-23 to 06-19), China Highland (28.83, 96.64; window 12-02 to 12-29). Tests: low-sun navigation drill (Switzerland), slope traverse (Peru), shadowed-area operations drill (China, optional), comms relay drill (Peru). Mars twin excluded by the director for lack of light and context data.
+- The golden plan's Peru site matches the top terrain-plus-light candidate in `data/new_candidates.json`. Confirm on the day that the live app shows the same first result.
+
+## Български превод на сценария (3 минути)
+
+Преводът е за теб, не за сцената. На сцената се казва английският текст. Числата са същите като горе и идват от
+`docs/metrics.json`, `data/new_candidates.json` и златната сесия.
+
+**[0:00] На екрана са трите глобуса. Нищо не пипаш.**
+> „Преди някой да кацне на Луната или на Марс, репетира на Земята, на места, които приличат на целта. Те се наричат
+> аналози и днес се избират най-вече по опит. Направихме начин да се измери колко е сходно едно място и да се каже кога
+> да отидеш."
+
+**[0:20] Само ако търсачката за места за база е минала проверката (минала е). Натискаш „Find base sites".**
+> „Първо: къде бихте построили база? Системата претърсва южния полюс на Луната, като събира картите на самата НАСА:
+> полегат терен, колкото може повече слънце, пряка видимост към Земята и вечна сянка наблизо, където може да има лед.
+> Четири от десетте ни най-добри места са на не повече от 25 км от кандидат-районите на НАСА за Артемис. Шест не са и ги
+> показваме като места за обсъждане, не като отговори. Да вземем това."
+
+**[0:20] Натискаш „Shackleton rim". На Земята светват точки.**
+> „Това е ръбът на кратера Шакълтън на южния полюс на Луната, кандидат-район за Артемис. Един клик и Analog Twin го
+> сравнява с 972 567 места по цялата суша на Земята. И трите света са сведени до един размер на пиксела, около 926 метра,
+> от височинни данни на НАСА и NOAA."
+
+**[0:45] Натискаш първия резултат. Появява се двойката релефи.**
+> „Ето лунното място и най-добрия му земен кандидат, показани под един и същи слънчев ъгъл. Искам да кажа точно какво
+> значи „прилича". В този мащаб близнаците имат обща грубо описана текстура на терена: колко е стръмно, колко е грапаво,
+> колко е височинната разлика, измерени в прозорци от 12 и 36 километра. Не са еднакви релефни форми и на кратер не се
+> намира кратер-близнак. Със слънцето Луната е крайна: на лунния полюс то остава на около 1,5 градуса над хоризонта. Нито
+> едно земно място не съвпада напълно, затова инструментът казва не само къде, а и кога, в кое време от годината се
+> приближава най-много. За тази цел първото място е в Перу, на 11,9 градуса южна ширина и 76,4 градуса западна дължина,
+> а най-добрият 28-дневен прозорец е от 23 май до 19 юни."
+
+**[1:15] Натискаш „Rila, Bulgaria". На Луната и Марс светват точки.**
+> „Работи във всички посоки. Това е Рила, а това са най-близките ѝ по релеф места на Луната и на Марс. Всяка точка на
+> всеки от трите света."
+
+**[1:30] Връщаш се на Shackleton, натискаш „Plan campaign". Панелът с агентите тръгва.**
+> „Намирането на близнаци е половината. Сега малък екип от AI агенти планира полевата кампания: анализатор на терена,
+> планировчик на светлината, логистика и ръководител на тестовете. Те не смятат нищо. Всяко число идва от двигателя, а
+> всяко твърдение сочи към измерването зад него. Твърдение без такава препратка се маха. В трите ни пускания на живо
+> планът отне средно 28,7 секунди, най-много 35,0, и не се наложи да махаме нито едно твърдение."
+
+**[2:00] Планът се появява. Показваш несъгласието и червения блок.**
+> „Те не са съгласни: Перу има най-добрия терен, Швейцария има най-добрата светлина. Директорът разделя кампанията:
+> тестовете за терен са в Перу, тестовете за светлина са в Швейцария. И вижте този блок: „не може да се възпроизведе на
+> Земята". Вакуум, лунен прах, една шеста от гравитацията. Честният инструмент казва какво аналогът не може да ти даде."
+
+**[2:25] Показваш слайда с проверката.**
+> „Работи ли? Ето нашия тест и той не е чисто минат. Подредихме известни аналози спрямо целите, за които се ползват. Нулата
+> е най-доброто, а петдесет е случайно място. Първата ни версия получи 59,64, по-лошо от случайно. Опитахме една промяна,
+> обявена предварително: добавихме контекст от 36 километра. Резултатът стана 51,12 при 48,54 за случайно. Това все още не
+> е ясно по-добро от случайността. Затова не твърдим, че методът е потвърден. Инструментът дава измерим и повторяем списък
+> от хипотези за оглед на място, а ограниченията са изписани на екрана."
+
+**[2:45] Край.**
+> „Analog Twin. Отворени данни от LRO и Mars Global Surveyor на НАСА и от NOAA, с отворен код, направено за един уикенд от
+> един инженер, който работи с екип от AI агенти. Благодаря."
