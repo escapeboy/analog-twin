@@ -132,7 +132,7 @@ body.present-mode { background: var(--p-void); overflow: hidden; font-family: va
 .hud-tabs button { font-size: 21px !important; font-weight: 500; color: var(--p-dim) !important; padding: 8px 0 !important; border-bottom: 2px solid transparent !important; margin-bottom: -1px; }
 .hud-tabs button[aria-selected=true] { color: var(--p-text) !important; border-bottom-color: var(--p-cyan) !important; }
 .hud-tab { min-height: 290px; flex: 1 1 auto !important; display: flex; flex-direction: column; }
-.hud-3d { flex: 1 0 320px !important; min-height: 320px; height: auto; }
+.hud-3d { flex: 1 0 340px !important; min-height: 340px; height: auto; }
 .hud-3d .t3-wrap { flex: 1; min-height: 0; }
 .hud-3d .t3-wrap { background: transparent; }
 .hud-3d .t3-canvas { background: #02040a; border-radius: 4px; }

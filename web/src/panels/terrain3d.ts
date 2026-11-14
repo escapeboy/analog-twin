@@ -28,7 +28,9 @@ async function loadPair(a: string, b: string): Promise<TerrainPair> {
   }
 }
 
-export function initTerrain3d(root: HTMLElement) {
+/** fill = ambient light (fraction of full sun). The analyst view keeps shadows near black; the presentation passes more so that
+ * terrain in the shade of a 3 degree polar sun stays readable instead of one lit shard on a black panel. */
+export function initTerrain3d(root: HTMLElement, opts: { fill?: number } = {}) {
   let dispose: (() => void) | null = null;
   let seq = 0;
   let visible = false;
@@ -133,7 +135,7 @@ export function initTerrain3d(root: HTMLElement) {
       scene.add(mesh);
       // three.js lights are in units of pi: PI = full sun (output = albedo * N.L). Fill is tiny so cast shadows stay black
       // (the sun light gets an exposure gain in applySun, see there).
-      scene.add(new T.AmbientLight(0xffffff, 0.012 * Math.PI));
+      scene.add(new T.AmbientLight(0xffffff, (opts.fill ?? 0.012) * Math.PI));
       const light = new T.DirectionalLight(0xffffff, Math.PI);
       light.shadow.mapSize.set(4096, 4096);
       light.shadow.bias = -0.0003;
@@ -154,13 +156,22 @@ export function initTerrain3d(root: HTMLElement) {
     const panes = [A, B];
 
     const cam = new T.PerspectiveCamera(38, 1, 0.1, extentKm * 20);
-    cam.position.set(0, extentKm * 0.85, extentKm * 1.85);
+    const midY = Math.max(A.relief, B.relief) / 2000;
+    let touched = false;
+    // Place the camera so the whole square (incl. its rotated diagonal) fits each half-viewport, whatever the panel shape.
+    const fitCamera = () => {
+      if (touched) return;
+      const t = Math.tan((38 / 2) * Math.PI / 180);
+      const d = Math.max((0.72 * extentKm) / (Math.max(cam.aspect, 0.2) * t), (0.6 * extentKm) / t);
+      cam.position.set(0, midY * 0.6 + d * 0.45, d * 0.89);
+    };
+    fitCamera();
     const ctl = new OrbitControls(cam, canvas);
-    ctl.target.set(0, 0, 0);
+    ctl.target.set(0, midY * 0.6, 0);
     ctl.autoRotate = true; ctl.autoRotateSpeed = 0.6; // slow orbit; stops on first mouse use
     ctl.enableDamping = true;
     ctl.maxPolarAngle = Math.PI / 2 - 0.02;
-    ctl.addEventListener('start', () => { ctl.autoRotate = false; });
+    ctl.addEventListener('start', () => { ctl.autoRotate = false; touched = true; });
     const camB = cam.clone();
 
     /** Fit the sun's orthographic shadow camera tightly around the terrain's bounding box, seen from the sun, so a
@@ -234,6 +245,7 @@ export function initTerrain3d(root: HTMLElement) {
       cam.aspect = w / 2 / Math.max(hh, 1);
       cam.updateProjectionMatrix();
       camB.aspect = cam.aspect; camB.updateProjectionMatrix();
+      fitCamera();
       overlay.style.setProperty('--w', `${w}px`);
     }
     const ro = new ResizeObserver(resize);

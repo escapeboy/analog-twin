@@ -23,7 +23,7 @@ export function initHud(root: HTMLElement, onSelect: (t: Twin) => void, onClose:
   close.addEventListener('click', onClose);
   root.append(close, head, figure, chart, tabs, body3d, bodyHill, bodyList);
 
-  const terrain = initTerrain3d(body3d);
+  const terrain = initTerrain3d(body3d, { fill: 0.1 });
   let tab: Tab = '3d';
   const TABS: [Tab, string, HTMLElement][] = [['3d', '3D terrain', body3d], ['hill', 'Hillshade', bodyHill], ['list', 'All twins', bodyList]];
   const tabBtns = TABS.map(([k, label]) => {
