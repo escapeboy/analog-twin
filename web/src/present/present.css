@@ -206,3 +206,4 @@ body.film #mission .m-close, body.film #mission .m-skip { display: none; }
 .hud-3d .t3-controls { gap: 10px; flex-wrap: nowrap; white-space: nowrap; }
 .hud-3d .t3-controls input[type=range] { width: 80px; vertical-align: middle; }
 @media (max-height: 1000px) { .hud-3d { flex-basis: 230px !important; min-height: 230px; } }
+.hud-twins .n .c { font-size: 14px; margin-left: 6px; }

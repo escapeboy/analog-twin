@@ -23,7 +23,7 @@ export function initHud(root: HTMLElement, onSelect: (t: Twin) => void, onClose:
   close.addEventListener('click', onClose);
   root.append(close, head, figure, chart, tabs, body3d, bodyHill, bodyList);
 
-  const terrain = initTerrain3d(body3d, { fill: 0.1 });
+  const terrain = initTerrain3d(body3d, { fill: 0.1, twinName: () => twinTitle });
   let tab: Tab = '3d';
   const TABS: [Tab, string, HTMLElement][] = [['3d', '3D terrain', body3d], ['hill', 'Hillshade', bodyHill], ['list', 'All twins', bodyList]];
   const tabBtns = TABS.map(([k, label]) => {
@@ -41,7 +41,7 @@ export function initHud(root: HTMLElement, onSelect: (t: Twin) => void, onClose:
     if (t === 'list') void list();
   }
 
-  let key = '', seq = 0;
+  let key = '', seq = 0, twinTitle = '';
   let pair: PairExplanation | null = null;
 
   async function render() {
@@ -55,6 +55,7 @@ export function initHud(root: HTMLElement, onSelect: (t: Twin) => void, onClose:
     if (my !== seq) return;
     const tl = pointLabel(gaz, q.body, q.lat, q.lon);
     const wl = twinLabels(gaz, store.twins?.results[sel.body] ?? [sel]).get(sel.id) ?? pointLabel(gaz, sel.body, sel.lat, sel.lon);
+    twinTitle = wl.title;
     const target = q.presetId ? q.label.replace(/\s*\((Moon|Mars|Earth)\)$/, '') : tl.title;
     head.replaceChildren(
       h('div', { class: 'hud-pair' },
@@ -142,7 +143,7 @@ export function initHud(root: HTMLElement, onSelect: (t: Twin) => void, onClose:
       for (const t of twins) {
         const l = labels.get(t.id)!;
         const li = h('li', { class: t.id === sel.twin.id ? 'sel' : '' },
-          h('span', { class: 'mono r' }, String(t.rank)), h('span', { class: 'n' }, l.title), h('span', { class: 'mono s' }, `${Math.round(t.score * 100)}%`));
+          h('span', { class: 'mono r' }, String(t.rank)), h('span', { class: 'n' }, l.title, ' ', h('span', { class: 'dim mono c' }, l.coords)), h('span', { class: 'mono s' }, `${Math.round(t.score * 100)}%`));
         li.addEventListener('click', () => onSelect(t));
         li.tabIndex = 0;
         li.addEventListener('keydown', (e) => { if (e.key === 'Enter') onSelect(t); });

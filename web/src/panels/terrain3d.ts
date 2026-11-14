@@ -30,7 +30,7 @@ async function loadPair(a: string, b: string): Promise<TerrainPair> {
 
 /** fill = ambient light (fraction of full sun). The analyst view keeps shadows near black; the presentation passes more so that
  * terrain in the shade of a 3 degree polar sun stays readable instead of one lit shard on a black panel. */
-export function initTerrain3d(root: HTMLElement, opts: { fill?: number } = {}) {
+export function initTerrain3d(root: HTMLElement, opts: { fill?: number; twinName?: () => string | undefined } = {}) {
   let dispose: (() => void) | null = null;
   let seq = 0;
   let visible = false;
@@ -152,7 +152,7 @@ export function initTerrain3d(root: HTMLElement, opts: { fill?: number } = {}) {
     };
     const nameOf = (g: TerrainGrid, label: string) => `${BODY_NAMES[g.body]}: ${label}`;
     const A = makePane(pair.a, ha, nameOf(pair.a, q.label));
-    const B = makePane(pair.b, hb, nameOf(pair.b, sel.place_label));
+    const B = makePane(pair.b, hb, nameOf(pair.b, opts.twinName?.() || sel.place_label));
     const panes = [A, B];
 
     const cam = new T.PerspectiveCamera(38, 1, 0.1, extentKm * 20);
