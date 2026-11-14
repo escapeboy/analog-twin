@@ -622,6 +622,12 @@ def mission_czml(site_id: str) -> Optional[pathlib.Path]:
     return _mission_file(site_id, "czml")
 
 
+MISSION_LIMITATIONS = [
+    "Lunar orbit is near the transfer plane; the plane change to a polar orbit is not modelled. Descent to the site is schematic.",
+    "Headline delta-v and time of flight come from a two-body transfer; the displayed arc is refined with an Earth-Moon gravity model.",
+]
+
+
 def _mission_summary(raw: dict, site_id: str) -> dict:
     """Maps the current W8 file shape (or an already-shaped `summary`) to the API contract."""
     if isinstance(raw.get("summary"), dict):  # reshaped file: trust it, fill the gaps below
@@ -647,8 +653,9 @@ def _mission_summary(raw: dict, site_id: str) -> dict:
         "launch_time_computed": bool(show and (base.get("launch_utc") or t.get("launch"))),
         "landing_sun_elevation_deg": base.get("landing_sun_elevation_deg", raw.get("landing_sun_elevation_deg")),
         "landing_earth_elevation_deg": base.get("landing_earth_elevation_deg", raw.get("landing_earth_elevation_deg")),
-        "label": base.get("label", raw.get("label")),
+        "label": base.get("label") or (raw.get("display") or {}).get("label") or raw.get("label"),
         "events": [e for e in events if e.get("t_utc")],
+        "limitations": list(MISSION_LIMITATIONS) + [x for x in base.get("limitations", []) if x not in MISSION_LIMITATIONS],
     }
     return {"czml_url": f"/api/mission/{_safe(site_id)}.czml", "summary": out, "gate": {"status": gate}}
 

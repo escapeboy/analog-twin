@@ -281,6 +281,8 @@ def test_mission_routes_adapter_and_evidence(client, monkeypatch, tmp_path):
     s = d["summary"]
     assert d["gate"]["status"] == "pass" and d["czml_url"] == "/api/mission/shackleton-rim.czml"
     assert s["launch_utc"] and s["launch_time_computed"] and 3.0 <= s["tli_dv_kms"] <= 3.3 and s["site"]["id"] == "shackleton-rim"
+    assert s["limitations"][0].startswith("Lunar orbit is near the transfer plane") and "Descent to the site is schematic." in s["limitations"][0]
+    assert s["label"] and s["tof_days"] == 4.5 and s["tli_dv_kms"] == pytest.approx(3.1715)  # two-body gate numbers stay the headline
     assert s["events"] and set(s["events"][0]) == {"t_utc", "name", "detail"}
     c = client.get(d["czml_url"])
     assert c.status_code == 200 and isinstance(c.json(), list)
