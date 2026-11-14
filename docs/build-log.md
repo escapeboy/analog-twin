@@ -41,3 +41,13 @@ Times are Europe/Sofia.
 - **12:30** light_sim analysis (W2): with EMD_max = 5, light_sim has a high floor (Shackleton ≥ 0.74, Jezero ≥ 0.86 anywhere on Earth). Decision: keep EMD_max = 5 so ranking stays terrain-led; show the per-target Earth range next to every light_sim (LightWindow.earth_range). A per-target EMD_max was rejected because it silently raises light's effective weight from 0.4 to ~1.5.
 - **12:35** Final golden recorded on the v2 index: environment context, light earth_range and 6-decimal ids included. Shackleton campaign 30.5 s live, 3 disagreements resolved, 0 claims removed. metrics.crew from 3 live runs via the HTTP API: median 28.7 s, max 35.0 s. 190 tests pass.
 - **12:35** W1 independent E2E check: the API equals direct engine calls for all 3 presets (twins, scores, light windows, explain groups, hillshade sun, light profiles). It found 1 bug (terrain route 404 after a shape change) and 1 rounding issue (4-decimal ids). Both are fixed.
+
+### G2 — passed early at 12:42 (target 18:30)
+- Click/query on each body (Earth Death Valley, Moon 20S 30E, Mars 14.6S 175.4E) returns twins on the other two bodies. The pair for the top twin returns 7 feature groups and a matched-light hillshade PNG (200 image/png). W4 verified a real mouse click on a globe in a headless browser (lat/lon matches the camera centre) and markers on the other globes.
+- 3D twin terrain (V1, W7) works live: Shackleton (80 m source) vs Peru at 141 m, 256 px, 0.2 s.
+- Fallbacks used: none. The two-viewer layout (?layout=2) exists but is not needed.
+
+### G3 — passed early at 12:42 (target 22:00)
+- Crew produces a valid CampaignPlan from the UI: W4 ran it live in 28.8 s. metrics.crew (3 runs via the HTTP API): median 28.7 s, max 35.0 s, no fallback, 0 claims removed.
+- Every session is recorded to sessions/<id>.jsonl. Golden replay: 136 events, ends with session.end.
+- Fallbacks used: none. The follow-up round is off, as the spec defaults.
