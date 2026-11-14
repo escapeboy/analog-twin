@@ -63,7 +63,9 @@ FILES = {
     "mars": RAW / "mars" / "Mars_MGS_MOLA_DEM_mosaic_global_463m.tif",
     "ne_land": RAW / "naturalearth" / "ne_10m_land.zip",
     "ne_ice": RAW / "naturalearth" / "ne_10m_glaciated_areas.zip",
-    "ne_countries": RAW / "naturalearth" / "ne_10m_admin_0_countries.zip",
+    # German point-of-view admin-0: disputed areas follow the DEU/EU view (e.g. Crimea -> Ukraine). The default
+    # Natural Earth admin-0 file encodes the de-facto view instead.
+    "ne_countries": RAW / "naturalearth" / "ne_10m_admin_0_countries_deu.zip",
 }
 
 
