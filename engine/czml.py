@@ -25,8 +25,9 @@ def _site_inertial_rel(m: T.Mission, et: float) -> np.ndarray:
     return rot @ T.site_vector_moon(m.site["lat"], m.site["lon"])
 
 
-def sample(m: T.Mission) -> dict:
-    """Times (ET) and J2000 positions (km) plus phase boundaries."""
+def sample(m: T.Mission, ref: dict | None = None) -> dict:
+    """Times (ET) and J2000 positions (km) plus phase boundaries. With a converged refinement (trajectory.refine) the
+    coast is the Earth + Moon gravity arc up to its 100 km periselene and landing = periselene + descent_hours."""
     tr, ln, cfg = m.tr, m.launch, m.cfg
     rp, h = tr["r_park"], tr["h"]
     n_orb = math.sqrt(T.GM_EARTH / rp ** 3)
@@ -51,29 +52,42 @@ def sample(m: T.Mission) -> dict:
     for t in np.arange(t_ins, t_tli, 30.0):
         ts.append(t); ps.append(park(t))
 
-    tof = tr["t_arr"] - t_tli
-    sol = T.propagate_two_body(tr["r1"], tr["v1"], tof)
     r_lo = T.R_MOON + cfg.lunar_orbit_alt_km
-    grid = np.unique(np.concatenate([np.arange(0, 3600, 60.0), np.arange(3600, tof - 6 * 3600, 600.0),
-                                     np.arange(tof - 6 * 3600, tof, 60.0)]))
-    t_cut = None
-    for dt in grid:
-        p = sol.sol(dt)[:3]
-        rel = p - T.moon_state(t_tli + dt)[:3]
-        if np.linalg.norm(rel) <= r_lo:
-            t_cut = t_tli + dt
-            entry_rel = rel
-            break
-        ts.append(t_tli + dt); ps.append(p)
-    if t_cut is None:
-        raise RuntimeError("transfer never reached lunar-orbit radius")
-
-    t_land = m.t_landing
+    if ref and ref["converged"]:
+        dur = ref["t_periselene"] - t_tli
+        sol = ref["sol"]
+        grid = np.unique(np.concatenate([np.arange(0, 3600, 60.0), np.arange(3600, dur - 6 * 3600, 600.0),
+                                         np.arange(dur - 6 * 3600, dur, 60.0)]))
+        for dt in grid:
+            ts.append(t_tli + dt); ps.append(sol.sol(dt)[:3])
+        t_cut = ref["t_periselene"]
+        st = sol.sol(dur)
+        entry_rel = st[:3] - T.moon_state(t_cut)[:3]
+        entry_v = st[3:] - T.moon_state(t_cut)[3:]
+        t_land = t_cut + cfg.descent_hours * 3600
+        normal = _unit(np.cross(entry_rel, entry_v))
+    else:
+        tof = tr["t_arr"] - t_tli
+        sol = T.propagate_two_body(tr["r1"], tr["v1"], tof)
+        grid = np.unique(np.concatenate([np.arange(0, 3600, 60.0), np.arange(3600, tof - 6 * 3600, 600.0),
+                                         np.arange(tof - 6 * 3600, tof, 60.0)]))
+        t_cut = None
+        for dt in grid:
+            p = sol.sol(dt)[:3]
+            rel = p - T.moon_state(t_tli + dt)[:3]
+            if np.linalg.norm(rel) <= r_lo:
+                t_cut = t_tli + dt
+                entry_rel = rel
+                break
+            ts.append(t_tli + dt); ps.append(p)
+        if t_cut is None:
+            raise RuntimeError("transfer never reached lunar-orbit radius")
+        t_land = m.t_landing
+        normal = np.cross(entry_rel, _site_inertial_rel(m, t_land))
+        if np.linalg.norm(normal) < 1e-6:
+            normal = np.cross(entry_rel, [0.0, 0.0, 1.0])
+        normal = _unit(normal)
     t_desc = t_land - DESCENT_DRAW_MIN * 60
-    normal = np.cross(entry_rel, _site_inertial_rel(m, t_land))
-    if np.linalg.norm(normal) < 1e-6:
-        normal = np.cross(entry_rel, [0.0, 0.0, 1.0])
-    normal = _unit(normal)
     e1 = _unit(entry_rel)
     e2 = np.cross(normal, e1)
     w = math.sqrt(T.GM_MOON / r_lo ** 3)
@@ -94,8 +108,20 @@ def sample(m: T.Mission) -> dict:
             "t_loi": t_cut, "t_arrival": tr["t_arr"], "t_descent": t_desc, "t_landing": t_land}
 
 
-def events(m: T.Mission, s: dict) -> list[dict]:
+def label(ref: dict | None) -> str:
+    if ref and ref["converged"]:
+        return ("First-order mission geometry: real ephemerides, Earth-Moon gravity model. "
+                "Not a flight-dynamics solution.")
+    return "First-order mission geometry: real ephemerides, two-body transfer. Not a flight-dynamics solution."
+
+
+def events(m: T.Mission, s: dict, ref: dict | None = None) -> list[dict]:
     tr, ln = m.tr, m.launch
+    refined = bool(ref and ref["converged"])
+    tli = ref["tli_dv"] if refined else tr["tli_dv"]
+    loi = ref["loi_dv"] if refined else tr["loi_dv"]
+    coast = (f"{(s['t_loi'] - s['t_tli']) / T.DAY:.2f} days, Earth + Moon point-mass gravity" if refined
+             else f"{(tr['t_arr'] - tr['t_tli']) / T.DAY:g} days, two-body Earth gravity")
     name = m.site.get("label") or m.site.get("id", "site")
     ev = []
     if ln:
@@ -103,20 +129,19 @@ def events(m: T.Mission, s: dict) -> list[dict]:
                    "detail": f"{T.KSC_LAT:.4f}, {T.KSC_LON:.4f}; KSC in parking-orbit plane"})
         ev.append({"name": "Parking orbit", "utc": T.et_to_utc(s["t_insertion"]),
                    "detail": f"{m.cfg.parking_alt_km:g} km circular, i = {m.cfg.inclination_deg:g}°, ascent schematic"})
-    ev.append({"name": "Trans-lunar injection", "utc": T.et_to_utc(s["t_tli"]), "dv_km_s": round(tr["tli_dv"], 3),
-               "detail": f"Δv {tr['tli_dv']:.3f} km/s"})
-    ev.append({"name": "Coast", "utc": T.et_to_utc(s["t_tli"]),
-               "detail": f"{(tr['t_arr'] - tr['t_tli']) / T.DAY:g} days, two-body Earth gravity"})
+    ev.append({"name": "Trans-lunar injection", "utc": T.et_to_utc(s["t_tli"]), "dv_km_s": round(tli, 3),
+               "detail": f"Δv {tli:.3f} km/s"})
+    ev.append({"name": "Coast", "utc": T.et_to_utc(s["t_tli"]), "detail": coast})
     ev.append({"name": "Lunar arrival / orbit insertion", "utc": T.et_to_utc(s["t_loi"]),
-               "dv_km_s": round(tr["loi_dv"], 3),
-               "detail": f"Δv {tr['loi_dv']:.3f} km/s into {m.cfg.lunar_orbit_alt_km:g} km circular orbit"})
+               "dv_km_s": round(loi, 3),
+               "detail": f"Δv {loi:.3f} km/s into {m.cfg.lunar_orbit_alt_km:g} km circular orbit"})
     ev.append({"name": f"Landing - {name}, {m.site['lat']:.4f}, {m.site['lon']:.4f}", "utc": T.et_to_utc(s["t_landing"]),
                "detail": f"schematic descent; landing = arrival + {m.cfg.descent_hours:g} h"})
     return ev
 
 
-def build_czml(m: T.Mission) -> tuple[list, dict]:
-    s = sample(m)
+def build_czml(m: T.Mission, ref: dict | None = None) -> tuple[list, dict]:
+    s = sample(m, ref)
     t0 = s["t"][0]
     epoch = T.et_to_utc(t0)
     end = T.et_to_utc(s["t"][-1])
@@ -124,13 +149,13 @@ def build_czml(m: T.Mission) -> tuple[list, dict]:
     cart = []
     for t, p in zip(s["t"], s["p"]):
         cart += [round(float(t - t0), 3), *(round(float(c) * 1000.0, 1) for c in p)]
-    ev = events(m, s)
+    ev = events(m, s, ref)
     desc = "<br>".join(f"{e['utc']} - {e['name']}" + (f" ({e['detail']})" if e.get("detail") else "") for e in ev)
     position = {"epoch": epoch, "referenceFrame": "INERTIAL", "interpolationAlgorithm": "LAGRANGE",
                 "interpolationDegree": 5, "cartesian": cart}
     doc = [
         {"id": "document", "name": f"Mission to {m.site.get('label', m.site.get('id', 'site'))}", "version": "1.0",
-         "description": T.summary(m)["label"] + "<br>" + desc,
+         "description": label(ref) + "<br>" + desc,
          "clock": {"interval": interval, "currentTime": epoch, "multiplier": 600, "range": "LOOP_STOP",
                    "step": "SYSTEM_CLOCK_MULTIPLIER"}},
         {"id": "trajectory", "name": "Computed trajectory", "availability": interval, "position": position,
@@ -147,6 +172,7 @@ def build_czml(m: T.Mission) -> tuple[list, dict]:
          "point": {"pixelSize": 7, "color": {"rgba": [255, 80, 80, 255]}},
          "label": {"text": "KSC LC-39B", "font": "14px monospace", "pixelOffset": {"cartesian2": [10, -10]}}},
     ]
-    info = {"events": ev, "interval": interval, "samples": len(s["t"]),
+    info = {"events": ev, "interval": interval, "samples": len(s["t"]), "label": label(ref),
+            "refined": bool(ref and ref["converged"]),
             "times_et": {k: float(v) for k, v in s.items() if k.startswith("t_")}}
     return doc, info
