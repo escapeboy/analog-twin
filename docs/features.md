@@ -24,6 +24,15 @@ Similarity in Analog Twin is **terrain shape only**: not geology, not chemistry,
 - Body radii for the local projection: Moon 1737.4 km (LDEM_64 label / IAU 30100 sphere), Mars 3396.19 km (MOLA
   mosaic CRS), Earth 6371.0 km (NASA Earth fact sheet, https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html).
 
+## Earth place labels
+
+Earth points are labelled with the country whose polygon contains them, taken from the **German point-of-view**
+Natural Earth 10 m admin-0 file (`ne_10m_admin_0_countries_deu.zip`, field `ADMIN`). Disputed areas follow the
+DEU/EU view (for example Crimea -> Ukraine, Western Sahara stays separate from Morocco). Land points that this file
+assigns to no country (85 of 1,026,242 in the full index: the Abyei area, the Golan Heights and a stretch of the
+Brazil-Uruguay border) are labelled "Disputed area". The default Natural Earth admin-0 file encodes the de-facto
+view and is not used. Moon and Mars points are labelled with their coordinates.
+
 ## Processing
 
 1. Slope and aspect use the raw window (central differences, `numpy.gradient`).
