@@ -51,7 +51,7 @@
      "ref": "ctx:earth-716665"
     },
     "score": 0.2755,
-    "percentile": 99.9996,
+    "random_closer_pct": 2.3805,
     "rank": 1,
     "ref": "twin:earth-716665"
    },
@@ -88,7 +88,7 @@
      "ref": "ctx:earth-336612"
     },
     "score": 0.2665,
-    "percentile": 99.9995,
+    "random_closer_pct": 3.146,
     "rank": 2,
     "ref": "twin:earth-336612"
    },
@@ -125,7 +125,7 @@
      "ref": "ctx:earth-364817"
     },
     "score": 0.2445,
-    "percentile": 99.9988,
+    "random_closer_pct": 4.642,
     "rank": 3,
     "ref": "twin:earth-364817"
    },
@@ -162,7 +162,7 @@
      "ref": "ctx:earth-319912"
     },
     "score": 0.2402,
-    "percentile": 99.9986,
+    "random_closer_pct": 5.263,
     "rank": 4,
     "ref": "twin:earth-319912"
    },
@@ -199,7 +199,7 @@
      "ref": "ctx:earth-330909"
     },
     "score": 0.2389,
-    "percentile": 99.9986,
+    "random_closer_pct": 5.1725,
     "rank": 5,
     "ref": "twin:earth-330909"
    },
@@ -236,7 +236,7 @@
      "ref": "ctx:earth-817194"
     },
     "score": 0.2348,
-    "percentile": 99.9983,
+    "random_closer_pct": 5.4645,
     "rank": 6,
     "ref": "twin:earth-817194"
    },
@@ -273,7 +273,7 @@
      "ref": "ctx:earth-822750"
     },
     "score": 0.2321,
-    "percentile": 99.9979,
+    "random_closer_pct": 5.881,
     "rank": 7,
     "ref": "twin:earth-822750"
    },
@@ -310,7 +310,7 @@
      "ref": "ctx:earth-363070"
     },
     "score": 0.2319,
-    "percentile": 99.9978,
+    "random_closer_pct": 5.7585,
     "rank": 8,
     "ref": "twin:earth-363070"
    },
@@ -347,7 +347,7 @@
      "ref": "ctx:earth-271969"
     },
     "score": 0.2302,
-    "percentile": 99.9975,
+    "random_closer_pct": 6.4685,
     "rank": 9,
     "ref": "twin:earth-271969"
    },
@@ -384,7 +384,7 @@
      "ref": "ctx:earth-358004"
     },
     "score": 0.2261,
-    "percentile": 99.9971,
+    "random_closer_pct": 6.454,
     "rank": 10,
     "ref": "twin:earth-358004"
    }
@@ -401,7 +401,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7406,
-    "percentile": 99.9999,
+    "random_closer_pct": 0.0265,
     "rank": 1,
     "ref": "twin:mars-573726"
    },
@@ -416,7 +416,7 @@
     "best_window": null,
     "env": null,
     "score": 0.689,
-    "percentile": 99.9998,
+    "random_closer_pct": 0.0695,
     "rank": 2,
     "ref": "twin:mars-628553"
    },
@@ -431,7 +431,7 @@
     "best_window": null,
     "env": null,
     "score": 0.6303,
-    "percentile": 99.9997,
+    "random_closer_pct": 0.1875,
     "rank": 3,
     "ref": "twin:mars-552258"
    },
@@ -446,7 +446,7 @@
     "best_window": null,
     "env": null,
     "score": 0.629,
-    "percentile": 99.9996,
+    "random_closer_pct": 0.192,
     "rank": 4,
     "ref": "twin:mars-556743"
    },
@@ -461,7 +461,7 @@
     "best_window": null,
     "env": null,
     "score": 0.6211,
-    "percentile": 99.9995,
+    "random_closer_pct": 0.2035,
     "rank": 5,
     "ref": "twin:mars-559434"
    },
@@ -476,7 +476,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5983,
-    "percentile": 99.9994,
+    "random_closer_pct": 0.2695,
     "rank": 6,
     "ref": "twin:mars-558379"
    },
@@ -491,7 +491,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5927,
-    "percentile": 99.9993,
+    "random_closer_pct": 0.291,
     "rank": 7,
     "ref": "twin:mars-572676"
    },
@@ -506,7 +506,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5916,
-    "percentile": 99.9992,
+    "random_closer_pct": 0.295,
     "rank": 8,
     "ref": "twin:mars-566741"
    },
@@ -521,7 +521,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5912,
-    "percentile": 99.9991,
+    "random_closer_pct": 0.2955,
     "rank": 9,
     "ref": "twin:mars-559413"
    },
@@ -536,13 +536,13 @@
     "best_window": null,
     "env": null,
     "score": 0.5702,
-    "percentile": 99.999,
+    "random_closer_pct": 0.384,
     "rank": 10,
     "ref": "twin:mars-581130"
    }
   ]
  },
- "latency_ms": 4460.3,
+ "latency_ms": 1963.6,
  "source": "live",
  "ref": "twins:moon:-89.767:-171.870"
 }

@@ -51,7 +51,7 @@
      "ref": "ctx:earth-536208"
     },
     "score": 0.7779,
-    "percentile": 99.9994,
+    "random_closer_pct": 0.0925,
     "rank": 1,
     "ref": "twin:earth-536208"
    },
@@ -88,7 +88,7 @@
      "ref": "ctx:earth-360496"
     },
     "score": 0.7746,
-    "percentile": 99.999,
+    "random_closer_pct": 0.0935,
     "rank": 2,
     "ref": "twin:earth-360496"
    },
@@ -125,7 +125,7 @@
      "ref": "ctx:earth-864753"
     },
     "score": 0.7735,
-    "percentile": 99.9989,
+    "random_closer_pct": 0.07,
     "rank": 3,
     "ref": "twin:earth-864753"
    },
@@ -162,7 +162,7 @@
      "ref": "ctx:earth-856160"
     },
     "score": 0.7712,
-    "percentile": 99.9987,
+    "random_closer_pct": 0.0895,
     "rank": 4,
     "ref": "twin:earth-856160"
    },
@@ -199,7 +199,7 @@
      "ref": "ctx:earth-385999"
     },
     "score": 0.7665,
-    "percentile": 99.9984,
+    "random_closer_pct": 0.1535,
     "rank": 5,
     "ref": "twin:earth-385999"
    },
@@ -236,7 +236,7 @@
      "ref": "ctx:earth-379294"
     },
     "score": 0.76,
-    "percentile": 99.998,
+    "random_closer_pct": 0.175,
     "rank": 6,
     "ref": "twin:earth-379294"
    },
@@ -273,7 +273,7 @@
      "ref": "ctx:earth-339858"
     },
     "score": 0.7564,
-    "percentile": 99.9977,
+    "random_closer_pct": 0.128,
     "rank": 7,
     "ref": "twin:earth-339858"
    },
@@ -310,7 +310,7 @@
      "ref": "ctx:earth-444948"
     },
     "score": 0.7537,
-    "percentile": 99.9974,
+    "random_closer_pct": 0.217,
     "rank": 8,
     "ref": "twin:earth-444948"
    },
@@ -347,7 +347,7 @@
      "ref": "ctx:earth-448153"
     },
     "score": 0.7443,
-    "percentile": 99.9971,
+    "random_closer_pct": 0.262,
     "rank": 9,
     "ref": "twin:earth-448153"
    },
@@ -384,7 +384,7 @@
      "ref": "ctx:earth-288986"
     },
     "score": 0.7425,
-    "percentile": 99.9969,
+    "random_closer_pct": 0.0885,
     "rank": 10,
     "ref": "twin:earth-288986"
    }
@@ -401,7 +401,7 @@
     "best_window": null,
     "env": null,
     "score": 0.767,
-    "percentile": 99.9997,
+    "random_closer_pct": 0.0165,
     "rank": 1,
     "ref": "twin:moon-13782"
    },
@@ -416,7 +416,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7518,
-    "percentile": 99.9993,
+    "random_closer_pct": 0.0225,
     "rank": 2,
     "ref": "twin:moon-177624"
    },
@@ -431,7 +431,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7437,
-    "percentile": 99.999,
+    "random_closer_pct": 0.0245,
     "rank": 3,
     "ref": "twin:moon-114197"
    },
@@ -446,7 +446,7 @@
     "best_window": null,
     "env": null,
     "score": 0.742,
-    "percentile": 99.9986,
+    "random_closer_pct": 0.0255,
     "rank": 4,
     "ref": "twin:moon-80531"
    },
@@ -461,7 +461,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7381,
-    "percentile": 99.9983,
+    "random_closer_pct": 0.0285,
     "rank": 5,
     "ref": "twin:moon-162965"
    },
@@ -476,7 +476,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7206,
-    "percentile": 99.9979,
+    "random_closer_pct": 0.0375,
     "rank": 6,
     "ref": "twin:moon-89674"
    },
@@ -491,7 +491,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7174,
-    "percentile": 99.9976,
+    "random_closer_pct": 0.0395,
     "rank": 7,
     "ref": "twin:moon-126685"
    },
@@ -506,7 +506,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7067,
-    "percentile": 99.9972,
+    "random_closer_pct": 0.052,
     "rank": 8,
     "ref": "twin:moon-81249"
    },
@@ -521,7 +521,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7044,
-    "percentile": 99.9969,
+    "random_closer_pct": 0.0535,
     "rank": 9,
     "ref": "twin:moon-230196"
    },
@@ -536,13 +536,13 @@
     "best_window": null,
     "env": null,
     "score": 0.6918,
-    "percentile": 99.9965,
+    "random_closer_pct": 0.067,
     "rank": 10,
     "ref": "twin:moon-235487"
    }
   ]
  },
- "latency_ms": 741.6,
+ "latency_ms": 154.1,
  "source": "live",
  "ref": "twins:mars:18.410:77.690"
 }
