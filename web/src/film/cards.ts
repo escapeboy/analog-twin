@@ -62,12 +62,12 @@ export function calendar(ctx: CanvasRenderingContext2D, u: number, weeks: Week[]
   const zoom = 1 + 0.03 * ease(u / 4);
   ctx.save();
   ctx.translate(960, 470); ctx.scale(zoom, zoom); ctx.translate(-960, -470);
-  const x0 = 150, wTot = 1620, cw = wTot / 52, y0 = 380, ch = 190;
+  const x0 = 150, wTot = 1620, cw = wTot / 52, y0 = 430, ch = 190;
   ctx.globalAlpha = ease(u / 0.5);
   ctx.fillStyle = INK; ctx.font = `600 52px ${FONT}`; ctx.textBaseline = 'alphabetic';
-  ctx.fillText(title, x0, 250);
+  ctx.fillText(title, x0, 300);
   ctx.fillStyle = MUTED; ctx.font = `400 32px ${FONT}`;
-  ctx.fillText(sub, x0, 302);
+  ctx.fillText(sub, x0, 352);
   ctx.globalAlpha = 1;
   const vals = weeks.map((w) => w.light_sim);
   const lo = Math.min(...vals), hi = Math.max(...vals);

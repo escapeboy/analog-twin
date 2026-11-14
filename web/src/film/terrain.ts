@@ -48,7 +48,7 @@ export class FilmTerrain {
     mesh.castShadow = true; mesh.receiveShadow = true;
     const scene = new T.Scene();
     scene.add(mesh);
-    scene.add(new T.AmbientLight(0xffffff, 0.012 * Math.PI));
+    scene.add(new T.AmbientLight(0xffffff, 0.06 * Math.PI)); // a little fill so shadowed relief still reads on video
     const light = new T.DirectionalLight(0xffffff, Math.PI);
     light.shadow.mapSize.set(4096, 4096);
     light.shadow.bias = -0.0003;

@@ -128,12 +128,12 @@ function pairCam(t: number, t0: number, t1: number): SunCam {
 /** Earth 7-14.5 s: spin with the atlas, then fly to the twin. */
 function earthState(t: number, twin: Twin): EarthState {
   const spinLon = (tt: number) => 35 + (tt - 7) * 6;
-  let lon = spinLon(Math.min(t, 12)), lat = 22, height = 20_500_000;
+  let lon = spinLon(Math.min(t, 12)), lat = 22, height = 15_500_000;
   if (t > 12) {
     const f = ease((t - 12) / 2.3);
     lon = lerp(spinLon(12), twin.lon, f);
     lat = lerp(22, twin.lat, f);
-    height = Math.exp(lerp(Math.log(20_500_000), Math.log(2_600_000), f));
+    height = Math.exp(lerp(Math.log(15_500_000), Math.log(2_400_000), f));
   }
   const alphaA = 0.85 * ease((t - 7.2) / 1.0) * (1 - ease((t - 10.4) / 0.8));
   const alphaB = 0.85 * ease((t - 10.4) / 0.8);
