@@ -1,0 +1,1185 @@
+{
+ "title": "Analog Twin - Global Analog Atlas",
+ "licence": "CC BY 4.0",
+ "generated_at": "2026-11-14T12:45:49+0100",
+ "index": {
+  "path": "/data/code/nasa-challenge/data/index/full_v2",
+  "feature_set": "v2",
+  "features_sha256": "84f92c38ec18643ec03026dd30ef42593ed26a18002e31072aa4c8312360eea4",
+  "earth_points": 972567
+ },
+ "raster": {
+  "width": 4096,
+  "height": 2048,
+  "crs": "EPSG:4326 (plate carree)",
+  "row0_lat": 90.0,
+  "col0_lon": -180.0,
+  "pixel_deg": 0.087890625,
+  "fill_km": 15.0,
+  "geotiff_width": 2048,
+  "geotiff_height": 1024,
+  "transparent": "ocean, glaciated areas, latitudes beyond +-85, no Earth point within fill_km"
+ },
+ "modes": {
+  "terrain": "score = terrain_sim",
+  "terrain+light": "score = 0.6 * terrain_sim + 0.4 * light_sim"
+ },
+ "colour_ramp": {
+  "name": "viridis (32 stops, linear)",
+  "stops_t": "t = (score - vmin) / (vmax - vmin), vmin/vmax = value_range of the target (shared by both modes)",
+  "legend_example": "per target: legend_stops"
+ },
+ "targets": [
+  {
+   "id": "shackleton-rim",
+   "label": "Shackleton rim (Moon)",
+   "body": "moon",
+   "lat": -89.7668,
+   "lon": -171.87,
+   "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf",
+   "query": {
+    "on_grid": false,
+    "point_id": null,
+    "snapped_km": null
+   },
+   "value_range": [
+    0.019,
+    0.5904
+   ],
+   "stats": {
+    "terrain": {
+     "min": 0.0142,
+     "p50": 0.0272,
+     "p99": 0.0984,
+     "max": 0.4674,
+     "top1": {
+      "lat": -11.91117951801508,
+      "lon": -76.37727344036102,
+      "score": 0.46738,
+      "country": "Peru"
+     },
+     "top200_frac_abs_lat_ge_60": 0.005
+    },
+    "terrain+light": {
+     "min": 0.3042,
+     "p50": 0.3517,
+     "p99": 0.4059,
+     "max": 0.5904,
+     "top1": {
+      "lat": -11.91117951801508,
+      "lon": -76.37727344036102,
+      "score": 0.59043,
+      "country": "Peru"
+     },
+     "top200_frac_abs_lat_ge_60": 0.015
+    }
+   },
+   "files": {
+    "terrain": {
+     "png": "shackleton-rim/terrain/score.png",
+     "top200": "shackleton-rim/terrain/top200.geojson",
+     "geotiff": "shackleton-rim/terrain/score.tif"
+    },
+    "terrain+light": {
+     "png": "shackleton-rim/terrain_light/score.png",
+     "top200": "shackleton-rim/terrain_light/top200.geojson",
+     "geotiff": "shackleton-rim/terrain_light/score.tif"
+    }
+   },
+   "legend_stops": [
+    {
+     "t": 0.0,
+     "value": 0.019,
+     "rgb": "#440154"
+    },
+    {
+     "t": 0.125,
+     "value": 0.0904,
+     "rgb": "#472d7b"
+    },
+    {
+     "t": 0.25,
+     "value": 0.1618,
+     "rgb": "#3b528b"
+    },
+    {
+     "t": 0.375,
+     "value": 0.2333,
+     "rgb": "#2c728e"
+    },
+    {
+     "t": 0.5,
+     "value": 0.3047,
+     "rgb": "#21908c"
+    },
+    {
+     "t": 0.625,
+     "value": 0.3761,
+     "rgb": "#28ae80"
+    },
+    {
+     "t": 0.75,
+     "value": 0.4476,
+     "rgb": "#5cc863"
+    },
+    {
+     "t": 0.875,
+     "value": 0.519,
+     "rgb": "#aadc32"
+    },
+    {
+     "t": 1.0,
+     "value": 0.5904,
+     "rgb": "#fde725"
+    }
+   ]
+  },
+  {
+   "id": "connecting-ridge",
+   "label": "Connecting Ridge (Artemis III region, 2022 list)",
+   "body": "moon",
+   "lat": -89.4632,
+   "lon": -137.49,
+   "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf",
+   "query": {
+    "on_grid": true,
+    "point_id": "moon-261480",
+    "snapped_km": 1.4640143095406435
+   },
+   "value_range": [
+    0.0228,
+    0.6445
+   ],
+   "stats": {
+    "terrain": {
+     "min": 0.0147,
+     "p50": 0.0357,
+     "p99": 0.1588,
+     "max": 0.5519,
+     "top1": {
+      "lat": -16.694009619222875,
+      "lon": -66.93331915140152,
+      "score": 0.55193,
+      "country": "Bolivia"
+     },
+     "top200_frac_abs_lat_ge_60": 0.0
+    },
+    "terrain+light": {
+     "min": 0.3048,
+     "p50": 0.3586,
+     "p99": 0.4374,
+     "max": 0.6445,
+     "top1": {
+      "lat": -16.694009619222875,
+      "lon": -66.93331915140152,
+      "score": 0.64449,
+      "country": "Bolivia"
+     },
+     "top200_frac_abs_lat_ge_60": 0.02
+    }
+   },
+   "files": {
+    "terrain": {
+     "png": "connecting-ridge/terrain/score.png",
+     "top200": "connecting-ridge/terrain/top200.geojson"
+    },
+    "terrain+light": {
+     "png": "connecting-ridge/terrain_light/score.png",
+     "top200": "connecting-ridge/terrain_light/top200.geojson"
+    }
+   },
+   "legend_stops": [
+    {
+     "t": 0.0,
+     "value": 0.0228,
+     "rgb": "#440154"
+    },
+    {
+     "t": 0.125,
+     "value": 0.1005,
+     "rgb": "#472d7b"
+    },
+    {
+     "t": 0.25,
+     "value": 0.1782,
+     "rgb": "#3b528b"
+    },
+    {
+     "t": 0.375,
+     "value": 0.2559,
+     "rgb": "#2c728e"
+    },
+    {
+     "t": 0.5,
+     "value": 0.3336,
+     "rgb": "#21908c"
+    },
+    {
+     "t": 0.625,
+     "value": 0.4114,
+     "rgb": "#28ae80"
+    },
+    {
+     "t": 0.75,
+     "value": 0.4891,
+     "rgb": "#5cc863"
+    },
+    {
+     "t": 0.875,
+     "value": 0.5668,
+     "rgb": "#aadc32"
+    },
+    {
+     "t": 1.0,
+     "value": 0.6445,
+     "rgb": "#fde725"
+    }
+   ]
+  },
+  {
+   "id": "malapert-massif",
+   "label": "Malapert Massif (Artemis III region, 2022 + 2024 lists)",
+   "body": "moon",
+   "lat": -85.9948,
+   "lon": -0.23578,
+   "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf",
+   "query": {
+    "on_grid": true,
+    "point_id": "moon-264203",
+    "snapped_km": 0.6089713244783115
+   },
+   "value_range": [
+    0.0189,
+    0.4646
+   ],
+   "stats": {
+    "terrain": {
+     "min": 0.0129,
+     "p50": 0.0255,
+     "p99": 0.07,
+     "max": 0.2267,
+     "top1": {
+      "lat": -15.344622501257673,
+      "lon": -73.19408518075943,
+      "score": 0.22671,
+      "country": "Peru"
+     },
+     "top200_frac_abs_lat_ge_60": 0.0
+    },
+    "terrain+light": {
+     "min": 0.3062,
+     "p50": 0.3516,
+     "p99": 0.3987,
+     "max": 0.4646,
+     "top1": {
+      "lat": 37.59164312740293,
+      "lon": -118.25977301387138,
+      "score": 0.46464,
+      "country": "United States of America"
+     },
+     "top200_frac_abs_lat_ge_60": 0.13
+    }
+   },
+   "files": {
+    "terrain": {
+     "png": "malapert-massif/terrain/score.png",
+     "top200": "malapert-massif/terrain/top200.geojson",
+     "geotiff": "malapert-massif/terrain/score.tif"
+    },
+    "terrain+light": {
+     "png": "malapert-massif/terrain_light/score.png",
+     "top200": "malapert-massif/terrain_light/top200.geojson",
+     "geotiff": "malapert-massif/terrain_light/score.tif"
+    }
+   },
+   "legend_stops": [
+    {
+     "t": 0.0,
+     "value": 0.0189,
+     "rgb": "#440154"
+    },
+    {
+     "t": 0.125,
+     "value": 0.0746,
+     "rgb": "#472d7b"
+    },
+    {
+     "t": 0.25,
+     "value": 0.1303,
+     "rgb": "#3b528b"
+    },
+    {
+     "t": 0.375,
+     "value": 0.186,
+     "rgb": "#2c728e"
+    },
+    {
+     "t": 0.5,
+     "value": 0.2417,
+     "rgb": "#21908c"
+    },
+    {
+     "t": 0.625,
+     "value": 0.2975,
+     "rgb": "#28ae80"
+    },
+    {
+     "t": 0.75,
+     "value": 0.3532,
+     "rgb": "#5cc863"
+    },
+    {
+     "t": 0.875,
+     "value": 0.4089,
+     "rgb": "#aadc32"
+    },
+    {
+     "t": 1.0,
+     "value": 0.4646,
+     "rgb": "#fde725"
+    }
+   ]
+  },
+  {
+   "id": "nobile-rim-1",
+   "label": "Nobile Rim 1 (Artemis III region, 2022 + 2024 lists)",
+   "body": "moon",
+   "lat": -85.4381,
+   "lon": 37.36667,
+   "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf",
+   "query": {
+    "on_grid": true,
+    "point_id": "moon-265023",
+    "snapped_km": 1.7692900659135207
+   },
+   "value_range": [
+    0.0196,
+    0.6313
+   ],
+   "stats": {
+    "terrain": {
+     "min": 0.0138,
+     "p50": 0.0278,
+     "p99": 0.0924,
+     "max": 0.5262,
+     "top1": {
+      "lat": -11.005500293791854,
+      "lon": -76.89951437711716,
+      "score": 0.52622,
+      "country": "Peru"
+     },
+     "top200_frac_abs_lat_ge_60": 0.0
+    },
+    "terrain+light": {
+     "min": 0.3096,
+     "p50": 0.3573,
+     "p99": 0.4086,
+     "max": 0.6313,
+     "top1": {
+      "lat": -11.005500293791854,
+      "lon": -76.89951437711716,
+      "score": 0.63135,
+      "country": "Peru"
+     },
+     "top200_frac_abs_lat_ge_60": 0.01
+    }
+   },
+   "files": {
+    "terrain": {
+     "png": "nobile-rim-1/terrain/score.png",
+     "top200": "nobile-rim-1/terrain/top200.geojson"
+    },
+    "terrain+light": {
+     "png": "nobile-rim-1/terrain_light/score.png",
+     "top200": "nobile-rim-1/terrain_light/top200.geojson"
+    }
+   },
+   "legend_stops": [
+    {
+     "t": 0.0,
+     "value": 0.0196,
+     "rgb": "#440154"
+    },
+    {
+     "t": 0.125,
+     "value": 0.0961,
+     "rgb": "#472d7b"
+    },
+    {
+     "t": 0.25,
+     "value": 0.1725,
+     "rgb": "#3b528b"
+    },
+    {
+     "t": 0.375,
+     "value": 0.249,
+     "rgb": "#2c728e"
+    },
+    {
+     "t": 0.5,
+     "value": 0.3255,
+     "rgb": "#21908c"
+    },
+    {
+     "t": 0.625,
+     "value": 0.4019,
+     "rgb": "#28ae80"
+    },
+    {
+     "t": 0.75,
+     "value": 0.4784,
+     "rgb": "#5cc863"
+    },
+    {
+     "t": 0.875,
+     "value": 0.5548,
+     "rgb": "#aadc32"
+    },
+    {
+     "t": 1.0,
+     "value": 0.6313,
+     "rgb": "#fde725"
+    }
+   ]
+  },
+  {
+   "id": "haworth",
+   "label": "Haworth (Artemis III region, 2022 + 2024 lists)",
+   "body": "moon",
+   "lat": -86.7639,
+   "lon": -22.777,
+   "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf",
+   "query": {
+    "on_grid": true,
+    "point_id": "moon-263336",
+    "snapped_km": 1.8554826355217033
+   },
+   "value_range": [
+    0.0284,
+    0.6165
+   ],
+   "stats": {
+    "terrain": {
+     "min": 0.0174,
+     "p50": 0.0453,
+     "p99": 0.1618,
+     "max": 0.5071,
+     "top1": {
+      "lat": -13.948394157388657,
+      "lon": -69.88199454545975,
+      "score": 0.5071,
+      "country": "Peru"
+     },
+     "top200_frac_abs_lat_ge_60": 0.0
+    },
+    "terrain+light": {
+     "min": 0.3064,
+     "p50": 0.3651,
+     "p99": 0.4414,
+     "max": 0.6165,
+     "top1": {
+      "lat": -13.948394157388657,
+      "lon": -69.88199454545975,
+      "score": 0.61648,
+      "country": "Peru"
+     },
+     "top200_frac_abs_lat_ge_60": 0.06
+    }
+   },
+   "files": {
+    "terrain": {
+     "png": "haworth/terrain/score.png",
+     "top200": "haworth/terrain/top200.geojson"
+    },
+    "terrain+light": {
+     "png": "haworth/terrain_light/score.png",
+     "top200": "haworth/terrain_light/top200.geojson"
+    }
+   },
+   "legend_stops": [
+    {
+     "t": 0.0,
+     "value": 0.0284,
+     "rgb": "#440154"
+    },
+    {
+     "t": 0.125,
+     "value": 0.1019,
+     "rgb": "#472d7b"
+    },
+    {
+     "t": 0.25,
+     "value": 0.1754,
+     "rgb": "#3b528b"
+    },
+    {
+     "t": 0.375,
+     "value": 0.2489,
+     "rgb": "#2c728e"
+    },
+    {
+     "t": 0.5,
+     "value": 0.3225,
+     "rgb": "#21908c"
+    },
+    {
+     "t": 0.625,
+     "value": 0.396,
+     "rgb": "#28ae80"
+    },
+    {
+     "t": 0.75,
+     "value": 0.4695,
+     "rgb": "#5cc863"
+    },
+    {
+     "t": 0.875,
+     "value": 0.543,
+     "rgb": "#aadc32"
+    },
+    {
+     "t": 1.0,
+     "value": 0.6165,
+     "rgb": "#fde725"
+    }
+   ]
+  },
+  {
+   "id": "de-gerlache-rim-2",
+   "label": "de Gerlache Rim 2 (Artemis III region, 2022 + 2024 lists)",
+   "body": "moon",
+   "lat": -88.23,
+   "lon": -64.6284,
+   "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf",
+   "query": {
+    "on_grid": true,
+    "point_id": "moon-261999",
+    "snapped_km": 0.6983242573083037
+   },
+   "value_range": [
+    0.0271,
+    0.6031
+   ],
+   "stats": {
+    "terrain": {
+     "min": 0.0179,
+     "p50": 0.0402,
+     "p99": 0.1109,
+     "max": 0.4727,
+     "top1": {
+      "lat": -24.4264684742331,
+      "lon": -65.7209215760231,
+      "score": 0.47273,
+      "country": "Argentina"
+     },
+     "top200_frac_abs_lat_ge_60": 0.01
+    },
+    "terrain+light": {
+     "min": 0.3063,
+     "p50": 0.3612,
+     "p99": 0.415,
+     "max": 0.6031,
+     "top1": {
+      "lat": -24.4264684742331,
+      "lon": -65.7209215760231,
+      "score": 0.6031,
+      "country": "Argentina"
+     },
+     "top200_frac_abs_lat_ge_60": 0.09
+    }
+   },
+   "files": {
+    "terrain": {
+     "png": "de-gerlache-rim-2/terrain/score.png",
+     "top200": "de-gerlache-rim-2/terrain/top200.geojson"
+    },
+    "terrain+light": {
+     "png": "de-gerlache-rim-2/terrain_light/score.png",
+     "top200": "de-gerlache-rim-2/terrain_light/top200.geojson"
+    }
+   },
+   "legend_stops": [
+    {
+     "t": 0.0,
+     "value": 0.0271,
+     "rgb": "#440154"
+    },
+    {
+     "t": 0.125,
+     "value": 0.0991,
+     "rgb": "#472d7b"
+    },
+    {
+     "t": 0.25,
+     "value": 0.1711,
+     "rgb": "#3b528b"
+    },
+    {
+     "t": 0.375,
+     "value": 0.2431,
+     "rgb": "#2c728e"
+    },
+    {
+     "t": 0.5,
+     "value": 0.3151,
+     "rgb": "#21908c"
+    },
+    {
+     "t": 0.625,
+     "value": 0.3871,
+     "rgb": "#28ae80"
+    },
+    {
+     "t": 0.75,
+     "value": 0.4591,
+     "rgb": "#5cc863"
+    },
+    {
+     "t": 0.875,
+     "value": 0.5311,
+     "rgb": "#aadc32"
+    },
+    {
+     "t": 1.0,
+     "value": 0.6031,
+     "rgb": "#fde725"
+    }
+   ]
+  },
+  {
+   "id": "jezero",
+   "label": "Jezero crater (Mars)",
+   "body": "mars",
+   "lat": 18.41,
+   "lon": 77.69,
+   "source_url": "https://planetarynames.wr.usgs.gov/Feature/Jezero",
+   "query": {
+    "on_grid": true,
+    "point_id": "mars-1038824",
+    "snapped_km": 1.0752519061761787
+   },
+   "value_range": [
+    0.0437,
+    0.8824
+   ],
+   "stats": {
+    "terrain": {
+     "min": 0.0236,
+     "p50": 0.1375,
+     "p99": 0.3482,
+     "max": 0.8269,
+     "top1": {
+      "lat": 45.162010388254586,
+      "lon": 34.99199520051479,
+      "score": 0.82689,
+      "country": "Ukraine"
+     },
+     "top200_frac_abs_lat_ge_60": 0.085
+    },
+    "terrain+light": {
+     "min": 0.3524,
+     "p50": 0.4728,
+     "p99": 0.6004,
+     "max": 0.8824,
+     "top1": {
+      "lat": 45.162010388254586,
+      "lon": 34.99199520051479,
+      "score": 0.88241,
+      "country": "Ukraine"
+     },
+     "top200_frac_abs_lat_ge_60": 0.02
+    }
+   },
+   "files": {
+    "terrain": {
+     "png": "jezero/terrain/score.png",
+     "top200": "jezero/terrain/top200.geojson",
+     "geotiff": "jezero/terrain/score.tif"
+    },
+    "terrain+light": {
+     "png": "jezero/terrain_light/score.png",
+     "top200": "jezero/terrain_light/top200.geojson",
+     "geotiff": "jezero/terrain_light/score.tif"
+    }
+   },
+   "legend_stops": [
+    {
+     "t": 0.0,
+     "value": 0.0437,
+     "rgb": "#440154"
+    },
+    {
+     "t": 0.125,
+     "value": 0.1485,
+     "rgb": "#472d7b"
+    },
+    {
+     "t": 0.25,
+     "value": 0.2534,
+     "rgb": "#3b528b"
+    },
+    {
+     "t": 0.375,
+     "value": 0.3582,
+     "rgb": "#2c728e"
+    },
+    {
+     "t": 0.5,
+     "value": 0.4631,
+     "rgb": "#21908c"
+    },
+    {
+     "t": 0.625,
+     "value": 0.5679,
+     "rgb": "#28ae80"
+    },
+    {
+     "t": 0.75,
+     "value": 0.6727,
+     "rgb": "#5cc863"
+    },
+    {
+     "t": 0.875,
+     "value": 0.7776,
+     "rgb": "#aadc32"
+    },
+    {
+     "t": 1.0,
+     "value": 0.8824,
+     "rgb": "#fde725"
+    }
+   ]
+  },
+  {
+   "id": "perseverance-landing",
+   "label": "Octavia E. Butler Landing (Perseverance)",
+   "body": "mars",
+   "lat": 18.44,
+   "lon": 77.45,
+   "source_url": "https://www.giss.nasa.gov/tools/mars24/help/landers.html",
+   "query": {
+    "on_grid": true,
+    "point_id": "mars-1038821",
+    "snapped_km": 1.2577657651778564
+   },
+   "value_range": [
+    0.0455,
+    0.8636
+   ],
+   "stats": {
+    "terrain": {
+     "min": 0.0244,
+     "p50": 0.1041,
+     "p99": 0.3757,
+     "max": 0.8399,
+     "top1": {
+      "lat": 67.14673896796698,
+      "lon": -158.11847158893943,
+      "score": 0.83988,
+      "country": "United States of America"
+     },
+     "top200_frac_abs_lat_ge_60": 0.08
+    },
+    "terrain+light": {
+     "min": 0.3536,
+     "p50": 0.4532,
+     "p99": 0.6167,
+     "max": 0.8636,
+     "top1": {
+      "lat": 67.14673896796698,
+      "lon": -158.11847158893943,
+      "score": 0.86359,
+      "country": "United States of America"
+     },
+     "top200_frac_abs_lat_ge_60": 0.04
+    }
+   },
+   "files": {
+    "terrain": {
+     "png": "perseverance-landing/terrain/score.png",
+     "top200": "perseverance-landing/terrain/top200.geojson"
+    },
+    "terrain+light": {
+     "png": "perseverance-landing/terrain_light/score.png",
+     "top200": "perseverance-landing/terrain_light/top200.geojson"
+    }
+   },
+   "legend_stops": [
+    {
+     "t": 0.0,
+     "value": 0.0455,
+     "rgb": "#440154"
+    },
+    {
+     "t": 0.125,
+     "value": 0.1478,
+     "rgb": "#472d7b"
+    },
+    {
+     "t": 0.25,
+     "value": 0.25,
+     "rgb": "#3b528b"
+    },
+    {
+     "t": 0.375,
+     "value": 0.3523,
+     "rgb": "#2c728e"
+    },
+    {
+     "t": 0.5,
+     "value": 0.4546,
+     "rgb": "#21908c"
+    },
+    {
+     "t": 0.625,
+     "value": 0.5568,
+     "rgb": "#28ae80"
+    },
+    {
+     "t": 0.75,
+     "value": 0.6591,
+     "rgb": "#5cc863"
+    },
+    {
+     "t": 0.875,
+     "value": 0.7613,
+     "rgb": "#aadc32"
+    },
+    {
+     "t": 1.0,
+     "value": 0.8636,
+     "rgb": "#fde725"
+    }
+   ]
+  },
+  {
+   "id": "gale",
+   "label": "Gale crater (Mars)",
+   "body": "mars",
+   "lat": -5.44,
+   "lon": 137.7,
+   "source_url": "https://planetarynames.wr.usgs.gov/Feature/Gale",
+   "query": {
+    "on_grid": true,
+    "point_id": "mars-1011468",
+    "snapped_km": 1.5744966154460733
+   },
+   "value_range": [
+    0.023,
+    0.7627
+   ],
+   "stats": {
+    "terrain": {
+     "min": 0.0155,
+     "p50": 0.0337,
+     "p99": 0.0952,
+     "max": 0.6248,
+     "top1": {
+      "lat": 36.6923215214842,
+      "lon": -118.20560747663552,
+      "score": 0.62476,
+      "country": "United States of America"
+     },
+     "top200_frac_abs_lat_ge_60": 0.005
+    },
+    "terrain+light": {
+     "min": 0.3355,
+     "p50": 0.4137,
+     "p99": 0.4495,
+     "max": 0.7627,
+     "top1": {
+      "lat": 36.6923215214842,
+      "lon": -118.20560747663552,
+      "score": 0.76272,
+      "country": "United States of America"
+     },
+     "top200_frac_abs_lat_ge_60": 0.0
+    }
+   },
+   "files": {
+    "terrain": {
+     "png": "gale/terrain/score.png",
+     "top200": "gale/terrain/top200.geojson"
+    },
+    "terrain+light": {
+     "png": "gale/terrain_light/score.png",
+     "top200": "gale/terrain_light/top200.geojson"
+    }
+   },
+   "legend_stops": [
+    {
+     "t": 0.0,
+     "value": 0.023,
+     "rgb": "#440154"
+    },
+    {
+     "t": 0.125,
+     "value": 0.1155,
+     "rgb": "#472d7b"
+    },
+    {
+     "t": 0.25,
+     "value": 0.2079,
+     "rgb": "#3b528b"
+    },
+    {
+     "t": 0.375,
+     "value": 0.3004,
+     "rgb": "#2c728e"
+    },
+    {
+     "t": 0.5,
+     "value": 0.3929,
+     "rgb": "#21908c"
+    },
+    {
+     "t": 0.625,
+     "value": 0.4853,
+     "rgb": "#28ae80"
+    },
+    {
+     "t": 0.75,
+     "value": 0.5778,
+     "rgb": "#5cc863"
+    },
+    {
+     "t": 0.875,
+     "value": 0.6702,
+     "rgb": "#aadc32"
+    },
+    {
+     "t": 1.0,
+     "value": 0.7627,
+     "rgb": "#fde725"
+    }
+   ]
+  },
+  {
+   "id": "oxia-planum",
+   "label": "Oxia Planum (ExoMars Rosalind Franklin site)",
+   "body": "mars",
+   "lat": 18.2,
+   "lon": -24.55,
+   "source_url": "https://www.storre.stir.ac.uk/retrieve/a8c4eae6-bbcd-4b6c-a5de-bd6b674ad989/The%20high-resolution%20map%20of%20Oxia%20Planum%20%20Mars%20%20the%20landing%20site%20of%20the%20ExoMars%20Rosalind%20Franklin%20rover%20mission.pdf",
+   "query": {
+    "on_grid": false,
+    "point_id": null,
+    "snapped_km": null
+   },
+   "value_range": [
+    0.0452,
+    0.9456
+   ],
+   "stats": {
+    "terrain": {
+     "min": 0.0237,
+     "p50": 0.1841,
+     "p99": 0.5421,
+     "max": 0.914,
+     "top1": {
+      "lat": 14.729224205870826,
+      "lon": 26.97002014517784,
+      "score": 0.91404,
+      "country": "Sudan"
+     },
+     "top200_frac_abs_lat_ge_60": 0.135
+    },
+    "terrain+light": {
+     "min": 0.3568,
+     "p50": 0.4999,
+     "p99": 0.716,
+     "max": 0.9456,
+     "top1": {
+      "lat": 14.729224205870826,
+      "lon": 26.97002014517784,
+      "score": 0.94557,
+      "country": "Sudan"
+     },
+     "top200_frac_abs_lat_ge_60": 0.06
+    }
+   },
+   "files": {
+    "terrain": {
+     "png": "oxia-planum/terrain/score.png",
+     "top200": "oxia-planum/terrain/top200.geojson"
+    },
+    "terrain+light": {
+     "png": "oxia-planum/terrain_light/score.png",
+     "top200": "oxia-planum/terrain_light/top200.geojson"
+    }
+   },
+   "legend_stops": [
+    {
+     "t": 0.0,
+     "value": 0.0452,
+     "rgb": "#440154"
+    },
+    {
+     "t": 0.125,
+     "value": 0.1578,
+     "rgb": "#472d7b"
+    },
+    {
+     "t": 0.25,
+     "value": 0.2703,
+     "rgb": "#3b528b"
+    },
+    {
+     "t": 0.375,
+     "value": 0.3829,
+     "rgb": "#2c728e"
+    },
+    {
+     "t": 0.5,
+     "value": 0.4954,
+     "rgb": "#21908c"
+    },
+    {
+     "t": 0.625,
+     "value": 0.6079,
+     "rgb": "#28ae80"
+    },
+    {
+     "t": 0.75,
+     "value": 0.7205,
+     "rgb": "#5cc863"
+    },
+    {
+     "t": 0.875,
+     "value": 0.833,
+     "rgb": "#aadc32"
+    },
+    {
+     "t": 1.0,
+     "value": 0.9456,
+     "rgb": "#fde725"
+    }
+   ]
+  }
+ ],
+ "known_analogs": "known_analogs.geojson",
+ "sanity_mean_score_by_abs_latitude": {
+  "shackleton-rim": {
+   "terrain": {
+    "abs_lat_lt_30": 0.0303,
+    "abs_lat_30_60": 0.0338,
+    "abs_lat_ge_60": 0.0307
+   },
+   "terrain+light": {
+    "abs_lat_lt_30": 0.3308,
+    "abs_lat_30_60": 0.3676,
+    "abs_lat_ge_60": 0.3916
+   }
+  },
+  "connecting-ridge": {
+   "terrain": {
+    "abs_lat_lt_30": 0.0407,
+    "abs_lat_30_60": 0.0465,
+    "abs_lat_ge_60": 0.0429
+   },
+   "terrain+light": {
+    "abs_lat_lt_30": 0.3371,
+    "abs_lat_30_60": 0.3752,
+    "abs_lat_ge_60": 0.3989
+   }
+  },
+  "malapert-massif": {
+   "terrain": {
+    "abs_lat_lt_30": 0.0273,
+    "abs_lat_30_60": 0.0297,
+    "abs_lat_ge_60": 0.0276
+   },
+   "terrain+light": {
+    "abs_lat_lt_30": 0.3319,
+    "abs_lat_30_60": 0.368,
+    "abs_lat_ge_60": 0.3922
+   }
+  },
+  "nobile-rim-1": {
+   "terrain": {
+    "abs_lat_lt_30": 0.0306,
+    "abs_lat_30_60": 0.0339,
+    "abs_lat_ge_60": 0.0311
+   },
+   "terrain+light": {
+    "abs_lat_lt_30": 0.3366,
+    "abs_lat_30_60": 0.3733,
+    "abs_lat_ge_60": 0.3965
+   }
+  },
+  "haworth": {
+   "terrain": {
+    "abs_lat_lt_30": 0.0501,
+    "abs_lat_30_60": 0.0573,
+    "abs_lat_ge_60": 0.0535
+   },
+   "terrain+light": {
+    "abs_lat_lt_30": 0.3427,
+    "abs_lat_30_60": 0.3817,
+    "abs_lat_ge_60": 0.4052
+   }
+  },
+  "de-gerlache-rim-2": {
+   "terrain": {
+    "abs_lat_lt_30": 0.0432,
+    "abs_lat_30_60": 0.0481,
+    "abs_lat_ge_60": 0.0438
+   },
+   "terrain+light": {
+    "abs_lat_lt_30": 0.3386,
+    "abs_lat_30_60": 0.3762,
+    "abs_lat_ge_60": 0.3994
+   }
+  },
+  "jezero": {
+   "terrain": {
+    "abs_lat_lt_30": 0.1496,
+    "abs_lat_30_60": 0.1394,
+    "abs_lat_ge_60": 0.1392
+   },
+   "terrain+light": {
+    "abs_lat_lt_30": 0.4876,
+    "abs_lat_30_60": 0.4705,
+    "abs_lat_ge_60": 0.4472
+   }
+  },
+  "perseverance-landing": {
+   "terrain": {
+    "abs_lat_lt_30": 0.1185,
+    "abs_lat_30_60": 0.1217,
+    "abs_lat_ge_60": 0.1157
+   },
+   "terrain+light": {
+    "abs_lat_lt_30": 0.4689,
+    "abs_lat_30_60": 0.4599,
+    "abs_lat_ge_60": 0.4331
+   }
+  },
+  "gale": {
+   "terrain": {
+    "abs_lat_lt_30": 0.0361,
+    "abs_lat_30_60": 0.0397,
+    "abs_lat_ge_60": 0.0355
+   },
+   "terrain+light": {
+    "abs_lat_lt_30": 0.4197,
+    "abs_lat_30_60": 0.408,
+    "abs_lat_ge_60": 0.3819
+   }
+  },
+  "oxia-planum": {
+   "terrain": {
+    "abs_lat_lt_30": 0.215,
+    "abs_lat_30_60": 0.1851,
+    "abs_lat_ge_60": 0.2218
+   },
+   "terrain+light": {
+    "abs_lat_lt_30": 0.5268,
+    "abs_lat_30_60": 0.4979,
+    "abs_lat_ge_60": 0.4966
+   }
+  }
+ },
+ "build_seconds": 95.2,
+ "size_mb": 50.94
+}

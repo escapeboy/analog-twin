@@ -1,0 +1,263 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -89.667,
+     75.383
+    ]
+   },
+   "properties": {
+    "id": "haughton",
+    "label": "Haughton crater, Devon Island (HMP)",
+    "type": "impact crater, polar desert",
+    "analog_for": [
+     "jezero",
+     "gale",
+     "perseverance-landing",
+     "oxia-planum",
+     "shackleton-rim",
+     "connecting-ridge",
+     "malapert-massif",
+     "nobile-rim-1",
+     "haworth",
+     "de-gerlache-rim-2"
+    ],
+    "source_url": "https://en.wikipedia.org/wiki/Haughton_impact_crater"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     160.667,
+     -77.867
+    ]
+   },
+   "properties": {
+    "id": "university-valley",
+    "label": "McMurdo Dry Valleys, University Valley",
+    "type": "hyperarid polar permafrost",
+    "analog_for": [
+     "jezero",
+     "gale",
+     "perseverance-landing",
+     "oxia-planum"
+    ],
+    "source_url": "https://openpolar.no/Record/ftnasantrs:oai:casi.ntrs.nasa.gov:20150023012/Details"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -69.91531,
+     -24.08459
+    ]
+   },
+   "properties": {
+    "id": "yungay",
+    "label": "Atacama Desert, Yungay",
+    "type": "hyperarid soil",
+    "analog_for": [
+     "jezero",
+     "gale",
+     "perseverance-landing",
+     "oxia-planum"
+    ],
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7645800"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -116.81694,
+     36.24694
+    ]
+   },
+   "properties": {
+    "id": "death-valley",
+    "label": "Death Valley, California",
+    "type": "desert, dunes",
+    "analog_for": [
+     "jezero",
+     "gale",
+     "perseverance-landing",
+     "oxia-planum"
+    ],
+    "source_url": "https://en.wikipedia.org/wiki/Death_Valley"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.3287,
+     79.469
+    ]
+   },
+   "properties": {
+    "id": "bockfjorden",
+    "label": "Svalbard, Bockfjorden (AMASE)",
+    "type": "volcanic and carbonate, Arctic",
+    "analog_for": [
+     "jezero",
+     "gale",
+     "perseverance-landing",
+     "oxia-planum"
+    ],
+    "source_url": "https://en.wikipedia.org/wiki/Bockfjorden"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -16.83,
+     64.85
+    ]
+   },
+   "properties": {
+    "id": "holuhraun",
+    "label": "Holuhraun lava field, Iceland",
+    "type": "young basaltic lava",
+    "analog_for": [
+     "jezero",
+     "gale",
+     "perseverance-landing",
+     "oxia-planum"
+    ],
+    "source_url": "https://en.wikipedia.org/wiki/Holuhraun"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -13.79333,
+     28.99417
+    ]
+   },
+   "properties": {
+    "id": "lanzarote",
+    "label": "Lanzarote, Timanfaya National Park (ESA PANGAEA)",
+    "type": "volcanic",
+    "analog_for": [
+     "jezero",
+     "gale",
+     "perseverance-landing",
+     "oxia-planum",
+     "shackleton-rim",
+     "connecting-ridge",
+     "malapert-massif",
+     "nobile-rim-1",
+     "haworth",
+     "de-gerlache-rim-2"
+    ],
+    "source_url": "https://en.wikipedia.org/wiki/Timanfaya_National_Park"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -155.48719,
+     19.60238
+    ]
+   },
+   "properties": {
+    "id": "hi-seas",
+    "label": "HI-SEAS habitat, Mauna Loa, Hawaii",
+    "type": "lava terrain, habitat simulation",
+    "analog_for": [
+     "jezero",
+     "gale",
+     "perseverance-landing",
+     "oxia-planum"
+    ],
+    "source_url": "https://en.wikipedia.org/wiki/HI-SEAS"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -6.55923,
+     37.72186
+    ]
+   },
+   "properties": {
+    "id": "rio-tinto",
+    "label": "Rio Tinto, Spain (Peña de Hierro)",
+    "type": "acidic sulfate (geochemical analog; terrain shape not expected to match)",
+    "analog_for": [
+     "jezero",
+     "gale",
+     "perseverance-landing",
+     "oxia-planum"
+    ],
+    "source_url": "https://msaweb.org/MSA/AmMin/products/AmMin/AM099P1199.pdf"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -111.02333,
+     35.02806
+    ]
+   },
+   "properties": {
+    "id": "meteor-crater",
+    "label": "Meteor Crater (Barringer), Arizona",
+    "type": "impact crater (astronaut geology training)",
+    "analog_for": [
+     "shackleton-rim",
+     "connecting-ridge",
+     "malapert-massif",
+     "nobile-rim-1",
+     "haworth",
+     "de-gerlache-rim-2"
+    ],
+    "source_url": "https://en.wikipedia.org/wiki/Meteor_Crater"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.56667,
+     48.88333
+    ]
+   },
+   "properties": {
+    "id": "ries",
+    "label": "Nördlinger Ries, Germany (ESA PANGAEA)",
+    "type": "impact crater",
+    "analog_for": [
+     "shackleton-rim",
+     "connecting-ridge",
+     "malapert-massif",
+     "nobile-rim-1",
+     "haworth",
+     "de-gerlache-rim-2"
+    ],
+    "source_url": "https://en.wikipedia.org/wiki/N%C3%B6rdlinger_Ries"
+   }
+  }
+ ]
+}
