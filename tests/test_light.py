@@ -104,6 +104,7 @@ def test_mmdd_roundtrip():
 
 
 def test_best_window_speed():
+    light._earth_day_terms.cache_clear()
     light._earth_window_hists.cache_clear()
     light._profile_cached.cache_clear()
     lats = [-77.5, -45.1, -20.3, 0.7, 19.8, 35.0, 42.2, 61.0, 69.9, 78.2]

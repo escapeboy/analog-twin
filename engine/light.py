@@ -111,12 +111,9 @@ def sun_elevation_at(body: str, lat_deg: float, t_days, phase_days: float = 0.0,
     return sun_elevation(body, lat_deg, decl, h)
 
 
-def _hist(elev: np.ndarray, axis=None) -> np.ndarray:
-    idx = np.clip(np.searchsorted(BIN_EDGES, elev, side="right") - 1, 0, N_BINS - 1)
-    if axis is None:
-        return np.bincount(idx.ravel(), minlength=N_BINS) / idx.size
-    counts = np.stack([(idx == k).sum(axis=axis) for k in range(N_BINS)], axis=-1)
-    return counts / idx.shape[axis]
+def _hist(elev: np.ndarray) -> np.ndarray:
+    idx = np.clip(np.searchsorted(BIN_EDGES, elev.ravel(), side="right") - 1, 0, N_BINS - 1)
+    return np.bincount(idx, minlength=N_BINS) / idx.size
 
 
 def _parse_period(period: str) -> tuple[float, float]:
@@ -176,16 +173,28 @@ def light_profile(body: str, lat: float, period: Optional[str] = None) -> dict:
     return {"bins": list(LIGHT_BINS), "hist": list(hist), "median_sun_up_elevation_deg": median}
 
 
+@lru_cache(maxsize=1)
+def _earth_day_terms() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Latitude-independent terms per (day, sample): sin(decl), cos(decl)*cos(h), and row offsets for bincount."""
+    day_t = np.arange(365)[:, None] + (np.arange(_EARTH_DAY_HOURS)[None, :] + 0.5) / _EARTH_DAY_HOURS
+    dec = np.radians(declination("earth", (day_t - EARTH_EQUINOX_DOY) / BODIES["earth"].year_d))
+    # Hour angle sweeps a full circle each day; the phase within the day does not change the histogram.
+    h = np.radians((np.arange(_EARTH_DAY_HOURS) + 0.5) / _EARTH_DAY_HOURS * 360.0 - 180.0)
+    offsets = (np.arange(365) * N_BINS)[:, None]
+    return np.sin(dec), np.cos(dec) * np.cos(h)[None, :], offsets
+
+
+_SIN_INNER_EDGES = np.sin(np.radians(BIN_EDGES[1:-1]))
+
+
 @lru_cache(maxsize=2048)
 def _earth_window_hists(lat: float) -> np.ndarray:
     """(365, N_BINS) histograms of 28-day windows starting on each day of a non-leap year at latitude lat."""
-    b = BODIES["earth"]
-    day_t = np.arange(365)[:, None] + (np.arange(_EARTH_DAY_HOURS)[None, :] + 0.5) / _EARTH_DAY_HOURS
-    decl = declination("earth", (day_t - EARTH_EQUINOX_DOY) / b.year_d)
-    # Hour angle sweeps a full circle each day; the phase within the day does not change the histogram.
-    h = (np.arange(_EARTH_DAY_HOURS) + 0.5) / _EARTH_DAY_HOURS * 360.0 - 180.0
-    elev = sun_elevation("earth", lat, decl, h[None, :])
-    daily = _hist(elev, axis=1)                                    # (365, N_BINS)
+    sin_dec, cos_dec_cos_h, offsets = _earth_day_terms()
+    phi = np.radians(lat)
+    s = np.sin(phi) * sin_dec + np.cos(phi) * cos_dec_cos_h      # sin(elevation); binning in sine space
+    idx = np.searchsorted(_SIN_INNER_EDGES, s, side="right") + offsets
+    daily = np.bincount(idx.ravel(), minlength=365 * N_BINS).reshape(365, N_BINS) / _EARTH_DAY_HOURS
     ext = np.concatenate([daily, daily[: WINDOW_DAYS - 1]], axis=0)  # wrap around the year end
     csum = np.concatenate([np.zeros((1, N_BINS)), np.cumsum(ext, axis=0)], axis=0)
     return (csum[WINDOW_DAYS:WINDOW_DAYS + 365] - csum[:365]) / WINDOW_DAYS
