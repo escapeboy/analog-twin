@@ -5,7 +5,7 @@ import {
 } from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 import type { Body, Point, Site, Twin } from './api';
-import { BODY_NAMES } from './api';
+import { BODY_NAMES, assetUrl } from './api';
 
 Ion.defaultAccessToken = ''; // never contact Cesium ion
 
@@ -23,7 +23,7 @@ function imageryFor(body: Body): ImageryLayer {
   }
   return new ImageryLayer(
     new UrlTemplateImageryProvider({
-      url: `/tiles/${body}/{z}/{y}/{x}.jpg`, // Trek layout z/row/col
+      url: assetUrl(`/tiles/${body}/{z}/{y}/{x}.jpg`), // Trek layout z/row/col
       tilingScheme: new GeographicTilingScheme(), // level 0 = 2x1 tiles
       maximumLevel: 5,
     }),

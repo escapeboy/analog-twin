@@ -1,5 +1,5 @@
 import {
-  EVENT_TYPES, REPLAY, ROLE_TITLES, postCampaign, type CampaignPlan, type CrewEvent, type Role, type SpecialistReport,
+  EVENT_TYPES, REPLAY, openEvents, type EventSourceLike, ROLE_TITLES, postCampaign, type CampaignPlan, type CrewEvent, type Role, type SpecialistReport,
 } from '../api';
 import { clear, fmt, h } from '../dom';
 import { store } from '../state';
@@ -31,7 +31,7 @@ export function partialReport(buf: string): { summary?: string; claims: { text: 
 const chips = (refs: string[]) => refs.map((x) => h('span', { class: 'refchip' }, x));
 
 export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => void) {
-  let es: EventSource | null = null;
+  let es: EventSourceLike | null = null;
   const btn = h('button', { class: 'primary', type: 'button' }, 'Plan campaign');
   const note = h('span', { class: 'muted', 'aria-live': 'polite' }, 'Runs the specialist crew on the current target.');
   const cards = h('div', { class: 'cards' });
@@ -131,7 +131,7 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
   function stop() { es?.close(); es = null; btn.disabled = false; }
 
   function listen(url: string) {
-    const src = new EventSource(url);
+    const src = openEvents(url);
     es = src;
     for (const t of EVENT_TYPES) {
       src.addEventListener(t, (m) => {
