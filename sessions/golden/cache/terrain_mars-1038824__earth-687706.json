@@ -1,0 +1,32 @@
+{
+ "a": {
+  "id": "mars-1038824",
+  "body": "mars",
+  "lat": 18.42270050506182,
+  "lon": 77.67634854771785,
+  "size": 77,
+  "gsd_m": 467.53246753246754,
+  "extent_km": 36.0,
+  "min_m": -2867.88134765625,
+  "max_m": -1785.0025634765625,
+  "dataset": "MGS MOLA DEM mosaic global 463 m (463 m source, 468 m effective)",
+  "heights_url": "/api/terrain/heights/mars-1038824_77.f32"
+ },
+ "b": {
+  "id": "earth-687706",
+  "body": "earth",
+  "lat": -10.509179728630938,
+  "lon": -73.91927647590637,
+  "size": 77,
+  "gsd_m": 467.53246753246754,
+  "extent_km": 36.0,
+  "min_m": 185.69418334960938,
+  "max_m": 1278.000244140625,
+  "dataset": "Copernicus DEM GLO-30 (30 m, ESA / Airbus, via AWS open data) (30 m source, 468 m effective)",
+  "heights_url": "/api/terrain/heights/earth-687706_77.f32"
+ },
+ "sun_azimuth_deg": 180.0,
+ "sun_elevation_deg": 35.0,
+ "terrain_sim": 0.7045837933790099,
+ "source": "live"
+}

@@ -1,0 +1,478 @@
+{
+ "query": {
+  "body": "mars",
+  "lat": 18.41,
+  "lon": 77.69,
+  "label": null,
+  "point_id": "mars-1038824",
+  "on_grid": true,
+  "snapped_km": 1.0752519061761787
+ },
+ "mode": {
+  "earth": "terrain+light",
+  "moon": "terrain"
+ },
+ "weights": {
+  "terrain": 0.6,
+  "light": 0.4
+ },
+ "results": {
+  "earth": [
+   {
+    "id": "earth-232259",
+    "body": "earth",
+    "lat": 45.162010388254586,
+    "lon": 34.99199520051479,
+    "place_label": "Ukraine",
+    "terrain_sim": 0.8268947692963311,
+    "light_sim": 0.9657930996472671,
+    "best_window": {
+     "start": "08-25",
+     "end": "09-21",
+     "emd": 0.17103450176366441,
+     "light_sim": 0.9657930996472671,
+     "earth_range": [
+      0.7969,
+      0.9986
+     ]
+    },
+    "env": {
+     "country": "Ukraine",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 95.2,
+     "nearest_airport": "Simferopol International Airport (SIP / UKFF)",
+     "airport_km": 79.8,
+     "ref": "ctx:earth-232259"
+    },
+    "score": 0.8825,
+    "rank": 1,
+    "ref": "twin:earth-232259"
+   },
+   {
+    "id": "earth-284145",
+    "body": "earth",
+    "lat": 40.07052092976392,
+    "lon": 43.913708582520485,
+    "place_label": "Armenia",
+    "terrain_sim": 0.7314423325976127,
+    "light_sim": 0.9712990520282186,
+    "best_window": {
+     "start": "03-15",
+     "end": "04-11",
+     "emd": 0.1435047398589067,
+     "light_sim": 0.9712990520282186,
+     "earth_range": [
+      0.7969,
+      0.9986
+     ]
+    },
+    "env": {
+     "country": "Armenia",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 907.8,
+     "nearest_airport": "Zvartnots International Airport (EVN / UDYZ)",
+     "airport_km": 42.3,
+     "ref": "ctx:earth-284145"
+    },
+    "score": 0.8274,
+    "rank": 2,
+    "ref": "twin:earth-284145"
+   },
+   {
+    "id": "earth-687706",
+    "body": "earth",
+    "lat": -10.509179728630938,
+    "lon": -73.91927647590637,
+    "place_label": "Peru",
+    "terrain_sim": 0.7045837649189015,
+    "light_sim": 0.9928565917107604,
+    "best_window": {
+     "start": "07-31",
+     "end": "08-27",
+     "emd": 0.03571704144619807,
+     "light_sim": 0.9928565917107604,
+     "earth_range": [
+      0.7969,
+      0.9986
+     ]
+    },
+    "env": {
+     "country": "Peru",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 206.2,
+     "nearest_airport": "Jorge Chávez International Airport (LIM / SPIM)",
+     "airport_km": 386.3,
+     "ref": "ctx:earth-687706"
+    },
+    "score": 0.8199,
+    "rank": 3,
+    "ref": "twin:earth-687706"
+   },
+   {
+    "id": "earth-563898",
+    "body": "earth",
+    "lat": 8.52775936783741,
+    "lon": 39.01823452115059,
+    "place_label": "Ethiopia",
+    "terrain_sim": 0.7034650467816799,
+    "light_sim": 0.9930054012345677,
+    "best_window": {
+     "start": "01-22",
+     "end": "02-18",
+     "emd": 0.03497299382716128,
+     "light_sim": 0.9930054012345677,
+     "earth_range": [
+      0.7969,
+      0.9986
+     ]
+    },
+    "env": {
+     "country": "Ethiopia",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 1671.8,
+     "nearest_airport": "Addis Ababa Bole International Airport (ADD / HAAB)",
+     "airport_km": 56.2,
+     "ref": "ctx:earth-563898"
+    },
+    "score": 0.8193,
+    "rank": 4,
+    "ref": "twin:earth-563898"
+   },
+   {
+    "id": "earth-303586",
+    "body": "earth",
+    "lat": 37.97376834596838,
+    "lon": 39.83362798392773,
+    "place_label": "Turkey",
+    "terrain_sim": 0.707491204306949,
+    "light_sim": 0.9732732583774253,
+    "best_window": {
+     "start": "03-14",
+     "end": "04-10",
+     "emd": 0.13363370811287356,
+     "light_sim": 0.9732732583774253,
+     "earth_range": [
+      0.7969,
+      0.9986
+     ]
+    },
+    "env": {
+     "country": "Turkey",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 828.0,
+     "nearest_airport": "Oğuzeli Airport (GZT / LTAJ)",
+     "airport_km": 237.6,
+     "ref": "ctx:earth-303586"
+    },
+    "score": 0.8138,
+    "rank": 5,
+    "ref": "twin:earth-303586"
+   },
+   {
+    "id": "earth-543917",
+    "body": "earth",
+    "lat": 11.570246738958827,
+    "lon": 40.12931343913078,
+    "place_label": "Ethiopia",
+    "terrain_sim": 0.6900306213270263,
+    "light_sim": 0.9924597663139345,
+    "best_window": {
+     "start": "10-08",
+     "end": "11-04",
+     "emd": 0.03770116843032756,
+     "light_sim": 0.9924597663139345,
+     "earth_range": [
+      0.7969,
+      0.9986
+     ]
+    },
+    "env": {
+     "country": "Ethiopia",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 879.0,
+     "nearest_airport": "Aba Tenna Dejazmach Yilma International Airport (DIR / HADR)",
+     "airport_km": 288.2,
+     "ref": "ctx:earth-543917"
+    },
+    "score": 0.811,
+    "rank": 6,
+    "ref": "twin:earth-543917"
+   },
+   {
+    "id": "earth-622823",
+    "body": "earth",
+    "lat": -0.6741332166853405,
+    "lon": 37.35467854142189,
+    "place_label": "Kenya",
+    "terrain_sim": 0.6849807621014711,
+    "light_sim": 0.9961337081128749,
+    "best_window": {
+     "start": "06-06",
+     "end": "07-03",
+     "emd": 0.019331459435625094,
+     "light_sim": 0.9961337081128749,
+     "earth_range": [
+      0.7969,
+      0.9986
+     ]
+    },
+    "env": {
+     "country": "Kenya",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 1158.3,
+     "nearest_airport": "Jomo Kenyatta International Airport (NBO / HKJK)",
+     "airport_km": 87.2,
+     "ref": "ctx:earth-622823"
+    },
+    "score": 0.8094,
+    "rank": 7,
+    "ref": "twin:earth-622823"
+   },
+   {
+    "id": "earth-864753",
+    "body": "earth",
+    "lat": 34.89367830964674,
+    "lon": -110.70175438596493,
+    "place_label": "United States of America",
+    "terrain_sim": 0.6882732199376581,
+    "light_sim": 0.9785719797178145,
+    "best_window": {
+     "start": "08-25",
+     "end": "09-21",
+     "emd": 0.10714010141092731,
+     "light_sim": 0.9785719797178145,
+     "earth_range": [
+      0.7969,
+      0.9986
+     ]
+    },
+    "env": {
+     "country": "United States of America",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 1601.5,
+     "nearest_airport": "Flagstaff Pulliam Airport (FLG / KFLG)",
+     "airport_km": 92.7,
+     "ref": "ctx:earth-864753"
+    },
+    "score": 0.8044,
+    "rank": 8,
+    "ref": "twin:earth-864753"
+   },
+   {
+    "id": "earth-536208",
+    "body": "earth",
+    "lat": 12.843678899127559,
+    "lon": 41.43078038096428,
+    "place_label": "Ethiopia",
+    "terrain_sim": 0.6724767974980104,
+    "light_sim": 0.9923605599647282,
+    "best_window": {
+     "start": "10-04",
+     "end": "10-31",
+     "emd": 0.03819720017635908,
+     "light_sim": 0.9923605599647282,
+     "earth_range": [
+      0.7969,
+      0.9986
+     ]
+    },
+    "env": {
+     "country": "Ethiopia",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 55.3,
+     "nearest_airport": "Djibouti-Ambouli International Airport (JIB / HDAM)",
+     "airport_km": 235.6,
+     "ref": "ctx:earth-536208"
+    },
+    "score": 0.8004,
+    "rank": 9,
+    "ref": "twin:earth-536208"
+   },
+   {
+    "id": "earth-544906",
+    "body": "earth",
+    "lat": 11.400926828130299,
+    "lon": 77.45112609863281,
+    "place_label": "India",
+    "terrain_sim": 0.6705536731350722,
+    "light_sim": 0.9926085758377423,
+    "best_window": {
+     "start": "02-01",
+     "end": "02-28",
+     "emd": 0.03695712081128842,
+     "light_sim": 0.9926085758377423,
+     "earth_range": [
+      0.7969,
+      0.9986
+     ]
+    },
+    "env": {
+     "country": "India",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 252.6,
+     "nearest_airport": "Coimbatore Airport (CJB / VOCB)",
+     "airport_km": 61.0,
+     "ref": "ctx:earth-544906"
+    },
+    "score": 0.7994,
+    "rank": 10,
+    "ref": "twin:earth-544906"
+   }
+  ],
+  "moon": [
+   {
+    "id": "moon-13782",
+    "body": "moon",
+    "lat": 61.66218930413311,
+    "lon": 25.040001747198403,
+    "place_label": "Moon 61.66°N 25.04°E",
+    "terrain_sim": 0.7670147629868336,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.767,
+    "rank": 1,
+    "ref": "twin:moon-13782"
+   },
+   {
+    "id": "moon-177624",
+    "body": "moon",
+    "lat": -21.333790483413317,
+    "lon": 52.11748804524541,
+    "place_label": "Moon 21.33°S 52.12°E",
+    "terrain_sim": 0.7518300850267317,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.7518,
+    "rank": 2,
+    "ref": "twin:moon-177624"
+   },
+   {
+    "id": "moon-114197",
+    "body": "moon",
+    "lat": 6.763232941906694,
+    "lon": 67.16708629764616,
+    "place_label": "Moon 6.76°N 67.17°E",
+    "terrain_sim": 0.7436891601006252,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.7437,
+    "rank": 3,
+    "ref": "twin:moon-114197"
+   },
+   {
+    "id": "moon-80531",
+    "body": "moon",
+    "lat": 21.923897264504603,
+    "lon": -29.217422276735306,
+    "place_label": "Moon 21.92°N 29.22°W",
+    "terrain_sim": 0.7419616465971541,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.742,
+    "rank": 4,
+    "ref": "twin:moon-80531"
+   },
+   {
+    "id": "moon-162965",
+    "body": "moon",
+    "lat": -14.625656678900722,
+    "lon": -34.195721454918385,
+    "place_label": "Moon 14.63°S 34.20°W",
+    "terrain_sim": 0.7380750103748625,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.7381,
+    "rank": 5,
+    "ref": "twin:moon-162965"
+   },
+   {
+    "id": "moon-89674",
+    "body": "moon",
+    "lat": 17.695414353873687,
+    "lon": 84.26928721927106,
+    "place_label": "Moon 17.70°N 84.27°E",
+    "terrain_sim": 0.7206297368778486,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.7206,
+    "rank": 6,
+    "ref": "twin:moon-89674"
+   },
+   {
+    "id": "moon-126685",
+    "body": "moon",
+    "lat": 1.3151697664705702,
+    "lon": 64.12454317137599,
+    "place_label": "Moon 1.32°N 64.12°E",
+    "terrain_sim": 0.7174219442447815,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.7174,
+    "rank": 7,
+    "ref": "twin:moon-126685"
+   },
+   {
+    "id": "moon-81249",
+    "body": "moon",
+    "lat": 21.58760156427712,
+    "lon": 61.35716564953327,
+    "place_label": "Moon 21.59°N 61.36°E",
+    "terrain_sim": 0.7067199516031774,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.7067,
+    "rank": 8,
+    "ref": "twin:moon-81249"
+   },
+   {
+    "id": "moon-230196",
+    "body": "moon",
+    "lat": -49.725117600202175,
+    "lon": -49.71087336540222,
+    "place_label": "Moon 49.73°S 49.71°W",
+    "terrain_sim": 0.7044248073365921,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.7044,
+    "rank": 9,
+    "ref": "twin:moon-230196"
+   },
+   {
+    "id": "moon-235487",
+    "body": "moon",
+    "lat": -53.42942234597868,
+    "lon": -56.13128460943699,
+    "place_label": "Moon 53.43°S 56.13°W",
+    "terrain_sim": 0.6917798246305596,
+    "light_sim": null,
+    "best_window": null,
+    "env": null,
+    "score": 0.6918,
+    "rank": 10,
+    "ref": "twin:moon-235487"
+   }
+  ]
+ },
+ "latency_ms": 89.1,
+ "source": "live",
+ "ref": "twins:mars:18.410:77.690"
+}

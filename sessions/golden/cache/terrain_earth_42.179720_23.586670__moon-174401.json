@@ -1,0 +1,32 @@
+{
+ "a": {
+  "id": "earth@42.179720,23.586670",
+  "body": "earth",
+  "lat": 42.17972,
+  "lon": 23.58667,
+  "size": 75,
+  "gsd_m": 480.0,
+  "extent_km": 36.0,
+  "min_m": 554.3238525390625,
+  "max_m": 2821.7412109375,
+  "dataset": "Copernicus DEM GLO-30 (30 m, ESA / Airbus, via AWS open data) (30 m source, 480 m effective)",
+  "heights_url": "/api/terrain/heights/earth_42.179720_23.586670_75.f32"
+ },
+ "b": {
+  "id": "moon-174401",
+  "body": "moon",
+  "lat": -19.836066421646137,
+  "lon": 24.593954775482416,
+  "size": 75,
+  "gsd_m": 480.0,
+  "extent_km": 36.0,
+  "min_m": -1100.053466796875,
+  "max_m": 1446.4439697265625,
+  "dataset": "LRO LOLA LDEM_64 (64 px/deg, 473.8 m) (474 m source, 480 m effective)",
+  "heights_url": "/api/terrain/heights/moon-174401_75.f32"
+ },
+ "sun_azimuth_deg": 0.0,
+ "sun_elevation_deg": 35.0,
+ "terrain_sim": 0.5134342970773305,
+ "source": "live"
+}

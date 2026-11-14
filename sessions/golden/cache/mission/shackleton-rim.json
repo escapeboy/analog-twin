@@ -1,0 +1,99 @@
+{
+ "czml_file": "shackleton-rim.czml",
+ "summary": {
+  "launch_utc": "2027-12-31T19:34:07Z",
+  "tli_utc": "2027-12-31T20:45:00Z",
+  "arrival_utc": "2028-01-05T04:20:44Z",
+  "landing_utc": "2028-01-06T04:20:44Z",
+  "tli_dv_kms": 3.1672,
+  "loi_dv_kms": 0.8421,
+  "tof_days": 4.3165,
+  "arrival_vinf_kms": 0.9103,
+  "site": {
+   "id": "shackleton-rim",
+   "label": "Shackleton rim (Moon)",
+   "lat": -89.7668,
+   "lon": -171.87
+  },
+  "launch_time_computed": true,
+  "landing_sun_elevation_deg": 0.408,
+  "landing_earth_elevation_deg": 6.33,
+  "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution.",
+  "events": [
+   {
+    "t_utc": "2027-12-31T19:34:07Z",
+    "name": "Launch - Kennedy Space Center LC-39B",
+    "detail": "28.6242, -80.6203; KSC in parking-orbit plane"
+   },
+   {
+    "t_utc": "2027-12-31T19:44:07Z",
+    "name": "Parking orbit",
+    "detail": "185 km circular, i = 28.5°, ascent schematic"
+   },
+   {
+    "t_utc": "2027-12-31T20:45:00Z",
+    "name": "Trans-lunar injection",
+    "detail": "Δv 3.167 km/s"
+   },
+   {
+    "t_utc": "2027-12-31T20:45:00Z",
+    "name": "Coast",
+    "detail": "4.32 days, Earth + Moon point-mass gravity"
+   },
+   {
+    "t_utc": "2028-01-05T04:20:44Z",
+    "name": "Lunar arrival / orbit insertion",
+    "detail": "Δv 0.842 km/s into 100 km circular orbit"
+   },
+   {
+    "t_utc": "2028-01-06T04:20:44Z",
+    "name": "Landing - Shackleton rim (Moon), -89.7668, -171.8700",
+    "detail": "schematic descent; landing = arrival + 24 h"
+   }
+  ]
+ },
+ "gate": {
+  "status": "pass",
+  "checks": {
+   "tli_dv": {
+    "passed": true,
+    "value_km_s": 3.1715,
+    "range_km_s": [
+     3.0,
+     3.3
+    ]
+   },
+   "loi_dv": {
+    "passed": true,
+    "value_km_s": 0.8495,
+    "range_km_s": [
+     0.7,
+     1.1
+    ]
+   },
+   "tof_equals_config": {
+    "passed": true,
+    "value_days": 4.5,
+    "config_days": 4.5
+   },
+   "endpoint_error": {
+    "passed": true,
+    "value_pct": 9.364180684856199e-09,
+    "value_km": 3.704206829370121e-05,
+    "max_pct": 1.0
+   },
+   "ksc_in_parking_plane": {
+    "passed": true,
+    "value_deg": 0.0,
+    "gmst_only_deg": 0.1237,
+    "max_deg": 1.0
+   },
+   "moon_sun_vs_cesium": {
+    "passed": true,
+    "max_deg": 0.0462,
+    "tolerance_deg": 3.0,
+    "error": null
+   }
+  }
+ }
+}

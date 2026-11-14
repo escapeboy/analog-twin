@@ -1,0 +1,164 @@
+{
+ "a": {
+  "body": "earth",
+  "lat": 42.17972,
+  "lon": 23.58667
+ },
+ "b": {
+  "body": "moon",
+  "lat": 36.09043999401434,
+  "lon": 10.221444248221815
+ },
+ "a_id": "earth@42.179720,23.586670",
+ "b_id": "moon-52123",
+ "terrain_sim": 0.5169984985593342,
+ "groups": [
+  {
+   "group": "slope",
+   "label": "slope distribution (how steep the ground is)",
+   "a": [
+    -0.3968,
+    -0.5333,
+    -0.3415,
+    0.1875,
+    1.6818,
+    5.0,
+    3.0839,
+    4.4572,
+    3.7372,
+    2.8241
+   ],
+   "b": [
+    -0.3889,
+    -0.5111,
+    -0.3171,
+    0.0625,
+    2.6818,
+    5.0,
+    2.4093,
+    4.0432,
+    3.7068,
+    2.955
+   ],
+   "contribution": 0.2048
+  },
+  {
+   "group": "roughness",
+   "label": "surface roughness at 3, 6 and 12 km scales",
+   "a": [
+    1.6842,
+    1.5506,
+    1.201,
+    1.1315,
+    1.5739
+   ],
+   "b": [
+    1.3226,
+    1.5389,
+    1.1666,
+    -0.0296,
+    1.7524
+   ],
+   "contribution": 0.3729
+  },
+  {
+   "group": "position",
+   "label": "topographic position (on a rise or in a hollow)",
+   "a": [
+    1.7301,
+    1.3285
+   ],
+   "b": [
+    1.6562,
+    1.3146
+   ],
+   "contribution": 0.0035
+  },
+  {
+   "group": "curvature",
+   "label": "surface curvature (domes, ridges, pits)",
+   "a": [
+    -1.272,
+    1.5563,
+    -1.6288,
+    1.7456,
+    0.6429
+   ],
+   "b": [
+    -0.7117,
+    1.2071,
+    -1.2554,
+    1.3326,
+    0.5714
+   ],
+   "contribution": 0.1852
+  },
+  {
+   "group": "relief",
+   "label": "local relief and how height is distributed",
+   "a": [
+    1.0641,
+    -0.0049
+   ],
+   "b": [
+    1.1099,
+    0.3025
+   ],
+   "contribution": 0.0596
+  },
+  {
+   "group": "aspect",
+   "label": "variety of slope directions",
+   "a": [
+    0.5828
+   ],
+   "b": [
+    0.279
+   ],
+   "contribution": 0.1138
+  },
+  {
+   "group": "context",
+   "label": "landform context over 36 km (crater, basin or massif scale)",
+   "a": [
+    2.2819,
+    1.8089,
+    0.9791,
+    0.8523,
+    1.1461,
+    0.345
+   ],
+   "b": [
+    1.9741,
+    1.8093,
+    0.737,
+    0.6671,
+    1.093,
+    0.025
+   ],
+   "contribution": 0.0602
+  }
+ ],
+ "top_similar": [
+  "Closest in topographic position (on a rise or in a hollow): centre +563 m vs +523 m relative to the 12 km mean",
+  "Closest in local relief and how height is distributed: local relief 1040 m vs 1146 m",
+  "Closest in landform context over 36 km (crater, basin or massif scale): 36 km relief 1834 m vs 1227 m"
+ ],
+ "top_different": [
+  "Most different in surface roughness at 3, 6 and 12 km scales: 12 km roughness 245 m vs 229 m RMS",
+  "Most different in slope distribution (how steep the ground is): mean slope 11.1° vs 10.1°",
+  "Most different in surface curvature (domes, ridges, pits): 54% vs 53% of the area convex"
+ ],
+ "hillshade": {
+  "a_url": "/api/hillshade/earth_42.179720_23.586670__moon-52123_lbl_az180_el34.8_f0.15_a.png",
+  "b_url": "/api/hillshade/earth_42.179720_23.586670__moon-52123_lbl_az180_el34.8_f0.15_b.png",
+  "pair_url": "/api/hillshade/earth_42.179720_23.586670__moon-52123_lbl_az180_el34.8_f0.15_pair.png",
+  "sun_azimuth_deg": 180.0,
+  "sun_elevation_deg": 34.84385302095761,
+  "extent_km": 39.818,
+  "gsd_m": 926.0,
+  "caption": "Sun azimuth 180°, elevation 34.8° (identical for both) · 40 x 40 km · GSD 926 m · Lambertian + cast shadows + 15% fill light, no vertical exaggeration"
+ },
+ "source": "live",
+ "ref": "pair:earth@42.179720,23.586670:moon-52123"
+}
