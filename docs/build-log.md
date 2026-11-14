@@ -23,3 +23,9 @@ Times are Europe/Sofia.
 - **11:47** Known-analog test (spec 13.1) does NOT pass in spirit: median percentile 56.2 % vs random baseline 48.1 % (Mars 47.4 vs 47.5; Moon 61.9 vs 48.8). Recorded as is in metrics.json. The pitch must not claim this test validates the method.
 - **11:48** Decision: one pre-declared experiment (multi-scale features, ~36–40 km window), time-boxed to 75 min. Switch only if the median improves by at least 5 points, the baseline stays ~50 % and p95 < 1 s. Both results go into metrics.json.
 - **11:48** Deviation: Earth place labels switched to the Natural Earth DEU point-of-view countries file. The default de-facto file labels Crimea as "Russia".
+
+### G1 — passed early at 11:50 (target 14:30)
+- Index built for all 3 bodies (full, 2.37M points). find_twins for the 3 presets via the API: 63–79 ms, 10 twins per destination body, source "live". Results look plausible: Shackleton rim → Alps/Albanian mountains (December window); Jezero floor → flat plains; Rila → Olympus Mons flanks on Mars.
+- Light tests green (59 passed). SPICE cross-check done.
+- Open: the known-analog test does not beat the random baseline (see 11:47); /api/health index_points and features are not yet filled in (W3).
+- Fallbacks used: none.
