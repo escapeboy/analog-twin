@@ -221,3 +221,34 @@ def best_window(target_body: str, target_lat: float, earth_lat: float) -> dict:
         "emd": e,
         "light_sim": float(min(1.0, max(0.0, 1.0 - e / EMD_MAX))),
     }
+
+
+EARTH_RANGE_LATS = np.arange(-85.0, 85.0 + 1e-9, 1.0)   # land-agnostic 1-degree grid (docs/light.md)
+
+
+@lru_cache(maxsize=1)
+def _earth_range_cdfs() -> np.ndarray:
+    """(n_lat, 365, N_BINS - 1) cumulative window histograms for every latitude of EARTH_RANGE_LATS (built once,
+    ~0.13 s; target-independent)."""
+    w = np.stack([_earth_window_hists(round(float(la), 2)) for la in EARTH_RANGE_LATS])
+    return np.cumsum(w, axis=-1)[..., :-1]
+
+
+@lru_cache(maxsize=4096)
+def _earth_range_cached(target_body: str, target_lat: float) -> tuple[float, float]:
+    tc = np.cumsum(np.array(light_profile(target_body, target_lat)["hist"]))[:-1]
+    best_emd = np.abs(_earth_range_cdfs() - tc).sum(axis=-1).min(axis=1)     # best window per latitude
+    sim = np.clip(1.0 - best_emd / EMD_MAX, 0.0, 1.0)
+    return float(sim.min()), float(sim.max())
+
+
+def earth_light_range(target_body: str, target_lat: float) -> tuple[float, float]:
+    """(min, max) of best_window light_sim over Earth latitudes -85..85 in 1-degree steps, for this target.
+
+    Shown next to light_sim so a value can be read against what any Earth latitude achieves for the same target
+    (EMD_max = 5 leaves a high, target-specific floor). Grid values only: a twin between grid latitudes, or poleward
+    of 85 deg, can lie marginally outside the range."""
+    if not -90.0 <= target_lat <= 90.0:
+        raise ValueError(f"target_lat out of range: {target_lat}")
+    _body(target_body)
+    return _earth_range_cached(target_body, round(float(target_lat), 2))

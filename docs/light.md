@@ -103,6 +103,43 @@ longitude. After that the analytic model runs free. Results (written to `docs/me
   equation of time (true vs mean solar time, up to ~16 min ≈ 4° of hour angle) that the circular-orbit model ignores;
   on the Moon the analogous effect comes from its orbital eccentricity.
 
+### Reading light_sim: per-target Earth range
+
+With EMD_max = 5, light_sim has a high, target-specific floor. Over 1,000 random Earth land points (index
+full_v2, seed 0) the median and the 5th–95th percentiles were:
+* Moon south pole: median 0.82 (0.75–0.93).
+* Jezero: median 0.985 (0.92–0.998).
+* Moon equator: median 0.975 (0.90–1.00).
+
+A rescaled EMD_max (the maximum EMD over Earth latitudes for that target) would only raise light's effective weight
+from 0.4 to about 1.5 against terrain's 0.6, and would let the analytic light proxy dominate the ranking. On the
+real candidate pools, the correlation of score with terrain_sim dropped from 0.88 to 0.38 for Shackleton. So
+**EMD_max stays 5** (decision logged in build-log), and the value is shown with its range instead.
+
+`earth_light_range(target_body, target_lat) -> (min, max)` is the best-window light_sim over Earth latitudes
+**−85° to 85° in 1° steps**, land-agnostic (oceans and Antarctica included). It uses exactly the same window tables
+as `best_window`, so the range brackets every twin's light_sim, up to tiny differences between grid latitudes.
+Because it is land-agnostic, the maximum for polar targets can come from latitudes with no indexed land (the index
+has no Earth points south of 54.8°S).
+
+| Target | Earth range |
+|---|---|
+| Moon south pole (Shackleton rim, −89.77) | 0.739–0.966 |
+| Malapert (−85.99) | 0.746–0.973 |
+| Moon equator | 0.754–1.000 |
+| Jezero (18.41) | 0.775–0.999 |
+
+Speed: the latitude tables (171 × 365 windows) are built once per process. The first call took 92 ms including that
+build, each new target 5–8 ms, and a cached target 0.004 ms. The API can call it once at start-up to warm it.
+
+### Caveat: ground distance in bin-index units
+
+The EMD uses the bin index as ground distance, so moving mass from `0–5` to `5–15` costs the same as moving it from
+`15–30` to `30–60`, although those bins differ up to 6× in width (5° vs 30°). A ground distance in degrees between
+bin centres (−5, 2.5, 10, 22.5, 45, 75) would weight high-sun mismatches more and low-sun mismatches less. It would
+also change EMD_max. We keep bin-index units: they are simple, documented and symmetric across bins. Read light_sim
+as a coarse regime match, not a physical distance in degrees.
+
 ## Matched-light hillshade
 
 * `hillshade(dem, gsd_m, azimuth_deg, elevation_deg)`: grid row 0 = north, columns run east. Value =

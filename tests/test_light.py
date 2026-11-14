@@ -126,3 +126,31 @@ def test_best_window_speed():
 def test_unknown_body():
     with pytest.raises(ValueError):
         light.light_profile("venus", 0.0)
+
+
+@pytest.mark.parametrize("target", [("moon", -89.7668), ("mars", 18.41), ("moon", 0.0), ("earth", 42.2)])
+def test_earth_light_range_brackets_best_window(target):
+    lo, hi = light.earth_light_range(*target)
+    assert 0.0 <= lo <= hi <= 1.0
+    rng = np.random.default_rng(1)
+    sims = [light.best_window(*target, float(la))["light_sim"] for la in rng.uniform(-85, 85, 60)]
+    assert min(sims) >= lo - 0.005 and max(sims) <= hi + 0.005
+    on_grid = [light.best_window(*target, float(la))["light_sim"] for la in light.EARTH_RANGE_LATS]
+    assert lo == pytest.approx(min(on_grid)) and hi == pytest.approx(max(on_grid))
+
+
+def test_earth_light_range_values_and_speed():
+    lo, hi = light.earth_light_range("moon", -89.7668)
+    assert 0.70 < lo < 0.78 and 0.90 < hi < 0.97          # high floor documented in docs/light.md
+    assert light.earth_light_range("earth", 30.0)[1] == pytest.approx(1.0, abs=0.03)
+    light.earth_light_range("moon", -85.0)                  # tables built
+    light._earth_range_cached.cache_clear()
+    light._profile_cached.cache_clear()
+    runs = []
+    for lat in (-88.0, -60.0, 10.0, 45.0, 80.0):
+        t0 = time.perf_counter()
+        light.earth_light_range("mars", lat)
+        runs.append((time.perf_counter() - t0) * 1000)
+    assert min(runs) < 50, runs                             # new target, tables warm
+    with pytest.raises(ValueError):
+        light.earth_light_range("venus", 0.0)
