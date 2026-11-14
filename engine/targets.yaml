@@ -1,0 +1,92 @@
+# Targets. Every coordinate is copied from data/sources.md (cited, fetched 2026-11-14). Never add an entry from memory.
+# lon: east-positive, -180..180. Mars: planetocentric. type: used by the crew's Test Lead.
+# LSDB = NASA/TP-20250002845 "M2M-30044 Lunar Surface Data Book, Baseline", Table A2.1-1.
+- id: shackleton-rim
+  label: Shackleton rim (Moon)
+  body: moon
+  lat: -89.7668
+  lon: -171.87
+  type: lunar polar rim
+  preset: true
+  source_url: https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf
+  note: LSDB "R04 or Site04 Shackleton Rim"
+- id: connecting-ridge
+  label: Connecting Ridge (Artemis III region, 2022 list)
+  body: moon
+  lat: -89.4632
+  lon: -137.49
+  type: lunar polar ridge
+  source_url: https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf
+  note: LSDB R01; region in NASA 2022 list
+- id: malapert-massif
+  label: Malapert Massif (Artemis III region, 2022 + 2024 lists)
+  body: moon
+  lat: -85.9948
+  lon: -0.23578
+  type: lunar polar massif
+  source_url: https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf
+  note: LSDB R23
+- id: nobile-rim-1
+  label: Nobile Rim 1 (Artemis III region, 2022 + 2024 lists)
+  body: moon
+  lat: -85.4381
+  lon: 37.36667
+  type: lunar polar rim
+  source_url: https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf
+  note: LSDB R06
+- id: haworth
+  label: Haworth (Artemis III region, 2022 + 2024 lists)
+  body: moon
+  lat: -86.7639
+  lon: -22.777
+  type: lunar polar rim
+  source_url: https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf
+  note: LSDB region point (not the Haworth crater centre)
+- id: de-gerlache-rim-2
+  label: de Gerlache Rim 2 (Artemis III region, 2022 + 2024 lists)
+  body: moon
+  lat: -88.23
+  lon: -64.6284
+  type: lunar polar rim
+  source_url: https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf
+  note: LSDB SL2
+- id: jezero
+  label: Jezero crater (Mars)
+  body: mars
+  lat: 18.41
+  lon: 77.69
+  type: Mars crater floor with delta
+  preset: true
+  source_url: https://planetarynames.wr.usgs.gov/Feature/Jezero
+  note: USGS Gazetteer feature 14300 centre (MDIM 2.1)
+- id: perseverance-landing
+  label: Octavia E. Butler Landing (Perseverance)
+  body: mars
+  lat: 18.44
+  lon: 77.45
+  type: Mars crater floor
+  source_url: https://www.giss.nasa.gov/tools/mars24/help/landers.html
+- id: gale
+  label: Gale crater (Mars)
+  body: mars
+  lat: -5.44
+  lon: 137.70
+  type: Mars crater with central mound
+  source_url: https://planetarynames.wr.usgs.gov/Feature/Gale
+- id: oxia-planum
+  label: Oxia Planum (ExoMars Rosalind Franklin site)
+  body: mars
+  lat: 18.20
+  lon: -24.55
+  type: Mars clay-bearing plain
+  source_url: https://www.storre.stir.ac.uk/retrieve/a8c4eae6-bbcd-4b6c-a5de-bd6b674ad989/The%20high-resolution%20map%20of%20Oxia%20Planum%20%20Mars%20%20the%20landing%20site%20of%20the%20ExoMars%20Rosalind%20Franklin%20rover%20mission.pdf
+  note: Fawdon et al. 2024, Journal of Maps 20(1), map centre 18.20N 335.45E
+- id: rila
+  label: Rila, Bulgaria (Earth)
+  body: earth
+  lat: 42.17972
+  lon: 23.58667
+  type: Earth high mountain
+  preset: true
+  source_url: https://en.wikipedia.org/wiki/Musala
+  note: Musala peak (Wikipedia coordinates; no primary source reached)
