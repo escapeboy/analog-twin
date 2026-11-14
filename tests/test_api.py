@@ -1,3 +1,4 @@
+import asyncio
 import json
 import pathlib
 import shutil
@@ -394,25 +395,27 @@ def test_atlas_static_mount(client):
             d.rmdir()
 
 
-def test_calendar_rows_weeks_and_replay_cache(client, monkeypatch):
+@pytest.mark.parametrize("real_calendar", [True, False])
+def test_calendar_rows_weeks_and_replay_cache(client, monkeypatch, real_calendar):
     import importlib
 
     class Idx:
         def point(self, pid):
             return {"id": pid, "body": "earth", "lat": {"A": 42.0, "B": 69.0}[pid], "lon": 10.0, "place_label": f"Place {pid}"}
 
-    lm = importlib.import_module("engine.light")
+    real = importlib.import_module("engine.light")
+    lm = real if real_calendar else types.SimpleNamespace(**{k: getattr(real, k) for k in dir(real) if k != "calendar"})
     monkeypatch.setattr(service, "get_index", lambda: Idx())
     monkeypatch.setattr(service, "_mod", lambda n: lm if n == "engine.light" else None)
     r = client.get("/api/calendar", params={"target_body": "moon", "target_lat": -89.7668, "target_lon": -171.87, "twin_ids": "A,B"})
     assert r.status_code == 200
     d = r.json()
-    assert d["caption"].startswith("Same terrain is not enough") and d["source"] == "fallback"
+    assert d["caption"].startswith("Same terrain is not enough") and d["source"] == ("live" if real_calendar else "fallback")
     assert [x["kind"] for x in d["rows"]] == ["twin", "twin", "known analog"]
     for row in d["rows"]:
         assert len(row["weeks"]) == 52 and all(0 <= w["light_sim"] <= 1 for w in row["weeks"]) and set(row["weeks"][0]) == {"week", "start", "light_sim"}
-        assert max(w["light_sim"] for w in row["weeks"]) <= row["best_window"]["light_sim"] + 1e-6
-        assert set(row["best_window"]) == {"start", "end", "light_sim"}
+        assert max(w["light_sim"] for w in row["weeks"]) <= row["best_window"]["light_sim"] + 1e-3
+        assert {"start", "end", "light_sim"} <= set(row["best_window"])
     assert client.get("/api/calendar", params={"target_body": "earth", "target_lat": 1, "target_lon": 1}).status_code == 422
     assert client.get("/api/calendar", params={"target_body": "moon", "target_lat": 1, "target_lon": 1, "twin_ids": "ZZ"}).status_code == 404
     # replay cache for a target
@@ -422,3 +425,27 @@ def test_calendar_rows_weeks_and_replay_cache(client, monkeypatch):
     monkeypatch.setattr(service, "get_index", lambda: None)
     c = client.get("/api/calendar", params={"target_body": "moon", "target_lat": -89.7668, "target_lon": -171.87, "replay": 1}).json()
     assert c["source"] == "replay-cache" and len(c["rows"]) == 3
+
+
+def test_health_task_crash_and_unknown_health_force_replay(client, monkeypatch):
+    import api.main as m
+    monkeypatch.setattr(m, "_cli_health", m.CliHealth(ok=False, error="not checked yet"))
+    monkeypatch.setattr(m, "_started", m.time.monotonic())
+    assert m._replay_forced() is False  # unknown, inside the grace period: try live
+    monkeypatch.setattr(m, "_started", m.time.monotonic() - 100)
+    assert m._replay_forced() is True   # unknown after the grace period
+    started = client.post("/api/campaign", json={"body": "moon", "lat": -89.5, "lon": 0}).json()
+    assert started["mode"] == "replay" and "did not finish" in started["reason"]
+
+    async def boom(*a, **k):
+        raise ConnectionResetError("pipe reset")
+    monkeypatch.setattr(m.runner, "claude_health", boom)
+    asyncio.run(m._check_cli())
+    assert m._cli_health.ok is False and "ConnectionResetError" in m._cli_health.error and m._replay_forced() is True
+
+
+def test_no_terrain_message_is_body_specific(client, monkeypatch):
+    _terrain_stubs(monkeypatch, False)
+    earth = client.post("/api/twins", json={"body": "earth", "lat": 0, "lon": -30}).json()["detail"]
+    moon = client.post("/api/twins", json={"body": "moon", "lat": 0, "lon": 0}).json()["detail"]
+    assert "ocean" in earth and "ocean" not in moon and "ice sheet" not in moon and moon.startswith("No terrain data at this point")

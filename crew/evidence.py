@@ -37,7 +37,7 @@ def build_pack(session_id: str, target: dict[str, Any], twins: TwinsResponse, pa
     def add(ref: str, kind: str, data: dict[str, Any]) -> None:
         if ref and ref not in seen:
             seen.add(ref)
-            items.append(EvidenceItem(ref=ref, kind=kind, data=data))  # type: ignore[arg-type]
+            items.append(EvidenceItem(ref=ref, kind=kind, data=prune({k: v for k, v in data.items() if k not in KOPPEN_KEYS})))  # type: ignore[arg-type]
 
     tref = target.get("ref") or target_ref(target["body"], target["lat"], target["lon"])
     target = {**target, "ref": tref}
@@ -70,6 +70,18 @@ def build_pack(session_id: str, target: dict[str, Any], twins: TwinsResponse, pa
 
 def _clean(d: dict) -> dict:
     return {k: (None if isinstance(v, float) and not math.isfinite(v) else v) for k, v in d.items()}
+
+
+def prune(obj: Any) -> Any:
+    """Drops null fields (recursively) so the roles never see, and never talk about, missing values."""
+    if isinstance(obj, dict):
+        return {k: prune(v) for k, v in obj.items() if v is not None}
+    if isinstance(obj, list):
+        return [prune(v) for v in obj]
+    return obj
+
+
+KOPPEN_KEYS = ("koppen_code", "koppen_label")
 
 
 def digest(item: EvidenceItem) -> str:
@@ -119,13 +131,13 @@ async def collect(req: CampaignRequest, session_id: str, emit: Emit, replay_cach
         sf = await asyncio.to_thread(service.site_evidence_item, req.lat, req.lon)
         if sf and sf["ref"] not in {i.ref for i in pack.items}:
             await emit("tool.call", "terrain", {"name": "site_properties", "args": {"lat": req.lat, "lon": req.lon}})
-            pack.items.append(EvidenceItem(ref=sf["ref"], kind="site_finder", data=_clean({k: sf["data"].get(k) for k in SF_KEYS})))
+            pack.items.append(EvidenceItem(ref=sf["ref"], kind="site_finder", data=prune(_clean({k: sf["data"].get(k) for k in SF_KEYS}))))
             await emit("tool.result", "terrain", {"name": "site_properties", "ref": sf["ref"], "digest": "site-finder properties of the target cell"})
     if req.body == "moon":
         ms = await asyncio.to_thread(service.mission_evidence_item, req.lat, req.lon)
         if ms:
             await emit("tool.call", "logistics", {"name": "mission", "args": {"lat": req.lat, "lon": req.lon}})
-            pack.items.append(EvidenceItem(ref=ms["ref"], kind="mission", data=ms["data"]))
+            pack.items.append(EvidenceItem(ref=ms["ref"], kind="mission", data=prune(ms["data"])))
             await emit("tool.result", "logistics", {"name": "mission", "ref": ms["ref"], "digest": "Earth-Moon transfer values for the target"})
     for it in pack.items:
         if it.kind in ("window", "context"):

@@ -33,6 +33,11 @@ BODIES = ("earth", "moon", "mars")
 
 
 NO_TERRAIN_MSG = "No terrain data here (ocean, ice sheet or beyond the latitude limit). Try a land point."
+NO_TERRAIN_MSG_OFFWORLD = "No terrain data at this point (beyond the latitude limit of the elevation data)."
+
+
+def no_terrain_message(body: str) -> str:
+    return NO_TERRAIN_MSG if body == "earth" else NO_TERRAIN_MSG_OFFWORLD
 
 
 class NoTerrain(Exception):
@@ -310,7 +315,7 @@ def find_twins(req: TwinsRequest, replay: bool = False) -> TwinsResponse:
         return _live_twins(idx, req)
     except ValueError as exc:  # engine.index: no valid terrain window at the query point
         log.info("no terrain at %s %.3f,%.3f: %s", req.body, req.lat, req.lon, exc)
-        raise NoTerrain(NO_TERRAIN_MSG) from exc
+        raise NoTerrain(no_terrain_message(req.body)) from exc
 
 
 # ---------- pair ----------
@@ -839,25 +844,20 @@ def calendar(body: str, lat: float, lon: float, twin_ids: Optional[list[str]] = 
     else:
         r = find_twins(TwinsRequest(body=body, lat=lat, lon=lon, to=["earth"], k=5))
         cand = [{"label": t.place_label or t.id, "lat": t.lat, "lon": t.lon, "kind": "twin"} for t in r.results.get("earth", [])[:5]]
+    tid = next((p.id for p in presets() if p.body == body and abs(p.lat - lat) < 0.01 and abs(p.lon - lon) < 0.01), None)
+    if hasattr(lm, "calendar"):
+        # engine.light.calendar adds the comparison row (known analog of this target) itself
+        rows = lm.calendar(body, lat, [(c["label"], c["lat"], c["lon"]) for c in cand], target_id=tid)
+        return {"target": {"body": body, "lat": lat, "lon": lon}, "rows": rows, "caption": CALENDAR_CAPTION, "source": "live"}
     ka = _known_analog_for(body, lat, lon)
     if ka:
         cand.append({"label": ka["label"], "lat": ka["lat"], "lon": ka["lon"], "kind": "known analog"})
-    real = hasattr(lm, "calendar")
-    rows = None
-    if real:
-        try:  # ASSUMED signature until W2 reports: calendar(target_body, target_lat, [earth_lat, ...]) -> list of {weeks, best_window}
-            res = lm.calendar(body, lat, [c["lat"] for c in cand])
-            rows = [{**c, "weeks": _as_dict(x)["weeks"], "best_window": _as_dict(x)["best_window"]} for c, x in zip(cand, res)]
-        except Exception as exc:
-            log.warning("engine.light.calendar failed (%s); computing weekly values from engine.light internals", exc)
-    if rows is None:
-        rows = []
-        for c in cand:
-            bw = lm.best_window(body, lat, c["lat"])
-            rows.append({**c, "weeks": _weekly(lm, body, lat, c["lat"]),
-                         "best_window": {"start": bw["start"], "end": bw["end"], "light_sim": round(bw["light_sim"], 4)}})
-    return {"target": {"body": body, "lat": lat, "lon": lon}, "rows": rows, "caption": CALENDAR_CAPTION,
-            "source": "live" if real else "fallback"}
+    rows = []
+    for c in cand:
+        bw = lm.best_window(body, lat, c["lat"])
+        rows.append({**c, "weeks": _weekly(lm, body, lat, c["lat"]),
+                     "best_window": {"start": bw["start"], "end": bw["end"], "light_sim": round(bw["light_sim"], 4)}})
+    return {"target": {"body": body, "lat": lat, "lon": lon}, "rows": rows, "caption": CALENDAR_CAPTION, "source": "fallback"}
 
 
 def record_extras(presets_: list) -> dict[str, str]:
