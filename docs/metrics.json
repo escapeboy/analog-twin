@@ -2785,10 +2785,10 @@
     "measured_via": "POST /api/campaign + SSE, total = POST to plan.final"
   },
   "findings_inputs": {
-    "computed_utc": "2026-11-14T11:44:49Z",
+    "computed_utc": "2026-11-14T11:50:27Z",
     "mode": "terrain+light",
     "index": "full_v2",
-    "atlas_dir": "/data/code/nasa-challenge/atlas",
+    "atlas_dir": "/data/code/nasa-challenge-wt/w2-light/atlas",
     "overlooked_km": 300.0,
     "balkans_bbox": [
       13.0,
@@ -2809,8 +2809,290 @@
       "gale": "Gale crater (Mars)",
       "oxia-planum": "Oxia Planum (ExoMars Rosalind Franklin site)"
     },
-    "analog_gap": {},
-    "overlooked": {},
+    "analog_gap": {
+      "shackleton-rim": {
+        "label": "Shackleton rim (Moon)",
+        "body": "moon",
+        "mode": "terrain",
+        "best_score": 0.46738,
+        "lat": -11.91118,
+        "lon": -76.37727,
+        "country": "Peru",
+        "median_earth_score": 0.0272,
+        "p99_earth_score": 0.0984,
+        "differs": {
+          "group": "context",
+          "group_label": "landform context over 36 km (crater, basin or massif scale)",
+          "share": 0.4666,
+          "detail": "36 km relief 4104 m vs 2643 m"
+        }
+      },
+      "connecting-ridge": {
+        "label": "Connecting Ridge (Artemis III region, 2022 list)",
+        "body": "moon",
+        "mode": "terrain",
+        "best_score": 0.55193,
+        "lat": -16.69401,
+        "lon": -66.93332,
+        "country": "Bolivia",
+        "median_earth_score": 0.0357,
+        "p99_earth_score": 0.1588,
+        "differs": {
+          "group": "curvature",
+          "group_label": "surface curvature (domes, ridges, pits)",
+          "share": 0.3742,
+          "detail": "59% vs 55% of the area convex"
+        }
+      },
+      "malapert-massif": {
+        "label": "Malapert Massif (Artemis III region, 2022 + 2024 lists)",
+        "body": "moon",
+        "mode": "terrain",
+        "best_score": 0.22671,
+        "lat": -15.34462,
+        "lon": -73.19409,
+        "country": "Peru",
+        "median_earth_score": 0.0255,
+        "p99_earth_score": 0.07,
+        "differs": {
+          "group": "curvature",
+          "group_label": "surface curvature (domes, ridges, pits)",
+          "share": 0.6349,
+          "detail": "86% vs 55% of the area convex"
+        }
+      },
+      "nobile-rim-1": {
+        "label": "Nobile Rim 1 (Artemis III region, 2022 + 2024 lists)",
+        "body": "moon",
+        "mode": "terrain",
+        "best_score": 0.52622,
+        "lat": -11.0055,
+        "lon": -76.89951,
+        "country": "Peru",
+        "median_earth_score": 0.0278,
+        "p99_earth_score": 0.0924,
+        "differs": {
+          "group": "context",
+          "group_label": "landform context over 36 km (crater, basin or massif scale)",
+          "share": 0.5005,
+          "detail": "36 km relief 4806 m vs 2668 m"
+        }
+      },
+      "haworth": {
+        "label": "Haworth (Artemis III region, 2022 + 2024 lists)",
+        "body": "moon",
+        "mode": "terrain",
+        "best_score": 0.5071,
+        "lat": -13.94839,
+        "lon": -69.88199,
+        "country": "Peru",
+        "median_earth_score": 0.0453,
+        "p99_earth_score": 0.1618,
+        "differs": {
+          "group": "context",
+          "group_label": "landform context over 36 km (crater, basin or massif scale)",
+          "share": 0.2483,
+          "detail": "36 km relief 4274 m vs 1933 m"
+        }
+      },
+      "de-gerlache-rim-2": {
+        "label": "de Gerlache Rim 2 (Artemis III region, 2022 + 2024 lists)",
+        "body": "moon",
+        "mode": "terrain",
+        "best_score": 0.47273,
+        "lat": -24.42647,
+        "lon": -65.72092,
+        "country": "Argentina",
+        "median_earth_score": 0.0402,
+        "p99_earth_score": 0.1109,
+        "differs": {
+          "group": "slope",
+          "group_label": "slope distribution (how steep the ground is)",
+          "share": 0.5915,
+          "detail": "mean slope 11.6° vs 8.9°"
+        }
+      },
+      "jezero": {
+        "label": "Jezero crater (Mars)",
+        "body": "mars",
+        "mode": "terrain",
+        "best_score": 0.82689,
+        "lat": 45.16201,
+        "lon": 34.992,
+        "country": "Ukraine",
+        "median_earth_score": 0.1375,
+        "p99_earth_score": 0.3482,
+        "differs": {
+          "group": "context",
+          "group_label": "landform context over 36 km (crater, basin or massif scale)",
+          "share": 0.5784,
+          "detail": "36 km relief 857 m vs 317 m"
+        }
+      },
+      "perseverance-landing": {
+        "label": "Octavia E. Butler Landing (Perseverance)",
+        "body": "mars",
+        "mode": "terrain",
+        "best_score": 0.83988,
+        "lat": 67.14674,
+        "lon": -158.11847,
+        "country": "United States of America",
+        "median_earth_score": 0.1041,
+        "p99_earth_score": 0.3757,
+        "differs": {
+          "group": "context",
+          "group_label": "landform context over 36 km (crater, basin or massif scale)",
+          "share": 0.3532,
+          "detail": "36 km relief 736 m vs 618 m"
+        }
+      },
+      "gale": {
+        "label": "Gale crater (Mars)",
+        "body": "mars",
+        "mode": "terrain",
+        "best_score": 0.62476,
+        "lat": 36.69232,
+        "lon": -118.20561,
+        "country": "United States of America",
+        "median_earth_score": 0.0337,
+        "p99_earth_score": 0.0952,
+        "differs": {
+          "group": "aspect",
+          "group_label": "variety of slope directions",
+          "share": 0.3252,
+          "detail": "direction entropy 0.31 vs 0.22 (0 = one direction, 1 = all directions)"
+        }
+      },
+      "oxia-planum": {
+        "label": "Oxia Planum (ExoMars Rosalind Franklin site)",
+        "body": "mars",
+        "mode": "terrain",
+        "best_score": 0.91404,
+        "lat": 14.72922,
+        "lon": 26.97002,
+        "country": "Sudan",
+        "median_earth_score": 0.1841,
+        "p99_earth_score": 0.5421,
+        "differs": {
+          "group": "relief",
+          "group_label": "local relief and how height is distributed",
+          "share": 0.4425,
+          "detail": "local relief 55 m vs 45 m"
+        }
+      }
+    },
+    "overlooked": {
+      "shackleton-rim": {
+        "label": "Shackleton rim (Moon)",
+        "score": 0.59043,
+        "rank_in_atlas": 1,
+        "terrain_sim": 0.46738,
+        "light_sim": 0.775,
+        "lat": -11.91118,
+        "lon": -76.37727,
+        "country": "Peru",
+        "nearest_known_km": 1515.6
+      },
+      "connecting-ridge": {
+        "label": "Connecting Ridge (Artemis III region, 2022 list)",
+        "score": 0.64449,
+        "rank_in_atlas": 1,
+        "terrain_sim": 0.55193,
+        "light_sim": 0.78333,
+        "lat": -16.69401,
+        "lon": -66.93332,
+        "country": "Bolivia",
+        "nearest_known_km": 878.5
+      },
+      "malapert-massif": {
+        "label": "Malapert Massif (Artemis III region, 2022 + 2024 lists)",
+        "score": 0.46017,
+        "rank_in_atlas": 2,
+        "terrain_sim": 0.1632,
+        "light_sim": 0.90562,
+        "lat": 51.106,
+        "lon": -119.12433,
+        "country": "Canada",
+        "nearest_known_km": 1662.4
+      },
+      "nobile-rim-1": {
+        "label": "Nobile Rim 1 (Artemis III region, 2022 + 2024 lists)",
+        "score": 0.63135,
+        "rank_in_atlas": 1,
+        "terrain_sim": 0.52622,
+        "light_sim": 0.78903,
+        "lat": -11.0055,
+        "lon": -76.89951,
+        "country": "Peru",
+        "nearest_known_km": 1631.0
+      },
+      "haworth": {
+        "label": "Haworth (Artemis III region, 2022 + 2024 lists)",
+        "score": 0.61648,
+        "rank_in_atlas": 1,
+        "terrain_sim": 0.5071,
+        "light_sim": 0.78056,
+        "lat": -13.94839,
+        "lon": -69.88199,
+        "country": "Peru",
+        "nearest_known_km": 1127.1
+      },
+      "de-gerlache-rim-2": {
+        "label": "de Gerlache Rim 2 (Artemis III region, 2022 + 2024 lists)",
+        "score": 0.6031,
+        "rank_in_atlas": 1,
+        "terrain_sim": 0.47273,
+        "light_sim": 0.79866,
+        "lat": -24.42647,
+        "lon": -65.72092,
+        "country": "Argentina",
+        "nearest_known_km": 426.9
+      },
+      "jezero": {
+        "label": "Jezero crater (Mars)",
+        "score": 0.88241,
+        "rank_in_atlas": 1,
+        "terrain_sim": 0.82689,
+        "light_sim": 0.96569,
+        "lat": 45.16201,
+        "lon": 34.992,
+        "country": "Ukraine",
+        "nearest_known_km": 1888.4
+      },
+      "perseverance-landing": {
+        "label": "Octavia E. Butler Landing (Perseverance)",
+        "score": 0.86359,
+        "rank_in_atlas": 1,
+        "terrain_sim": 0.83988,
+        "light_sim": 0.89915,
+        "lat": 67.14674,
+        "lon": -158.11847,
+        "country": "United States of America",
+        "nearest_known_km": 2437.9
+      },
+      "gale": {
+        "label": "Gale crater (Mars)",
+        "score": 0.62978,
+        "rank_in_atlas": 3,
+        "terrain_sim": 0.38378,
+        "light_sim": 0.99877,
+        "lat": 0.52418,
+        "lon": 29.77427,
+        "country": "Democratic Republic of the Congo",
+        "nearest_known_km": 5559.8
+      },
+      "oxia-planum": {
+        "label": "Oxia Planum (ExoMars Rosalind Franklin site)",
+        "score": 0.94557,
+        "rank_in_atlas": 1,
+        "terrain_sim": 0.91404,
+        "light_sim": 0.99286,
+        "lat": 14.72922,
+        "lon": 26.97002,
+        "country": "Sudan",
+        "nearest_known_km": 4082.3
+      }
+    },
     "balkans": {
       "shackleton-rim": {
         "label": "Shackleton rim (Moon)",

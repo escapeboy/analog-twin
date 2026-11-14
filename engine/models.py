@@ -35,6 +35,10 @@ class SiteContext(BaseModel):
     elevation_m: Optional[float] = None
     nearest_airport: Optional[str] = None
     airport_km: Optional[float] = None
+    ndvi: Optional[float] = Field(default=None, description="MODIS multi-year annual mean NDVI")
+    lst_c: Optional[float] = Field(default=None, description="MODIS multi-year annual mean daytime land surface temperature, deg C")
+    barren: Optional[bool] = Field(default=None, description="ndvi <= configured barren threshold")
+    cold_dry: Optional[float] = Field(default=None, description="0-1 cold/dry indicator (used only in 'full' scoring mode)")
     ref: Optional[str] = None
 
 
