@@ -233,10 +233,12 @@ def _terrain_stubs(monkeypatch, with_t3):
     rng = np.random.default_rng(1)
     dem = types.SimpleNamespace(crop_metric=lambda body, lat, lon, ext, gsd: rng.random((43, 43)) * 300)
     hs = importlib.import_module("engine.hillshade")
-    def t3_pair(a, b, extent_km=36, size=256):
-        assert isinstance(a, tuple) and a[0] == "moon" and extent_km == 36 and size == 256
-        meta = {"source": "x", "dataset": "stub DEM", "source_res_m": 80.0, "gsd_m": 140.0, "effective_res_m": 140.0}
-        return {"a": (rng.random((64, 64)) * 100, meta), "b": (rng.random((64, 64)) * 100, meta), "common_gsd_m": 140.0}
+    def t3_pair(a, b, extent_km=36, size=256, with_sim=True):
+        assert isinstance(a, tuple) and a[0] == "moon" and extent_km == 36 and size == 256 and with_sim is False
+        g = lambda body, lat, lon: {"heights": rng.random((64, 64)) * 100, "body": body, "lat": lat, "lon": lon, "gsd_m": 140.0,  # noqa: E731
+                                    "extent_km": 36.0, "dataset": "stub DEM", "source": "x", "source_res_m": 80.0}
+        return {"a": g("moon", -85.0, 10.0), "b": g("earth", 42.0, 23.0), "common_gsd_m": 140.0, "sun_azimuth_deg": 12.0,
+                "sun_elevation_deg": 4.0, "terrain_sim": None}
 
     t3 = types.SimpleNamespace(terrain_pair=t3_pair)
     mods = {"engine.dem": dem, "engine.hillshade": hs, **({"engine.terrain3d": t3} if with_t3 else {})}

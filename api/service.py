@@ -631,18 +631,14 @@ def terrain_pair(a_id: str, b_id: str, replay: bool = False) -> TerrainPair:
     if t3 is not None and hasattr(t3, "terrain_pair"):
         pa, pb = ex["a"], ex["b"]
         res = t3.terrain_pair((pa["body"], pa["lat"], pa["lon"]), (pb["body"], pb["lat"], pb["lon"]),
-                              extent_km=TERRAIN_EXTENT_KM, size=TERRAIN_SIZE)
-        hs = _mod("engine.hillshade")
-        tgt = pa if pa["body"] in ("moon", "mars") else (pb if pb["body"] in ("moon", "mars") else pa)
-        az, el = _sun(hs, tgt["body"], tgt["lat"])
+                              extent_km=TERRAIN_EXTENT_KM, size=TERRAIN_SIZE, with_sim=False)
 
-        def mk(pid, pt, hm):
-            h, meta = hm
-            ds = f"{meta.get('dataset', 'engine.terrain3d')} ({meta.get('source_res_m', 0):.0f} m source, {meta.get('effective_res_m', 0):.0f} m effective)"
-            return _grid(pid, {**pt, "heights": h, "gsd_m": meta.get("gsd_m", gsd_m()), "extent_km": TERRAIN_EXTENT_KM, "dataset": ds}, ds)
+        def mk(pid, g):
+            ds = f"{g.get('dataset', 'engine.terrain3d')} ({g.get('source_res_m', 0):.0f} m source, {g.get('gsd_m', 0):.0f} m effective)"
+            return _grid(pid, {**g, "dataset": ds}, ds)
 
-        return TerrainPair(a=mk(ca, pa, res["a"]), b=mk(cb, pb, res["b"]), sun_azimuth_deg=az, sun_elevation_deg=el,
-                           terrain_sim=float(ex["terrain_sim"]), source="live")
+        return TerrainPair(a=mk(ca, res["a"]), b=mk(cb, res["b"]), sun_azimuth_deg=float(res["sun_azimuth_deg"]),
+                           sun_elevation_deg=float(res["sun_elevation_deg"]), terrain_sim=float(ex["terrain_sim"]), source="live")
     dem, hs = _mod("engine.dem"), _mod("engine.hillshade")
     if dem is None or hs is None:
         raise LookupError("terrain modules not available")
