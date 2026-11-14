@@ -9,6 +9,7 @@ class Store {
   twins: TwinsResponse | null = null;
   selected: Selected | null = null;
   presets: Preset[] = [];
+  sites: import('./api').Site[] = [];
   busy = false;
   error: string | null = null;
   private ls: Listener[] = [];

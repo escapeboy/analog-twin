@@ -4,13 +4,14 @@ import {
   LabelStyle, VerticalOrigin, ScreenSpaceEventHandler, ScreenSpaceEventType, Ellipsoid,
 } from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
-import type { Body, Point, Twin } from './api';
+import type { Body, Point, Site, Twin } from './api';
 import { BODY_NAMES } from './api';
 
 Ion.defaultAccessToken = ''; // never contact Cesium ion
 
 const TWIN_COLOR = Color.fromCssColorString('#4fd1ff');
 const SELECTED_COLOR = Color.fromCssColorString('#ffb020');
+const SITE_COLOR = Color.fromCssColorString('#b36bff');
 const QUERY_COLOR = Color.fromCssColorString('#ff4d6d');
 
 function imageryFor(body: Body): ImageryLayer {
@@ -32,6 +33,7 @@ function imageryFor(body: Body): ImageryLayer {
 export interface GlobeHandlers {
   onGlobeClick: (p: Point) => void;
   onTwinClick: (t: Twin) => void;
+  onSiteClick?: (s: Site) => void;
 }
 
 /** One Cesium viewer showing one body, with a query marker and ranked twin markers. */
@@ -40,6 +42,7 @@ export class Globe {
   readonly viewer: Viewer;
   private query: Point | null = null;
   private twins: Twin[] = [];
+  private sites: Site[] = [];
   private selectedId: string | null = null;
   private entities = new Map<string, Entity>();
   private queryEntity: Entity | null = null;
@@ -74,6 +77,10 @@ export class Globe {
   private click(pos: Cartesian2) {
     const picked = this.viewer.scene.pick(pos);
     const id = picked?.id instanceof Entity ? (picked.id.id as string) : null;
+    if (id && id.startsWith('site:')) {
+      const s = this.sites.find((x) => x.id === id.slice(5));
+      if (s) { this.h.onSiteClick?.(s); return; }
+    }
     if (id && id.startsWith('twin:')) {
       const t = this.twins.find((x) => x.id === id.slice(5));
       if (t) { this.h.onTwinClick(t); return; }
@@ -101,6 +108,11 @@ export class Globe {
     this.render();
   }
 
+  setSites(sites: Site[]) {
+    this.sites = sites;
+    this.render();
+  }
+
   select(id: string | null) {
     this.selectedId = id;
     this.render();
@@ -117,6 +129,14 @@ export class Globe {
         position: Cartesian3.fromDegrees(this.query.lon, this.query.lat),
         point: { pixelSize: 16, color: QUERY_COLOR, outlineColor: Color.WHITE, outlineWidth: 3 },
         label: this.label('Query'),
+      });
+    }
+    for (const s of this.body === 'moon' ? this.sites : []) {
+      ents.add({
+        id: `site:${s.id}`,
+        position: Cartesian3.fromDegrees(s.lon, s.lat),
+        point: { pixelSize: 14, color: SITE_COLOR, outlineColor: Color.WHITE, outlineWidth: 2 },
+        label: this.label(`S${s.rank}`),
       });
     }
     for (const t of this.twins) {

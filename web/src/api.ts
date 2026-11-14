@@ -34,6 +34,21 @@ export interface PairExplanation {
 }
 export interface Health { status: string; features: Record<string, boolean>; replay_forced: boolean }
 
+export interface Site {
+  id: string; ref: string; lat: number; lon: number; score: number; sun_pct: number; earth_pct: number;
+  slope_mean_deg: number; slope_p90_deg: number; psr_km: number | null; nearest_nasa_region: string | null;
+  nearest_nasa_region_km: number | null; near_nasa_region: boolean; rank: number;
+}
+export interface SitesResponse {
+  weights: Record<string, number>; slope_max_deg: number; slope_source: string; sites: Site[]; limitations: string[];
+}
+export interface SiteWeights { w_sun: number; w_earth: number; w_psr: number }
+export function sitesQuery(w?: SiteWeights): string {
+  return w ? `?w_sun=${w.w_sun}&w_earth=${w.w_earth}&w_psr=${w.w_psr}` : '';
+}
+export const getSites = (w?: SiteWeights) => http<SitesResponse>('/api/sites' + sitesQuery(w));
+export const sitesMapUrl = (w?: SiteWeights) => withReplay('/api/sites/map.png' + sitesQuery(w));
+
 export type Role = 'terrain' | 'light' | 'logistics' | 'testlead' | 'director';
 export const ROLE_TITLES: Record<Role, string> = {
   terrain: 'Terrain Analyst', light: 'Light & Operations Planner', logistics: 'Logistics',

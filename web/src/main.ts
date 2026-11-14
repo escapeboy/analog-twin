@@ -1,7 +1,8 @@
-import { BODIES, BODY_NAMES, getHealth, getPresets, postTwins, REPLAY, type Body, type Point, type Preset, type Twin } from './api';
+import { BODIES, BODY_NAMES, getHealth, getPresets, postTwins, REPLAY, type Body, type Point, type Preset, type Site, type Twin } from './api';
 import { h } from './dom';
 import { Globe } from './globes';
 import { initCrew } from './panels/crew';
+import { initSites } from './panels/sites';
 import { initDetail } from './panels/detail';
 import { initTwinList } from './panels/twinlist';
 import { store } from './state';
@@ -60,7 +61,19 @@ async function runQuery(p: Point, label: string, presetId?: string) {
   }
 }
 
+function showTab(t: 'pair' | 'sites') {
+  $('detail-body').hidden = t !== 'pair';
+  $('sites-body').hidden = t !== 'sites';
+  $('tab-pair').setAttribute('aria-selected', String(t === 'pair'));
+  $('tab-sites').setAttribute('aria-selected', String(t === 'sites'));
+}
+
+function pickSite(s: Site) {
+  void runQuery({ body: 'moon', lat: s.lat, lon: s.lon }, `Site ${s.rank} (${s.id})`, s.id);
+}
+
 function selectTwin(body: Body, t: Twin) {
+  showTab('pair');
   store.selected = { body, twin: t };
   store.emit();
   for (const g of globes) if (g.body === body) g.flyTo(t.lat, t.lon);
@@ -71,11 +84,14 @@ function build() {
   const handlers = {
     onGlobeClick: (p: Point) => void runQuery(p, `${BODY_NAMES[p.body]} ${p.lat.toFixed(2)}, ${p.lon.toFixed(2)}`),
     onTwinClick: (t: Twin) => selectTwin(t.body, t),
+    onSiteClick: pickSite,
   };
   if (!LAYOUT2) {
     root.className = 'cols3';
     for (const b of BODIES) {
-      const cell = h('div', { class: 'globe-cell' }, h('div', { class: 'globe-title' }, BODY_NAMES[b]));
+      const title = h('div', { class: 'globe-title' }, BODY_NAMES[b]);
+      if (b === 'moon') title.append(h('span', { class: 'moon-actions', id: 'moon-actions' }));
+      const cell = h('div', { class: 'globe-cell' }, title);
       const el = h('div', { class: 'globe' });
       cell.append(el); root.append(cell);
       globes.push(new Globe(el, b, handlers, FPS));
@@ -136,12 +152,25 @@ async function initPresets() {
   }
 }
 
+let sitesPanel: ReturnType<typeof initSites> | null = null;
+function enableSites() {
+  sitesPanel = initSites($('sites-body'), (list) => globes.forEach((g) => g.body === 'moon' && g.setSites(list)), pickSite);
+  $('tab-sites').hidden = false;
+  $('tab-pair').addEventListener('click', () => showTab('pair'));
+  $('tab-sites').addEventListener('click', () => { showTab('sites'); sitesPanel?.show(); });
+  const b = h('button', { type: 'button', 'data-feature': 'site_finder' }, 'Find base sites');
+  b.addEventListener('click', () => { showTab('sites'); sitesPanel?.show(); });
+  const moon = document.getElementById('moon-actions');
+  (moon ?? $('gated')).append(b);
+}
+
 async function initGated() {
   let features: Record<string, boolean> = {};
   try { features = (await getHealth()).features ?? {}; } catch { /* health unavailable: keep gated features hidden */ }
   const slots: [string, string][] = [['site_finder', 'Find base sites'], ['terrain3d', '3D terrain'], ['mission', 'Fly mission']];
   for (const [key, label] of slots) {
     if (!features[key]) continue;
+    if (key === 'site_finder') { enableSites(); continue; }
     const b = h('button', { type: 'button', 'data-feature': key }, label);
     b.addEventListener('click', () => window.dispatchEvent(new CustomEvent('analog-twin:feature', { detail: { key, query: store.query, selected: store.selected } })));
     $('gated').append(b);
@@ -150,7 +179,7 @@ async function initGated() {
 
 build();
 initTwinList($('twin-list'), selectTwin);
-initDetail($('detail'));
+initDetail($('detail-body'));
 initCrew($('crew'), setReplayBadge);
 void initPresets();
 void initGated();
