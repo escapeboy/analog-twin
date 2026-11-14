@@ -77,8 +77,9 @@ function layout() {
 
 /** Camera height that makes the globe fill `frac` of the smaller side of its canvas. */
 function fitHeight(g: PresentGlobe, frac: number): number {
-  const c = g.viewer.scene.canvas;
-  const aspect = c.clientWidth / Math.max(1, c.clientHeight);
+  // size from the slot's laid-out box, not the canvas: the canvas only catches up on the next frame after a layout change
+  const slot = slots.get(g.body)!;
+  const aspect = parseFloat(slot.style.width) / Math.max(1, parseFloat(slot.style.height));
   const fov = (g.viewer.camera.frustum as unknown as { fov?: number }).fov ?? Math.PI / 3;
   const half = aspect >= 1 ? Math.atan(Math.tan(fov / 2) / aspect) : Math.atan(Math.tan(fov / 2) * aspect);
   const alpha = Math.atan(frac * Math.tan(half));
@@ -152,11 +153,11 @@ export function applyResult(p: Point, label: string, presetId: string | undefine
   if (roles[centre] !== 'center') bringToCentre(centre, 0.7);
   arcs.set(store.query, allTwins(res), first?.id ?? null);
   store.emit();
+  if (first) setHud(!FILM); // lay out first: the fitted camera heights depend on the final slot sizes
   for (const b of BODIES) {
     const f = b === p.body ? p : res.results[b]?.[0];
     if (f) aim(b, f.lat, f.lon, 1.8);
   }
-  if (first) setHud(!FILM);
   for (const [id, btn] of presetButtons) btn.setAttribute('aria-pressed', String(id === presetId));
 }
 

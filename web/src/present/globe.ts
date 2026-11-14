@@ -33,6 +33,7 @@ export class PresentGlobe {
   body: Body;
   readonly viewer: Viewer;
   spin = true;
+  sway = true;
   private seq = 0;
   private occluder: EllipsoidalOccluder;
   onClick: ((p: Point) => void) | null = null;
@@ -71,7 +72,7 @@ export class PresentGlobe {
       const c = Ellipsoid.WGS84.cartesianToCartographic(cart);
       this.onClick?.({ body: this.body, lat: CMath.toDegrees(c.latitude), lon: CMath.toDegrees(c.longitude) });
     }, ScreenSpaceEventType.LEFT_CLICK);
-    for (const ev of ['pointerdown', 'wheel', 'touchstart']) el.addEventListener(ev, () => { this.spin = false; }, { passive: true });
+    for (const ev of ['pointerdown', 'wheel', 'touchstart']) el.addEventListener(ev, () => { this.spin = false; this.sway = false; }, { passive: true });
   }
 
   private async applyBody() {
@@ -104,7 +105,11 @@ export class PresentGlobe {
 
   /** Apparent globe radius in pixels and centre, for limb-aware drawing. */
   tick(dt: number) {
-    if (this.spin) this.viewer.camera.rotate(Cartesian3.UNIT_Z, -0.035 * dt);
+    if (this.spin) { this.viewer.camera.rotate(Cartesian3.UNIT_Z, -0.035 * dt); return; }
+    if (!this.sway || (this.viewer.scene as unknown as { tweens: { length: number } }).tweens.length > 0) return;
+    // idle drift after a result: the view turns slowly back and forth (+-6 deg, 50 s period) around the pole axis
+    const w = (2 * Math.PI) / 50, now = performance.now() / 1000;
+    this.viewer.camera.rotate(Cartesian3.UNIT_Z, -(6 * Math.PI / 180) * w * Math.cos(w * now) * dt);
   }
 
   flyTo(lat: number, lon: number, height = 15_000_000, duration = 1.6) {
