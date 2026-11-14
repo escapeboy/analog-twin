@@ -113,7 +113,8 @@ def test_live_scoring_blend_and_ranking(monkeypatch):
                     "query": {"point_id": "q1", "on_grid": True, "snapped_km": 0.0}}
 
     light = types.SimpleNamespace(best_window=lambda tb, tl, el: {"start": "01-01", "end": "01-28", "emd": 0.1,
-                                                                  "light_sim": 0.1 if el == 10.0 else 0.9})
+                                                                  "light_sim": 0.1 if el == 10.0 else 0.9},
+                                  earth_light_range=lambda tb, tl: (0.05, 0.95))
     monkeypatch.setattr(service, "get_index", lambda: Idx())
     monkeypatch.setattr(service, "_mod", lambda n: light if n == "engine.light" else None)
     r = service.find_twins(TwinsRequest(body="moon", lat=-89.5, lon=0, k=5))
@@ -121,6 +122,7 @@ def test_live_scoring_blend_and_ranking(monkeypatch):
     e = r.results["earth"]
     assert [t.id for t in e] == ["B", "A"] and e[0].rank == 1
     assert e[0].score == pytest.approx(0.6 * 0.8 + 0.4 * 0.9) and e[0].best_window.light_sim == 0.9
+    assert e[0].best_window.earth_range == [0.05, 0.95] and e[1].best_window.earth_range == [0.05, 0.95]
     assert r.results["mars"][0].light_sim is None and r.query.point_id == "q1"
     r2 = service.find_twins(TwinsRequest(body="moon", lat=-89.5, lon=0, k=5, mode="terrain"))
     assert r2.mode["earth"] == "terrain" and [t.id for t in r2.results["earth"]] == ["A", "B"]
@@ -162,7 +164,7 @@ def test_coord_id_limits_and_hillshade_cap(tmp_path, monkeypatch):
     assert service._resolve_arg("earth-123") == "earth-123"
     with pytest.raises(ValueError):
         service._resolve_arg("moon@95.0000,2")
-    assert service._resolve_arg("moon@1.123456,2") == "moon@1.123456,2"  # too many decimals: not a coordinate id, index raises KeyError
+    assert service._resolve_arg("moon@1.1234567,2") == "moon@1.1234567,2"  # more than 6 decimals: not a coordinate id, index raises KeyError
     monkeypatch.setattr(service, "HILLSHADE_MAX_FILES", 5)
     for i in range(9):
         (tmp_path / f"f{i}.png").write_bytes(b"x")
@@ -328,3 +330,25 @@ def test_terrain_replay_cache_roundtrip(client, monkeypatch):
     assert r["source"] == "replay-cache" and r["a"]["id"] == "m1"
     assert len(client.get(r["a"]["heights_url"]).content) == 64 * 64 * 4
     assert client.get("/api/terrain/x/y").status_code == 404
+
+
+def test_real_terrain3d_pair_through_service(client, monkeypatch):
+    """Calls the REAL engine.terrain3d.terrain_pair (Moon vs Mars: local DEMs only, no network)."""
+    import importlib
+    t3 = importlib.import_module("engine.terrain3d")
+
+    class Idx:
+        def explain(self, a, b):
+            return {"a_id": "A", "b_id": "B", "terrain_sim": 0.66, "a": {"body": "moon", "lat": -85.0, "lon": 10.0},
+                    "b": {"body": "mars", "lat": 18.4, "lon": 77.7}}
+
+    monkeypatch.setattr(service, "get_index", lambda: Idx())
+    monkeypatch.setattr(service, "_mod", lambda n: importlib.import_module(n) if n.startswith("engine.") and n != "engine.env" else None)
+    try:
+        tp = service.terrain_pair("A", "B")
+    except FileNotFoundError:
+        pytest.skip("DEM data not available")
+    assert tp.source == "live" and tp.terrain_sim == 0.66 and tp.a.size >= 32 and tp.a.gsd_m == tp.b.gsd_m
+    assert tp.a.max_m > tp.a.min_m and tp.sun_elevation_deg > 0 and "m source" in tp.a.dataset
+    assert len(service.terrain_heights(tp.a.heights_url.rsplit("/", 1)[1].removesuffix(".f32"))) == tp.a.size ** 2 * 4
+    assert t3 is not None

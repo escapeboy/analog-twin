@@ -111,6 +111,12 @@ def warm() -> None:
             env.site_context(0.0, 0.0)
         except Exception as exc:
             log.info("env warm-up skipped: %s", exc)
+    lm = _mod("engine.light")
+    if lm is not None and hasattr(lm, "earth_light_range"):
+        try:
+            lm.earth_light_range("moon", -89.7668)  # first call about 175 ms
+        except Exception as exc:
+            log.info("earth_light_range warm-up skipped: %s", exc)
 
 
 def index_status() -> tuple[bool, dict[str, int]]:
@@ -254,6 +260,12 @@ def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
     for dest in to:
         use_light[dest] = bool(want_light and dest == "earth" and req.body in ("moon", "mars") and light_mod is not None)
         modes[dest] = "terrain+light" if use_light[dest] else "terrain"
+    earth_range = None
+    if any(use_light.values()) and hasattr(light_mod, "earth_light_range"):
+        try:
+            earth_range = [round(float(x), 4) for x in light_mod.earth_light_range(req.body, req.lat)]  # cached per target in the engine
+        except Exception as exc:
+            log.warning("earth_light_range failed: %s", exc)
     over = min(150, req.k * 3) if any(use_light.values()) else req.k
     raw = idx.search(req.body, req.lat, req.lon, to=to, k=over, region=req.region)
     q = raw.get("query", {}) or {}
@@ -265,6 +277,8 @@ def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
             win = ls = None
             if use_light[dest]:
                 win = _window(light_mod, req, r["lat"])
+                if win and earth_range:
+                    win = win.model_copy(update={"earth_range": earth_range})
                 ls = win.light_sim if win else None
             score = (w["terrain"] * ts + w["light"] * ls) if ls is not None else ts
             rows.append((score, r, ts, ls, win))
@@ -278,7 +292,7 @@ def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
                 score=round(score, 4), rank=i + 1, ref=f"twin:{tid}"))
         results[dest] = twins
     return TwinsResponse(
-        query=QueryInfo(body=req.body, lat=req.lat, lon=req.lon, label=q.get("label"), point_id=q.get("point_id") or f"{req.body}@{req.lat:.4f},{req.lon:.4f}",
+        query=QueryInfo(body=req.body, lat=req.lat, lon=req.lon, label=q.get("label"), point_id=q.get("point_id") or f"{req.body}@{req.lat:.6f},{req.lon:.6f}",
                         on_grid=bool(q.get("on_grid", False)), snapped_km=q.get("snapped_km")),
         mode=modes, weights=w, results=results, latency_ms=round((time.perf_counter() - t0) * 1000, 1), source="live",
         ref=f"twins:{req.body}:{req.lat:.3f}:{req.lon:.3f}")
@@ -366,7 +380,7 @@ def _hillshade(a: dict, b: dict, a_id: str, b_id: str, label_a: str = "", label_
         return None
 
 
-_COORD_ID = re.compile(r"^(earth|moon|mars)@(-?\d{1,3}(?:\.\d{1,4})?),(-?\d{1,3}(?:\.\d{1,4})?)$")
+_COORD_ID = re.compile(r"^(earth|moon|mars)@(-?\d{1,3}(?:\.\d{1,6})?),(-?\d{1,3}(?:\.\d{1,6})?)$")
 
 
 def _resolve_arg(pid: str):

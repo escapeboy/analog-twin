@@ -57,9 +57,14 @@ def build_pack(session_id: str, target: dict[str, Any], twins: TwinsResponse, pa
         add(p.ref, "pair", {"a_id": p.a_id, "b_id": p.b_id, "terrain_sim": p.terrain_sim, "top_similar": p.top_similar[:2],
                             "top_different": p.top_different[:2],
                             "main_difference_groups": [{"group": g.group, "contribution": g.contribution} for g in top]})
+    rng = next((t.best_window.earth_range for rows in twins.results.values() for t in rows if t.best_window and t.best_window.earth_range), None)
     for lp in lights:
-        add(lp.ref, "light", {"body": lp.body, "lat": lp.lat, "lon": lp.lon, "bins_deg": lp.bins, "hist": lp.hist,
-                              "median_sun_up_elevation_deg": lp.median_sun_up_elevation_deg})
+        data = {"body": lp.body, "lat": lp.lat, "lon": lp.lon, "bins_deg": lp.bins, "hist": lp.hist,
+                "median_sun_up_elevation_deg": lp.median_sun_up_elevation_deg}
+        if rng and lp.body == target["body"] and lp.lat == target["lat"]:
+            data["earth_light_sim_range"] = {"min": rng[0], "max": rng[1],
+                                             "meaning": "best-window light_sim over all Earth latitudes for this target"}
+        add(lp.ref, "light", data)
     return EvidencePack(session_id=session_id, target=target, items=items)
 
 
@@ -94,7 +99,7 @@ async def collect(req: CampaignRequest, session_id: str, emit: Emit, replay_cach
     main = "earth" if req.body != "earth" else "moon"
     top = [t for t in twins.results.get(main, []) if not req.twin_ids or t.id in req.twin_ids] or twins.results.get(main, [])
     pairs: list[PairExplanation] = []
-    pid = twins.query.point_id or f"{req.body}@{req.lat:.4f},{req.lon:.4f}"
+    pid = twins.query.point_id or f"{req.body}@{req.lat:.6f},{req.lon:.6f}"
     if pid:
         for t in top[:N_PAIRS]:
             await emit("tool.call", "terrain", {"name": "explain_pair", "args": {"a": pid, "b": t.id}})

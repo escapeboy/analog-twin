@@ -16,7 +16,7 @@ def test_endpoints_schema_valid():
     tw = TwinsResponse.model_validate(r.json())
     assert set(tw.results) == {"earth", "mars"}
     ids = [t.id for t in tw.results["earth"][:1]]
-    pid = tw.query.point_id or f"moon@{-89.5:.4f},{0.0:.4f}"
+    pid = tw.query.point_id or f"moon@{-89.5:.6f},{0.0:.6f}"
     r = c.get(f"/api/pair/{pid}/{ids[0]}")
     assert r.status_code == 200
     PairExplanation.model_validate(r.json())
