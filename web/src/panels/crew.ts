@@ -58,7 +58,7 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
         if (r.removed_unverified > 0) c.out.append(h('p', { class: 'warn' }, `${r.removed_unverified} unverified claim(s) removed`));
         break;
       }
-      case 'director.question': card('director').out.append(h('p', { class: 'warn' }, String(d.question ?? d.text ?? short(d)))); break;
+      case 'director.question': card('director').out.append(h('p', { class: 'warn' }, (d.to ? `To ${d.to}: ` : '') + String(d.question ?? d.text ?? short(d)))); break;
       case 'plan.final': { const c = card('director'); c.status.textContent = 'done'; c.status.className = 'chip c-done'; renderPlan(d.plan as CampaignPlan); break; }
       case 'error': {
         const msg = String(d.message ?? d.error ?? short(d));

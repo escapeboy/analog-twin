@@ -153,3 +153,4 @@ void initPresets();
 void initGated();
 if (FPS) initFps();
 window.addEventListener('resize', () => globes.forEach((g) => g.resize()));
+(window as unknown as { __globes: Globe[] }).__globes = globes; // debug handle for browser checks
