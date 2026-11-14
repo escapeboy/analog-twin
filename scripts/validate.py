@@ -33,6 +33,7 @@ YAML_DIR = Path(os.environ.get("ANALOG_YAML_DIR", str(dem.ROOT / "engine")))
 SEED = 1000
 N_BASELINE = 1000
 N_LATENCY = 120
+SITE_SNAP_KM = 50.0  # validation only: max snap from a site coordinate to the nearest valid land index point
 
 
 def _yaml(name):
@@ -67,11 +68,18 @@ def known_analog_test(ix: Index) -> dict:
         try:
             r = ix.resolve(("earth", s["lat"], s["lon"]))
         except ValueError as e:
-            entry.update({"evaluable": False, "reason": str(e)})
-            per_site.append(entry)
-            continue
+            # e.g. a coordinate in a fjord: snap to the nearest valid Earth land index point (<= SITE_SNAP_KM)
+            rows, km = ix.nearest("earth", s["lat"], s["lon"], k=1)
+            if km[0] > SITE_SNAP_KM:
+                entry.update({"evaluable": False, "reason": str(e),
+                              "nearest_land_point_km": round(float(km[0]), 2)})
+                per_site.append(entry)
+                continue
+            r = ix.resolve(str(ix.ids[int(rows[0])]))
+            r.snapped_km = float(km[0])
         entry.update({"evaluable": True, "on_grid": r.on_grid,
-                      "snapped_km": None if r.snapped_km is None else round(r.snapped_km, 2)})
+                      "snapped_km": None if r.snapped_km is None else round(r.snapped_km, 2),
+                      "evaluated_at": {"lat": round(r.lat, 4), "lon": round(r.lon, 4)}})
         ranks = {}
         for tid in s.get("analog_for", []):
             if tid in tvec:
@@ -126,7 +134,7 @@ def known_analog_test(ix: Index) -> dict:
         "notes": ["McMurdo Dry Valleys (University Valley) are inside the Natural Earth 10 m 'Antarctic Ice Sheet' "
                   "polygon, so the ice mask removes them; not evaluable with this mask.",
                   "Sites on narrow coasts or islands have no fully valid 12 km land window; they are snapped to "
-                  "the nearest valid index point within 25 km (snapped_km) or reported as not evaluable.",
+                  "the nearest valid Earth index point within 50 km (snapped_km, evaluated_at) or reported as not evaluable.",
                   "Analog sites were chosen by their operators for geology, climate or logistics; terrain shape "
                   "at 926 m / 12 km is only one aspect, so poor ranks are expected for some (e.g. Rio Tinto)."],
     }

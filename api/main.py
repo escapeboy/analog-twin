@@ -8,6 +8,7 @@ import contextlib
 import json
 import os
 import pathlib
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
@@ -53,7 +54,8 @@ def _replay_forced() -> bool:
 def health() -> Health:
     loaded, counts = service.index_status()
     return Health(status="ok" if (_cli_health.ok and loaded) else "degraded", claude_cli=_cli_health, index_loaded=loaded,
-                  index_points=counts, replay_forced=_replay_forced())
+                  index_points=counts, replay_forced=_replay_forced(),
+                  features={"site_finder": service.site_finder_passed()})
 
 
 @app.get("/api/presets", response_model=list[Preset])
@@ -85,6 +87,32 @@ def hillshade(name: str):
     if p is None:
         raise HTTPException(404, "no such hillshade")
     return FileResponse(p, media_type="image/png")
+
+
+def _sites_call(fn, *args, **kw):
+    try:
+        return fn(*args, **kw)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    except (LookupError, IndexError) as exc:
+        raise HTTPException(404, str(exc))
+
+
+@app.get("/api/sites")
+def sites(w_sun: Optional[float] = None, w_earth: Optional[float] = None, w_psr: Optional[float] = None,
+          slope_max: Optional[float] = None, replay: int = 0):
+    return _sites_call(service.sites, w_sun, w_earth, w_psr, slope_max, bool(replay))
+
+
+@app.get("/api/sites/map.png")
+def sites_map(w_sun: Optional[float] = None, w_earth: Optional[float] = None, w_psr: Optional[float] = None,
+              slope_max: Optional[float] = None, replay: int = 0):
+    return FileResponse(_sites_call(service.sites_map, w_sun, w_earth, w_psr, slope_max, bool(replay)), media_type="image/png")
+
+
+@app.get("/api/sites/{sid}")
+def site(sid: str):
+    return _sites_call(service.site_properties, sid)
 
 
 @app.get("/api/terrain/{point_id}", response_model=TerrainGrid)

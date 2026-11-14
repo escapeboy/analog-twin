@@ -45,7 +45,7 @@ def cache_dir() -> pathlib.Path:
 def data_dir() -> pathlib.Path:
     if os.environ.get("DATA_DIR"):
         return pathlib.Path(os.environ["DATA_DIR"])
-    return ROOT / "data" if (ROOT / "data").exists() else MAIN_ROOT / "data"
+    return MAIN_ROOT / "data" if (MAIN_ROOT / "data").exists() else ROOT / "data"
 
 
 def hillshade_dir() -> pathlib.Path:
@@ -302,10 +302,11 @@ def _outputs(result: Any, out_dir: pathlib.Path, pair_id: str) -> Optional[tuple
 HILLSHADE_MAX_FILES = int(os.environ.get("HILLSHADE_MAX_FILES", 500))
 
 
-def _prune_hillshade(d: pathlib.Path) -> None:
-    """Keeps the live hillshade cache bounded: drops the least recently written PNGs beyond the cap."""
+def _prune_hillshade(d: pathlib.Path, cap: Optional[int] = None) -> None:
+    """Keeps a PNG cache bounded: drops the least recently written files beyond the cap."""
+    cap = HILLSHADE_MAX_FILES if cap is None else cap
     files = sorted(d.glob("*.png"), key=lambda p: p.stat().st_mtime)
-    for p in files[: max(0, len(files) - HILLSHADE_MAX_FILES)]:
+    for p in files[: max(0, len(files) - cap)]:
         p.unlink(missing_ok=True)
 
 
@@ -403,3 +404,113 @@ def light(body: str, lat: float, lon: float) -> LightProfile:
     p = _as_dict(m.light_profile(body, lat))
     return LightProfile(body=body, lat=lat, lon=lon, bins=list(p.get("bins") or LIGHT_BINS), hist=[float(x) for x in p["hist"]],
                         median_sun_up_elevation_deg=p.get("median_sun_up_elevation_deg"), ref=f"light:{body}:{lat:.2f}:{lon:.2f}")
+
+
+# ---------- lunar south-pole site finder (W6, engine/site_finder.py) ----------
+_SF_LAYERS: Any = None
+SITE_MAP_MAX_FILES = 50
+
+
+def _sf():
+    """(module, layers) or (None, None) when the site finder or its data are not available."""
+    global _SF_LAYERS
+    m = _mod("engine.site_finder")
+    if m is None:
+        return None, None
+    if _SF_LAYERS is None:
+        try:
+            _SF_LAYERS = m.load_layers()
+        except Exception as exc:
+            log.warning("site finder layers unavailable: %s", exc)
+            return None, None
+    return m, _SF_LAYERS
+
+
+def site_finder_passed() -> bool:
+    for base in (ROOT, MAIN_ROOT):
+        p = base / "docs" / "metrics.json"
+        if p.exists():
+            try:
+                import json
+                return bool((json.loads(p.read_text()).get("site_finder") or {}).get("passed"))
+            except Exception:
+                return False
+    return False
+
+
+def _sf_args(w_sun, w_earth, w_psr, slope_max):
+    w = {k: float(v) for k, v in (("sun", w_sun), ("earth", w_earth), ("psr", w_psr)) if v is not None}
+    if slope_max is not None and not (0 < slope_max <= 90):
+        raise ValueError("slope_max must be in (0, 90] degrees")
+    return w, (round(float(slope_max), 1) if slope_max is not None else None)
+
+
+def _sf_is_default(w: dict, slope: Optional[float]) -> bool:
+    return not w and slope is None
+
+
+def sites(w_sun=None, w_earth=None, w_psr=None, slope_max=None, replay: bool = False) -> dict:
+    """Ranked lunar south-pole landing candidates. ValueError for invalid weights; LookupError when unavailable."""
+    w, slope = _sf_args(w_sun, w_earth, w_psr, slope_max)
+    cached = cache_dir() / "sites_default.json"
+    if _sf_is_default(w, slope) and replay and cached.exists():
+        import json
+        return {**json.loads(cached.read_text()), "source": "replay-cache"}
+    m, layers = _sf()
+    if m is None:
+        if _sf_is_default(w, slope) and cached.exists():
+            import json
+            return {**json.loads(cached.read_text()), "source": "replay-cache"}
+        raise LookupError("site finder not available")
+    weights_used = m._weights(w)
+    lim = m.SLOPE_LIMIT_DEG if slope is None else slope
+    return {"weights": weights_used, "slope_max_deg": lim, "slope_source": m.SLOPE_LIMIT_SOURCE,
+            "sites": m.rank(w or None, slope, layers=layers), "limitations": list(m.LIMITATIONS), "source": "live"}
+
+
+def sites_map(w_sun=None, w_earth=None, w_psr=None, slope_max=None, replay: bool = False) -> pathlib.Path:
+    w, slope = _sf_args(w_sun, w_earth, w_psr, slope_max)
+    default = _sf_is_default(w, slope)
+    cached = cache_dir() / "sites_map_default.png"
+    if default and replay and cached.exists():
+        return cached
+    m, layers = _sf()
+    if m is None:
+        if default and cached.exists():
+            return cached
+        raise LookupError("site finder not available")
+    eff = m._weights(w)
+    d = data_dir() / "cache" / "sites"
+    d.mkdir(parents=True, exist_ok=True)
+    out = d / f"map_{eff['sun']:.2f}_{eff['earth']:.2f}_{eff['psr']:.2f}_{slope if slope is not None else 'd'}.png"
+    if not out.exists():
+        m.render_map(out, w or None, slope, layers=layers)
+        _prune_hillshade(d, SITE_MAP_MAX_FILES)
+    return out
+
+
+def site_properties(sid: str) -> dict:
+    m, layers = _sf()
+    if m is None:
+        raise LookupError("site finder not available")
+    return m.site_properties(sid, layers)  # ValueError / IndexError for malformed or out-of-grid ids
+
+
+def record_sites_cache() -> None:
+    import json
+    cache_dir().mkdir(parents=True, exist_ok=True)
+    (cache_dir() / "sites_default.json").write_text(json.dumps({k: v for k, v in sites().items() if k != "source"}))
+    shutil.copy2(sites_map(), cache_dir() / "sites_map_default.png")
+
+
+def site_evidence_item(lat: float, lon: float) -> Optional[dict]:
+    """site_properties of the site-finder cell under a lunar south-polar point, or None (outside 80-90 S / no data)."""
+    m, layers = _sf()
+    if m is None or lat > m.LAT_LIMIT:
+        return None
+    try:
+        r, c = m.xy_to_cell(*m.latlon_to_xy(lat, lon))
+        return m.site_properties(m.site_id(int(r), int(c)), layers)
+    except Exception as exc:
+        log.warning("site_properties failed for %.3f,%.3f: %s", lat, lon, exc)
+        return None
