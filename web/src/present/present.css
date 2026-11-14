@@ -191,4 +191,4 @@ body.film #mission .m-close, body.film #mission .m-skip { display: none; }
 
 .hud-3d .t3-head .muted { display: none; }
 .hud-legend .dim { display: none; }
-.hud-3d .t3-head b { margin-right: 12px; }
+.hud-3d .t3-head b::after { content: ' \00b7\00a0'; font-weight: 400; }
