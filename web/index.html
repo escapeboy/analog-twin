@@ -19,7 +19,11 @@
   <main id="globes"></main>
   <section id="bottom">
     <div class="panel" id="twin-list"></div>
-    <div class="panel" id="detail"></div>
+    <div class="panel" id="detail">
+      <div class="tabs" role="tablist"><button type="button" role="tab" id="tab-pair" aria-selected="true">Comparison</button><button type="button" role="tab" id="tab-sites" aria-selected="false" hidden>Base sites</button></div>
+      <div id="detail-body"></div>
+      <div id="sites-body" hidden></div>
+    </div>
     <div class="panel" id="crew"></div>
   </section>
   <div id="credits">Imagery: NASA Trek (LRO WAC, Viking MDIM 2.1); Earth: Natural Earth II. Globes rendered with CesiumJS.</div>

@@ -17,3 +17,5 @@ Times are Europe/Sofia.
 - **11:30** W2 merged: light engine + hillshade + SPICE cross-check (Moon max 2.20° / mean 0.58°, Earth max 4.90° / mean 1.05°; numbers in docs/metrics.json "light"). 86 tests pass.
 - **11:31** Deviation: W6 (site finder) started before G1, because W2 was free and W6 is independent. It stays hidden until its own gate passes.
 - **11:31** Slope limit for W6 = 10°, cited from the NASA HLS overview deck (NTRS 20250009323), instead of the spec's default 8° "assumed".
+- **11:55** W6 site finder merged; its own gate PASSED (median NASA-region percentile 0.24%, 4/10 top sites near NASA regions). One alignment sub-check was revised after a first failure (Earth-visibility shadow shift is geometry, not misalignment); logged in metrics.json. Integrator checked the map: NASA regions sit at the right polar-stereographic positions. Weights untouched.
+- **11:56** W8 (trajectory engine) started early on W2's agent.
