@@ -11,7 +11,7 @@ import pathlib
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from sse_starlette.sse import EventSourceResponse
 
@@ -55,7 +55,7 @@ def health() -> Health:
     loaded, counts = service.index_status()
     return Health(status="ok" if (_cli_health.ok and loaded) else "degraded", claude_cli=_cli_health, index_loaded=loaded,
                   index_points=counts, replay_forced=_replay_forced(),
-                  features={"site_finder": service.site_finder_passed()})
+                  features={"site_finder": service.site_finder_passed(), "terrain3d": service.terrain3d_available()})
 
 
 @app.get("/api/presets", response_model=list[Preset])
@@ -65,7 +65,10 @@ def presets() -> list[Preset]:
 
 @app.post("/api/twins", response_model=TwinsResponse)
 def twins(req: TwinsRequest, replay: int = 0) -> TwinsResponse:
-    return service.find_twins(req, replay=bool(replay))
+    try:
+        return service.find_twins(req, replay=bool(replay))
+    except service.NoTerrain as exc:
+        raise HTTPException(422, str(exc))
 
 
 @app.get("/api/pair/{a}/{b}", response_model=PairExplanation)
@@ -113,6 +116,24 @@ def sites_map(w_sun: Optional[float] = None, w_earth: Optional[float] = None, w_
 @app.get("/api/sites/{sid}")
 def site(sid: str):
     return _sites_call(service.site_properties, sid)
+
+
+@app.get("/api/terrain/heights/{name}.f32")
+def terrain_heights(name: str):
+    data = service.terrain_heights(name)
+    if data is None:
+        raise HTTPException(404, "no such terrain grid (expired from the cache; request /api/terrain/{a}/{b} again)")
+    return Response(content=data, media_type="application/octet-stream")
+
+
+@app.get("/api/terrain/{a}/{b}", response_model=service.TerrainPair)
+def terrain_pair(a: str, b: str):
+    try:
+        return service.terrain_pair(a, b)
+    except service.NoTerrain as exc:
+        raise HTTPException(422, str(exc))
+    except (KeyError, ValueError) as exc:
+        raise HTTPException(404, f"unknown point: {exc}")
 
 
 @app.get("/api/terrain/{point_id}", response_model=TerrainGrid)
