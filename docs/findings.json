@@ -1,0 +1,498 @@
+{
+ "generated_utc": "2026-11-14T11:44:50Z",
+ "metrics": "metrics.json",
+ "sentences": [
+  {
+   "id": "agreement",
+   "text": "Agreement with practice: established Earth analog sites rank about the same as random places by terrain shape — median percentile 51.1 % across 42 site–target pairs (8 of 11 sites evaluable), against 48.5 % for random Earth points (0 % = best match). Terrain shape alone does not single out the sites practice chose; this engine does not model geology, climate or logistics.",
+   "sources": [
+    {
+     "key": "terrain.known_analog_test.median_percentile_all_pairs",
+     "value": 51.12
+    },
+    {
+     "key": "terrain.known_analog_test.baseline_random_median_percentile",
+     "value": 48.54
+    },
+    {
+     "key": "terrain.known_analog_test.pairs_evaluated",
+     "value": 42
+    },
+    {
+     "key": "terrain.known_analog_test.sites_evaluable",
+     "value": 8
+    },
+    {
+     "key": "terrain.known_analog_test.sites_total",
+     "value": 11
+    }
+   ]
+  },
+  {
+   "id": "agreement_best",
+   "text": "The strongest single agreement: Death Valley, California ranks in the top 0.01 % of Earth for Gale crater (Mars).",
+   "sources": [
+    {
+     "key": "terrain.known_analog_test.sites[3].percentile_by_target.gale",
+     "value": 0.01
+    },
+    {
+     "key": "findings_inputs.target_labels.gale",
+     "value": "Gale crater (Mars)"
+    }
+   ]
+  },
+  {
+   "id": "balkans",
+   "text": "Closest to home: in the Balkans box (lon 13–30°E, lat 39–48°N) the best cell is at 46.98, 18.24 (Hungary) for Oxia Planum (ExoMars Rosalind Franklin site) — terrain_sim 0.74, light_sim 0.96 in its best window (08-23 to 09-19). It differs most in surface curvature (domes, ridges, pits): 32% vs 40% of the area convex.",
+   "sources": [
+    {
+     "key": "findings_inputs.balkans",
+     "value": {
+      "shackleton-rim": {
+       "label": "Shackleton rim (Moon)",
+       "score": 0.5412,
+       "terrain_sim": 0.3275,
+       "light_sim": 0.8619,
+       "window": "12-05 to 01-01",
+       "lat": 40.1817,
+       "lon": 20.1988,
+       "country": "Albania",
+       "nearest_known_km": 1230.5,
+       "differs": {
+        "group": "context",
+        "group_label": "landform context over 36 km (crater, basin or massif scale)",
+        "share": 0.7357,
+        "detail": "36 km relief 4104 m vs 1598 m"
+       }
+      },
+      "connecting-ridge": {
+       "label": "Connecting Ridge (Artemis III region, 2022 list)",
+       "score": 0.5331,
+       "terrain_sim": 0.3125,
+       "light_sim": 0.8642,
+       "window": "12-04 to 12-31",
+       "lat": 42.0523,
+       "lon": 20.7348,
+       "country": "Kosovo",
+       "nearest_known_km": 1096.3,
+       "differs": {
+        "group": "context",
+        "group_label": "landform context over 36 km (crater, basin or massif scale)",
+        "share": 0.6136,
+        "detail": "36 km relief 4432 m vs 2368 m"
+       }
+      },
+      "malapert-massif": {
+       "label": "Malapert Massif (Artemis III region, 2022 + 2024 lists)",
+       "score": 0.4436,
+       "terrain_sim": 0.16,
+       "light_sim": 0.869,
+       "window": "12-04 to 12-31",
+       "lat": 40.1097,
+       "lon": 29.1612,
+       "country": "Turkey",
+       "nearest_known_km": 1760.9,
+       "differs": {
+        "group": "context",
+        "group_label": "landform context over 36 km (crater, basin or massif scale)",
+        "share": 0.4774,
+        "detail": "36 km relief 5180 m vs 1912 m"
+       }
+      },
+      "nobile-rim-1": {
+       "label": "Nobile Rim 1 (Artemis III region, 2022 + 2024 lists)",
+       "score": 0.5326,
+       "terrain_sim": 0.2937,
+       "light_sim": 0.8911,
+       "window": "12-05 to 01-01",
+       "lat": 46.8007,
+       "lon": 13.0842,
+       "country": "Austria",
+       "nearest_known_km": 298.2,
+       "differs": {
+        "group": "context",
+        "group_label": "landform context over 36 km (crater, basin or massif scale)",
+        "share": 0.4285,
+        "detail": "36 km relief 4806 m vs 1553 m"
+       }
+      },
+      "haworth": {
+       "label": "Haworth (Artemis III region, 2022 + 2024 lists)",
+       "score": 0.5229,
+       "terrain_sim": 0.288,
+       "light_sim": 0.8752,
+       "window": "12-10 to 01-06",
+       "lat": 46.333,
+       "lon": 13.9624,
+       "country": "Slovenia",
+       "nearest_known_km": 381.0,
+       "differs": {
+        "group": "context",
+        "group_label": "landform context over 36 km (crater, basin or massif scale)",
+        "share": 0.4749,
+        "detail": "36 km relief 4274 m vs 1732 m"
+       }
+      },
+      "de-gerlache-rim-2": {
+       "label": "de Gerlache Rim 2 (Artemis III region, 2022 + 2024 lists)",
+       "score": 0.5361,
+       "terrain_sim": 0.319,
+       "light_sim": 0.8618,
+       "window": "12-04 to 12-31",
+       "lat": 40.1097,
+       "lon": 29.3023,
+       "country": "Turkey",
+       "nearest_known_km": 1770.2,
+       "differs": {
+        "group": "aspect",
+        "group_label": "variety of slope directions",
+        "share": 0.3489,
+        "detail": "direction entropy 0.44 vs 0.62 (0 = one direction, 1 = all directions)"
+       }
+      },
+      "jezero": {
+       "label": "Jezero crater (Mars)",
+       "score": 0.7548,
+       "terrain_sim": 0.6148,
+       "light_sim": 0.9648,
+       "window": "08-24 to 09-20",
+       "lat": 46.0812,
+       "lon": 13.0164,
+       "country": "Italy",
+       "nearest_known_km": 361.9,
+       "differs": {
+        "group": "aspect",
+        "group_label": "variety of slope directions",
+        "share": 0.3324,
+        "detail": "direction entropy 0.54 vs 0.64 (0 = one direction, 1 = all directions)"
+       }
+      },
+      "perseverance-landing": {
+       "label": "Octavia E. Butler Landing (Perseverance)",
+       "score": 0.8237,
+       "terrain_sim": 0.7262,
+       "light_sim": 0.9699,
+       "window": "08-27 to 09-23",
+       "lat": 41.5846,
+       "lon": 15.1984,
+       "country": "Italy",
+       "nearest_known_km": 888.5,
+       "differs": {
+        "group": "relief",
+        "group_label": "local relief and how height is distributed",
+        "share": 0.2928,
+        "detail": "local relief 270 m vs 228 m"
+       }
+      },
+      "gale": {
+       "label": "Gale crater (Mars)",
+       "score": 0.6266,
+       "terrain_sim": 0.4022,
+       "light_sim": 0.9631,
+       "window": "03-19 to 04-15",
+       "lat": 40.1915,
+       "lon": 29.2163,
+       "country": "Turkey",
+       "nearest_known_km": 1758.7,
+       "differs": {
+        "group": "curvature",
+        "group_label": "surface curvature (domes, ridges, pits)",
+        "share": 0.2424,
+        "detail": "18% vs 23% of the area convex"
+       }
+      },
+      "oxia-planum": {
+       "label": "Oxia Planum (ExoMars Rosalind Franklin site)",
+       "score": 0.8303,
+       "terrain_sim": 0.7416,
+       "light_sim": 0.9632,
+       "window": "08-23 to 09-19",
+       "lat": 46.9806,
+       "lon": 18.2425,
+       "country": "Hungary",
+       "nearest_known_km": 609.4,
+       "differs": {
+        "group": "curvature",
+        "group_label": "surface curvature (domes, ridges, pits)",
+        "share": 0.4902,
+        "detail": "32% vs 40% of the area convex"
+       }
+      }
+     }
+    },
+    {
+     "key": "findings_inputs.balkans_bbox",
+     "value": [
+      13.0,
+      39.0,
+      30.0,
+      48.0
+     ]
+    },
+    {
+     "key": "findings_inputs.balkans.oxia-planum.lat",
+     "value": 46.9806
+    },
+    {
+     "key": "findings_inputs.balkans.oxia-planum.lon",
+     "value": 18.2425
+    },
+    {
+     "key": "findings_inputs.balkans.oxia-planum.country",
+     "value": "Hungary"
+    },
+    {
+     "key": "findings_inputs.balkans.oxia-planum.label",
+     "value": "Oxia Planum (ExoMars Rosalind Franklin site)"
+    },
+    {
+     "key": "findings_inputs.balkans.oxia-planum.terrain_sim",
+     "value": 0.7416
+    },
+    {
+     "key": "findings_inputs.balkans.oxia-planum.light_sim",
+     "value": 0.9632
+    },
+    {
+     "key": "findings_inputs.balkans.oxia-planum.window",
+     "value": "08-23 to 09-19"
+    },
+    {
+     "key": "findings_inputs.balkans.oxia-planum.differs.group_label",
+     "value": "surface curvature (domes, ridges, pits)"
+    },
+    {
+     "key": "findings_inputs.balkans.oxia-planum.differs.detail",
+     "value": "32% vs 40% of the area convex"
+    }
+   ]
+  },
+  {
+   "id": "bulgaria",
+   "text": "In Bulgaria, the best cell is at 42.45, 26.28 for Oxia Planum (ExoMars Rosalind Franklin site) — terrain_sim 0.72, light_sim 0.97 (08-26 to 09-22). It differs most in variety of slope directions: direction entropy 0.97 vs 0.89 (0 = one direction, 1 = all directions).",
+   "sources": [
+    {
+     "key": "findings_inputs.bulgaria",
+     "value": {
+      "shackleton-rim": {
+       "label": "Shackleton rim (Moon)",
+       "score": 0.4661,
+       "terrain_sim": 0.2014,
+       "light_sim": 0.863,
+       "window": "12-11 to 01-07",
+       "lat": 41.3328,
+       "lon": 23.0419,
+       "differs": {
+        "group": "context",
+        "group_label": "landform context over 36 km (crater, basin or massif scale)",
+        "share": 0.7207,
+        "detail": "36 km relief 4104 m vs 1554 m"
+       }
+      },
+      "connecting-ridge": {
+       "label": "Connecting Ridge (Artemis III region, 2022 list)",
+       "score": 0.5219,
+       "terrain_sim": 0.294,
+       "light_sim": 0.8637,
+       "window": "12-05 to 01-01",
+       "lat": 41.7645,
+       "lon": 23.4374,
+       "differs": {
+        "group": "context",
+        "group_label": "landform context over 36 km (crater, basin or massif scale)",
+        "share": 0.6586,
+        "detail": "36 km relief 4432 m vs 2355 m"
+       }
+      },
+      "malapert-massif": {
+       "label": "Malapert Massif (Artemis III region, 2022 + 2024 lists)",
+       "score": 0.4262,
+       "terrain_sim": 0.1301,
+       "light_sim": 0.8703,
+       "window": "12-11 to 01-07",
+       "lat": 41.3328,
+       "lon": 23.0419,
+       "differs": {
+        "group": "curvature",
+        "group_label": "surface curvature (domes, ridges, pits)",
+        "share": 0.5282,
+        "detail": "86% vs 45% of the area convex"
+       }
+      },
+      "nobile-rim-1": {
+       "label": "Nobile Rim 1 (Artemis III region, 2022 + 2024 lists)",
+       "score": 0.465,
+       "terrain_sim": 0.1903,
+       "light_sim": 0.8771,
+       "window": "12-11 to 01-07",
+       "lat": 41.3328,
+       "lon": 23.0898,
+       "differs": {
+        "group": "context",
+        "group_label": "landform context over 36 km (crater, basin or massif scale)",
+        "share": 0.6231,
+        "detail": "36 km relief 4806 m vs 1553 m"
+       }
+      },
+      "haworth": {
+       "label": "Haworth (Artemis III region, 2022 + 2024 lists)",
+       "score": 0.5021,
+       "terrain_sim": 0.2611,
+       "light_sim": 0.8636,
+       "window": "12-04 to 12-31",
+       "lat": 41.6925,
+       "lon": 23.4605,
+       "differs": {
+        "group": "context",
+        "group_label": "landform context over 36 km (crater, basin or massif scale)",
+        "share": 0.331,
+        "detail": "36 km relief 4274 m vs 1963 m"
+       }
+      },
+      "de-gerlache-rim-2": {
+       "label": "de Gerlache Rim 2 (Artemis III region, 2022 + 2024 lists)",
+       "score": 0.5357,
+       "terrain_sim": 0.3172,
+       "light_sim": 0.8636,
+       "window": "12-04 to 12-31",
+       "lat": 41.6566,
+       "lon": 23.5923,
+       "differs": {
+        "group": "slope",
+        "group_label": "slope distribution (how steep the ground is)",
+        "share": 0.4547,
+        "detail": "mean slope 11.6° vs 8.6°"
+       }
+      },
+      "jezero": {
+       "label": "Jezero crater (Mars)",
+       "score": 0.7527,
+       "terrain_sim": 0.6084,
+       "light_sim": 0.9691,
+       "window": "08-26 to 09-22",
+       "lat": 42.3401,
+       "lon": 24.5775,
+       "differs": {
+        "group": "context",
+        "group_label": "landform context over 36 km (crater, basin or massif scale)",
+        "share": 0.6541,
+        "detail": "36 km relief 857 m vs 156 m"
+       }
+      },
+      "perseverance-landing": {
+       "label": "Octavia E. Butler Landing (Perseverance)",
+       "score": 0.7813,
+       "terrain_sim": 0.657,
+       "light_sim": 0.9678,
+       "window": "03-17 to 04-13",
+       "lat": 43.5272,
+       "lon": 23.0209,
+       "differs": {
+        "group": "slope",
+        "group_label": "slope distribution (how steep the ground is)",
+        "share": 0.3056,
+        "detail": "mean slope 1.5° vs 1.7°"
+       }
+      },
+      "gale": {
+       "label": "Gale crater (Mars)",
+       "score": 0.5875,
+       "terrain_sim": 0.3387,
+       "light_sim": 0.9607,
+       "window": "03-19 to 04-15",
+       "lat": 42.6278,
+       "lon": 24.7888,
+       "differs": {
+        "group": "slope",
+        "group_label": "slope distribution (how steep the ground is)",
+        "share": 0.4755,
+        "detail": "mean slope 7.8° vs 5.6°"
+       }
+      },
+      "oxia-planum": {
+       "label": "Oxia Planum (ExoMars Rosalind Franklin site)",
+       "score": 0.8212,
+       "terrain_sim": 0.7228,
+       "light_sim": 0.9688,
+       "window": "08-26 to 09-22",
+       "lat": 42.448,
+       "lon": 26.2784,
+       "differs": {
+        "group": "aspect",
+        "group_label": "variety of slope directions",
+        "share": 0.3444,
+        "detail": "direction entropy 0.97 vs 0.89 (0 = one direction, 1 = all directions)"
+       }
+      }
+     }
+    },
+    {
+     "key": "findings_inputs.bulgaria.oxia-planum.lat",
+     "value": 42.448
+    },
+    {
+     "key": "findings_inputs.bulgaria.oxia-planum.lon",
+     "value": 26.2784
+    },
+    {
+     "key": "findings_inputs.bulgaria.oxia-planum.label",
+     "value": "Oxia Planum (ExoMars Rosalind Franklin site)"
+    },
+    {
+     "key": "findings_inputs.bulgaria.oxia-planum.terrain_sim",
+     "value": 0.7228
+    },
+    {
+     "key": "findings_inputs.bulgaria.oxia-planum.light_sim",
+     "value": 0.9688
+    },
+    {
+     "key": "findings_inputs.bulgaria.oxia-planum.window",
+     "value": "08-26 to 09-22"
+    },
+    {
+     "key": "findings_inputs.bulgaria.oxia-planum.differs.group_label",
+     "value": "variety of slope directions"
+    },
+    {
+     "key": "findings_inputs.bulgaria.oxia-planum.differs.detail",
+     "value": "direction entropy 0.97 vs 0.89 (0 = one direction, 1 = all directions)"
+    }
+   ]
+  },
+  {
+   "id": "site_finder",
+   "text": "Lunar base sites: 4 of our top 10 south-pole sites lie within 25 km of a NASA Artemis III candidate region and 6 do not; NASA's regions rank at a median 0.24 % of our scored cells (random points 8.97 %; the best-cell-within-15 km statistic flatters any point).",
+   "sources": [
+    {
+     "key": "site_finder.passed",
+     "value": true
+    },
+    {
+     "key": "site_finder.top10_near_nasa_region",
+     "value": 4
+    },
+    {
+     "key": "site_finder.top10_not_near_nasa",
+     "value": [
+      "sp-0174-0803",
+      "sp-0301-0749",
+      "sp-0309-0400",
+      "sp-0064-0554",
+      "sp-0164-0897",
+      "sp-0095-0701"
+     ]
+    },
+    {
+     "key": "site_finder.median_region_percentile",
+     "value": 0.24
+    },
+    {
+     "key": "site_finder.random_baseline_median_percentile",
+     "value": 8.97
+    }
+   ]
+  }
+ ]
+}
