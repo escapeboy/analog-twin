@@ -239,7 +239,7 @@ def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
     results: dict[str, list[Twin]] = {}
     for dest in to:
         rows = []
-        for r in raw.get(dest, []):
+        for r in (raw.get("results") or {}).get(dest, []):
             ts = float(r["terrain_sim"])
             win = ls = None
             if use_light[dest]:
@@ -257,7 +257,7 @@ def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
                 score=round(score, 4), rank=i + 1, ref=f"twin:{tid}"))
         results[dest] = twins
     return TwinsResponse(
-        query=QueryInfo(body=req.body, lat=req.lat, lon=req.lon, label=q.get("label"), point_id=q.get("point_id"),
+        query=QueryInfo(body=req.body, lat=req.lat, lon=req.lon, label=q.get("label"), point_id=q.get("point_id") or f"{req.body}@{req.lat:.4f},{req.lon:.4f}",
                         on_grid=bool(q.get("on_grid", False)), snapped_km=q.get("snapped_km")),
         mode=modes, weights=w, results=results, latency_ms=round((time.perf_counter() - t0) * 1000, 1), source="live",
         ref=f"twins:{req.body}:{req.lat:.3f}:{req.lon:.3f}")
@@ -329,6 +329,15 @@ def _hillshade(a: dict, b: dict, a_id: str, b_id: str) -> Optional[Hillshade]:
         return None
 
 
+_COORD_ID = re.compile(r"^(earth|moon|mars)@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$")
+
+
+def _resolve_arg(pid: str):
+    """Point id, or the coordinate id 'body@lat,lon' that engine.index issues for off-grid query points."""
+    m = _COORD_ID.match(pid)
+    return (m.group(1), float(m.group(2)), float(m.group(3))) if m else pid
+
+
 def pair(a_id: str, b_id: str, replay: bool = False) -> PairExplanation:
     if replay:
         cached = cache_get_pair(a_id, b_id)
@@ -337,8 +346,8 @@ def pair(a_id: str, b_id: str, replay: bool = False) -> PairExplanation:
     idx = get_index()
     if idx is None:
         return cache_get_pair(a_id, b_id) or fixtures.pair(a_id, b_id)
-    ex = _as_dict(idx.explain(a_id, b_id))
-    pa, pb = _as_dict(idx.point(a_id)), _as_dict(idx.point(b_id))
+    ex = _as_dict(idx.explain(_resolve_arg(a_id), _resolve_arg(b_id)))  # KeyError/ValueError for unknown ids
+    pa, pb = ex["a"], ex["b"]
     groups = [FeatureGroup(**{k: v for k, v in _as_dict(g).items() if k in FeatureGroup.model_fields}) for g in ex["groups"]]
     return PairExplanation(
         a=Point(body=pa["body"], lat=pa["lat"], lon=pa["lon"]), b=Point(body=pb["body"], lat=pb["lat"], lon=pb["lon"]),

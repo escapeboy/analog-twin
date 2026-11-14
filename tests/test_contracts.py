@@ -1,3 +1,5 @@
+import time
+
 from fastapi.testclient import TestClient
 
 from api.main import app
@@ -13,7 +15,12 @@ def test_endpoints_schema_valid():
     r = c.post("/api/twins", json={"body": "moon", "lat": -89.5, "lon": 0, "k": 5})
     tw = TwinsResponse.model_validate(r.json())
     assert set(tw.results) == {"earth", "mars"}
-    PairExplanation.model_validate(c.get("/api/pair/a/b").json())
+    ids = [t.id for t in tw.results["earth"][:1]]
+    pid = tw.query.point_id or f"moon@{-89.5:.4f},{0.0:.4f}"
+    r = c.get(f"/api/pair/{pid}/{ids[0]}")
+    assert r.status_code == 200
+    PairExplanation.model_validate(r.json())
+    assert c.get("/api/pair/nope/nope2").status_code == 404
     LightProfile.model_validate(c.get("/api/light", params={"body": "moon", "lat": -89.5, "lon": 0}).json())
 
 

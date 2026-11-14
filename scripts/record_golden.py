@@ -23,7 +23,7 @@ def record_cache(presets) -> None:
         if resp.source != "live":
             sys.exit(f"{p.id}: find_twins returned source={resp.source}; the engine index must be live to record")
         print(p.id, "twins ->", service.cache_put_twins(resp), f"{resp.latency_ms} ms")
-        pid = resp.query.point_id
+        pid = resp.query.point_id or f"{p.body}@{p.lat:.4f},{p.lon:.4f}"
         main = "earth" if p.body != "earth" else "moon"
         for t in resp.results.get(main, [])[:5]:
             if pid:
