@@ -8,7 +8,7 @@ searches the lunar south pole for base sites, draws the Earth to Moon trip for a
 AI agents draft a field campaign from the measured numbers. Built for the NASA Space Apps Challenge 2026 (Sofia).
 
 **Live demo: https://analog-twin.fleetq.net/** (static build of the offline demo: the three preset targets, recorded
-answers and a recorded crew campaign; `?view=analyst` for the full analyst UI. Clicking any other point needs the
+answers and a recorded crew campaign; opens in the analyst UI, `?view=present` for the Presentation view. Clicking any other point needs the
 local server, see below.)
 
 <!-- screenshot: {screenshot placeholder, add docs/img/overview.png after the demo build} -->

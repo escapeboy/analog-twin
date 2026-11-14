@@ -31,7 +31,7 @@ stage.style.backgroundPosition = '0 0, 1024px 0, 0 1024px, 1024px 1024px';
 const brand = h('div', { class: 'p-brand' }, h('span', { class: 'p-mark-t' }), h('span', { class: 'p-mark-w' }), h('h1', null, 'Analog Twin'));
 const presetsBox = h('nav', { class: 'p-presets', 'aria-label': 'Targets' });
 const toAnalyst = h('button', { type: 'button', class: 'p-toggle' }, 'Analyst view');
-toAnalyst.addEventListener('click', () => { const u = new URL(location.href); u.searchParams.set('view', 'analyst'); u.searchParams.delete('film'); location.href = u.toString(); });
+toAnalyst.addEventListener('click', () => { const u = new URL(location.href); u.searchParams.delete('view'); u.searchParams.delete('film'); location.href = u.toString(); });
 top.append(brand, presetsBox, toAnalyst);
 
 // ---- globes ----

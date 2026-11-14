@@ -244,9 +244,9 @@ async function initGated() {
   }
 }
 
-{ // view toggle: the Presentation view is the default page
+{ // view toggle: the analyst view is the default page, the Presentation view is ?view=present
   const b = h('button', { type: 'button', class: 'view-toggle' }, 'Presentation view');
-  b.addEventListener('click', () => { const u = new URL(location.href); u.searchParams.delete('view'); location.href = u.toString(); });
+  b.addEventListener('click', () => { const u = new URL(location.href); u.searchParams.set('view', 'present'); location.href = u.toString(); });
   $('top').append(b);
 }
 build();
