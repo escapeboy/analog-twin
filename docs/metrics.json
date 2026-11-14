@@ -1204,5 +1204,379 @@
       "no_terrain_errors": 0,
       "method": "Index.search in-process on this machine (12 threads, shared host), index already loaded; half the queries offset off-grid (features computed on the fly)."
     }
+  },
+  "mission": {
+    "status": "pass",
+    "passed": true,
+    "config": {
+      "window_start_utc": "2028-01-01T12:00:00",
+      "window_days": 60,
+      "tof_days": 4.5,
+      "parking_alt_km": 185.0,
+      "inclination_deg": 28.5,
+      "transfer_angle_deg": 172.5,
+      "lunar_orbit_alt_km": 100.0,
+      "descent_hours": 24.0,
+      "ascent_minutes": 10.0,
+      "max_coast_orbits": 1.5,
+      "arrival_search_hours": 12.0,
+      "arrival_step_minutes": 5.0
+    },
+    "thresholds": {
+      "tli_km_s": [
+        3.0,
+        3.3
+      ],
+      "loi_km_s": [
+        0.7,
+        1.1
+      ],
+      "endpoint_pct": 1.0,
+      "ksc_deg": 1.0,
+      "cesium_deg": 3.0
+    },
+    "constants": {
+      "GM_EARTH_km3_s2": 398600.43550702266,
+      "GM_MOON_km3_s2": 4902.80011845755,
+      "gm_source": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/gm_de440.tpc",
+      "R_EARTH_EQ_km": 6378.1366,
+      "R_MOON_km": 1737.4,
+      "radii_source": "pck00011.tpc",
+      "ksc": [
+        28.624162,
+        -80.620327
+      ],
+      "ksc_source": "https://topoquest.com/place-detail.php?id=307746 (docs/sources.md)"
+    },
+    "kernels": [
+      "naif0012.tls",
+      "pck00011.tpc",
+      "de440s.bsp"
+    ],
+    "sites": {
+      "shackleton-rim": {
+        "site": {
+          "id": "shackleton-rim",
+          "label": "Shackleton rim (Moon)",
+          "lat": -89.7668,
+          "lon": -171.87,
+          "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf"
+        },
+        "times_utc": {
+          "launch": "2027-12-31T19:38:54Z",
+          "tli": "2027-12-31T22:00:00Z",
+          "arrival": "2028-01-05T10:00:00Z",
+          "landing": "2028-01-06T10:00:00Z"
+        },
+        "tli_dv_km_s": 3.1715,
+        "loi_dv_km_s": 0.8494,
+        "arrival_v_inf_km_s": 0.9101,
+        "tof_days": 4.5,
+        "coast_min": 131.1,
+        "ksc_plane_angle_deg": 0.0,
+        "ksc_plane_angle_gmst_only_deg": 0.1263,
+        "landing_sun_elevation_deg": 0.392,
+        "landing_earth_elevation_deg": 6.349,
+        "landing_day_choice": {
+          "utc": "2028-01-06T12:00:00Z",
+          "sun_elevation_deg": 0.386439313307341,
+          "earth_elevation_deg": 6.350808422146052,
+          "days_both_up": 14,
+          "days_scored": 60
+        },
+        "arrival_shift_from_nominal_h": -2.0,
+        "gate": {
+          "status": "pass",
+          "tests": {
+            "tli_dv_in_3.0_3.3": true,
+            "loi_dv_in_0.7_1.1": true,
+            "tof_equals_config": true,
+            "endpoint_error_lt_1pct": true,
+            "ksc_in_plane_lt_1deg": true,
+            "moon_sun_vs_cesium": true
+          }
+        },
+        "endpoint_error_pct": 9.087458504037266e-09,
+        "cesium_max_deg": 0.0462
+      },
+      "connecting-ridge": {
+        "site": {
+          "id": "connecting-ridge",
+          "label": "Connecting Ridge (Artemis III region, 2022 list)",
+          "lat": -89.4632,
+          "lon": -137.49,
+          "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf"
+        },
+        "times_utc": {
+          "launch": "2027-12-31T19:38:54Z",
+          "tli": "2027-12-31T22:00:00Z",
+          "arrival": "2028-01-05T10:00:00Z",
+          "landing": "2028-01-06T10:00:00Z"
+        },
+        "tli_dv_km_s": 3.1715,
+        "loi_dv_km_s": 0.8494,
+        "arrival_v_inf_km_s": 0.9101,
+        "tof_days": 4.5,
+        "coast_min": 131.1,
+        "ksc_plane_angle_deg": 0.0,
+        "ksc_plane_angle_gmst_only_deg": 0.1263,
+        "landing_sun_elevation_deg": 0.024,
+        "landing_earth_elevation_deg": 6.225,
+        "landing_day_choice": {
+          "utc": "2028-01-06T12:00:00Z",
+          "sun_elevation_deg": 0.018249097296523662,
+          "earth_elevation_deg": 6.227524507053075,
+          "days_both_up": 8,
+          "days_scored": 60
+        },
+        "arrival_shift_from_nominal_h": -2.0,
+        "gate": {
+          "status": "pass",
+          "tests": {
+            "tli_dv_in_3.0_3.3": true,
+            "loi_dv_in_0.7_1.1": true,
+            "tof_equals_config": true,
+            "endpoint_error_lt_1pct": true,
+            "ksc_in_plane_lt_1deg": true,
+            "moon_sun_vs_cesium": true
+          }
+        },
+        "endpoint_error_pct": 9.087458504037266e-09,
+        "cesium_max_deg": 0.0462
+      },
+      "malapert-massif": {
+        "site": {
+          "id": "malapert-massif",
+          "label": "Malapert Massif (Artemis III region, 2022 + 2024 lists)",
+          "lat": -85.9948,
+          "lon": -0.23578,
+          "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf"
+        },
+        "times_utc": {
+          "launch": "2028-01-02T22:49:48Z",
+          "tli": "2028-01-03T00:00:00Z",
+          "arrival": "2028-01-07T12:00:00Z",
+          "landing": "2028-01-08T12:00:00Z"
+        },
+        "tli_dv_km_s": 3.1747,
+        "loi_dv_km_s": 0.8441,
+        "arrival_v_inf_km_s": 0.8955,
+        "tof_days": 4.5,
+        "coast_min": 60.2,
+        "ksc_plane_angle_deg": 0.0,
+        "ksc_plane_angle_gmst_only_deg": 0.1802,
+        "landing_sun_elevation_deg": 3.414,
+        "landing_earth_elevation_deg": 9.861,
+        "landing_day_choice": {
+          "utc": "2028-01-08T12:00:00Z",
+          "sun_elevation_deg": 3.4139281165542297,
+          "earth_elevation_deg": 9.86119590990015,
+          "days_both_up": 19,
+          "days_scored": 60
+        },
+        "arrival_shift_from_nominal_h": 0.0,
+        "gate": {
+          "status": "pass",
+          "tests": {
+            "tli_dv_in_3.0_3.3": true,
+            "loi_dv_in_0.7_1.1": true,
+            "tof_equals_config": true,
+            "endpoint_error_lt_1pct": true,
+            "ksc_in_plane_lt_1deg": true,
+            "moon_sun_vs_cesium": true
+          }
+        },
+        "endpoint_error_pct": 7.2844265906052925e-09,
+        "cesium_max_deg": 0.0898
+      },
+      "nobile-rim-1": {
+        "site": {
+          "id": "nobile-rim-1",
+          "label": "Nobile Rim 1 (Artemis III region, 2022 + 2024 lists)",
+          "lat": -85.4381,
+          "lon": 37.36667,
+          "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf"
+        },
+        "times_utc": {
+          "launch": "2028-01-01T21:14:44Z",
+          "tli": "2028-01-01T23:35:00Z",
+          "arrival": "2028-01-06T11:35:00Z",
+          "landing": "2028-01-07T11:35:00Z"
+        },
+        "tli_dv_km_s": 3.173,
+        "loi_dv_km_s": 0.8473,
+        "arrival_v_inf_km_s": 0.9042,
+        "tof_days": 4.5,
+        "coast_min": 130.3,
+        "ksc_plane_angle_deg": 0.0,
+        "ksc_plane_angle_gmst_only_deg": 0.1674,
+        "landing_sun_elevation_deg": 4.844,
+        "landing_earth_elevation_deg": 9.656,
+        "landing_day_choice": {
+          "utc": "2028-01-07T12:00:00Z",
+          "sun_elevation_deg": 4.848352046566399,
+          "earth_elevation_deg": 9.650632770497612,
+          "days_both_up": 25,
+          "days_scored": 60
+        },
+        "arrival_shift_from_nominal_h": -0.4166666666666667,
+        "gate": {
+          "status": "pass",
+          "tests": {
+            "tli_dv_in_3.0_3.3": true,
+            "loi_dv_in_0.7_1.1": true,
+            "tof_equals_config": true,
+            "endpoint_error_lt_1pct": true,
+            "ksc_in_plane_lt_1deg": true,
+            "moon_sun_vs_cesium": true
+          }
+        },
+        "endpoint_error_pct": 6.2152488532840324e-09,
+        "cesium_max_deg": 0.0631
+      },
+      "haworth": {
+        "site": {
+          "id": "haworth",
+          "label": "Haworth (Artemis III region, 2022 + 2024 lists)",
+          "lat": -86.7639,
+          "lon": -22.777,
+          "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf"
+        },
+        "times_utc": {
+          "launch": "2028-01-02T22:49:48Z",
+          "tli": "2028-01-03T00:00:00Z",
+          "arrival": "2028-01-07T12:00:00Z",
+          "landing": "2028-01-08T12:00:00Z"
+        },
+        "tli_dv_km_s": 3.1747,
+        "loi_dv_km_s": 0.8441,
+        "arrival_v_inf_km_s": 0.8955,
+        "tof_days": 4.5,
+        "coast_min": 60.2,
+        "ksc_plane_angle_deg": 0.0,
+        "ksc_plane_angle_gmst_only_deg": 0.1802,
+        "landing_sun_elevation_deg": 1.828,
+        "landing_earth_elevation_deg": 8.995,
+        "landing_day_choice": {
+          "utc": "2028-01-08T12:00:00Z",
+          "sun_elevation_deg": 1.8278096349344177,
+          "earth_elevation_deg": 8.994564199148066,
+          "days_both_up": 13,
+          "days_scored": 60
+        },
+        "arrival_shift_from_nominal_h": 0.0,
+        "gate": {
+          "status": "pass",
+          "tests": {
+            "tli_dv_in_3.0_3.3": true,
+            "loi_dv_in_0.7_1.1": true,
+            "tof_equals_config": true,
+            "endpoint_error_lt_1pct": true,
+            "ksc_in_plane_lt_1deg": true,
+            "moon_sun_vs_cesium": true
+          }
+        },
+        "endpoint_error_pct": 7.2844265906052925e-09,
+        "cesium_max_deg": 0.0898
+      },
+      "de-gerlache-rim-2": {
+        "site": {
+          "id": "de-gerlache-rim-2",
+          "label": "de Gerlache Rim 2 (Artemis III region, 2022 + 2024 lists)",
+          "lat": -88.23,
+          "lon": -64.6284,
+          "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf"
+        },
+        "times_utc": {
+          "launch": "2028-01-03T23:28:39Z",
+          "tli": "2028-01-04T00:00:00Z",
+          "arrival": "2028-01-08T12:00:00Z",
+          "landing": "2028-01-09T12:00:00Z"
+        },
+        "tli_dv_km_s": 3.1768,
+        "loi_dv_km_s": 0.841,
+        "arrival_v_inf_km_s": 0.8869,
+        "tof_days": 4.5,
+        "coast_min": 21.3,
+        "ksc_plane_angle_deg": 0.0,
+        "ksc_plane_angle_gmst_only_deg": 0.1271,
+        "landing_sun_elevation_deg": 0.28,
+        "landing_earth_elevation_deg": 5.904,
+        "landing_day_choice": {
+          "utc": "2028-01-09T12:00:00Z",
+          "sun_elevation_deg": 0.27952486232260304,
+          "earth_elevation_deg": 5.904236627342351,
+          "days_both_up": 4,
+          "days_scored": 60
+        },
+        "arrival_shift_from_nominal_h": 0.0,
+        "gate": {
+          "status": "pass",
+          "tests": {
+            "tli_dv_in_3.0_3.3": true,
+            "loi_dv_in_0.7_1.1": true,
+            "tof_equals_config": true,
+            "endpoint_error_lt_1pct": true,
+            "ksc_in_plane_lt_1deg": true,
+            "moon_sun_vs_cesium": true
+          }
+        },
+        "endpoint_error_pct": 6.0586670997074995e-09,
+        "cesium_max_deg": 0.0979
+      },
+      "site-finder-1-sp-0386-0786": {
+        "site": {
+          "id": "site-finder-1-sp-0386-0786",
+          "label": "Site finder #1",
+          "lat": -85.4007,
+          "lon": 31.6398,
+          "ref": "site_finder:sp-0386-0786",
+          "site_finder": {
+            "sun_pct": 59.8,
+            "earth_pct": 99.9,
+            "slope_p90_deg": 6.22,
+            "psr_km": 6.48,
+            "score": 0.8191
+          }
+        },
+        "times_utc": {
+          "launch": "2028-01-01T21:14:44Z",
+          "tli": "2028-01-01T23:35:00Z",
+          "arrival": "2028-01-06T11:35:00Z",
+          "landing": "2028-01-07T11:35:00Z"
+        },
+        "tli_dv_km_s": 3.173,
+        "loi_dv_km_s": 0.8473,
+        "arrival_v_inf_km_s": 0.9042,
+        "tof_days": 4.5,
+        "coast_min": 130.3,
+        "ksc_plane_angle_deg": 0.0,
+        "ksc_plane_angle_gmst_only_deg": 0.1674,
+        "landing_sun_elevation_deg": 4.723,
+        "landing_earth_elevation_deg": 9.991,
+        "landing_day_choice": {
+          "utc": "2028-01-07T12:00:00Z",
+          "sun_elevation_deg": 4.729041263420002,
+          "earth_elevation_deg": 9.985389043839906,
+          "days_both_up": 25,
+          "days_scored": 60
+        },
+        "arrival_shift_from_nominal_h": -0.4166666666666667,
+        "gate": {
+          "status": "pass",
+          "tests": {
+            "tli_dv_in_3.0_3.3": true,
+            "loi_dv_in_0.7_1.1": true,
+            "tof_equals_config": true,
+            "endpoint_error_lt_1pct": true,
+            "ksc_in_plane_lt_1deg": true,
+            "moon_sun_vs_cesium": true
+          }
+        },
+        "endpoint_error_pct": 6.2152488532840324e-09,
+        "cesium_max_deg": 0.0631
+      }
+    },
+    "label": "First-order mission geometry: real ephemerides, two-body transfer. Not a flight-dynamics solution."
   }
 }
