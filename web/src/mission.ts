@@ -23,7 +23,7 @@ export interface MissionHooks {
   onFinish: (s: MissionSummary) => void;
 }
 
-const REAL_STAGES = { a: 7, b: 5, c: 8, d: 5 }; // seconds of real time per choreography stage, total 25 s
+const REAL_STAGES = { a: 6, b: 5, c: 8, d: 6 }; // seconds of real time per choreography stage, total 25 s
 const EARTH_R = 6378137;
 
 async function fetchMission(siteId: string): Promise<MissionResponse> {
@@ -98,6 +98,7 @@ export function initMission(overlay: HTMLElement, hooks: MissionHooks) {
     scene.globe.showGroundAtmosphere = true;
     if (scene.skyAtmosphere) scene.skyAtmosphere.show = true;
     scene.highDynamicRange = false;
+    scene.moon.onlySunLighting = false; // at this date the near side is unlit: add ambient light so the Moon stays visible
 
     const ds = await CzmlDataSource.load(assetUrl(data.czml_url));
     await v.dataSources.add(ds);
@@ -144,6 +145,10 @@ export function initMission(overlay: HTMLElement, hooks: MissionHooks) {
       id: 'mv-earth', position: Cartesian3.ZERO,
       label: { text: 'Earth', font: 'bold 22px sans-serif', fillColor: Color.WHITE, outlineColor: Color.BLACK, outlineWidth: 4, style: LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cartesian2(0, -22), disableDepthTestDistance: Number.POSITIVE_INFINITY, distanceDisplayCondition: new DistanceDisplayCondition(5e7, Number.POSITIVE_INFINITY) },
     });
+    // subtle rings so Earth and Moon stay findable in the wide shot (the discs themselves are drawn at true scale)
+    const ring = { pixelSize: 64, color: Color.TRANSPARENT, outlineColor: Color.WHITE.withAlpha(0.55), outlineWidth: 2, distanceDisplayCondition: new DistanceDisplayCondition(8e7, Number.POSITIVE_INFINITY) };
+    v.entities.add({ id: 'mv-earth-ring', position: Cartesian3.ZERO, point: ring });
+    v.entities.add({ id: 'mv-moon-ring', position: new CallbackPositionProperty(() => toFixed(moonInertial(clockOf()), clockOf()), false), point: { ...ring, pixelSize: 40 } });
     const scFixed = (t: JulianDate) => sc.position!.getValue(t, new Cartesian3()) ?? new Cartesian3();
     const tmpA = new JulianDate(), tmpB = new JulianDate();
     function speedKms(t: JulianDate): number {
@@ -178,29 +183,65 @@ export function initMission(overlay: HTMLElement, hooks: MissionHooks) {
       else { from = tArrMinus; to = tArr; f = (r - a - b - c) / d; }
       return JulianDate.addSeconds(from, sec(from, to) * ease(clamp01(f)), new JulianDate());
     }
-    function cameraFor(r: number, t: JulianDate): { center: Cartesian3; range: number; pitch: number } {
+    // Camera "looks" (target centre, unit offset direction, range, up hint) are blended and then turned into an explicit
+    // pose, so the target stays centred while the camera swings from one stage to the next.
+    interface Look { center: Cartesian3; off: Cartesian3; range: number; up: Cartesian3 }
+    const lookOf = (center: Cartesian3, heading: number, pitch: number, range: number): Look => {
+      v.camera.lookAt(center, new HeadingPitchRange(heading, pitch, range));
+      const off = Cartesian3.normalize(Cartesian3.subtract(v.camera.positionWC, center, new Cartesian3()), new Cartesian3());
+      const up = Cartesian3.clone(v.camera.upWC);
+      v.camera.lookAtTransform(Matrix4.IDENTITY);
+      return { center, off, range, up };
+    };
+    const lerpV = (p: Cartesian3, q: Cartesian3, f: number) => Cartesian3.lerp(p, q, f, new Cartesian3());
+    // fc eases the target centre separately from the zoom, so what we move away from / towards stays inside the frame
+    const blend = (p: Look, q: Look, f: number, fc: number): Look => ({
+      center: lerpV(p.center, q.center, fc),
+      off: Cartesian3.normalize(lerpV(p.off, q.off, f), new Cartesian3()),
+      range: Math.exp(lerp(Math.log(p.range), Math.log(q.range), f)), // geometric: even-looking zoom
+      up: lerpV(p.up, q.up, f),
+    });
+    /** Wide shot at true scale: Earth left, Moon right, the pair fills ~75 % of the screen width. */
+    const wideLook = (m: Cartesian3): Look => {
+      const dist = Cartesian3.magnitude(m);
+      const axis = Cartesian3.normalize(m, new Cartesian3());
+      const side = Cartesian3.normalize(Cartesian3.cross(axis, Cartesian3.UNIT_Z, new Cartesian3()), new Cartesian3());
+      const fov = (v.camera.frustum as { fov?: number }).fov ?? CMath.PI_OVER_THREE;
+      const range = (0.5 * dist * 1.35) / Math.tan(fov / 2);
+      const lift = Cartesian3.cross(axis, Cartesian3.negate(side, new Cartesian3()), new Cartesian3()); // roughly "up"
+      const off = Cartesian3.normalize(Cartesian3.add(side, Cartesian3.multiplyByScalar(lift, 0.18, new Cartesian3()), new Cartesian3()), new Cartesian3());
+      const dir = Cartesian3.negate(off, new Cartesian3());
+      return { center: Cartesian3.multiplyByScalar(m, 0.5, new Cartesian3()), off, range, up: Cartesian3.cross(axis, dir, new Cartesian3()) };
+    };
+    const poseOf = (l: Look) => {
+      const pos = Cartesian3.add(l.center, Cartesian3.multiplyByScalar(l.off, l.range, new Cartesian3()), new Cartesian3());
+      const dir = Cartesian3.negate(l.off, new Cartesian3());
+      const up = Cartesian3.normalize(Cartesian3.subtract(l.up, Cartesian3.multiplyByScalar(dir, Cartesian3.dot(l.up, dir), new Cartesian3()), new Cartesian3()), new Cartesian3());
+      return { pos, dir, up };
+    };
+    function lookFor(r: number, t: JulianDate): Look {
       const p = scFixed(t);
-      if (r < a) return { center: p, range: lerp(2.2e6, 1.4e7, ease(clamp01(r / a))), pitch: CMath.toRadians(-25) };
-      if (r < a + b) return { center: p, range: lerp(1.4e7, 6e7, ease((r - a) / b)), pitch: CMath.toRadians(-35) };
+      const heading = CMath.toRadians(20 + r * 6);
+      if (r < a) return lookOf(p, heading, CMath.toRadians(-25), lerp(2.2e6, 1.4e7, ease(clamp01(r / a))));
       const m = toFixed(moonInertial(t), t);
-      if (r < a + b + c) {
-        // frame Earth and Moon together: midpoint of the Earth centre (origin) and the Moon
-        const mid = Cartesian3.multiplyByScalar(m, 0.5, new Cartesian3());
-        return { center: mid, range: Math.max(2e8, Cartesian3.magnitude(m) * 1.9), pitch: CMath.toRadians(-75) };
-      }
+      if (r < a + b) { const f = ease((r - a) / b); return blend(lookOf(p, heading, CMath.toRadians(-30), 1.4e7), wideLook(m), f, f ** 3); }
+      if (r < a + b + c) return wideLook(m);
+      const close = lookOf(m, CMath.toRadians(200 + (r - a - b - c) * 8), CMath.toRadians(-32), 6.5e6);
       const f = ease(clamp01((r - a - b - c) / d));
-      return { center: Cartesian3.lerp(Cartesian3.multiplyByScalar(m, 0.5, new Cartesian3()), m, f, new Cartesian3()), range: lerp(Math.max(2e8, Cartesian3.magnitude(m) * 1.9), 2.5e6, f), pitch: CMath.toRadians(-40) };
+      return blend(wideLook(m), close, f, 1 - (1 - f) ** 4);
     }
 
+    const pace = Number(new URLSearchParams(location.search).get('mspeed')) || 1; // e.g. ?mspeed=0.25 plays at quarter speed (screen recording)
     const started = performance.now();
     let done = false;
     const onTick = () => {
       if (done) return;
-      const r = (performance.now() - started) / 1000;
+      const r = ((performance.now() - started) / 1000) * pace;
       const t = simTime(Math.min(r, total));
       v.clock.currentTime = t;
-      const { center, range, pitch } = cameraFor(Math.min(r, total), t);
-      v.camera.lookAt(center, new HeadingPitchRange(CMath.toRadians(20 + r * 6), pitch, range));
+      const look = lookFor(Math.min(r, total), t);
+      // world-aligned frame centred on the target; the camera sits at off * range from it, up = fixed-frame Z (north)
+      v.camera.lookAtTransform(Matrix4.fromTranslation(look.center), Cartesian3.multiplyByScalar(look.off, look.range, new Cartesian3()));
       // HUD
       const si = inertial(sc, t), mi = moonInertial(t);
       const dEarth = si ? Cartesian3.magnitude(si) / 1000 : NaN;
