@@ -288,13 +288,14 @@ def _sun(hs, target_body: str, target_lat: float) -> tuple[float, float]:
 def _outputs(result: Any, out_dir: pathlib.Path, pair_id: str) -> Optional[tuple[str, str, str]]:
     """Stems of (a, b, pair) PNGs. Accepts a dict/tuple result or finds files named <pair_id>*_a/_b/_pair."""
     d = _as_dict(result) if isinstance(result, dict) else {}
-    if all(k in d for k in ("a", "b", "pair")):
-        return tuple(pathlib.Path(str(d[k])).stem for k in ("a", "b", "pair"))  # type: ignore[return-value]
+    for keys in (("a_path", "b_path", "pair_path"), ("a", "b", "pair")):
+        if all(k in d for k in keys):
+            return tuple(pathlib.Path(str(d[k])).stem for k in keys)  # type: ignore[return-value]
     if isinstance(result, (tuple, list)) and len(result) >= 3:
         return tuple(pathlib.Path(str(x)).stem for x in result[:3])  # type: ignore[return-value]
     found = {p.stem: p for p in out_dir.glob(f"{pair_id}*.png")}
-    pick = lambda suf: next((s for s in found if s.endswith(suf)), None)  # noqa: E731
-    a, b, pr = pick("_a"), pick("_b"), pick("_pair") or pick("pair")
+    pick = lambda suf: next((s for s in sorted(found, reverse=True) if s.endswith(suf)), None)  # noqa: E731
+    a, b, pr = pick("_a"), pick("_b"), pick("_pair")
     return (a, b, pr) if a and b and pr else None  # type: ignore[return-value]
 
 
@@ -309,7 +310,8 @@ def _hillshade(a: dict, b: dict, a_id: str, b_id: str) -> Optional[Hillshade]:
         pair_id = _safe(f"{a_id}__{b_id}")
         out_dir = hillshade_dir()
         out_dir.mkdir(parents=True, exist_ok=True)
-        names = _outputs({}, out_dir, pair_id)
+        names = _outputs({}, out_dir, pair_id)  # engine caches by pair id + sun; the sun is fixed per target
+        res: dict = {}
         if names is None:
             dem_a = dem.crop_metric(a["body"], a["lat"], a["lon"], EXTENT_KM, gsd)
             dem_b = dem.crop_metric(b["body"], b["lat"], b["lon"], EXTENT_KM, gsd)
@@ -317,10 +319,11 @@ def _hillshade(a: dict, b: dict, a_id: str, b_id: str) -> Optional[Hillshade]:
             names = _outputs(res, out_dir, pair_id)
         if names is None:
             return None
+        res = _as_dict(res)
         u = lambda n: f"/api/hillshade/{n}.png"  # noqa: E731
         return Hillshade(a_url=u(names[0]), b_url=u(names[1]), pair_url=u(names[2]), sun_azimuth_deg=az, sun_elevation_deg=el,
-                         extent_km=EXTENT_KM, gsd_m=gsd,
-                         caption=f"Sun azimuth {az:.0f} deg, elevation {el:.0f} deg; {EXTENT_KM:.0f} km wide; {gsd:.0f} m per pixel")
+                         extent_km=float(res.get("extent_km", EXTENT_KM)), gsd_m=gsd,
+                         caption=res.get("caption") or f"Sun azimuth {az:.0f} deg, elevation {el:.0f} deg; {EXTENT_KM:.0f} km wide; {gsd:.0f} m per pixel")
     except Exception as exc:
         log.warning("hillshade failed for %s/%s: %s", a_id, b_id, exc)
         return None

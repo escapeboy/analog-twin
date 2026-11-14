@@ -126,3 +126,34 @@ def test_live_scoring_blend_and_ranking(monkeypatch):
     assert r2.mode["earth"] == "terrain" and [t.id for t in r2.results["earth"]] == ["A", "B"]
     r3 = service.find_twins(TwinsRequest(body="earth", lat=1, lon=1, to=["earth"], k=5))
     assert r3.mode == {"earth": "terrain"}
+
+
+def test_live_pair_with_real_hillshade_and_stub_dem(tmp_path, monkeypatch):
+    import importlib
+
+    import numpy as np
+
+    class Idx:
+        def explain(self, a, b):
+            return {"groups": [{"group": "slope", "label": "steepness", "a": [1.0], "b": [2.0], "contribution": 1.0}],
+                    "top_similar": ["x"], "top_different": ["y"], "terrain_sim": 0.8}
+
+        def point(self, pid):
+            return {"id": pid, "body": "moon", "lat": -89.5, "lon": 0.0} if pid == "m1" else {"id": pid, "body": "earth", "lat": 42.0, "lon": 23.0}
+
+    rng = np.random.default_rng(0)
+    dem = types.SimpleNamespace(crop_metric=lambda body, lat, lon, ext, gsd: rng.random((44, 44)) * 200)
+    real = {n: importlib.import_module(n) for n in ("engine.hillshade",)}
+    monkeypatch.setenv("DATA_DIR", str(tmp_path / "data"))
+    monkeypatch.setenv("SESSIONS_DIR", str(tmp_path / "sessions"))
+    monkeypatch.setattr(service, "get_index", lambda: Idx())
+    monkeypatch.setattr(service, "_mod", lambda n: dem if n == "engine.dem" else real.get(n))
+    p = service.pair("m1", "e1")
+    assert p.source == "live" and p.hillshade and p.hillshade.pair_url.startswith("/api/hillshade/")
+    name = p.hillshade.pair_url.rsplit("/", 1)[1].removesuffix(".png")
+    f = service.hillshade_file(name)
+    assert f and f.exists()
+    p2 = service.pair("m1", "e1")  # second call reuses the engine-cached files
+    assert p2.hillshade.pair_url == p.hillshade.pair_url
+    service.cache_put_pair(p)
+    assert (service.cache_dir() / "hillshade" / f.name).exists()
