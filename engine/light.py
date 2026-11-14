@@ -10,6 +10,7 @@ Constants and their sources are in BODIES; the reasoning behind the Moon values 
 """
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Optional
@@ -221,3 +222,63 @@ def best_window(target_body: str, target_lat: float, earth_lat: float) -> dict:
         "emd": e,
         "light_sim": float(min(1.0, max(0.0, 1.0 - e / EMD_MAX))),
     }
+
+
+EARTH_RANGE_FALLBACK = (-85.0, 85.0)     # used when no index is available
+EARTH_RANGE_STEP_DEG = 1.0
+
+
+@lru_cache(maxsize=1)
+def earth_index_lat_span() -> tuple[float, float]:
+    """(min, max) latitude of the Earth points of the current index (data/index/current/points.parquet, read once).
+    Falls back to EARTH_RANGE_FALLBACK when the index is missing or unreadable."""
+    try:
+        import pyarrow.compute as pc
+        import pyarrow.parquet as pq
+        from engine.dem import ROOT
+        t = pq.read_table(ROOT / "data" / "index" / "current" / "points.parquet", columns=["body", "lat"],
+                          filters=[("body", "==", "earth")])
+        mm = pc.min_max(t.column("lat")).as_py()
+        if t.num_rows and mm["min"] is not None:
+            return float(mm["min"]), float(mm["max"])
+    except Exception:  # noqa: BLE001 - missing/unreadable index -> documented fallback
+        pass
+    return EARTH_RANGE_FALLBACK
+
+
+def _range_lats(lat_min: float, lat_max: float) -> tuple[float, ...]:
+    inner = np.arange(math.ceil(lat_min), math.floor(lat_max) + 1e-9, EARTH_RANGE_STEP_DEG)
+    return tuple(sorted({round(float(x), 2) for x in np.concatenate([[lat_min, lat_max], inner])}))
+
+
+@lru_cache(maxsize=8)
+def _earth_range_cdfs(lats: tuple[float, ...]) -> np.ndarray:
+    """(n_lat, 365, N_BINS - 1) cumulative window histograms for the given Earth latitudes (target-independent)."""
+    w = np.stack([_earth_window_hists(la) for la in lats])
+    return np.cumsum(w, axis=-1)[..., :-1]
+
+
+@lru_cache(maxsize=4096)
+def _earth_range_cached(target_body: str, target_lat: float, lats: tuple[float, ...]) -> tuple[float, float]:
+    tc = np.cumsum(np.array(light_profile(target_body, target_lat)["hist"]))[:-1]
+    best_emd = np.abs(_earth_range_cdfs(lats) - tc).sum(axis=-1).min(axis=1)     # best window per latitude
+    sim = np.clip(1.0 - best_emd / EMD_MAX, 0.0, 1.0)
+    return float(sim.min()), float(sim.max())
+
+
+def earth_light_range(target_body: str, target_lat: float, lat_min: Optional[float] = None,
+                      lat_max: Optional[float] = None) -> tuple[float, float]:
+    """(min, max) of best_window light_sim over Earth latitudes [lat_min, lat_max] (1-degree steps plus both ends).
+
+    Default span = latitudes where an Earth twin can exist: min/max latitude of the Earth points of the current index
+    (fallback -85..85 without an index). Shown next to light_sim so a value can be read against what Earth twins can
+    achieve for the same target. Grid values only: a twin between grid latitudes can lie marginally outside."""
+    if not -90.0 <= target_lat <= 90.0:
+        raise ValueError(f"target_lat out of range: {target_lat}")
+    _body(target_body)
+    span = earth_index_lat_span()
+    lo = span[0] if lat_min is None else float(lat_min)
+    hi = span[1] if lat_max is None else float(lat_max)
+    if not -90.0 <= lo <= hi <= 90.0:
+        raise ValueError(f"need -90 <= lat_min <= lat_max <= 90, got {lo}, {hi}")
+    return _earth_range_cached(target_body, round(float(target_lat), 2), _range_lats(lo, hi))

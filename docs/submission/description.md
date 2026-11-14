@@ -11,6 +11,10 @@ for the chosen site, and a crew of AI agents drafts a field campaign.
 
 ## How it works
 
+Twins share coarse terrain texture (slope, roughness and relief statistics over 12 and 36 km
+windows at about 1 km pixels), not identical landforms. A crater target does not get a crater twin at this scale, and a
+flat target matches flat plains almost anywhere, so a high score for a flat target discriminates little.
+
 - **Terrain.** Elevation data from LRO LOLA (Moon), MGS MOLA (Mars) and NOAA ETOPO 2022 (Earth) are resampled to one
   ground scale of about 926 m<!-- metrics: corpus.gsd_m -->. Each index point is described by 31 measurements<!-- metrics: corpus.n_features -->: 25 shape
   measurements over a 12 km window and 6 context measurements over a 36 km window (index v2, multiscale). The index
@@ -43,6 +47,7 @@ systematic literature search.
   not clearly better than chance, and v2 can evaluate only 8 of the 11 analog sites<!-- metrics: terrain.known_analog_test.sites_evaluable, terrain.known_analog_test.sites_total -->. We do not claim that
   this validates the method. The terrain match is a measured shape similarity, not proof that two places are good analogs.
 - The common scale is 926 m, so landforms smaller than about 2 km are not seen.
+- The light similarity score has a high floor for polar lunar targets, so it is shown next to the range of scores found on Earth.
 - The sunlight model ignores local horizons. It is a poor guide to what is lit at a polar crater rim.
 - The site finder uses NASA's long-term average illumination, not a mission date. Its agreement with NASA's candidate
   regions is a weak test: random points also score well on that statistic.

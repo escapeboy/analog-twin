@@ -103,6 +103,49 @@ longitude. After that the analytic model runs free. Results (written to `docs/me
   equation of time (true vs mean solar time, up to ~16 min ≈ 4° of hour angle) that the circular-orbit model ignores;
   on the Moon the analogous effect comes from its orbital eccentricity.
 
+### Reading light_sim: per-target Earth range
+
+With EMD_max = 5, light_sim has a high, target-specific floor. Over 1,000 random Earth land points (index
+full_v2, seed 0) the median and the 5th–95th percentiles were:
+* Moon south pole: median 0.82 (0.75–0.93).
+* Jezero: median 0.985 (0.92–0.998).
+* Moon equator: median 0.975 (0.90–1.00).
+
+A rescaled EMD_max (the maximum EMD over Earth latitudes for that target) would only raise light's effective weight
+from 0.4 to about 1.5 against terrain's 0.6, and would let the analytic light proxy dominate the ranking. On the
+real candidate pools, the correlation of score with terrain_sim dropped from 0.88 to 0.38 for Shackleton. So
+**EMD_max stays 5** (decision logged in build-log), and the value is shown with its range instead.
+
+`earth_light_range(target_body, target_lat, lat_min=None, lat_max=None) -> (min, max)` is the best-window
+light_sim over Earth latitudes **[lat_min, lat_max] in 1° steps plus both end points**.
+* **Default span:** the latitudes where an Earth twin can exist, i.e. the min/max latitude of the Earth points of the
+  current index (`data/index/current/points.parquet`, read once and cached). For full_v2 this is **−54.81° to
+  82.55°**. Without a readable index it falls back to −85..85.
+* It is land-agnostic within the span. It uses exactly the same window tables as `best_window`, so the range
+  brackets every twin's light_sim, up to tiny differences between grid latitudes.
+
+| Target | Earth range (default span, full_v2) |
+|---|---|
+| Moon south pole (Shackleton rim, −89.77) | 0.739–0.953 |
+| Malapert (−85.99) | 0.746–0.960 |
+| Moon equator | 0.776–1.000 |
+| Jezero (18.41) | 0.797–0.999 |
+
+For comparison, with −85..85 the polar maxima were 0.966 (Shackleton) and 0.973 (Malapert). Those came from
+latitudes near 85°S, where no indexed land exists.
+
+Speed: on the first call, the parquet read took 97 ms and the latitude tables (139 × 365 windows) 78 ms. Each new
+target after that takes about 7 ms; a cached target takes microseconds. The API can call it once at start-up to warm
+it.
+
+### Caveat: ground distance in bin-index units
+
+The EMD uses the bin index as ground distance, so moving mass from `0–5` to `5–15` costs the same as moving it from
+`15–30` to `30–60`, although those bins differ up to 6× in width (5° vs 30°). A ground distance in degrees between
+bin centres (−5, 2.5, 10, 22.5, 45, 75) would weight high-sun mismatches more and low-sun mismatches less. It would
+also change EMD_max. We keep bin-index units: they are simple, documented and symmetric across bins. Read light_sim
+as a coarse regime match, not a physical distance in degrees.
+
 ## Matched-light hillshade
 
 * `hillshade(dem, gsd_m, azimuth_deg, elevation_deg)`: grid row 0 = north, columns run east. Value =

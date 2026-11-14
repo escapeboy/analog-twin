@@ -4,9 +4,15 @@ This is the full list. The app prints the short version next to every result.
 
 ## Terrain similarity
 
+What "similar" means here: twins share coarse terrain texture (slope, roughness and relief statistics over 12 and 36 km
+windows at about 1 km pixels), not identical landforms. A crater target does not get a crater twin at this scale, and a
+flat target matches flat plains almost anywhere, so a high score for a flat target discriminates little.
+
 - Similarity is terrain shape only (31 features in 7 groups: slope, roughness, position, curvature, relief, aspect, and a 36 km context group; index v2).
   It does not see geology, chemistry, regolith, climate or absolute altitude. A site can be a good analog for
   reasons this tool cannot measure (Rio Tinto is the standard example).
+- The candidates in [new-candidates.md](new-candidates.md) are hypotheses for field scouting. For some targets even the best
+  Earth terrain is a weak shape match (see the ranges in that file).
 - Common scale: all three bodies are resampled to about 926 m, because Earth's only global DEM here is ETOPO 2022 at
   30 arc-seconds. Each point is described by a 12 km window plus a 36 km context window. Landforms smaller than about 2 km are not resolved
   (for example Meteor Crater, 1.2 km across).
@@ -42,6 +48,9 @@ This is the full list. The app prints the short version next to every result.
 
 ## Sunlight model
 
+- The light similarity score (`light_sim`) has a high floor: even unrelated Earth places score well for a polar lunar
+  target, because the score is scaled by the largest possible distance between elevation histograms. The app shows each
+  target's Earth range next to the score, and a light score should be read against that range, not on its own scale.
 - Analytic model: circular orbit, constant obliquity, mean solar time. No orbital eccentricity, no equation of time,
   no refraction, Sun as a point.
 - No local horizon and no terrain shadowing in the sun-elevation numbers. This matters most at the lunar poles,
