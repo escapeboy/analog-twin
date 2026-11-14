@@ -1,6 +1,6 @@
 import {
   Cartesian2, Cartesian3, Color, Entity, GeographicTilingScheme, ImageryLayer, Ion,
-  Math as CMath, TileMapServiceImageryProvider, UrlTemplateImageryProvider, Viewer, buildModuleUrl,
+  EllipsoidalOccluder, Math as CMath, TileMapServiceImageryProvider, UrlTemplateImageryProvider, Viewer, buildModuleUrl,
   LabelStyle, VerticalOrigin, ScreenSpaceEventHandler, ScreenSpaceEventType, Ellipsoid,
 } from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
@@ -69,6 +69,15 @@ export class Globe {
     scene.screenSpaceCameraController.enableTilt = false;
     this.viewer.camera.setView({ destination: Cartesian3.fromDegrees(0, 20, 18_000_000) });
 
+    // Labels are offset in screen space, so a marker just behind the horizon could show its rank text outside the
+    // globe's edge. Hide every marker whose position is on the far side of the ellipsoid.
+    scene.preRender.addEventListener(() => {
+      const occ = new EllipsoidalOccluder(Ellipsoid.WGS84, this.viewer.camera.positionWC);
+      for (const e of this.viewer.entities.values) {
+        const p = e.position?.getValue(this.viewer.clock.currentTime);
+        if (p) { const vis = occ.isPointVisible(p); if (e.show !== vis) e.show = vis; }
+      }
+    });
     this.handler = new ScreenSpaceEventHandler(scene.canvas);
     this.handler.setInputAction((e: { position: Cartesian2 }) => this.click(e.position), ScreenSpaceEventType.LEFT_CLICK);
     this.render();

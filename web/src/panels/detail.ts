@@ -14,8 +14,12 @@ export function initDetail(root: HTMLElement) {
     const hs = p.hillshade;
     if (hs) {
       const img = h('img', { class: 'pair', src: assetUrl(hs.pair_url), alt: `Hillshade of both sites. ${hs.caption}` });
-      img.addEventListener('error', () => img.replaceWith(h('div', { class: 'muted noimg' }, 'Hillshade image unavailable')));
-      kids.push(img, h('p', { class: 'muted' }, hs.caption));
+      // the bars render as soon as the JSON is here; the image shows a placeholder until it has loaded
+      const ph = h('div', { class: 'muted noimg' }, 'Loading hillshade…');
+      img.hidden = true;
+      img.addEventListener('load', () => { img.hidden = false; ph.remove(); });
+      img.addEventListener('error', () => ph.replaceChildren('Hillshade image unavailable'));
+      kids.push(ph, img, h('p', { class: 'muted' }, hs.caption));
     }
     kids.push(h('p', { class: 'big' }, `Terrain texture similarity ${fmt(p.terrain_sim)}`));
     if (p.terrain_sim < 0.5) kids.push(h('p', { class: 'muted' }, 'Weak match: only overall roughness/relief is comparable.'));
@@ -44,7 +48,7 @@ export function initDetail(root: HTMLElement) {
     if (key === lastKey) return;
     lastKey = key;
     const my = ++seq;
-    frame(h('p', { class: 'muted' }, 'Loading…'));
+    frame(h('div', { class: 'muted noimg' }, 'Loading hillshade…'), h('p', { class: 'muted' }, 'Computing the comparison…'));
     try {
       const p = await getPair(a, sel.twin.id);
       if (my === seq) view(p);
