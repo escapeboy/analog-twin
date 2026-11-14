@@ -1,4 +1,4 @@
-import { getSites, sitesMapUrl, type Site, type SiteWeights, type SitesResponse } from '../api';
+import { OFFLINE, getSites, sitesMapUrl, type Site, type SiteWeights, type SitesResponse } from '../api';
 import { clear, fmt, h } from '../dom';
 import { store } from '../state';
 
@@ -32,6 +32,7 @@ export function initSites(
         window.clearTimeout(timer);
         timer = window.setTimeout(() => void load(false), 250);
       });
+      if (OFFLINE) inp.disabled = true;
       sl.append(h('label', null, h('span', null, label), inp, out));
     }
     const t = h('table', { class: 'sites' }, h('thead', null, h('tr', null, ...['#', 'Sun %', 'Earth %', 'Slope', 'To shadow', 'NASA region'].map((x) => h('th', null, x)))));
@@ -48,7 +49,12 @@ export function initSites(
       tb.append(tr);
     }
     t.append(tb);
-    if (!dyn) { dyn = h('div'); body.append(sl, dyn); }
+    if (!dyn) {
+      dyn = h('div');
+      body.append(sl);
+      if (OFFLINE) body.append(h('p', { class: 'muted' }, 'Re-ranking is live-only; showing default weights.'));
+      body.append(dyn);
+    }
     clear(dyn);
     dyn.append(map, t, h('p', { class: 'muted' }, `Landing slope limit ${r.slope_max_deg}° (${r.slope_source}). Click a row or a marker to search Earth twins for that site.`),
       h('h4', null, 'Limitations'), h('ul', { class: 'lim' }, ...r.limitations.map((x) => h('li', null, x))));

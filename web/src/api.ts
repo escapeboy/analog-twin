@@ -130,7 +130,15 @@ export async function http<T>(url: string, init?: RequestInit): Promise<T> {
     return (await r.json()) as T;
   }
   const r = await fetch(withReplay(url), init);
-  if (!r.ok) throw new Error(`${init?.method ?? 'GET'} ${url} failed: HTTP ${r.status}`);
+  if (!r.ok) {
+    let detail = '';
+    try {
+      const j = JSON.parse(await r.text());
+      const d = j?.detail ?? j;
+      detail = typeof d === 'string' ? d : Array.isArray(d) ? d.map((x: { msg?: string }) => x.msg ?? JSON.stringify(x)).join('; ') : JSON.stringify(d);
+    } catch { /* body was not JSON */ }
+    throw new Error(detail ? `Server: ${detail} (HTTP ${r.status})` : `${init?.method ?? 'GET'} ${url} failed: HTTP ${r.status}`);
+  }
   return (await r.json()) as T;
 }
 const post = (url: string, body: unknown): RequestInit => ({
@@ -184,7 +192,7 @@ class OfflineEventSource {
   addEventListener(type: string, f: (e: MessageEvent) => void) { this.ls.set(type, [...(this.ls.get(type) ?? []), f]); }
   close() { this.timers.forEach((t) => window.clearTimeout(t)); this.timers = []; }
 }
-export interface EventSourceLike { addEventListener(type: string, f: (e: MessageEvent) => void): void; close(): void; onerror: ((e?: unknown) => void) | null }
+export interface EventSourceLike { addEventListener(type: string, f: (e: MessageEvent) => void): void; close(): void; onerror: ((e?: Event) => void) | null; onopen?: (() => void) | null; readyState?: number }
 export function openEvents(url: string): EventSourceLike {
   if (OFFLINE) return new OfflineEventSource(Number(params.get('speed') ?? 1) || 1) as unknown as EventSourceLike;
   return new EventSource(url) as unknown as EventSourceLike;

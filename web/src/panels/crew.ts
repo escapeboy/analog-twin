@@ -28,10 +28,29 @@ export function partialReport(buf: string): { summary?: string; claims: { text: 
   return { summary: sm ? unq(sm[1]) : undefined, claims };
 }
 
-const chips = (refs: string[]) => refs.map((x) => h('span', { class: 'refchip' }, x));
+/** Short human label for an evidence ref (e.g. twin:earth-945271 -> the twin's place name). Full ref stays in the tooltip. */
+function refLabel(ref: string): string {
+  const twins = store.twins ? Object.values(store.twins.results).flat() : [];
+  const byId = (id: string) => twins.find((t) => t.id === id);
+  const [kind, ...rest] = ref.split(':');
+  const tail = rest.join(':');
+  if (kind === 'twin') return byId(tail)?.place_label ?? 'twin ' + short12(tail);
+  if (kind === 'pair') { const b = tail.split(':').pop() ?? ''; return 'comparison with ' + (byId(b)?.place_label ?? short12(b)); }
+  if (kind === 'twins') return 'twin search';
+  if (kind === 'light') return 'light profile';
+  if (kind === 'window') return 'best window';
+  if (kind === 'ctx' || kind === 'context') return 'site context';
+  if (kind === 'site_finder') return 'site finder';
+  if (kind === 'target') return 'target';
+  return short12(ref);
+}
+const short12 = (s: string) => (s.length > 16 ? s.slice(0, 14) + '…' : s);
+const chips = (refs: string[]) => refs.map((x) => h('span', { class: 'refchip', title: x }, refLabel(x)));
 
 export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => void) {
   let es: EventSourceLike | null = null;
+  let reconnecting = false;
+  void reconnecting;
   const btn = h('button', { class: 'primary', type: 'button' }, 'Plan campaign');
   const note = h('span', { class: 'muted', 'aria-live': 'polite' }, 'Runs the specialist crew on the current target.');
   const cards = h('div', { class: 'cards' });
@@ -100,6 +119,7 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
       case 'plan.final': { const c = card('director'); clear(c.text); c.status.textContent = 'done'; c.status.className = 'chip c-done'; renderPlan(d.plan as CampaignPlan); break; }
       case 'error': {
         const msg = String(d.message ?? d.error ?? short(d));
+        if (d.fallback) { note.textContent = `Live crew failed (${msg}); replaying the recorded run.`; setReplayBadge(true); break; }
         (ev.role ? card(ev.role).out : planBox).append(h('p', { class: 'err' }, `Error: ${msg}`));
         break;
       }
@@ -140,11 +160,35 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
         try { onEvent(JSON.parse(me.data) as CrewEvent); } catch (e) { console.error('bad event', t, e); }
       });
     }
-    src.onerror = () => {
-      // the server closes the stream after session.end; EventSource would then retry forever
-      if (es === src) { if (btn.disabled) note.textContent = note.textContent || 'Connection closed'; stop(); }
+    let opened = false;
+    src.onopen = () => {
+      // a reconnect replays the session from the start: drop what was drawn so far instead of duplicating cards
+      if (opened) { clear(cards); clear(planBox); byRole.clear(); }
+      opened = true;
+      reconnecting = false;
+    };
+    src.onerror = (e) => {
+      // A server-sent event NAMED "error" fires this handler too (it is the same event type): ignore those, they are
+      // crew events handled by the listener above. Only a real transport error gets here without data.
+      if (typeof (e as MessageEvent | undefined)?.data === 'string') return;
+      if (es !== src) return;
+      if (src.readyState === 2 /* CLOSED */) { note.textContent = note.textContent || 'Connection closed'; stop(); return; }
+      reconnecting = true;
+      note.textContent = 'Connection lost, reconnecting…';
     };
   }
+
+  // a new target (preset or click) invalidates the previous crew run
+  let lastTarget = '';
+  store.subscribe(() => {
+    const q = store.query;
+    const key = q ? `${q.body}:${q.lat}:${q.lon}` : '';
+    if (key !== lastTarget) {
+      lastTarget = key;
+      stop(); clear(cards); clear(planBox); byRole.clear();
+      note.textContent = 'Runs the specialist crew on the current target.';
+    }
+  });
 
   btn.addEventListener('click', async () => {
     stop();
