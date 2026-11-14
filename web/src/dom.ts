@@ -7,5 +7,5 @@ export function h<K extends keyof HTMLElementTagNameMap>(
   for (const k of kids) if (k != null) e.append(k);
   return e;
 }
-export const fmt = (x: number | null | undefined, d = 2) => (x == null ? '–' : x.toFixed(d));
+export const fmt = (x: number | null | undefined, d = 2) => (x == null ? '—' : x.toFixed(d));
 export const clear = (e: Element) => e.replaceChildren();

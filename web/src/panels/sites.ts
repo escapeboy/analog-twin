@@ -41,8 +41,8 @@ export function initSites(
       const tr = h('tr', { tabindex: '0', title: 'Use as target and search Earth twins' },
         h('td', null, String(s.rank)), h('td', null, fmt(s.sun_pct, 0)), h('td', null, fmt(s.earth_pct, 0)),
         h('td', null, `${fmt(s.slope_mean_deg, 1)}° (p90 ${fmt(s.slope_p90_deg, 1)}°)`),
-        h('td', null, s.psr_km == null ? '–' : `${fmt(s.psr_km, 1)} km`),
-        h('td', { class: s.near_nasa_region ? 'nasa' : '' }, s.nearest_nasa_region ? `${s.nearest_nasa_region} (${fmt(s.nearest_nasa_region_km, 0)} km)` : '–'));
+        h('td', null, s.psr_km == null ? '—' : `${fmt(s.psr_km, 1)} km`),
+        h('td', { class: s.near_nasa_region ? 'nasa' : '' }, s.nearest_nasa_region ? `${s.nearest_nasa_region} (${fmt(s.nearest_nasa_region_km, 0)} km)` : '—'));
       const go = () => onPick(s);
       tr.addEventListener('click', go);
       tr.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });

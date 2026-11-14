@@ -6,11 +6,24 @@ export function initDetail(root: HTMLElement) {
   let seq = 0;
   let lastKey = '';
 
-  function frame(...kids: (Node | string)[]) { clear(root); root.append(h('h2', null, 'Why these match'), ...kids); }
+  function frame(...kids: (Node | string)[]) { clear(root); root.append(...kids); }
 
   function view(p: PairExplanation) {
     const kids: Node[] = [];
     if (p.source !== 'live') kids.push(h('span', { class: 'badge src' }, p.source));
+    kids.push(h('p', { class: 'big tight' }, `Terrain texture similarity ${fmt(p.terrain_sim)}`));
+    if (p.terrain_sim < 0.5) kids.push(h('p', { class: 'muted tight' }, 'Weak match: only overall roughness/relief is comparable.'));
+    const sel = store.selected?.twin;
+    if (sel?.best_window) {
+      const w = sel.best_window;
+      kids.push(h('p', { class: 'tight' }, h('b', null, 'Best window: '), `${w.start} to ${w.end} (light ${fmt(w.light_sim)}${w.earth_range ? ` (Earth range ${fmt(w.earth_range[0])}–${fmt(w.earth_range[1])})` : ''})`));
+    }
+    // compact one-line bars first (they carry the explanation), the picture below
+    for (const g of p.groups) {
+      const pct = Math.round(g.contribution * 100);
+      const bar = h('div', { class: 'bar', role: 'img', 'aria-label': `${g.group}: ${pct}% of the difference` }, h('div', { class: 'fill', style: `width:${pct}%` }));
+      kids.push(h('div', { class: 'grp', title: g.label }, h('b', null, g.group), bar, h('span', null, `${pct}%`)));
+    }
     const hs = p.hillshade;
     if (hs) {
       const img = h('img', { class: 'pair', src: assetUrl(hs.pair_url), alt: `Hillshade of both sites. ${hs.caption}` });
@@ -20,19 +33,6 @@ export function initDetail(root: HTMLElement) {
       img.addEventListener('load', () => { img.hidden = false; ph.remove(); });
       img.addEventListener('error', () => ph.replaceChildren('Hillshade image unavailable'));
       kids.push(ph, img, h('p', { class: 'muted' }, hs.caption));
-    }
-    kids.push(h('p', { class: 'big' }, `Terrain texture similarity ${fmt(p.terrain_sim)}`));
-    if (p.terrain_sim < 0.5) kids.push(h('p', { class: 'muted' }, 'Weak match: only overall roughness/relief is comparable.'));
-    for (const g of p.groups) {
-      const pct = Math.round(g.contribution * 100);
-      const bar = h('div', { class: 'bar', role: 'img', 'aria-label': `${g.group}: ${pct}% of the difference` },
-        h('div', { class: 'fill', style: `width:${pct}%` }));
-      kids.push(h('div', { class: 'grp' }, h('div', { class: 'grp-h' }, h('b', null, g.group), h('span', null, `${pct}%`)), bar, h('div', { class: 'muted' }, g.label)));
-    }
-    const sel = store.selected?.twin;
-    if (sel?.best_window) {
-      const w = sel.best_window;
-      kids.push(h('p', null, h('b', null, 'Best window: '), `${w.start} to ${w.end} (light ${fmt(w.light_sim)}${w.earth_range ? ` (Earth range ${fmt(w.earth_range[0])}–${fmt(w.earth_range[1])})` : ''})`));
     }
     const list = (title: string, items: string[], cls: string) =>
       h('div', { class: cls }, h('b', null, title), h('ul', null, ...items.map((x) => h('li', null, x))));

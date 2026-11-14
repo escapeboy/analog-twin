@@ -45,6 +45,8 @@ function refLabel(ref: string): string {
   return short12(ref);
 }
 const short12 = (s: string) => (s.length > 16 ? s.slice(0, 14) + '…' : s);
+/** null/undefined (or the string "null") from the server is shown as an em dash, never as the word null. */
+const nz = (v: unknown): string => (v == null || v === 'null' || v === '' ? '—' : String(v));
 const chips = (refs: string[]) => refs.map((x) => h('span', { class: 'refchip', title: x }, refLabel(x)));
 
 export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => void) {
@@ -111,7 +113,7 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
         const c = card(ev.role);
         c.status.textContent = 'done'; c.status.className = 'chip c-done';
         clear(c.text); // the final report replaces the streamed draft
-        c.out.append(h('p', { class: 'summary' }, r.summary), h('ul', null, ...r.claims.map((x) => h('li', null, x.text, ' ', ...chips(x.refs)))));
+        c.out.append(h('p', { class: 'summary' }, nz(r.summary)), h('ul', null, ...r.claims.map((x) => h('li', null, nz(x.text), ' ', ...chips(x.refs ?? [])))));
         if (r.removed_unverified > 0) c.out.append(h('p', { class: 'warn' }, `${r.removed_unverified} unverified claim(s) removed`));
         break;
       }
@@ -133,19 +135,19 @@ export function initCrew(root: HTMLElement, setReplayBadge: (on: boolean) => voi
     if (p.removed_unverified > 0) planBox.append(h('p', { class: 'warn' }, `${p.removed_unverified} unverified claim(s) removed`));
     const sites = h('table', { class: 'plan-t' }, h('thead', null, h('tr', null, ...['Site', 'Terrain', 'Light', 'Window', 'Context', 'Role'].map((x) => h('th', null, x)))));
     const tb = h('tbody');
-    for (const s of p.sites) tb.append(h('tr', null, h('td', null, `${s.label} (${fmt(s.lat, 2)}, ${fmt(s.lon, 2)})`), h('td', null, fmt(s.terrain_sim)), h('td', null, fmt(s.light_sim)), h('td', null, s.window ?? '–'), h('td', null, s.context ?? '–'), h('td', null, s.role_in_campaign)));
+    for (const s of p.sites) tb.append(h('tr', null, h('td', null, `${nz(s.label)} (${fmt(s.lat, 2)}, ${fmt(s.lon, 2)})`), h('td', null, fmt(s.terrain_sim)), h('td', null, fmt(s.light_sim)), h('td', null, nz(s.window)), h('td', null, nz(s.context)), h('td', null, nz(s.role_in_campaign))));
     sites.append(tb);
     planBox.append(sites);
     if (p.tests.length) {
       const t = h('table', { class: 'plan-t' }, h('thead', null, h('tr', null, ...['Test', 'Why', 'Site', 'Window'].map((x) => h('th', null, x)))));
       const b = h('tbody');
-      for (const x of p.tests) b.append(h('tr', null, h('td', null, x.name), h('td', null, x.why), h('td', null, x.site), h('td', null, x.window ?? '–')));
+      for (const x of p.tests) b.append(h('tr', null, h('td', null, nz(x.name)), h('td', null, nz(x.why)), h('td', null, nz(x.site)), h('td', null, nz(x.window))));
       t.append(b);
       planBox.append(h('h4', null, 'Tests'), t);
     }
-    if (p.disagreements.length) planBox.append(h('h4', null, 'Disagreements'), h('ul', null, ...p.disagreements.map((x) => h('li', null, h('b', null, `${x.between.join(' vs ')}: `), `${x.about}. Resolution: ${x.resolution}`))));
-    planBox.append(h('div', { class: 'notrepro' }, h('h4', null, 'Not reproducible on Earth'), h('ul', null, ...p.not_reproducible_on_earth.map((x) => h('li', null, x)))));
-    planBox.append(h('h4', null, 'Limitations'), h('ul', { class: 'lim' }, ...p.limitations.map((x) => h('li', null, x))));
+    if (p.disagreements.length) planBox.append(h('h4', null, 'Disagreements'), h('ul', null, ...p.disagreements.map((x) => h('li', null, h('b', null, `${x.between.join(' vs ')}: `), `${nz(x.about)}. Resolution: ${nz(x.resolution)}`))));
+    planBox.append(h('div', { class: 'notrepro' }, h('h4', null, 'Not reproducible on Earth'), h('ul', null, ...p.not_reproducible_on_earth.map((x) => h('li', null, nz(x))))));
+    planBox.append(h('h4', null, 'Limitations'), h('ul', { class: 'lim' }, ...p.limitations.map((x) => h('li', null, nz(x)))));
   }
 
   function stop() { es?.close(); es = null; btn.disabled = false; }
