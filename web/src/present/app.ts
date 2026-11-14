@@ -58,6 +58,7 @@ const globeOf = (b: Body) => globes.find((g) => g.body === b)!;
 let hudOpen = false;
 function hudWidth() { return hudOpen ? Math.min(Math.max(innerWidth * 0.34, 560), 720) : 0; }
 function layout() {
+  root.style.setProperty('--foot-h', `${footer.offsetHeight}px`);
   const W = innerWidth - hudWidth(), H = innerHeight - footer.offsetHeight;
   stage.style.right = `${hudWidth()}px`;
   const side = Math.round(Math.min(H * 0.34, W * 0.2));

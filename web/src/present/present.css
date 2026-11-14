@@ -60,22 +60,18 @@ body.present-mode { background: var(--p-void); overflow: hidden; font-family: va
 .p-toggle:hover { color: var(--p-text) !important; border-color: var(--p-cyan) !important; }
 
 /* ---- footer ---- */
-.p-foot { position: absolute; left: 0; right: 0; bottom: 0; z-index: 10; padding: 10px 36px 12px; font-size: 17px; color: var(--p-dim); text-align: center;
-  background: linear-gradient(to top, rgba(3, 6, 15, .9), transparent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.p-status { position: absolute; left: 36px; bottom: 52px; z-index: 10; font-size: 20px; color: var(--p-dim); }
+.p-foot { position: absolute; left: 0; right: 0; bottom: 0; z-index: 10; padding: 10px 36px 12px; font-size: 16px; line-height: 1.35; color: var(--p-dim); text-align: center;
+  background: linear-gradient(to top, rgba(3, 6, 15, .9), transparent); text-wrap: balance; }
+.p-status { position: absolute; left: 36px; bottom: calc(var(--foot-h, 46px) + 6px); z-index: 10; font-size: 20px; color: var(--p-dim); }
 
 /* ---- arcs + markers ---- */
 .p-arcs { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 6; pointer-events: none; overflow: visible; }
-.p-arc, .p-arc-glow, .p-arc-flow { fill: none; stroke-linecap: round; }
-.p-arc { stroke: var(--p-cyan); stroke-width: 1.6; }
-.p-arc.sel { stroke: var(--p-amber); stroke-width: 2.6; }
-.p-arc-glow { stroke: var(--p-cyan); stroke-width: 7; filter: url(#p-glow); opacity: .5; }
-.p-arc-glow.sel { stroke: var(--p-amber); stroke-width: 10; }
-.p-arc-flow { stroke: #fff; stroke-width: 2.2; stroke-dasharray: 3 22; animation: p-flow 1.6s linear infinite; }
-@keyframes p-flow { to { stroke-dashoffset: -50; } }
+.p-arc { fill: none; stroke-linecap: round; stroke: var(--p-cyan); stroke-width: 2; }
+.p-arc.sel { stroke: var(--p-amber); }
+.p-lead { stroke: rgba(86, 225, 255, .5); stroke-width: 1; }
 .p-mark { pointer-events: auto; cursor: pointer; }
 .p-mark .p-hit { fill: transparent; }
-.p-mark .p-ring { fill: none; stroke-width: 2.4; }
+.p-mark .p-ring { fill: rgba(3, 6, 15, .78); stroke-width: 2; }
 .p-mark .p-pulse { fill: none; stroke-width: 2; transform-origin: 0 0; animation: p-pulse 2.2s ease-out infinite; }
 .p-mark .p-pulse2 { animation-delay: 1.1s; }
 @keyframes p-pulse { from { transform: scale(1); opacity: .9; } to { transform: scale(3.2); opacity: 0; } }
@@ -83,15 +79,16 @@ body.present-mode { background: var(--p-void); overflow: hidden; font-family: va
 .p-target .p-dot { fill: var(--p-amber); }
 .p-twin .p-ring, .p-twin .p-pulse { stroke: var(--p-cyan); }
 .p-twin .p-dot { fill: var(--p-cyan); }
-.p-twin .p-pulse { animation-duration: 2.8s; }
+.p-twin .p-pulse { animation-duration: 2.8s; display: none; }
+.p-twin.sel .p-pulse { display: inline; }
 .p-twin.sel .p-ring, .p-twin.sel .p-pulse { stroke: var(--p-amber); }
 .p-twin.sel .p-dot { fill: var(--p-amber); }
-.p-twin.sel .p-ring { stroke-width: 3.4; }
-.p-rank { font-family: var(--p-mono); font-size: 20px; font-weight: 600; fill: var(--p-text); text-anchor: middle; paint-order: stroke; stroke: var(--p-void); stroke-width: 5px; opacity: 0; transition: opacity .2s; }
-.p-twin.hov .p-rank, .p-twin.sel .p-rank { opacity: 1; }
+.p-twin.sel .p-ring { stroke-width: 3; }
+.p-rank { font-family: var(--p-mono); font-size: 13px; font-weight: 600; fill: var(--p-text); text-anchor: middle; pointer-events: none; }
+.p-twin.sel .p-rank { fill: var(--p-amber); }
 
 /* ---- HUD ---- */
-.p-hud { position: absolute; top: 0; right: 0; bottom: 46px; z-index: 8; width: min(max(34vw, 560px), 720px); padding: 66px 30px 14px; overflow-y: auto;
+.p-hud { position: absolute; top: 0; right: 0; bottom: var(--foot-h, 46px); z-index: 8; width: min(max(34vw, 560px), 720px); padding: 66px 30px 14px; overflow-y: auto;
   background: var(--p-glass); backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2);
   border-left: 1px solid var(--p-edge); transform: translateX(102%); transition: transform .5s cubic-bezier(.2,.7,.2,1); display: flex; flex-direction: column; gap: 8px; }
 .p-hud > * { flex-shrink: 0; }
@@ -112,7 +109,7 @@ body.present-mode { background: var(--p-void); overflow: hidden; font-family: va
 .hud-figtext p:first-child { font-size: 28px; font-weight: 700; }
 .hud-rank { display: flex; align-items: center; gap: 10px; margin-top: 8px !important; font-size: 18px !important; color: var(--p-dim); }
 .hud-step { font-size: 30px !important; line-height: 1; padding: 0 8px !important; color: var(--p-cyan) !important; }
-.hud-window { margin-top: 10px; justify-self: start; display: inline-flex; align-items: baseline; gap: 12px; padding: 7px 16px; border-radius: 999px;
+.hud-window { white-space: nowrap; margin-top: 10px; justify-self: start; display: inline-flex; align-items: baseline; gap: 12px; padding: 7px 16px; border-radius: 999px;
   border: 1.5px solid var(--p-amber); background: rgba(255, 181, 71, .1); }
 .hud-window span { font-size: 19px; color: var(--p-amber); }
 .hud-window b { font-size: 24px; font-weight: 600; }
