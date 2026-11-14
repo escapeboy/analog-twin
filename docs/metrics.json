@@ -1263,20 +1263,20 @@
           "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf"
         },
         "times_utc": {
-          "launch": "2027-12-31T19:38:54Z",
-          "tli": "2027-12-31T22:00:00Z",
-          "arrival": "2028-01-05T10:00:00Z",
-          "landing": "2028-01-06T10:00:00Z"
+          "launch": "2027-12-31T19:34:07Z",
+          "tli": "2027-12-31T20:45:00Z",
+          "arrival": "2028-01-05T08:45:00Z",
+          "landing": "2028-01-06T08:45:00Z"
         },
         "tli_dv_km_s": 3.1715,
-        "loi_dv_km_s": 0.8494,
-        "arrival_v_inf_km_s": 0.9101,
+        "loi_dv_km_s": 0.8495,
+        "arrival_v_inf_km_s": 0.9103,
         "tof_days": 4.5,
-        "coast_min": 131.1,
+        "coast_min": 60.9,
         "ksc_plane_angle_deg": 0.0,
-        "ksc_plane_angle_gmst_only_deg": 0.1263,
-        "landing_sun_elevation_deg": 0.392,
-        "landing_earth_elevation_deg": 6.349,
+        "ksc_plane_angle_gmst_only_deg": 0.1237,
+        "landing_sun_elevation_deg": 0.396,
+        "landing_earth_elevation_deg": 6.346,
         "landing_day_choice": {
           "utc": "2028-01-06T12:00:00Z",
           "sun_elevation_deg": 0.386439313307341,
@@ -1284,7 +1284,7 @@
           "days_both_up": 14,
           "days_scored": 60
         },
-        "arrival_shift_from_nominal_h": -2.0,
+        "arrival_shift_from_nominal_h": -3.25,
         "gate": {
           "status": "pass",
           "tests": {
@@ -1296,7 +1296,40 @@
             "moon_sun_vs_cesium": true
           }
         },
-        "endpoint_error_pct": 9.087458504037266e-09,
+        "refinement": {
+          "converged": true,
+          "error": null,
+          "model": "Earth + Moon point masses (DE440s Moon), Earth-centred with indirect term, DOP853 rtol 1e-11",
+          "iterations": 3,
+          "periselene_error_km_history": [
+            -198.024,
+            9.1,
+            0.014
+          ],
+          "tli_dv_km_s": 3.1672,
+          "loi_dv_km_s": 0.8421,
+          "periselene_alt_km": 100.014,
+          "tof_days": 4.3165,
+          "periselene_utc": "2028-01-05T04:20:44Z",
+          "periselene_lat_deg": -14.84,
+          "tli_in_range": true,
+          "loi_in_range": true
+        },
+        "display": {
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution.",
+          "model": "earth-moon-gravity",
+          "tli_dv_km_s": 3.1672,
+          "loi_dv_km_s": 0.8421,
+          "times_utc": {
+            "launch": "2027-12-31T19:34:07Z",
+            "tli": "2027-12-31T20:45:00Z",
+            "loi": "2028-01-05T04:20:44Z",
+            "landing": "2028-01-06T04:20:44Z"
+          },
+          "landing_sun_elevation_deg": 0.408,
+          "landing_earth_elevation_deg": 6.33
+        },
+        "endpoint_error_pct": 9.364180684856199e-09,
         "cesium_max_deg": 0.0462
       },
       "connecting-ridge": {
@@ -1308,20 +1341,20 @@
           "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf"
         },
         "times_utc": {
-          "launch": "2027-12-31T19:38:54Z",
-          "tli": "2027-12-31T22:00:00Z",
-          "arrival": "2028-01-05T10:00:00Z",
-          "landing": "2028-01-06T10:00:00Z"
+          "launch": "2027-12-31T19:34:07Z",
+          "tli": "2027-12-31T20:45:00Z",
+          "arrival": "2028-01-05T08:45:00Z",
+          "landing": "2028-01-06T08:45:00Z"
         },
         "tli_dv_km_s": 3.1715,
-        "loi_dv_km_s": 0.8494,
-        "arrival_v_inf_km_s": 0.9101,
+        "loi_dv_km_s": 0.8495,
+        "arrival_v_inf_km_s": 0.9103,
         "tof_days": 4.5,
-        "coast_min": 131.1,
+        "coast_min": 60.9,
         "ksc_plane_angle_deg": 0.0,
-        "ksc_plane_angle_gmst_only_deg": 0.1263,
-        "landing_sun_elevation_deg": 0.024,
-        "landing_earth_elevation_deg": 6.225,
+        "ksc_plane_angle_gmst_only_deg": 0.1237,
+        "landing_sun_elevation_deg": 0.028,
+        "landing_earth_elevation_deg": 6.223,
         "landing_day_choice": {
           "utc": "2028-01-06T12:00:00Z",
           "sun_elevation_deg": 0.018249097296523662,
@@ -1329,7 +1362,7 @@
           "days_both_up": 8,
           "days_scored": 60
         },
-        "arrival_shift_from_nominal_h": -2.0,
+        "arrival_shift_from_nominal_h": -3.25,
         "gate": {
           "status": "pass",
           "tests": {
@@ -1341,7 +1374,40 @@
             "moon_sun_vs_cesium": true
           }
         },
-        "endpoint_error_pct": 9.087458504037266e-09,
+        "refinement": {
+          "converged": true,
+          "error": null,
+          "model": "Earth + Moon point masses (DE440s Moon), Earth-centred with indirect term, DOP853 rtol 1e-11",
+          "iterations": 3,
+          "periselene_error_km_history": [
+            -198.024,
+            9.1,
+            0.014
+          ],
+          "tli_dv_km_s": 3.1672,
+          "loi_dv_km_s": 0.8421,
+          "periselene_alt_km": 100.014,
+          "tof_days": 4.3165,
+          "periselene_utc": "2028-01-05T04:20:44Z",
+          "periselene_lat_deg": -14.84,
+          "tli_in_range": true,
+          "loi_in_range": true
+        },
+        "display": {
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution.",
+          "model": "earth-moon-gravity",
+          "tli_dv_km_s": 3.1672,
+          "loi_dv_km_s": 0.8421,
+          "times_utc": {
+            "launch": "2027-12-31T19:34:07Z",
+            "tli": "2027-12-31T20:45:00Z",
+            "loi": "2028-01-05T04:20:44Z",
+            "landing": "2028-01-06T04:20:44Z"
+          },
+          "landing_sun_elevation_deg": 0.042,
+          "landing_earth_elevation_deg": 6.206
+        },
+        "endpoint_error_pct": 9.364180684856199e-09,
         "cesium_max_deg": 0.0462
       },
       "malapert-massif": {
@@ -1353,20 +1419,20 @@
           "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf"
         },
         "times_utc": {
-          "launch": "2028-01-02T22:49:48Z",
-          "tli": "2028-01-03T00:00:00Z",
-          "arrival": "2028-01-07T12:00:00Z",
-          "landing": "2028-01-08T12:00:00Z"
+          "launch": "2028-01-02T21:47:32Z",
+          "tli": "2028-01-02T22:55:00Z",
+          "arrival": "2028-01-07T10:55:00Z",
+          "landing": "2028-01-08T10:55:00Z"
         },
         "tli_dv_km_s": 3.1747,
-        "loi_dv_km_s": 0.8441,
-        "arrival_v_inf_km_s": 0.8955,
+        "loi_dv_km_s": 0.8443,
+        "arrival_v_inf_km_s": 0.8959,
         "tof_days": 4.5,
-        "coast_min": 60.2,
+        "coast_min": 57.5,
         "ksc_plane_angle_deg": 0.0,
-        "ksc_plane_angle_gmst_only_deg": 0.1802,
-        "landing_sun_elevation_deg": 3.414,
-        "landing_earth_elevation_deg": 9.861,
+        "ksc_plane_angle_gmst_only_deg": 0.1304,
+        "landing_sun_elevation_deg": 3.389,
+        "landing_earth_elevation_deg": 9.893,
         "landing_day_choice": {
           "utc": "2028-01-08T12:00:00Z",
           "sun_elevation_deg": 3.4139281165542297,
@@ -1374,7 +1440,7 @@
           "days_both_up": 19,
           "days_scored": 60
         },
-        "arrival_shift_from_nominal_h": 0.0,
+        "arrival_shift_from_nominal_h": -1.0833333333333333,
         "gate": {
           "status": "pass",
           "tests": {
@@ -1386,8 +1452,41 @@
             "moon_sun_vs_cesium": true
           }
         },
-        "endpoint_error_pct": 7.2844265906052925e-09,
-        "cesium_max_deg": 0.0898
+        "refinement": {
+          "converged": true,
+          "error": null,
+          "model": "Earth + Moon point masses (DE440s Moon), Earth-centred with indirect term, DOP853 rtol 1e-11",
+          "iterations": 3,
+          "periselene_error_km_history": [
+            -197.12,
+            5.449,
+            0.003
+          ],
+          "tli_dv_km_s": 3.1708,
+          "loi_dv_km_s": 0.8368,
+          "periselene_alt_km": 100.003,
+          "tof_days": 4.3092,
+          "periselene_utc": "2028-01-07T06:20:11Z",
+          "periselene_lat_deg": -5.2,
+          "tli_in_range": true,
+          "loi_in_range": true
+        },
+        "display": {
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution.",
+          "model": "earth-moon-gravity",
+          "tli_dv_km_s": 3.1708,
+          "loi_dv_km_s": 0.8368,
+          "times_utc": {
+            "launch": "2028-01-02T21:47:32Z",
+            "tli": "2028-01-02T22:55:00Z",
+            "loi": "2028-01-07T06:20:11Z",
+            "landing": "2028-01-08T06:20:11Z"
+          },
+          "landing_sun_elevation_deg": 3.283,
+          "landing_earth_elevation_deg": 10.019
+        },
+        "endpoint_error_pct": 7.344640134531766e-09,
+        "cesium_max_deg": 0.0849
       },
       "nobile-rim-1": {
         "site": {
@@ -1398,20 +1497,20 @@
           "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf"
         },
         "times_utc": {
-          "launch": "2028-01-01T21:14:44Z",
-          "tli": "2028-01-01T23:35:00Z",
-          "arrival": "2028-01-06T11:35:00Z",
-          "landing": "2028-01-07T11:35:00Z"
+          "launch": "2028-01-02T04:28:14Z",
+          "tli": "2028-01-02T06:40:00Z",
+          "arrival": "2028-01-06T18:40:00Z",
+          "landing": "2028-01-07T18:40:00Z"
         },
-        "tli_dv_km_s": 3.173,
-        "loi_dv_km_s": 0.8473,
-        "arrival_v_inf_km_s": 0.9042,
+        "tli_dv_km_s": 3.1734,
+        "loi_dv_km_s": 0.8272,
+        "arrival_v_inf_km_s": 0.8476,
         "tof_days": 4.5,
-        "coast_min": 130.3,
+        "coast_min": 121.8,
         "ksc_plane_angle_deg": 0.0,
-        "ksc_plane_angle_gmst_only_deg": 0.1674,
-        "landing_sun_elevation_deg": 4.844,
-        "landing_earth_elevation_deg": 9.656,
+        "ksc_plane_angle_gmst_only_deg": 0.0214,
+        "landing_sun_elevation_deg": 4.911,
+        "landing_earth_elevation_deg": 9.543,
         "landing_day_choice": {
           "utc": "2028-01-07T12:00:00Z",
           "sun_elevation_deg": 4.848352046566399,
@@ -1419,7 +1518,7 @@
           "days_both_up": 25,
           "days_scored": 60
         },
-        "arrival_shift_from_nominal_h": -0.4166666666666667,
+        "arrival_shift_from_nominal_h": 6.666666666666667,
         "gate": {
           "status": "pass",
           "tests": {
@@ -1431,8 +1530,40 @@
             "moon_sun_vs_cesium": true
           }
         },
-        "endpoint_error_pct": 6.2152488532840324e-09,
-        "cesium_max_deg": 0.0631
+        "refinement": {
+          "converged": true,
+          "error": null,
+          "model": "Earth + Moon point masses (DE440s Moon), Earth-centred with indirect term, DOP853 rtol 1e-11",
+          "iterations": 2,
+          "periselene_error_km_history": [
+            -8.404,
+            0.007
+          ],
+          "tli_dv_km_s": 3.1699,
+          "loi_dv_km_s": 0.8197,
+          "periselene_alt_km": 100.007,
+          "tof_days": 4.2868,
+          "periselene_utc": "2028-01-06T13:32:57Z",
+          "periselene_lat_deg": 6.43,
+          "tli_in_range": true,
+          "loi_in_range": true
+        },
+        "display": {
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution.",
+          "model": "earth-moon-gravity",
+          "tli_dv_km_s": 3.1699,
+          "loi_dv_km_s": 0.8197,
+          "times_utc": {
+            "launch": "2028-01-02T04:28:14Z",
+            "tli": "2028-01-02T06:40:00Z",
+            "loi": "2028-01-06T13:32:57Z",
+            "landing": "2028-01-07T13:32:57Z"
+          },
+          "landing_sun_elevation_deg": 4.864,
+          "landing_earth_elevation_deg": 9.628
+        },
+        "endpoint_error_pct": 1.7633812722400358e-08,
+        "cesium_max_deg": 0.0657
       },
       "haworth": {
         "site": {
@@ -1443,20 +1574,20 @@
           "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf"
         },
         "times_utc": {
-          "launch": "2028-01-02T22:49:48Z",
-          "tli": "2028-01-03T00:00:00Z",
-          "arrival": "2028-01-07T12:00:00Z",
-          "landing": "2028-01-08T12:00:00Z"
+          "launch": "2028-01-02T21:47:32Z",
+          "tli": "2028-01-02T22:55:00Z",
+          "arrival": "2028-01-07T10:55:00Z",
+          "landing": "2028-01-08T10:55:00Z"
         },
         "tli_dv_km_s": 3.1747,
-        "loi_dv_km_s": 0.8441,
-        "arrival_v_inf_km_s": 0.8955,
+        "loi_dv_km_s": 0.8443,
+        "arrival_v_inf_km_s": 0.8959,
         "tof_days": 4.5,
-        "coast_min": 60.2,
+        "coast_min": 57.5,
         "ksc_plane_angle_deg": 0.0,
-        "ksc_plane_angle_gmst_only_deg": 0.1802,
-        "landing_sun_elevation_deg": 1.828,
-        "landing_earth_elevation_deg": 8.995,
+        "ksc_plane_angle_gmst_only_deg": 0.1304,
+        "landing_sun_elevation_deg": 1.801,
+        "landing_earth_elevation_deg": 9.027,
         "landing_day_choice": {
           "utc": "2028-01-08T12:00:00Z",
           "sun_elevation_deg": 1.8278096349344177,
@@ -1464,7 +1595,7 @@
           "days_both_up": 13,
           "days_scored": 60
         },
-        "arrival_shift_from_nominal_h": 0.0,
+        "arrival_shift_from_nominal_h": -1.0833333333333333,
         "gate": {
           "status": "pass",
           "tests": {
@@ -1476,8 +1607,41 @@
             "moon_sun_vs_cesium": true
           }
         },
-        "endpoint_error_pct": 7.2844265906052925e-09,
-        "cesium_max_deg": 0.0898
+        "refinement": {
+          "converged": true,
+          "error": null,
+          "model": "Earth + Moon point masses (DE440s Moon), Earth-centred with indirect term, DOP853 rtol 1e-11",
+          "iterations": 3,
+          "periselene_error_km_history": [
+            -197.12,
+            5.449,
+            0.003
+          ],
+          "tli_dv_km_s": 3.1708,
+          "loi_dv_km_s": 0.8368,
+          "periselene_alt_km": 100.003,
+          "tof_days": 4.3092,
+          "periselene_utc": "2028-01-07T06:20:11Z",
+          "periselene_lat_deg": -5.2,
+          "tli_in_range": true,
+          "loi_in_range": true
+        },
+        "display": {
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution.",
+          "model": "earth-moon-gravity",
+          "tli_dv_km_s": 3.1708,
+          "loi_dv_km_s": 0.8368,
+          "times_utc": {
+            "launch": "2028-01-02T21:47:32Z",
+            "tli": "2028-01-02T22:55:00Z",
+            "loi": "2028-01-07T06:20:11Z",
+            "landing": "2028-01-08T06:20:11Z"
+          },
+          "landing_sun_elevation_deg": 1.687,
+          "landing_earth_elevation_deg": 9.155
+        },
+        "endpoint_error_pct": 7.344640134531766e-09,
+        "cesium_max_deg": 0.0849
       },
       "de-gerlache-rim-2": {
         "site": {
@@ -1488,20 +1652,20 @@
           "source_url": "https://ntrs.nasa.gov/api/citations/20250002845/downloads/M2M-30044%20Lunar%20Surface%20Data%20Book%20Baseline_Final.pdf"
         },
         "times_utc": {
-          "launch": "2028-01-03T23:28:39Z",
-          "tli": "2028-01-04T00:00:00Z",
-          "arrival": "2028-01-08T12:00:00Z",
-          "landing": "2028-01-09T12:00:00Z"
+          "launch": "2028-01-03T23:31:08Z",
+          "tli": "2028-01-04T00:35:00Z",
+          "arrival": "2028-01-08T12:35:00Z",
+          "landing": "2028-01-09T12:35:00Z"
         },
-        "tli_dv_km_s": 3.1768,
-        "loi_dv_km_s": 0.841,
-        "arrival_v_inf_km_s": 0.8869,
+        "tli_dv_km_s": 3.1769,
+        "loi_dv_km_s": 0.8409,
+        "arrival_v_inf_km_s": 0.8867,
         "tof_days": 4.5,
-        "coast_min": 21.3,
+        "coast_min": 53.9,
         "ksc_plane_angle_deg": 0.0,
-        "ksc_plane_angle_gmst_only_deg": 0.1271,
-        "landing_sun_elevation_deg": 0.28,
-        "landing_earth_elevation_deg": 5.904,
+        "ksc_plane_angle_gmst_only_deg": 0.1266,
+        "landing_sun_elevation_deg": 0.288,
+        "landing_earth_elevation_deg": 5.877,
         "landing_day_choice": {
           "utc": "2028-01-09T12:00:00Z",
           "sun_elevation_deg": 0.27952486232260304,
@@ -1509,7 +1673,7 @@
           "days_both_up": 4,
           "days_scored": 60
         },
-        "arrival_shift_from_nominal_h": 0.0,
+        "arrival_shift_from_nominal_h": 0.5833333333333334,
         "gate": {
           "status": "pass",
           "tests": {
@@ -1521,8 +1685,41 @@
             "moon_sun_vs_cesium": true
           }
         },
-        "endpoint_error_pct": 6.0586670997074995e-09,
-        "cesium_max_deg": 0.0979
+        "refinement": {
+          "converged": true,
+          "error": null,
+          "model": "Earth + Moon point masses (DE440s Moon), Earth-centred with indirect term, DOP853 rtol 1e-11",
+          "iterations": 3,
+          "periselene_error_km_history": [
+            -207.008,
+            5.024,
+            0.003
+          ],
+          "tli_dv_km_s": 3.1733,
+          "loi_dv_km_s": 0.8334,
+          "periselene_alt_km": 100.003,
+          "tof_days": 4.3041,
+          "periselene_utc": "2028-01-08T07:52:51Z",
+          "periselene_lat_deg": -0.59,
+          "tli_in_range": true,
+          "loi_in_range": true
+        },
+        "display": {
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution.",
+          "model": "earth-moon-gravity",
+          "tli_dv_km_s": 3.1733,
+          "loi_dv_km_s": 0.8334,
+          "times_utc": {
+            "launch": "2028-01-03T23:31:08Z",
+            "tli": "2028-01-04T00:35:00Z",
+            "loi": "2028-01-08T07:52:51Z",
+            "landing": "2028-01-09T07:52:51Z"
+          },
+          "landing_sun_elevation_deg": 0.221,
+          "landing_earth_elevation_deg": 6.089
+        },
+        "endpoint_error_pct": 5.949204651567992e-09,
+        "cesium_max_deg": 0.0981
       },
       "site-finder-1-sp-0386-0786": {
         "site": {
@@ -1540,20 +1737,20 @@
           }
         },
         "times_utc": {
-          "launch": "2028-01-01T21:14:44Z",
-          "tli": "2028-01-01T23:35:00Z",
-          "arrival": "2028-01-06T11:35:00Z",
-          "landing": "2028-01-07T11:35:00Z"
+          "launch": "2028-01-02T04:28:14Z",
+          "tli": "2028-01-02T06:40:00Z",
+          "arrival": "2028-01-06T18:40:00Z",
+          "landing": "2028-01-07T18:40:00Z"
         },
-        "tli_dv_km_s": 3.173,
-        "loi_dv_km_s": 0.8473,
-        "arrival_v_inf_km_s": 0.9042,
+        "tli_dv_km_s": 3.1734,
+        "loi_dv_km_s": 0.8272,
+        "arrival_v_inf_km_s": 0.8476,
         "tof_days": 4.5,
-        "coast_min": 130.3,
+        "coast_min": 121.8,
         "ksc_plane_angle_deg": 0.0,
-        "ksc_plane_angle_gmst_only_deg": 0.1674,
-        "landing_sun_elevation_deg": 4.723,
-        "landing_earth_elevation_deg": 9.991,
+        "ksc_plane_angle_gmst_only_deg": 0.0214,
+        "landing_sun_elevation_deg": 4.818,
+        "landing_earth_elevation_deg": 9.878,
         "landing_day_choice": {
           "utc": "2028-01-07T12:00:00Z",
           "sun_elevation_deg": 4.729041263420002,
@@ -1561,7 +1758,7 @@
           "days_both_up": 25,
           "days_scored": 60
         },
-        "arrival_shift_from_nominal_h": -0.4166666666666667,
+        "arrival_shift_from_nominal_h": 6.666666666666667,
         "gate": {
           "status": "pass",
           "tests": {
@@ -1573,8 +1770,40 @@
             "moon_sun_vs_cesium": true
           }
         },
-        "endpoint_error_pct": 6.2152488532840324e-09,
-        "cesium_max_deg": 0.0631
+        "refinement": {
+          "converged": true,
+          "error": null,
+          "model": "Earth + Moon point masses (DE440s Moon), Earth-centred with indirect term, DOP853 rtol 1e-11",
+          "iterations": 2,
+          "periselene_error_km_history": [
+            -8.404,
+            0.007
+          ],
+          "tli_dv_km_s": 3.1699,
+          "loi_dv_km_s": 0.8197,
+          "periselene_alt_km": 100.007,
+          "tof_days": 4.2868,
+          "periselene_utc": "2028-01-06T13:32:57Z",
+          "periselene_lat_deg": 6.43,
+          "tli_in_range": true,
+          "loi_in_range": true
+        },
+        "display": {
+          "label": "First-order mission geometry: real ephemerides, Earth-Moon gravity model. Not a flight-dynamics solution.",
+          "model": "earth-moon-gravity",
+          "tli_dv_km_s": 3.1699,
+          "loi_dv_km_s": 0.8197,
+          "times_utc": {
+            "launch": "2028-01-02T04:28:14Z",
+            "tli": "2028-01-02T06:40:00Z",
+            "loi": "2028-01-06T13:32:57Z",
+            "landing": "2028-01-07T13:32:57Z"
+          },
+          "landing_sun_elevation_deg": 4.751,
+          "landing_earth_elevation_deg": 9.963
+        },
+        "endpoint_error_pct": 1.7633812722400358e-08,
+        "cesium_max_deg": 0.0657
       }
     },
     "label": "First-order mission geometry: real ephemerides, two-body transfer. Not a flight-dynamics solution."
