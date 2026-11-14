@@ -29,7 +29,10 @@ ROLES_DIR = pathlib.Path(__file__).resolve().parent / "roles"
 SPECIALISTS = ["terrain", "light", "logistics", "testlead"]
 LEAN_FLAGS = ["--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}', "--tools", "", "--setting-sources", "",
               "--no-session-persistence", "--disable-slash-commands", "--max-turns", "1"]
-TIMEOUT_S = float(os.environ.get("CREW_TIMEOUT_S", 45))
+# Measured (docs/metrics.json crew runs): specialists up to 23 s, Director up to 27 s with large packs; limits keep >= 1.2x headroom.
+TIMEOUT_S = float(os.environ.get("CREW_TIMEOUT_S", 30))
+DIRECTOR_TIMEOUT_S = float(os.environ.get("CREW_DIRECTOR_TIMEOUT_S", 35))
+FIRST_OUTPUT_S = float(os.environ.get("CREW_FIRST_OUTPUT_S", 12))  # a live CLI prints its first stream-json line within ~2 s
 RETRY_TIMEOUT_S = float(os.environ.get("CREW_RETRY_TIMEOUT_S", 15))
 
 
@@ -108,7 +111,17 @@ async def run_claude(prompt: str, model: str, system: str, on_delta: Optional[Ca
                 err = (await err_task).decode(errors="replace")[-300:]
                 raise CrewError(_classify(err), f"claude exited before reading the prompt ({type(exc).__name__}): {err.strip()[:200]}")
             streamed, final, is_error, limited = "", None, False, False
-            async for line in proc.stdout:
+            async def lines():
+                try:
+                    first = await asyncio.wait_for(proc.stdout.readline(), FIRST_OUTPUT_S)
+                except asyncio.TimeoutError:
+                    raise CrewError("timeout", f"claude produced no output within {FIRST_OUTPUT_S:.0f} s")
+                if first:
+                    yield first
+                    async for ln in proc.stdout:
+                        yield ln
+
+            async for line in lines():
                 try:
                     d = json.loads(line)
                 except ValueError:
@@ -396,7 +409,7 @@ async def _director(sess: Session, pack: Any, pack_json: str, reports: list[dict
     plan: Optional[CampaignPlan] = None
     for attempt in (1, 2):
         text = await timed_call(sess, "director", _director_prompt(pack_json, reports, feedback), model, system, delta,
-                                TIMEOUT_S + 15, attempt)
+                                DIRECTOR_TIMEOUT_S, attempt)
         try:
             plan, problems = validate.validate_plan(parse_json_block(text), pack)
         except (CrewError, ValueError) as exc:

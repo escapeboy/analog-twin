@@ -27,7 +27,8 @@ TILES = ROOT / "data" / "tiles"
 
 _cli_health = CliHealth(ok=False, error="not checked yet")
 _started = time.monotonic()
-HEALTH_GRACE_S = float(os.environ.get("HEALTH_GRACE_S", 35))  # health check has 30 s; unknown after that counts as unhealthy
+_health_task = None
+HEALTH_GRACE_S = float(os.environ.get("HEALTH_GRACE_S", 15))  # unknown after this counts as unhealthy (the CLI first-output watchdog is 12 s)
 
 
 def replay_only() -> bool:
@@ -50,7 +51,8 @@ async def _check_cli() -> None:
 
 @contextlib.asynccontextmanager
 async def lifespan(_app):
-    task = asyncio.create_task(_check_cli())
+    global _health_task
+    task = _health_task = asyncio.create_task(_check_cli())
     warm = asyncio.create_task(asyncio.to_thread(service.warm))  # first query is 3 s cold otherwise
     yield
     task.cancel()
@@ -243,6 +245,8 @@ async def _sse_timed(events: list[Event], speed: float):
 
 @app.post("/api/campaign", response_model=CampaignStarted)
 async def campaign(req: CampaignRequest) -> CampaignStarted:
+    if _cli_health.checked_at is None and _health_task is not None and not _health_task.done() and not replay_only():
+        await asyncio.wait({_health_task}, timeout=HEALTH_GRACE_S)  # startup check still running: decide with its result, not blindly
     reason = None
     if req.replay:
         reason = "replay requested"

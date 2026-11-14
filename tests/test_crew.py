@@ -183,3 +183,17 @@ def test_pack_has_no_nulls_and_no_koppen(env):
     assert "null" not in blob and "koppen" not in blob.lower() and "None" not in blob
     mars = [i for i in pack.items if i.kind == "twin" and i.data["body"] == "mars"]
     assert mars and "light_sim" not in mars[0].data  # a missing value is omitted, not sent as null
+
+
+def test_first_output_watchdog_aborts_hanging_cli_fast(env, monkeypatch):
+    import time
+    monkeypatch.setenv("FAKE_MODE", "hang")
+    monkeypatch.setattr(runner, "FIRST_OUTPUT_S", 1.0)  # overall limit stays 30 s: only the watchdog can fire
+    t = time.monotonic()
+    sess = run_session()
+    took = time.monotonic() - t
+    err = next(e for e in sess.events if e.type == "error")
+    assert err.data["kind"] == "timeout" and "no output" in err.data["message"] and err.data["fallback"] == "replay"
+    assert took < 8 and any(e.type == "plan.final" for e in sess.events)
+    h = asyncio.run(runner.claude_health())
+    assert h.ok is False and "no output" in h.error
