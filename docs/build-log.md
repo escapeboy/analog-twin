@@ -14,3 +14,6 @@ Times are Europe/Sofia.
 - **11:15** Decision: common ground scale ≈ 926 m (Earth ETOPO 30" is the coarsest dataset). The 15" Earth tiles are optional, later.
 - **11:20** Deviation: the Agent worktree hook failed, so the worktrees were created by hand in /data/code/nasa-challenge-wt/{w1-terrain,w2-light,w3-crew,w4-web}. W1–W4 started.
 - **11:20** Deviation: API paths are prefixed `/api`. The web app, API and tiles are served on one port: http://100.85.138.47:8742.
+- **11:30** W2 merged: light engine + hillshade + SPICE cross-check (Moon max 2.20° / mean 0.58°, Earth max 4.90° / mean 1.05°; numbers in docs/metrics.json "light"). 86 tests pass.
+- **11:31** Deviation: W6 (site finder) started before G1, because W2 was free and W6 is independent. It stays hidden until its own gate passes.
+- **11:31** Slope limit for W6 = 10°, cited from the NASA HLS overview deck (NTRS 20250009323), instead of the spec's default 8° "assumed".
