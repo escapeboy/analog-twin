@@ -17,8 +17,10 @@ Steps:
 """
 from __future__ import annotations
 
+import json
 import math
 import os
+import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -394,3 +396,173 @@ def refine(m: Mission, max_iter: int = 12, tol_km: float = 1.0) -> dict:
             "sol": sol, "moon_spline": moon,
             "periselene_lat_deg": math.degrees(math.asin(float(
                 _unit(np.array(_sp().pxform("J2000", "IAU_MOON", t0 + tp)) @ rel)[2])))}
+
+
+# ---- build, gate and cache API (data/mission/<site_id>.json + .czml) ----
+MISSION_DIR = Path(os.environ.get("ANALOG_TWIN_DATA", Path(__file__).resolve().parents[1] / "data")) / "mission"
+CESIUM_JS_PATH = Path(os.environ.get(
+    "ANALOG_TWIN_CESIUM",
+    Path(__file__).resolve().parents[1] / "web" / "node_modules" / "cesium" / "Source" / "Cesium.js"))
+CESIUM_TOL_DEG = 3.0   # "within a few degrees" (spec 06); fixed before the first run
+TLI_RANGE = (3.0, 3.3)
+LOI_RANGE = (0.7, 1.1)
+ENDPOINT_PCT = 1.0
+KSC_DEG = 1.0
+LABEL_TWO_BODY = "First-order mission geometry: real ephemerides, two-body transfer. Not a flight-dynamics solution."
+_SAFE_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,80}")
+
+_CESIUM_JS = """
+for (const n of ["Image","HTMLImageElement","HTMLCanvasElement","HTMLVideoElement","ImageBitmap","ImageData"])
+  globalThis[n] ??= class {};
+const Cesium = await import(%s);
+const times = JSON.parse(process.argv[2]);
+const out = times.map(t => {
+  const jd = Cesium.JulianDate.fromIso8601(t);
+  const m = Cesium.Simon1994PlanetaryPositions.computeMoonPositionInEarthInertialFrame(jd);
+  const s = Cesium.Simon1994PlanetaryPositions.computeSunPositionInEarthInertialFrame(jd);
+  return {t, moon: [m.x, m.y, m.z], sun: [s.x, s.y, s.z]};
+});
+console.log(JSON.stringify({version: Cesium.VERSION, out}));
+"""
+
+
+def _angle_deg(a, b) -> float:
+    a, b = np.asarray(a, float), np.asarray(b, float)
+    return math.degrees(math.acos(max(-1.0, min(1.0, float(a @ b / np.linalg.norm(a) / np.linalg.norm(b))))))
+
+
+def cesium_check(ets: dict, cesium_js: Optional[Path] = None) -> dict:
+    """SPICE Moon/Sun directions vs Cesium's built-in Simon1994 positions (run in node) at the given epochs."""
+    import subprocess
+    import tempfile
+    js = Path(cesium_js or CESIUM_JS_PATH)
+    utc = {k: et_to_utc(v) for k, v in ets.items()}
+    with tempfile.TemporaryDirectory() as d:
+        script = Path(d) / "probe.mjs"
+        script.write_text(_CESIUM_JS % json.dumps(js.as_uri()))
+        r = subprocess.run(["node", str(script), json.dumps(list(utc.values()))], capture_output=True, text=True,
+                           timeout=120)
+    if r.returncode != 0:
+        raise RuntimeError(r.stderr[-500:])
+    res = json.loads(r.stdout)
+    rows = {}
+    for (k, et), row in zip(ets.items(), res["out"]):
+        rows[k] = {"utc": utc[k], "moon_deg": round(_angle_deg(moon_state(et)[:3], row["moon"]), 4),
+                   "sun_deg": round(_angle_deg(sun_position(et), row["sun"]), 4)}
+    worst = max(max(v["moon_deg"], v["sun_deg"]) for v in rows.values())
+    return {"cesium_version": res["version"], "model": "Cesium Simon1994PlanetaryPositions (Earth inertial)",
+            "epochs": rows, "max_deg": worst, "tolerance_deg": CESIUM_TOL_DEG, "passed": worst < CESIUM_TOL_DEG}
+
+
+def gate(m: Mission, endpoint: dict, cesium: dict) -> dict:
+    tr, ln, cfg = m.tr, m.launch, m.cfg
+    checks = {
+        "tli_dv": {"passed": TLI_RANGE[0] <= tr["tli_dv"] <= TLI_RANGE[1], "value_km_s": round(tr["tli_dv"], 4),
+                   "range_km_s": list(TLI_RANGE)},
+        "loi_dv": {"passed": LOI_RANGE[0] <= tr["loi_dv"] <= LOI_RANGE[1], "value_km_s": round(tr["loi_dv"], 4),
+                   "range_km_s": list(LOI_RANGE)},
+        "tof_equals_config": {"passed": abs(endpoint["tof_s"] - cfg.tof_days * DAY) < 1e-3,
+                              "value_days": round(endpoint["tof_s"] / DAY, 6), "config_days": cfg.tof_days},
+        "endpoint_error": {"passed": endpoint["endpoint_error_pct"] < ENDPOINT_PCT,
+                           "value_pct": endpoint["endpoint_error_pct"], "value_km": endpoint["endpoint_error_km"],
+                           "max_pct": ENDPOINT_PCT},
+        "ksc_in_parking_plane": {"passed": bool(ln) and ln["ksc_plane_angle_deg"] < KSC_DEG,
+                                 "value_deg": round(ln["ksc_plane_angle_deg"], 6) if ln else None,
+                                 "gmst_only_deg": round(ln["ksc_plane_angle_gmst_deg"], 4) if ln else None,
+                                 "max_deg": KSC_DEG},
+        "moon_sun_vs_cesium": {"passed": bool(cesium.get("passed")), "max_deg": cesium.get("max_deg"),
+                               "tolerance_deg": CESIUM_TOL_DEG, "error": cesium.get("error")},
+    }
+    ok = {k: v["passed"] for k, v in checks.items()}
+    others = [v for k, v in ok.items() if k != "ksc_in_parking_plane"]
+    status = "pass" if all(ok.values()) else ("partial" if all(others) else "fail")
+    return {"status": status, "checks": checks}
+
+
+def resolve_site(site) -> dict:
+    """targets.yaml id, site-finder id ('sp-RRRR-CCCC') or (lat, lon) -> {id, label, lat, lon}."""
+    import yaml
+    if isinstance(site, (tuple, list)) and len(site) == 2:
+        lat, lon = float(site[0]), float(site[1])
+        if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+            raise ValueError(f"lat/lon out of range: {site}")
+        return {"id": f"ll_{lat:.4f}_{lon:.4f}", "label": f"{lat:.4f}, {lon:.4f}", "lat": lat, "lon": lon}
+    sid = str(site)
+    if re.fullmatch(r"sp-\d{4}-\d{4}", sid):
+        from engine import site_finder as sf
+        row, col = sf.parse_site_id(sid)
+        lat, lon = sf.xy_to_latlon(*sf.cell_xy(row, col))
+        return {"id": sid, "label": f"Site finder {sid}", "lat": round(float(lat), 4), "lon": round(float(lon), 4)}
+    targets = yaml.safe_load((Path(__file__).resolve().parent / "targets.yaml").read_text())
+    for t in targets:
+        if t["id"] == sid and t["body"] == "moon":
+            return {"id": t["id"], "label": t["label"], "lat": t["lat"], "lon": t["lon"]}
+    raise ValueError(f"unknown lunar site id {sid!r}")
+
+
+def build_site(site: dict, out_dir: Optional[Path] = None, cfg: Optional[MissionConfig] = None,
+               cesium_js: Optional[Path] = None) -> dict:
+    """Compute, gate and write <id>.czml, <id>.json (interface schema) and <id>.detail.json. Returns the JSON dict."""
+    from engine import czml as C
+    if not _SAFE_ID.fullmatch(site["id"]):
+        raise ValueError(f"unsafe site id {site['id']!r}")
+    out = Path(out_dir or MISSION_DIR)
+    cfg = cfg or MissionConfig()
+    m = plan(site["lat"], site["lon"], cfg, site=site)
+    endpoint = endpoint_check(m)
+    try:
+        ref = refine(m)
+    except Exception as e:  # noqa: BLE001 - optional step 5; failure keeps the two-body view
+        ref = {"converged": False, "error": str(e)}
+    doc, info = C.build_czml(m, ref)
+    te = info["times_et"]
+    try:
+        ces = cesium_check({k: te[k] for k in ("t_launch", "t_tli", "t_arrival", "t_landing")}, cesium_js)
+    except Exception as e:  # noqa: BLE001 - recorded as a failed check, never hidden
+        ces = {"passed": False, "error": str(e)}
+    g = gate(m, endpoint, ces)
+    refined = bool(ref.get("converged"))
+    land_sun, land_earth = site_angles(site["lat"], site["lon"], te["t_landing"])
+    show_launch = g["status"] == "pass"
+    events = [{"t_utc": e["utc"], "name": e["name"], "detail": e.get("detail", "")} for e in info["events"]
+              if show_launch or not e["name"].startswith("Launch")]
+    summary_ = {
+        "launch_utc": et_to_utc(te["t_launch"]) if show_launch else None,
+        "tli_utc": et_to_utc(te["t_tli"]),
+        "arrival_utc": et_to_utc(te["t_loi"]),
+        "landing_utc": et_to_utc(te["t_landing"]),
+        "tli_dv_kms": round(ref["tli_dv"] if refined else m.tr["tli_dv"], 4),
+        "loi_dv_kms": round(ref["loi_dv"] if refined else m.tr["loi_dv"], 4),
+        "tof_days": round(ref["tof_days"] if refined else (m.tr["t_arr"] - m.tr["t_tli"]) / DAY, 4),
+        "arrival_vinf_kms": round(m.tr["v_inf"], 4),
+        "site": {k: site[k] for k in ("id", "label", "lat", "lon")},
+        "launch_time_computed": show_launch,
+        "landing_sun_elevation_deg": round(land_sun, 3),
+        "landing_earth_elevation_deg": round(land_earth, 3),
+        "label": info["label"],
+        "events": events,
+    }
+    result = {"czml_file": f"{site['id']}.czml", "summary": summary_, "gate": g}
+    s2 = summary(m)
+    detail = {"two_body": s2, "endpoint_check": endpoint, "cesium_check": ces,
+              "refinement": {k: (round(v, 6) if isinstance(v, float) else v) for k, v in ref.items()
+                             if k not in ("sol", "moon_spline", "v1")},
+              "refined_periselene_utc": et_to_utc(ref["t_periselene"]) if refined else None,
+              "czml_samples": info["samples"], "czml_interval": info["interval"]}
+    out.mkdir(parents=True, exist_ok=True)
+    for name, obj in ((f"{site['id']}.czml", doc), (f"{site['id']}.detail.json", detail),
+                      (f"{site['id']}.json", result)):
+        tmp = out / (name + ".tmp")
+        tmp.write_text(json.dumps(obj, indent=None if name.endswith(".czml") else 1, ensure_ascii=False,
+                                  default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o)))
+        tmp.replace(out / name)
+    return result
+
+
+def mission(site, out_dir: Optional[Path] = None, rebuild: bool = False) -> dict:
+    """Interface for the API: cached data/mission/<site_id>.json, built on first use (~10 s)."""
+    s = resolve_site(site)
+    path = Path(out_dir or MISSION_DIR) / f"{s['id']}.json"
+    if path.exists() and not rebuild:
+        return json.loads(path.read_text())
+    return build_site(s, out_dir)

@@ -108,14 +108,39 @@ def test_czml_structure(mission):
 
 
 @pytest.mark.skipif(shutil.which("node") is None or not CESIUM.exists(), reason="node or Cesium not available")
-def test_ephemeris_agrees_with_cesium(mission):
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("build_mission",
-                                                  Path(__file__).resolve().parents[1] / "scripts" / "build_mission.py")
-    bm = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(bm)
-    res = bm.cesium_check(CESIUM, {"a": et(), "b": et() + 10 * T.DAY})
+def test_ephemeris_agrees_with_cesium():
+    res = T.cesium_check({"a": et(), "b": et() + 10 * T.DAY}, CESIUM)
     assert res["passed"] and res["max_deg"] < 1.0
+
+
+def test_resolve_site():
+    assert T.resolve_site("shackleton-rim")["lat"] == -89.7668
+    s = T.resolve_site("sp-0386-0786")
+    assert s["lat"] == pytest.approx(-85.4007, abs=1e-3) and s["lon"] == pytest.approx(31.6398, abs=1e-3)
+    assert T.resolve_site((-85.0, 10.0))["id"] == "ll_-85.0000_10.0000"
+    for bad in ("jezero", "../x", "sp-99999-1", (100.0, 0.0)):
+        with pytest.raises(ValueError):
+            T.resolve_site(bad)
+
+
+@pytest.mark.skipif(shutil.which("node") is None or not CESIUM.exists(), reason="node or Cesium not available")
+def test_mission_interface_schema(tmp_path, monkeypatch):
+    monkeypatch.setattr(T, "CESIUM_JS_PATH", CESIUM)
+    r = T.mission("shackleton-rim", out_dir=tmp_path)
+    assert set(r) == {"czml_file", "summary", "gate"}
+    assert (tmp_path / r["czml_file"]).exists() and r["czml_file"] == "shackleton-rim.czml"
+    s = r["summary"]
+    assert set(s) == {"launch_utc", "tli_utc", "arrival_utc", "landing_utc", "tli_dv_kms", "loi_dv_kms", "tof_days",
+                      "arrival_vinf_kms", "site", "launch_time_computed", "landing_sun_elevation_deg",
+                      "landing_earth_elevation_deg", "label", "events"}
+    assert set(s["site"]) == {"id", "label", "lat", "lon"}
+    assert all(set(e) == {"t_utc", "name", "detail"} for e in s["events"])
+    assert r["gate"]["status"] == "pass" and s["launch_time_computed"] and s["launch_utc"]
+    assert s["launch_utc"] < s["tli_utc"] < s["arrival_utc"] < s["landing_utc"]
+    assert all(c["passed"] for c in r["gate"]["checks"].values())
+    mtime = (tmp_path / "shackleton-rim.json").stat().st_mtime_ns
+    assert T.mission("shackleton-rim", out_dir=tmp_path) == r            # served from the cache
+    assert (tmp_path / "shackleton-rim.json").stat().st_mtime_ns == mtime
 
 
 def test_refinement_reaches_100km_periselene(mission):
