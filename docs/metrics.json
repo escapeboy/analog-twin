@@ -852,7 +852,7 @@
     "features_sha256": "e92819a8981caad391f35fbc037a46dea3b55196c38fcfc16239e66410a285d9",
     "build_seconds": 238.3,
     "built_at": "2026-11-14T10:33:43+0100",
-    "index_load_seconds": 2.72
+    "index_load_seconds": 5.73
   },
   "terrain": {
     "known_analog_test": {
@@ -911,6 +911,10 @@
           "evaluable": true,
           "on_grid": false,
           "snapped_km": null,
+          "evaluated_at": {
+            "lat": 75.383,
+            "lon": -89.667
+          },
           "percentile_by_target": {
             "jezero": 73.61,
             "gale": 36.25,
@@ -934,7 +938,8 @@
           "lon": 160.667,
           "source_url": "https://openpolar.no/Record/ftnasantrs:oai:casi.ntrs.nasa.gov:20150023012/Details",
           "evaluable": false,
-          "reason": "no valid terrain at earth -77.8670,160.6670 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km"
+          "reason": "no valid terrain at earth -77.8670,160.6670 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km",
+          "nearest_land_point_km": 3442.31
         },
         {
           "id": "yungay",
@@ -946,6 +951,10 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 1.96,
+          "evaluated_at": {
+            "lat": -24.1018,
+            "lon": -69.9113
+          },
           "percentile_by_target": {
             "jezero": 83.11,
             "gale": 18.35,
@@ -965,6 +974,10 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 2.0,
+          "evaluated_at": {
+            "lat": 36.2606,
+            "lon": -116.8026
+          },
           "percentile_by_target": {
             "jezero": 97.92,
             "gale": 0.01,
@@ -981,8 +994,21 @@
           "lat": 79.469,
           "lon": 13.3287,
           "source_url": "https://en.wikipedia.org/wiki/Bockfjorden",
-          "evaluable": false,
-          "reason": "no valid terrain at earth 79.4690,13.3287 (ocean, ice, no data or outside latitude limits (-85.0, 85.0)) and no index point within 25.0 km"
+          "evaluable": true,
+          "on_grid": true,
+          "snapped_km": 35.85,
+          "evaluated_at": {
+            "lat": 79.7878,
+            "lon": 13.5964
+          },
+          "percentile_by_target": {
+            "jezero": 39.49,
+            "gale": 89.09,
+            "perseverance-landing": 83.29,
+            "oxia-planum": 73.12
+          },
+          "median_percentile": 78.21,
+          "best_percentile": 39.49
         },
         {
           "id": "holuhraun",
@@ -994,6 +1020,10 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 5.39,
+          "evaluated_at": {
+            "lat": 64.895,
+            "lon": -16.8724
+          },
           "percentile_by_target": {
             "jezero": 14.21,
             "gale": 16.25,
@@ -1013,6 +1043,10 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 5.48,
+          "evaluated_at": {
+            "lat": 28.9941,
+            "lon": -13.737
+          },
           "percentile_by_target": {
             "jezero": 71.32,
             "gale": 57.76,
@@ -1038,6 +1072,10 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 1.61,
+          "evaluated_at": {
+            "lat": 19.6052,
+            "lon": -155.5023
+          },
           "percentile_by_target": {
             "jezero": 76.54,
             "gale": 2.0,
@@ -1057,6 +1095,10 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 1.12,
+          "evaluated_at": {
+            "lat": 37.7172,
+            "lon": -6.5479
+          },
           "percentile_by_target": {
             "jezero": 72.95,
             "gale": 41.63,
@@ -1076,6 +1118,10 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 1.06,
+          "evaluated_at": {
+            "lat": 35.0376,
+            "lon": -111.0227
+          },
           "percentile_by_target": {
             "shackleton-rim": 50.03,
             "connecting-ridge": 71.25,
@@ -1097,6 +1143,10 @@
           "evaluable": true,
           "on_grid": true,
           "snapped_km": 0.69,
+          "evaluated_at": {
+            "lat": 48.8871,
+            "lon": 10.5593
+          },
           "percentile_by_target": {
             "shackleton-rim": 75.5,
             "connecting-ridge": 72.89,
@@ -1109,17 +1159,17 @@
           "best_percentile": 72.89
         }
       ],
-      "median_percentile_all_pairs": 56.16,
-      "median_of_site_medians": 53.3,
-      "pairs_evaluated": 52,
-      "sites_evaluable": 9,
+      "median_percentile_all_pairs": 59.64,
+      "median_of_site_medians": 54.69,
+      "pairs_evaluated": 56,
+      "sites_evaluable": 10,
       "sites_total": 11,
       "baseline_random_median_percentile": 48.07,
       "baseline_random_n": 1000,
       "by_target_body": {
         "mars": {
-          "pairs": 28,
-          "median_percentile": 47.41,
+          "pairs": 32,
+          "median_percentile": 54.21,
           "baseline_random_median_percentile": 47.45
         },
         "moon": {
@@ -1130,11 +1180,11 @@
       },
       "notes": [
         "McMurdo Dry Valleys (University Valley) are inside the Natural Earth 10 m 'Antarctic Ice Sheet' polygon, so the ice mask removes them; not evaluable with this mask.",
-        "Sites on narrow coasts or islands have no fully valid 12 km land window; they are snapped to the nearest valid index point within 25 km (snapped_km) or reported as not evaluable.",
+        "Sites on narrow coasts or islands have no fully valid 12 km land window; they are snapped to the nearest valid Earth index point within 50 km (snapped_km, evaluated_at) or reported as not evaluable.",
         "Analog sites were chosen by their operators for geology, climate or logistics; terrain shape at 926 m / 12 km is only one aspect, so poor ranks are expected for some (e.g. Rio Tinto)."
       ]
     },
-    "validated_at": "2026-11-14T10:46:36+0100"
+    "validated_at": "2026-11-14T10:47:42+0100"
   },
   "determinism": {
     "method": "built the small index (50 km spacing, 12 km dense zones, 3 bodies) twice from the same inputs and compared sha256 of features.npy",
@@ -1147,9 +1197,9 @@
       "queries": 120,
       "k": 10,
       "destinations": "the two other bodies",
-      "p50_ms": 39.0,
-      "p95_ms": 57.4,
-      "max_ms": 70.5,
+      "p50_ms": 72.9,
+      "p95_ms": 129.5,
+      "max_ms": 191.4,
       "on_grid_queries": 70,
       "no_terrain_errors": 0,
       "method": "Index.search in-process on this machine (12 threads, shared host), index already loaded; half the queries offset off-grid (features computed on the fly)."

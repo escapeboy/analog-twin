@@ -14,12 +14,12 @@ Times are Europe/Sofia.
 - **11:15** Decision: common ground scale ≈ 926 m (Earth ETOPO 30" is the coarsest dataset). The 15" Earth tiles are optional, later.
 - **11:20** Deviation: the Agent worktree hook failed, so the worktrees were created by hand in /data/code/nasa-challenge-wt/{w1-terrain,w2-light,w3-crew,w4-web}. W1–W4 started.
 - **11:20** Deviation: API paths are prefixed `/api`. The web app, API and tiles are served on one port: http://100.85.138.47:8742.
-- **11:30** W2 merged: light engine + hillshade + SPICE cross-check (Moon max 2.20° / mean 0.58°, Earth max 4.90° / mean 1.05°; numbers in docs/metrics.json "light"). 86 tests pass.
-- **11:31** Deviation: W6 (site finder) started before G1, because W2 was free and W6 is independent. It stays hidden until its own gate passes.
-- **11:31** Slope limit for W6 = 10°, cited from the NASA HLS overview deck (NTRS 20250009323), instead of the spec's default 8° "assumed".
-- **11:55** W6 site finder merged; its own gate PASSED (median NASA-region percentile 0.24%, 4/10 top sites near NASA regions). One alignment sub-check was revised after a first failure (Earth-visibility shadow shift is geometry, not misalignment); logged in metrics.json. Integrator checked the map: NASA regions sit at the right polar-stereographic positions. Weights untouched.
-- **11:56** W8 (trajectory engine) started early on W2's agent.
-- **12:05** W1 merged: full index 2,368,993 points (Earth 1,026,242 / Moon 286,543 / Mars 1,056,208), GSD 926 m, 12 km window, 25 features, build 238 s; find_twins p95 57 ms; determinism OK.
-- **12:05** Known-analog test (spec 13.1) does NOT pass in spirit: median percentile 56.2 % vs random baseline 48.1 % (Mars 47.4 vs 47.5; Moon 61.9 vs 48.8). Recorded as is in metrics.json. The pitch must not claim this test validates the method.
-- **12:08** Decision: one pre-declared experiment (multi-scale features, ~36–40 km window), time-boxed to 75 min. Switch only if the median improves by at least 5 points, the baseline stays ~50 % and p95 < 1 s. Both results go into metrics.json.
-- **12:08** Deviation: Earth place labels switched to the Natural Earth DEU point-of-view countries file. The default de-facto file labels Crimea as "Russia".
+- **11:26** W2 merged: light engine + hillshade + SPICE cross-check (Moon max 2.20° / mean 0.58°, Earth max 4.90° / mean 1.05°; numbers in docs/metrics.json "light"). 86 tests pass.
+- **11:27** Deviation: W6 (site finder) started before G1, because W2 was free and W6 is independent. It stays hidden until its own gate passes.
+- **11:27** Slope limit for W6 = 10°, cited from the NASA HLS overview deck (NTRS 20250009323), instead of the spec's default 8° "assumed".
+- **11:42** W6 site finder merged; its own gate PASSED (median NASA-region percentile 0.24%, 4/10 top sites near NASA regions). One alignment sub-check was revised after a first failure (Earth-visibility shadow shift is geometry, not misalignment); logged in metrics.json. Integrator checked the map: NASA regions sit at the right polar-stereographic positions. Weights untouched.
+- **11:43** W8 (trajectory engine) started early on W2's agent.
+- **11:47** W1 merged: full index 2,368,993 points (Earth 1,026,242 / Moon 286,543 / Mars 1,056,208), GSD 926 m, 12 km window, 25 features, build 238 s; find_twins p95 57 ms; determinism OK.
+- **11:47** Known-analog test (spec 13.1) does NOT pass in spirit: median percentile 56.2 % vs random baseline 48.1 % (Mars 47.4 vs 47.5; Moon 61.9 vs 48.8). Recorded as is in metrics.json. The pitch must not claim this test validates the method.
+- **11:48** Decision: one pre-declared experiment (multi-scale features, ~36–40 km window), time-boxed to 75 min. Switch only if the median improves by at least 5 points, the baseline stays ~50 % and p95 < 1 s. Both results go into metrics.json.
+- **11:48** Deviation: Earth place labels switched to the Natural Earth DEU point-of-view countries file. The default de-facto file labels Crimea as "Russia".
