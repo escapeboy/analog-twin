@@ -1,0 +1,48 @@
+{"type":"session.start","session_id":"fixture","t":0.0,"role":null,"data":{"target":{"body":"moon","lat":-89.5,"lon":0.0,"label":"[fixture] Shackleton rim"},"mode":"replay"}}
+{"type":"agent.start","session_id":"fixture","t":0.2,"role":"terrain","data":{"title":"Terrain Analyst","model":"fixture"}}
+{"type":"agent.start","session_id":"fixture","t":0.4,"role":"light","data":{"title":"Light & Operations Planner","model":"fixture"}}
+{"type":"agent.start","session_id":"fixture","t":0.6,"role":"logistics","data":{"title":"Logistics","model":"fixture"}}
+{"type":"agent.start","session_id":"fixture","t":0.8,"role":"testlead","data":{"title":"Test Lead","model":"fixture"}}
+{"type":"tool.result","session_id":"fixture","t":1.1,"role":"terrain","data":{"name":"evidence","ref":"twin:earth-fx0","digest":"[fixture] top Earth twin, terrain_sim 0.95"}}
+{"type":"tool.result","session_id":"fixture","t":1.4,"role":"light","data":{"name":"evidence","ref":"twin:earth-fx0","digest":"[fixture] top Earth twin, terrain_sim 0.95"}}
+{"type":"tool.result","session_id":"fixture","t":1.7,"role":"logistics","data":{"name":"evidence","ref":"twin:earth-fx0","digest":"[fixture] top Earth twin, terrain_sim 0.95"}}
+{"type":"tool.result","session_id":"fixture","t":2.0,"role":"testlead","data":{"name":"evidence","ref":"twin:earth-fx0","digest":"[fixture] top Earth twin, terrain_sim 0.95"}}
+{"type":"agent.delta","session_id":"fixture","t":2.4,"role":"terrain","data":{"text":"[fixture] Terrain Analyst thinking, chunk 1. "}}
+{"type":"agent.delta","session_id":"fixture","t":2.8,"role":"light","data":{"text":"[fixture] Light & Operations Planner thinking, chunk 1. "}}
+{"type":"agent.delta","session_id":"fixture","t":3.2,"role":"logistics","data":{"text":"[fixture] Logistics thinking, chunk 1. "}}
+{"type":"agent.delta","session_id":"fixture","t":3.6,"role":"testlead","data":{"text":"[fixture] Test Lead thinking, chunk 1. "}}
+{"type":"agent.delta","session_id":"fixture","t":4.0,"role":"terrain","data":{"text":"[fixture] Terrain Analyst thinking, chunk 2. "}}
+{"type":"agent.delta","session_id":"fixture","t":4.4,"role":"light","data":{"text":"[fixture] Light & Operations Planner thinking, chunk 2. "}}
+{"type":"agent.delta","session_id":"fixture","t":4.8,"role":"logistics","data":{"text":"[fixture] Logistics thinking, chunk 2. "}}
+{"type":"agent.delta","session_id":"fixture","t":5.2,"role":"testlead","data":{"text":"[fixture] Test Lead thinking, chunk 2. "}}
+{"type":"agent.delta","session_id":"fixture","t":5.6,"role":"terrain","data":{"text":"[fixture] Terrain Analyst thinking, chunk 3. "}}
+{"type":"agent.delta","session_id":"fixture","t":6.0,"role":"light","data":{"text":"[fixture] Light & Operations Planner thinking, chunk 3. "}}
+{"type":"agent.delta","session_id":"fixture","t":6.4,"role":"logistics","data":{"text":"[fixture] Logistics thinking, chunk 3. "}}
+{"type":"agent.delta","session_id":"fixture","t":6.8,"role":"testlead","data":{"text":"[fixture] Test Lead thinking, chunk 3. "}}
+{"type":"agent.delta","session_id":"fixture","t":7.2,"role":"terrain","data":{"text":"[fixture] Terrain Analyst thinking, chunk 4. "}}
+{"type":"agent.delta","session_id":"fixture","t":7.6,"role":"light","data":{"text":"[fixture] Light & Operations Planner thinking, chunk 4. "}}
+{"type":"agent.delta","session_id":"fixture","t":8.0,"role":"logistics","data":{"text":"[fixture] Logistics thinking, chunk 4. "}}
+{"type":"agent.delta","session_id":"fixture","t":8.4,"role":"testlead","data":{"text":"[fixture] Test Lead thinking, chunk 4. "}}
+{"type":"agent.delta","session_id":"fixture","t":8.8,"role":"terrain","data":{"text":"[fixture] Terrain Analyst thinking, chunk 5. "}}
+{"type":"agent.delta","session_id":"fixture","t":9.2,"role":"light","data":{"text":"[fixture] Light & Operations Planner thinking, chunk 5. "}}
+{"type":"agent.delta","session_id":"fixture","t":9.6,"role":"logistics","data":{"text":"[fixture] Logistics thinking, chunk 5. "}}
+{"type":"agent.delta","session_id":"fixture","t":10.0,"role":"testlead","data":{"text":"[fixture] Test Lead thinking, chunk 5. "}}
+{"type":"agent.delta","session_id":"fixture","t":10.4,"role":"terrain","data":{"text":"[fixture] Terrain Analyst thinking, chunk 6. "}}
+{"type":"agent.delta","session_id":"fixture","t":10.8,"role":"light","data":{"text":"[fixture] Light & Operations Planner thinking, chunk 6. "}}
+{"type":"agent.delta","session_id":"fixture","t":11.2,"role":"logistics","data":{"text":"[fixture] Logistics thinking, chunk 6. "}}
+{"type":"agent.delta","session_id":"fixture","t":11.6,"role":"testlead","data":{"text":"[fixture] Test Lead thinking, chunk 6. "}}
+{"type":"agent.report","session_id":"fixture","t":12.1,"role":"terrain","data":{"report":{"role":"terrain","summary":"[fixture] Terrain Analyst report","claims":[{"text":"[fixture] twin 1 has terrain_sim 0.95","refs":["twin:earth-fx0"]}],"proposed_sites":["earth-fx0"],"removed_unverified":0}}}
+{"type":"agent.report","session_id":"fixture","t":12.6,"role":"light","data":{"report":{"role":"light","summary":"[fixture] Light & Operations Planner report","claims":[{"text":"[fixture] twin 1 has terrain_sim 0.95","refs":["twin:earth-fx0"]}],"proposed_sites":["earth-fx0"],"removed_unverified":0}}}
+{"type":"agent.report","session_id":"fixture","t":13.1,"role":"logistics","data":{"report":{"role":"logistics","summary":"[fixture] Logistics report","claims":[{"text":"[fixture] twin 1 has terrain_sim 0.95","refs":["twin:earth-fx0"]}],"proposed_sites":["earth-fx0"],"removed_unverified":0}}}
+{"type":"agent.report","session_id":"fixture","t":13.6,"role":"testlead","data":{"report":{"role":"testlead","summary":"[fixture] Test Lead report","claims":[{"text":"[fixture] twin 1 has terrain_sim 0.95","refs":["twin:earth-fx0"]}],"proposed_sites":["earth-fx0"],"removed_unverified":0}}}
+{"type":"agent.start","session_id":"fixture","t":13.9,"role":"director","data":{"title":"Campaign Director","model":"fixture"}}
+{"type":"director.delta","session_id":"fixture","t":14.3,"role":"director","data":{"text":"[fixture] Director synthesis chunk 1. "}}
+{"type":"director.delta","session_id":"fixture","t":14.7,"role":"director","data":{"text":"[fixture] Director synthesis chunk 2. "}}
+{"type":"director.delta","session_id":"fixture","t":15.1,"role":"director","data":{"text":"[fixture] Director synthesis chunk 3. "}}
+{"type":"director.delta","session_id":"fixture","t":15.5,"role":"director","data":{"text":"[fixture] Director synthesis chunk 4. "}}
+{"type":"director.delta","session_id":"fixture","t":15.9,"role":"director","data":{"text":"[fixture] Director synthesis chunk 5. "}}
+{"type":"director.delta","session_id":"fixture","t":16.3,"role":"director","data":{"text":"[fixture] Director synthesis chunk 6. "}}
+{"type":"director.delta","session_id":"fixture","t":16.7,"role":"director","data":{"text":"[fixture] Director synthesis chunk 7. "}}
+{"type":"director.delta","session_id":"fixture","t":17.1,"role":"director","data":{"text":"[fixture] Director synthesis chunk 8. "}}
+{"type":"plan.final","session_id":"fixture","t":17.6,"role":"director","data":{"plan":{"target":{"body":"moon","lat":-89.5,"lon":0.0,"label":"[fixture] Shackleton rim"},"sites":[{"label":"[fixture] earth twin 1","lat":40.0,"lon":20.0,"terrain_sim":0.95,"light_sim":0.9,"window":"06-01 to 06-28","context":"Fixtureland, cold desert","role_in_campaign":"primary traverse site","refs":["twin:earth-fx0"]}],"tests":[{"name":"[fixture] low-sun navigation","why":"sun stays near the horizon at the target","site":"[fixture] earth twin 1","window":"06-01 to 06-28","refs":["light:moon:-89.50:0.00"]}],"disagreements":[{"between":["terrain","logistics"],"about":"[fixture] primary site","resolution":"[fixture] split: traverse at twin 1, comms drills at twin 2"}],"not_reproducible_on_earth":["1/6 g gravity","hard vacuum and no atmosphere","lunar dust electrostatics","permanently shadowed regions at ~40 K"],"limitations":["Sunlight uses an analytic model: circular orbit, no eccentricity, no local horizon or terrain shadowing.","Similarity is terrain shape only (slope, roughness, relief, curvature); not geology, chemistry or regolith.","Terrain is compared at one common ground scale; features smaller than the grid spacing are not seen.","Environment data (country, climate, airport) is a coarse proxy for logistics; no routing or permits checked."],"removed_unverified":0}}}
+{"type":"session.end","session_id":"fixture","t":17.7,"role":null,"data":{"wall_s":17.6,"status":"ok"}}

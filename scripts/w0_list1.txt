@@ -1,0 +1,23 @@
+# Natural Earth
+naturalearth https://naciscdn.org/naturalearth/10m/physical/ne_10m_land.zip
+naturalearth https://naciscdn.org/naturalearth/10m/physical/ne_10m_glaciated_areas.zip
+naturalearth https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_0_countries.zip
+naturalearth https://naciscdn.org/naturalearth/10m/cultural/ne_10m_airports.zip
+# SPICE
+spice https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/naif0012.tls
+spice https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc
+spice https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_de440_250416.tf
+spice https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/moon_pa_de440_200625.bpc
+spice https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de440s.bsp
+# Moon south pole
+moon_sp https://pgda.gsfc.nasa.gov/data/MoonIllumination/AVGVISIB_65S_240M_201608_EARTH.TIF
+moon_sp https://pgda.gsfc.nasa.gov/data/MoonIllumination/AVGVISIB_65S_240M_201608.TIF
+moon_sp https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LDSM_60S_240MPP_ADJ.TIF
+moon_sp https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LDEM_60S_240MPP_ADJ.TIF
+moon_sp https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LDEM_80S_80MPP_ADJ.TIF
+# Moon global 64 ppd (label first)
+moon_global https://imbrium.mit.edu/DATA/LOLA_GDR/CYLINDRICAL/IMG/LDEM_64.LBL
+moon_global https://imbrium.mit.edu/DATA/LOLA_GDR/CYLINDRICAL/IMG/LDEM_64.IMG
+# Earth 30" and Mars 463 m
+earth https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2022/data/30s/30s_surface_elev_gtif/ETOPO_2022_v1_30s_N90W180_surface.tif
+mars https://planetarymaps.usgs.gov/mosaic/Mars_MGS_MOLA_DEM_mosaic_global_463m.tif
