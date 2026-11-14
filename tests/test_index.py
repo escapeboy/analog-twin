@@ -110,3 +110,11 @@ def test_explain_groups(tiny):
     assert 0 <= e["terrain_sim"] <= 1
     self_e = ix.explain(a, ("moon", ix.lat[ix.rows["moon"][3]], ix.lon[ix.rows["moon"][3]]))
     assert self_e["terrain_sim"] == pytest.approx(1.0)
+
+
+def test_coord_id_six_decimals(tiny):
+    from engine.index import Index
+    ix = Index(tiny[0] / "a")
+    e = ix.explain(("moon", 3.123456, 77.456789), ix.ids[ix.rows["mars"][2]])
+    if e["a_id"].startswith("moon@"):
+        assert e["a_id"] == "moon@3.123456,77.456789"
