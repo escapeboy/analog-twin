@@ -19,56 +19,22 @@
  "results": {
   "earth": [
    {
-    "id": "earth-336612",
-    "body": "earth",
-    "lat": 34.43026373282588,
-    "lon": 75.95825792849064,
-    "place_label": "India",
-    "terrain_sim": 0.3901276880685022,
-    "light_sim": 0.8328869047619044,
-    "best_window": {
-     "start": "12-05",
-     "end": "01-01",
-     "emd": 0.835565476190478,
-     "light_sim": 0.8328869047619044,
-     "earth_range": [
-      0.7389,
-      0.9527
-     ]
-    },
-    "env": {
-     "country": "India",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 4568.9,
-     "nearest_airport": "Sheikh ul-Alam International Airport (SXR / VISR)",
-     "airport_km": 119.0,
-     "ndvi": 0.0561,
-     "lst_c": 7.92,
-     "barren": true,
-     "cold_dry": 0.359,
-     "ref": "ctx:earth-336612"
-    },
-    "score": 0.5672,
-    "rank": 1,
-    "ref": "twin:earth-336612"
-   },
-   {
     "id": "earth-716665",
     "body": "earth",
     "lat": -15.431326181960165,
     "lon": -73.13177990913391,
     "place_label": "Peru",
     "terrain_sim": 0.4162456026880065,
-    "light_sim": 0.7805555555555571,
+    "light_sim": 0.06426448479453681,
     "best_window": {
-     "start": "06-02",
-     "end": "06-29",
-     "emd": 1.0972222222222143,
-     "light_sim": 0.7805555555555571,
+     "start": "05-14",
+     "end": "06-10",
+     "emd": 2.672774636717515,
+     "light_sim": 0.06426448479453681,
+     "distinct": false,
      "earth_range": [
-      0.7389,
-      0.9527
+      0.0591,
+      0.3549
      ]
     },
     "env": {
@@ -84,44 +50,47 @@
      "cold_dry": 0.0138,
      "ref": "ctx:earth-716665"
     },
-    "score": 0.562,
-    "rank": 2,
+    "score": 0.2755,
+    "percentile": 99.9996,
+    "rank": 1,
     "ref": "twin:earth-716665"
    },
    {
-    "id": "earth-319912",
+    "id": "earth-336612",
     "body": "earth",
-    "lat": 36.19251143876246,
-    "lon": 73.35399779677391,
-    "place_label": "Pakistan",
-    "terrain_sim": 0.3408912813981345,
-    "light_sim": 0.8449404761904764,
+    "lat": 34.43026373282588,
+    "lon": 75.95825792849064,
+    "place_label": "India",
+    "terrain_sim": 0.3901276880685022,
+    "light_sim": 0.08116089450349534,
     "best_window": {
-     "start": "12-04",
-     "end": "12-31",
-     "emd": 0.7752976190476177,
-     "light_sim": 0.8449404761904764,
+     "start": "11-23",
+     "end": "12-20",
+     "emd": 2.3049026342300265,
+     "light_sim": 0.08116089450349534,
+     "distinct": false,
      "earth_range": [
-      0.7389,
-      0.9527
+      0.0591,
+      0.3549
      ]
     },
     "env": {
-     "country": "Pakistan",
+     "country": "India",
      "koppen_code": null,
      "koppen_label": null,
-     "elevation_m": 4589.1,
+     "elevation_m": 4568.9,
      "nearest_airport": "Sheikh ul-Alam International Airport (SXR / VISR)",
-     "airport_km": 277.9,
-     "ndvi": 0.0368,
-     "lst_c": 4.45,
+     "airport_km": 119.0,
+     "ndvi": 0.0561,
+     "lst_c": 7.92,
      "barren": true,
-     "cold_dry": 0.4483,
-     "ref": "ctx:earth-319912"
+     "cold_dry": 0.359,
+     "ref": "ctx:earth-336612"
     },
-    "score": 0.5425,
-    "rank": 3,
-    "ref": "twin:earth-319912"
+    "score": 0.2665,
+    "percentile": 99.9995,
+    "rank": 2,
+    "ref": "twin:earth-336612"
    },
    {
     "id": "earth-364817",
@@ -130,15 +99,16 @@
     "lon": 50.14076620340347,
     "place_label": "Iran",
     "terrain_sim": 0.3533824139769623,
-    "light_sim": 0.8213293650793672,
+    "light_sim": 0.0811496430694086,
     "best_window": {
-     "start": "12-04",
-     "end": "12-31",
-     "emd": 0.893353174603164,
-     "light_sim": 0.8213293650793672,
+     "start": "12-05",
+     "end": "01-01",
+     "emd": 2.3291388266425486,
+     "light_sim": 0.0811496430694086,
+     "distinct": false,
      "earth_range": [
-      0.7389,
-      0.9527
+      0.0591,
+      0.3549
      ]
     },
     "env": {
@@ -154,9 +124,47 @@
      "cold_dry": 0.1452,
      "ref": "ctx:earth-364817"
     },
-    "score": 0.5406,
-    "rank": 4,
+    "score": 0.2445,
+    "percentile": 99.9988,
+    "rank": 3,
     "ref": "twin:earth-364817"
+   },
+   {
+    "id": "earth-319912",
+    "body": "earth",
+    "lat": 36.19251143876246,
+    "lon": 73.35399779677391,
+    "place_label": "Pakistan",
+    "terrain_sim": 0.3408912813981345,
+    "light_sim": 0.08918377019974529,
+    "best_window": {
+     "start": "12-04",
+     "end": "12-31",
+     "emd": 2.200833095914495,
+     "light_sim": 0.08918377019974529,
+     "distinct": false,
+     "earth_range": [
+      0.0591,
+      0.3549
+     ]
+    },
+    "env": {
+     "country": "Pakistan",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 4589.1,
+     "nearest_airport": "Sheikh ul-Alam International Airport (SXR / VISR)",
+     "airport_km": 277.9,
+     "ndvi": 0.0368,
+     "lst_c": 4.45,
+     "barren": true,
+     "cold_dry": 0.4483,
+     "ref": "ctx:earth-319912"
+    },
+    "score": 0.2402,
+    "percentile": 99.9986,
+    "rank": 4,
+    "ref": "twin:earth-319912"
    },
    {
     "id": "earth-330909",
@@ -165,15 +173,16 @@
     "lon": 76.43851986527443,
     "place_label": "Pakistan",
     "terrain_sim": 0.34260730346907364,
-    "light_sim": 0.8356150793650807,
+    "light_sim": 0.08324076741484643,
     "best_window": {
-     "start": "12-03",
-     "end": "12-30",
-     "emd": 0.8219246031745965,
-     "light_sim": 0.8356150793650807,
+     "start": "12-06",
+     "end": "01-02",
+     "emd": 2.269794949725772,
+     "light_sim": 0.08324076741484643,
+     "distinct": false,
      "earth_range": [
-      0.7389,
-      0.9527
+      0.0591,
+      0.3549
      ]
     },
     "env": {
@@ -189,44 +198,10 @@
      "cold_dry": 0.4732,
      "ref": "ctx:earth-330909"
     },
-    "score": 0.5398,
+    "score": 0.2389,
+    "percentile": 99.9986,
     "rank": 5,
     "ref": "twin:earth-330909"
-   },
-   {
-    "id": "earth-271969",
-    "body": "earth",
-    "lat": 41.284496217957184,
-    "lon": 47.96437260508537,
-    "place_label": "Azerbaijan",
-    "terrain_sim": 0.32099240851597455,
-    "light_sim": 0.862896825396825,
-    "best_window": {
-     "start": "11-30",
-     "end": "12-27",
-     "emd": 0.6855158730158748,
-     "light_sim": 0.862896825396825,
-     "earth_range": [
-      0.7389,
-      0.9527
-     ]
-    },
-    "env": {
-     "country": "Azerbaijan",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 3668.2,
-     "nearest_airport": "Heydar Aliyev International Airport (GYD / UBBB)",
-     "airport_km": 197.7,
-     "ndvi": 0.093,
-     "lst_c": 2.98,
-     "barren": true,
-     "cold_dry": 0.3729,
-     "ref": "ctx:earth-271969"
-    },
-    "score": 0.5378,
-    "rank": 6,
-    "ref": "twin:earth-271969"
    },
    {
     "id": "earth-817194",
@@ -235,15 +210,16 @@
     "lon": -70.84630364179611,
     "place_label": "Chile",
     "terrain_sim": 0.33752287781878526,
-    "light_sim": 0.8206349206349182,
+    "light_sim": 0.08069786294411088,
     "best_window": {
-     "start": "06-03",
-     "end": "06-30",
-     "emd": 0.8968253968254092,
-     "light_sim": 0.8206349206349182,
+     "start": "06-06",
+     "end": "07-03",
+     "emd": 2.334721628748546,
+     "light_sim": 0.08069786294411088,
+     "distinct": false,
      "earth_range": [
-      0.7389,
-      0.9527
+      0.0591,
+      0.3549
      ]
     },
     "env": {
@@ -259,79 +235,10 @@
      "cold_dry": 0.13,
      "ref": "ctx:earth-817194"
     },
-    "score": 0.5308,
-    "rank": 7,
+    "score": 0.2348,
+    "percentile": 99.9983,
+    "rank": 6,
     "ref": "twin:earth-817194"
-   },
-   {
-    "id": "earth-313988",
-    "body": "earth",
-    "lat": 36.8528060040847,
-    "lon": 71.00804907083511,
-    "place_label": "Afghanistan",
-    "terrain_sim": 0.3146541013699245,
-    "light_sim": 0.8530257936507943,
-    "best_window": {
-     "start": "12-04",
-     "end": "12-31",
-     "emd": 0.7348710317460286,
-     "light_sim": 0.8530257936507943,
-     "earth_range": [
-      0.7389,
-      0.9527
-     ]
-    },
-    "env": {
-     "country": "Afghanistan",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 3675.1,
-     "nearest_airport": "Hamid Karzai International Airport (KBL / OAKB)",
-     "airport_km": 301.9,
-     "ndvi": 0.1257,
-     "lst_c": 12.4,
-     "barren": true,
-     "cold_dry": 0.2045,
-     "ref": "ctx:earth-313988"
-    },
-    "score": 0.53,
-    "rank": 8,
-    "ref": "twin:earth-313988"
-   },
-   {
-    "id": "earth-363070",
-    "body": "earth",
-    "lat": 31.76939126842118,
-    "lon": 50.87024934589863,
-    "place_label": "Iran",
-    "terrain_sim": 0.3321245967212894,
-    "light_sim": 0.821875000000002,
-    "best_window": {
-     "start": "12-05",
-     "end": "01-01",
-     "emd": 0.8906249999999898,
-     "light_sim": 0.821875000000002,
-     "earth_range": [
-      0.7389,
-      0.9527
-     ]
-    },
-    "env": {
-     "country": "Iran",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 2824.0,
-     "nearest_airport": "Isfahan International Airport (IFN / OIFM)",
-     "airport_km": 144.0,
-     "ndvi": 0.1674,
-     "lst_c": 18.63,
-     "barren": true,
-     "cold_dry": 0.1005,
-     "ref": "ctx:earth-363070"
-    },
-    "score": 0.528,
-    "rank": 9,
-    "ref": "twin:earth-363070"
    },
    {
     "id": "earth-822750",
@@ -340,15 +247,16 @@
     "lon": -69.44617050886154,
     "place_label": "Argentina",
     "terrain_sim": 0.32992475953060746,
-    "light_sim": 0.8249503968253951,
+    "light_sim": 0.08535667394742603,
     "best_window": {
      "start": "06-06",
      "end": "07-03",
-     "emd": 0.8752480158730249,
-     "light_sim": 0.8249503968253951,
+     "emd": 2.2785950809558893,
+     "light_sim": 0.08535667394742603,
+     "distinct": false,
      "earth_range": [
-      0.7389,
-      0.9527
+      0.0591,
+      0.3549
      ]
     },
     "env": {
@@ -364,9 +272,121 @@
      "cold_dry": 0.2471,
      "ref": "ctx:earth-822750"
     },
-    "score": 0.5279,
-    "rank": 10,
+    "score": 0.2321,
+    "percentile": 99.9979,
+    "rank": 7,
     "ref": "twin:earth-822750"
+   },
+   {
+    "id": "earth-363070",
+    "body": "earth",
+    "lat": 31.76939126842118,
+    "lon": 50.87024934589863,
+    "place_label": "Iran",
+    "terrain_sim": 0.3321245967212894,
+    "light_sim": 0.08146991481732793,
+    "best_window": {
+     "start": "12-05",
+     "end": "01-01",
+     "emd": 2.325199913437189,
+     "light_sim": 0.08146991481732793,
+     "distinct": false,
+     "earth_range": [
+      0.0591,
+      0.3549
+     ]
+    },
+    "env": {
+     "country": "Iran",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 2824.0,
+     "nearest_airport": "Isfahan International Airport (IFN / OIFM)",
+     "airport_km": 144.0,
+     "ndvi": 0.1674,
+     "lst_c": 18.63,
+     "barren": true,
+     "cold_dry": 0.1005,
+     "ref": "ctx:earth-363070"
+    },
+    "score": 0.2319,
+    "percentile": 99.9978,
+    "rank": 8,
+    "ref": "twin:earth-363070"
+   },
+   {
+    "id": "earth-271969",
+    "body": "earth",
+    "lat": 41.284496217957184,
+    "lon": 47.96437260508537,
+    "place_label": "Azerbaijan",
+    "terrain_sim": 0.32099240851597455,
+    "light_sim": 0.09392382053134636,
+    "best_window": {
+     "start": "11-28",
+     "end": "12-25",
+     "emd": 2.0841811543895186,
+     "light_sim": 0.09392382053134636,
+     "distinct": false,
+     "earth_range": [
+      0.0591,
+      0.3549
+     ]
+    },
+    "env": {
+     "country": "Azerbaijan",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 3668.2,
+     "nearest_airport": "Heydar Aliyev International Airport (GYD / UBBB)",
+     "airport_km": 197.7,
+     "ndvi": 0.093,
+     "lst_c": 2.98,
+     "barren": true,
+     "cold_dry": 0.3729,
+     "ref": "ctx:earth-271969"
+    },
+    "score": 0.2302,
+    "percentile": 99.9975,
+    "rank": 9,
+    "ref": "twin:earth-271969"
+   },
+   {
+    "id": "earth-358004",
+    "body": "earth",
+    "lat": 32.2578335365088,
+    "lon": 76.47488075494766,
+    "place_label": "India",
+    "terrain_sim": 0.3211380567511194,
+    "light_sim": 0.0834536383443908,
+    "best_window": {
+     "start": "12-05",
+     "end": "01-01",
+     "emd": 2.3011424739367703,
+     "light_sim": 0.0834536383443908,
+     "distinct": false,
+     "earth_range": [
+      0.0591,
+      0.3549
+     ]
+    },
+    "env": {
+     "country": "India",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 4394.3,
+     "nearest_airport": "Adampur Air force base (VIAX)",
+     "airport_km": 114.0,
+     "ndvi": 0.1055,
+     "lst_c": 5.73,
+     "barren": true,
+     "cold_dry": 0.3147,
+     "ref": "ctx:earth-358004"
+    },
+    "score": 0.2261,
+    "percentile": 99.9971,
+    "rank": 10,
+    "ref": "twin:earth-358004"
    }
   ],
   "mars": [
@@ -381,6 +401,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7406,
+    "percentile": 99.9999,
     "rank": 1,
     "ref": "twin:mars-573726"
    },
@@ -395,6 +416,7 @@
     "best_window": null,
     "env": null,
     "score": 0.689,
+    "percentile": 99.9998,
     "rank": 2,
     "ref": "twin:mars-628553"
    },
@@ -409,6 +431,7 @@
     "best_window": null,
     "env": null,
     "score": 0.6303,
+    "percentile": 99.9997,
     "rank": 3,
     "ref": "twin:mars-552258"
    },
@@ -423,6 +446,7 @@
     "best_window": null,
     "env": null,
     "score": 0.629,
+    "percentile": 99.9996,
     "rank": 4,
     "ref": "twin:mars-556743"
    },
@@ -437,6 +461,7 @@
     "best_window": null,
     "env": null,
     "score": 0.6211,
+    "percentile": 99.9995,
     "rank": 5,
     "ref": "twin:mars-559434"
    },
@@ -451,6 +476,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5983,
+    "percentile": 99.9994,
     "rank": 6,
     "ref": "twin:mars-558379"
    },
@@ -465,6 +491,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5927,
+    "percentile": 99.9993,
     "rank": 7,
     "ref": "twin:mars-572676"
    },
@@ -479,6 +506,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5916,
+    "percentile": 99.9992,
     "rank": 8,
     "ref": "twin:mars-566741"
    },
@@ -493,6 +521,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5912,
+    "percentile": 99.9991,
     "rank": 9,
     "ref": "twin:mars-559413"
    },
@@ -507,12 +536,13 @@
     "best_window": null,
     "env": null,
     "score": 0.5702,
+    "percentile": 99.999,
     "rank": 10,
     "ref": "twin:mars-581130"
    }
   ]
  },
- "latency_ms": 2055.0,
+ "latency_ms": 4460.3,
  "source": "live",
  "ref": "twins:moon:-89.767:-171.870"
 }

@@ -103,17 +103,19 @@ body.present-mode { background: var(--p-void); overflow: hidden; font-family: va
 .hud-dot.t { border-color: var(--p-amber); } .hud-dot.w { border-color: var(--p-cyan); }
 .hud-figure { display: grid; grid-template-columns: auto 1fr; column-gap: 20px; align-items: center; border-top: 1px solid var(--p-edge); padding-top: 8px; }
 .hud-big { display: flex; align-items: flex-start; line-height: .85; }
-.hud-pct { font-size: 88px; font-weight: 600; letter-spacing: -.04em; color: var(--p-text); }
+.hud-pct { font-size: 60px; font-weight: 600; letter-spacing: -.04em; color: var(--p-text); }
 .hud-pctsign { font-size: 40px; color: var(--p-amber); margin-left: 4px; font-weight: 700; }
+.hud-figtext { min-width: 0; }
 .hud-figtext p { margin: 0; font-size: 20px; }
-.hud-figtext p:first-child { font-size: 28px; font-weight: 700; }
+.hud-figtext p:first-child { font-size: 22px; font-weight: 700; }
+.hud-figtext p.dim { font-size: 17px; }
 .hud-rank { display: flex; align-items: center; gap: 10px; margin-top: 8px !important; font-size: 18px !important; color: var(--p-dim); }
 .hud-step { font-size: 30px !important; line-height: 1; padding: 0 8px !important; color: var(--p-cyan) !important; }
 .hud-window { white-space: nowrap; margin-top: 10px; justify-self: start; display: inline-flex; align-items: baseline; gap: 12px; padding: 7px 16px; border-radius: 999px;
   border: 1.5px solid var(--p-amber); background: rgba(255, 181, 71, .1); }
 .hud-window span { font-size: 19px; color: var(--p-amber); }
 .hud-window b { font-size: 24px; font-weight: 600; }
-.hud-window.none { border-color: var(--p-edge); background: transparent; } .hud-window.none span { color: var(--p-dim); }
+.hud-window.none { border-color: var(--p-edge); background: transparent; white-space: normal; border-radius: 14px; } .hud-window.none span { color: var(--p-dim); }
 .hud-radar { display: grid; grid-template-columns: 220px 1fr; gap: 44px; align-items: center; min-height: 220px; }
 .p-radar { width: 220px; height: 220px; overflow: visible; }
 .p-radar-grid { fill: none; stroke: rgba(141, 155, 189, .22); stroke-width: 1; }
@@ -193,13 +195,16 @@ body.film #mission .m-close, body.film #mission .m-skip { display: none; }
 /* short screens (laptops, 1440x900): compress the HUD so the 3D tab and its Expand button fit without scrolling */
 @media (max-height: 1000px) {
   .p-hud { padding-top: 56px; gap: 6px; }
-  .hud-pct { font-size: 68px; }
+  .hud-pct { font-size: 46px; }
   .hud-pctsign { font-size: 32px; }
   .hud-window { padding: 5px 12px; gap: 8px; }
   .hud-window span { font-size: 16px; }
   .hud-window b { font-size: 20px; }
-  .hud-radar { grid-template-columns: 170px 1fr; gap: 28px; min-height: 170px; }
-  .p-radar { width: 170px; height: 170px; }
+  .hud-radar { grid-template-columns: 130px 1fr; gap: 28px; min-height: 130px; }
+  .p-radar { width: 130px; height: 130px; }
+  .p-radar-label { font-size: 30px; }
+  .hud-figtext p:first-child { font-size: 19px; }
+  .hud-figtext p.dim { font-size: 15px; }
   .hud-3d { flex-basis: 250px !important; min-height: 250px; }
   .hud-tab { min-height: 0; }
 }

@@ -29,6 +29,7 @@
     "best_window": null,
     "env": null,
     "score": 0.517,
+    "percentile": 99.9997,
     "rank": 1,
     "ref": "twin:moon-52123"
    },
@@ -43,6 +44,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5134,
+    "percentile": 99.9993,
     "rank": 2,
     "ref": "twin:moon-174401"
    },
@@ -57,6 +59,7 @@
     "best_window": null,
     "env": null,
     "score": 0.4954,
+    "percentile": 99.999,
     "rank": 3,
     "ref": "twin:moon-205517"
    },
@@ -71,6 +74,7 @@
     "best_window": null,
     "env": null,
     "score": 0.478,
+    "percentile": 99.9986,
     "rank": 4,
     "ref": "twin:moon-259245"
    },
@@ -85,6 +89,7 @@
     "best_window": null,
     "env": null,
     "score": 0.4381,
+    "percentile": 99.9983,
     "rank": 5,
     "ref": "twin:moon-255203"
    },
@@ -99,6 +104,7 @@
     "best_window": null,
     "env": null,
     "score": 0.4376,
+    "percentile": 99.9979,
     "rank": 6,
     "ref": "twin:moon-247176"
    },
@@ -113,6 +119,7 @@
     "best_window": null,
     "env": null,
     "score": 0.4373,
+    "percentile": 99.9976,
     "rank": 7,
     "ref": "twin:moon-173232"
    },
@@ -127,6 +134,7 @@
     "best_window": null,
     "env": null,
     "score": 0.4368,
+    "percentile": 99.9972,
     "rank": 8,
     "ref": "twin:moon-126712"
    },
@@ -141,6 +149,7 @@
     "best_window": null,
     "env": null,
     "score": 0.4364,
+    "percentile": 99.9969,
     "rank": 9,
     "ref": "twin:moon-1143"
    },
@@ -155,6 +164,7 @@
     "best_window": null,
     "env": null,
     "score": 0.4359,
+    "percentile": 99.9965,
     "rank": 10,
     "ref": "twin:moon-51309"
    }
@@ -171,6 +181,7 @@
     "best_window": null,
     "env": null,
     "score": 0.6637,
+    "percentile": 99.9999,
     "rank": 1,
     "ref": "twin:mars-282252"
    },
@@ -185,6 +196,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5978,
+    "percentile": 99.9998,
     "rank": 2,
     "ref": "twin:mars-285679"
    },
@@ -199,6 +211,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5624,
+    "percentile": 99.9997,
     "rank": 3,
     "ref": "twin:mars-570925"
    },
@@ -213,6 +226,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5482,
+    "percentile": 99.9995,
     "rank": 4,
     "ref": "twin:mars-265630"
    },
@@ -227,6 +241,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5173,
+    "percentile": 99.9993,
     "rank": 5,
     "ref": "twin:mars-342917"
    },
@@ -241,6 +256,7 @@
     "best_window": null,
     "env": null,
     "score": 0.5071,
+    "percentile": 99.9992,
     "rank": 6,
     "ref": "twin:mars-312242"
    },
@@ -255,6 +271,7 @@
     "best_window": null,
     "env": null,
     "score": 0.4971,
+    "percentile": 99.9991,
     "rank": 7,
     "ref": "twin:mars-273835"
    },
@@ -269,6 +286,7 @@
     "best_window": null,
     "env": null,
     "score": 0.4958,
+    "percentile": 99.9991,
     "rank": 8,
     "ref": "twin:mars-500755"
    },
@@ -283,6 +301,7 @@
     "best_window": null,
     "env": null,
     "score": 0.4868,
+    "percentile": 99.999,
     "rank": 9,
     "ref": "twin:mars-566566"
    },
@@ -297,12 +316,13 @@
     "best_window": null,
     "env": null,
     "score": 0.4673,
+    "percentile": 99.9989,
     "rank": 10,
     "ref": "twin:mars-483302"
    }
   ]
  },
- "latency_ms": 98.2,
+ "latency_ms": 202.8,
  "source": "live",
  "ref": "twins:earth:42.180:23.587"
 }

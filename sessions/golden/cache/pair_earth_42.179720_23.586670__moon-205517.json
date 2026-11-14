@@ -40,7 +40,8 @@
     4.0218,
     3.2512
    ],
-   "contribution": 0.0367
+   "contribution": 0.0367,
+   "similarity": 0.8742
   },
   {
    "group": "roughness",
@@ -59,7 +60,8 @@
     -0.2821,
     0.7165
    ],
-   "contribution": 0.6398
+   "contribution": 0.6398,
+   "similarity": 0.1453
   },
   {
    "group": "position",
@@ -72,7 +74,8 @@
     1.4584,
     1.2434
    ],
-   "contribution": 0.0458
+   "contribution": 0.0458,
+   "similarity": 0.6714
   },
   {
    "group": "curvature",
@@ -91,7 +94,8 @@
     1.4944,
     0.9286
    ],
-   "contribution": 0.0969
+   "contribution": 0.0969,
+   "similarity": 0.5625
   },
   {
    "group": "relief",
@@ -104,7 +108,8 @@
     1.1673,
     0.227
    ],
-   "contribution": 0.0364
+   "contribution": 0.0364,
+   "similarity": 0.7588
   },
   {
    "group": "aspect",
@@ -115,7 +120,8 @@
    "b": [
     0.4262
    ],
-   "contribution": 0.0277
+   "contribution": 0.0277,
+   "similarity": 0.8254
   },
   {
    "group": "context",
@@ -136,7 +142,8 @@
     1.0256,
     0.5415
    ],
-   "contribution": 0.1166
+   "contribution": 0.1166,
+   "similarity": 0.5688
   }
  ],
  "top_similar": [

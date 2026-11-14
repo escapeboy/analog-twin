@@ -81,14 +81,14 @@ export function initHud(root: HTMLElement, onSelect: (t: Twin) => void, onClose:
     const windowChip = !win
       ? h('div', { class: 'hud-window none' }, h('span', null, 'Terrain only: no sunlight match on this body'))
       : win.distinct === false
-        ? h('div', { class: 'hud-window none' }, h('span', null, `No best time: sunlight similar all year (${Math.round(win.light_sim * 100)}% at best)`))
+        ? h('div', { class: 'hud-window none' }, h('span', null, `No best time · sunlight ≤ ${Math.round(win.light_sim * 100)}% all year`))
         : h('div', { class: 'hud-window' }, h('span', null, 'Best time to go'), h('b', { class: 'mono' }, fmtWindow(win.start, win.end)));
     figure.replaceChildren(
       pctl != null
         ? h('div', { class: 'hud-big' }, h('span', { class: 'mono hud-pct' }, fmtPctl(pctl)), h('span', { class: 'hud-pctsign' }, '%'))
         : h('div', { class: 'hud-big' }, h('span', { class: 'mono hud-pct' }, String(Math.round(sel.score * 100))), h('span', { class: 'hud-pctsign' }, '%')),
       h('div', { class: 'hud-figtext' },
-        h('p', null, pctl != null ? `closer than ${fmtPctl(pctl)}% of ${BODY_NAMES[sel.body]}` : 'match'),
+        h('p', null, pctl != null ? `closer than this share of ${BODY_NAMES[sel.body]}` : 'match'),
         h('p', { class: 'dim' }, parts.join(' · ')),
         windowChip,
         h('p', { class: 'hud-rank' }, prev, h('span', { class: 'mono' }, `twin ${sel.rank} of ${rankOf} on ${BODY_NAMES[sel.body]}`), next)),

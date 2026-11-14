@@ -19,56 +19,22 @@
  "results": {
   "earth": [
    {
-    "id": "earth-864753",
-    "body": "earth",
-    "lat": 34.89367830964674,
-    "lon": -110.70175438596493,
-    "place_label": "United States of America",
-    "terrain_sim": 0.6882732199376581,
-    "light_sim": 0.9785719797178145,
-    "best_window": {
-     "start": "08-25",
-     "end": "09-21",
-     "emd": 0.10714010141092731,
-     "light_sim": 0.9785719797178145,
-     "earth_range": [
-      0.7969,
-      0.9986
-     ]
-    },
-    "env": {
-     "country": "United States of America",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 1601.5,
-     "nearest_airport": "Flagstaff Pulliam Airport (FLG / KFLG)",
-     "airport_km": 92.7,
-     "ndvi": 0.1615,
-     "lst_c": 30.78,
-     "barren": true,
-     "cold_dry": 0.0,
-     "ref": "ctx:earth-864753"
-    },
-    "score": 0.8044,
-    "rank": 1,
-    "ref": "twin:earth-864753"
-   },
-   {
     "id": "earth-536208",
     "body": "earth",
     "lat": 12.843678899127559,
     "lon": 41.43078038096428,
     "place_label": "Ethiopia",
     "terrain_sim": 0.6724767974980104,
-    "light_sim": 0.9923605599647282,
+    "light_sim": 0.9360270289871432,
     "best_window": {
-     "start": "10-04",
-     "end": "10-31",
-     "emd": 0.03819720017635908,
-     "light_sim": 0.9923605599647282,
+     "start": "02-04",
+     "end": "03-03",
+     "emd": 0.03794004883176768,
+     "light_sim": 0.9360270289871432,
+     "distinct": true,
      "earth_range": [
-      0.7969,
-      0.9986
+      0.1693,
+      0.9666
      ]
     },
     "env": {
@@ -84,44 +50,10 @@
      "cold_dry": 0.0,
      "ref": "ctx:earth-536208"
     },
-    "score": 0.8004,
-    "rank": 2,
+    "score": 0.7779,
+    "percentile": 99.9994,
+    "rank": 1,
     "ref": "twin:earth-536208"
-   },
-   {
-    "id": "earth-856160",
-    "body": "earth",
-    "lat": 33.56268233288702,
-    "lon": -112.76172202902023,
-    "place_label": "United States of America",
-    "terrain_sim": 0.6747537027606595,
-    "light_sim": 0.9813001543209894,
-    "best_window": {
-     "start": "08-26",
-     "end": "09-22",
-     "emd": 0.09349922839505315,
-     "light_sim": 0.9813001543209894,
-     "earth_range": [
-      0.7969,
-      0.9986
-     ]
-    },
-    "env": {
-     "country": "United States of America",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 385.4,
-     "nearest_airport": "Phoenix Sky Harbor International Airport (PHX / KPHX)",
-     "airport_km": 70.8,
-     "ndvi": 0.1636,
-     "lst_c": 36.89,
-     "barren": true,
-     "cold_dry": 0.0,
-     "ref": "ctx:earth-856160"
-    },
-    "score": 0.7974,
-    "rank": 3,
-    "ref": "twin:earth-856160"
    },
    {
     "id": "earth-360496",
@@ -130,15 +62,16 @@
     "lon": -107.41440196335316,
     "place_label": "United States of America",
     "terrain_sim": 0.6719729026672383,
-    "light_sim": 0.9843843694885365,
+    "light_sim": 0.9286486358604096,
     "best_window": {
-     "start": "03-14",
-     "end": "04-10",
-     "emd": 0.0780781525573174,
-     "light_sim": 0.9843843694885365,
+     "start": "08-24",
+     "end": "09-20",
+     "emd": 0.04125154073083313,
+     "light_sim": 0.9286486358604096,
+     "distinct": true,
      "earth_range": [
-      0.7969,
-      0.9986
+      0.1693,
+      0.9666
      ]
     },
     "env": {
@@ -154,79 +87,84 @@
      "cold_dry": 0.0,
      "ref": "ctx:earth-360496"
     },
-    "score": 0.7969,
-    "rank": 4,
+    "score": 0.7746,
+    "percentile": 99.999,
+    "rank": 2,
     "ref": "twin:earth-360496"
    },
    {
-    "id": "earth-288986",
+    "id": "earth-864753",
     "body": "earth",
-    "lat": 39.57667121521006,
-    "lon": 104.93943122029305,
-    "place_label": "China",
-    "terrain_sim": 0.6749305753743681,
-    "light_sim": 0.9716958774250439,
+    "lat": 34.89367830964674,
+    "lon": -110.70175438596493,
+    "place_label": "United States of America",
+    "terrain_sim": 0.6882732199376581,
+    "light_sim": 0.9012739585983995,
     "best_window": {
-     "start": "08-28",
-     "end": "09-24",
-     "emd": 0.14152061287478052,
-     "light_sim": 0.9716958774250439,
+     "start": "08-20",
+     "end": "09-16",
+     "emd": 0.05411363324542505,
+     "light_sim": 0.9012739585983995,
+     "distinct": true,
      "earth_range": [
-      0.7969,
-      0.9986
+      0.1693,
+      0.9666
      ]
     },
     "env": {
-     "country": "China",
+     "country": "United States of America",
      "koppen_code": null,
      "koppen_label": null,
-     "elevation_m": 1195.3,
-     "nearest_airport": "Lanzhou Zhongchuan International Airport (ZGC / ZLLL)",
-     "airport_km": 360.4,
-     "ndvi": 0.1065,
-     "lst_c": 27.2,
-     "barren": true,
-     "cold_dry": 0.0361,
-     "ref": "ctx:earth-288986"
-    },
-    "score": 0.7936,
-    "rank": 5,
-    "ref": "twin:earth-288986"
-   },
-   {
-    "id": "earth-339858",
-    "body": "earth",
-    "lat": 34.08983824398278,
-    "lon": 60.98220111429691,
-    "place_label": "Afghanistan",
-    "terrain_sim": 0.6538128506351131,
-    "light_sim": 0.9801680996472673,
-    "best_window": {
-     "start": "08-26",
-     "end": "09-22",
-     "emd": 0.09915950176366399,
-     "light_sim": 0.9801680996472673,
-     "earth_range": [
-      0.7969,
-      0.9986
-     ]
-    },
-    "env": {
-     "country": "Afghanistan",
-     "koppen_code": null,
-     "koppen_label": null,
-     "elevation_m": 697.1,
-     "nearest_airport": "Mashhad International Airport (MHD / OIMM)",
-     "airport_km": 267.1,
-     "ndvi": 0.0721,
-     "lst_c": 32.38,
+     "elevation_m": 1601.5,
+     "nearest_airport": "Flagstaff Pulliam Airport (FLG / KFLG)",
+     "airport_km": 92.7,
+     "ndvi": 0.1615,
+     "lst_c": 30.78,
      "barren": true,
      "cold_dry": 0.0,
-     "ref": "ctx:earth-339858"
+     "ref": "ctx:earth-864753"
     },
-    "score": 0.7844,
-    "rank": 6,
-    "ref": "twin:earth-339858"
+    "score": 0.7735,
+    "percentile": 99.9989,
+    "rank": 3,
+    "ref": "twin:earth-864753"
+   },
+   {
+    "id": "earth-856160",
+    "body": "earth",
+    "lat": 33.56268233288702,
+    "lon": -112.76172202902023,
+    "place_label": "United States of America",
+    "terrain_sim": 0.6747537027606595,
+    "light_sim": 0.9158832943639603,
+    "best_window": {
+     "start": "08-24",
+     "end": "09-20",
+     "emd": 0.05252696387938656,
+     "light_sim": 0.9158832943639603,
+     "distinct": true,
+     "earth_range": [
+      0.1693,
+      0.9666
+     ]
+    },
+    "env": {
+     "country": "United States of America",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 385.4,
+     "nearest_airport": "Phoenix Sky Harbor International Airport (PHX / KPHX)",
+     "airport_km": 70.8,
+     "ndvi": 0.1636,
+     "lst_c": 36.89,
+     "barren": true,
+     "cold_dry": 0.0,
+     "ref": "ctx:earth-856160"
+    },
+    "score": 0.7712,
+    "percentile": 99.9987,
+    "rank": 4,
+    "ref": "twin:earth-856160"
    },
    {
     "id": "earth-385999",
@@ -235,15 +173,16 @@
     "lon": -7.945371314883232,
     "place_label": "Morocco",
     "terrain_sim": 0.6444223542703398,
-    "light_sim": 0.9890382495590838,
+    "light_sim": 0.9497392155604858,
     "best_window": {
-     "start": "08-31",
-     "end": "09-27",
-     "emd": 0.05480875220458106,
-     "light_sim": 0.9890382495590838,
+     "start": "03-10",
+     "end": "04-06",
+     "emd": 0.044099547401106,
+     "light_sim": 0.9497392155604858,
+     "distinct": true,
      "earth_range": [
-      0.7969,
-      0.9986
+      0.1693,
+      0.9666
      ]
     },
     "env": {
@@ -259,8 +198,9 @@
      "cold_dry": 0.0,
      "ref": "ctx:earth-385999"
     },
-    "score": 0.7823,
-    "rank": 7,
+    "score": 0.7665,
+    "percentile": 99.9984,
+    "rank": 5,
     "ref": "twin:earth-385999"
    },
    {
@@ -270,15 +210,16 @@
     "lon": 28.28783468902111,
     "place_label": "Egypt",
     "terrain_sim": 0.636013474579291,
-    "light_sim": 0.9879965828924173,
+    "light_sim": 0.9459072919740512,
     "best_window": {
-     "start": "08-30",
-     "end": "09-26",
-     "emd": 0.060017085537913295,
-     "light_sim": 0.9879965828924173,
+     "start": "09-02",
+     "end": "09-29",
+     "emd": 0.04864204544391356,
+     "light_sim": 0.9459072919740512,
+     "distinct": true,
      "earth_range": [
-      0.7969,
-      0.9986
+      0.1693,
+      0.9666
      ]
     },
     "env": {
@@ -294,44 +235,47 @@
      "cold_dry": 0.0,
      "ref": "ctx:earth-379294"
     },
-    "score": 0.7768,
-    "rank": 8,
+    "score": 0.76,
+    "percentile": 99.998,
+    "rank": 6,
     "ref": "twin:earth-379294"
    },
    {
-    "id": "earth-333933",
+    "id": "earth-339858",
     "body": "earth",
-    "lat": 34.70684773610574,
-    "lon": 61.29934565722942,
+    "lat": 34.08983824398278,
+    "lon": 60.98220111429691,
     "place_label": "Afghanistan",
-    "terrain_sim": 0.6355786093334597,
-    "light_sim": 0.978928020282188,
+    "terrain_sim": 0.6538128506351131,
+    "light_sim": 0.9102108538556853,
     "best_window": {
-     "start": "08-26",
-     "end": "09-22",
-     "emd": 0.10535989858906016,
-     "light_sim": 0.978928020282188,
+     "start": "03-20",
+     "end": "04-16",
+     "emd": 0.05462016203702028,
+     "light_sim": 0.9102108538556853,
+     "distinct": true,
      "earth_range": [
-      0.7969,
-      0.9986
+      0.1693,
+      0.9666
      ]
     },
     "env": {
      "country": "Afghanistan",
      "koppen_code": null,
      "koppen_label": null,
-     "elevation_m": 803.5,
+     "elevation_m": 697.1,
      "nearest_airport": "Mashhad International Airport (MHD / OIMM)",
-     "airport_km": 226.1,
-     "ndvi": 0.0827,
-     "lst_c": 29.63,
+     "airport_km": 267.1,
+     "ndvi": 0.0721,
+     "lst_c": 32.38,
      "barren": true,
-     "cold_dry": 0.0054,
-     "ref": "ctx:earth-333933"
+     "cold_dry": 0.0,
+     "ref": "ctx:earth-339858"
     },
-    "score": 0.7729,
-    "rank": 9,
-    "ref": "twin:earth-333933"
+    "score": 0.7564,
+    "percentile": 99.9977,
+    "rank": 7,
+    "ref": "twin:earth-339858"
    },
    {
     "id": "earth-444948",
@@ -340,15 +284,16 @@
     "lon": 11.34445932507515,
     "place_label": "Algeria",
     "terrain_sim": 0.6144370627395072,
-    "light_sim": 0.998599537037037,
+    "light_sim": 0.9626427443036885,
     "best_window": {
      "start": "09-06",
      "end": "10-03",
-     "emd": 0.007002314814814899,
-     "light_sim": 0.998599537037037,
+     "emd": 0.03658371449487683,
+     "light_sim": 0.9626427443036885,
+     "distinct": true,
      "earth_range": [
-      0.7969,
-      0.9986
+      0.1693,
+      0.9666
      ]
     },
     "env": {
@@ -364,9 +309,84 @@
      "cold_dry": 0.0,
      "ref": "ctx:earth-444948"
     },
-    "score": 0.7681,
-    "rank": 10,
+    "score": 0.7537,
+    "percentile": 99.9974,
+    "rank": 8,
     "ref": "twin:earth-444948"
+   },
+   {
+    "id": "earth-448153",
+    "body": "earth",
+    "lat": 23.557696629513423,
+    "lon": 39.84669694304466,
+    "place_label": "Saudi Arabia",
+    "terrain_sim": 0.6002649326072419,
+    "light_sim": 0.9602510648177183,
+    "best_window": {
+     "start": "09-06",
+     "end": "10-03",
+     "emd": 0.03907129930892217,
+     "light_sim": 0.9602510648177183,
+     "distinct": true,
+     "earth_range": [
+      0.1693,
+      0.9666
+     ]
+    },
+    "env": {
+     "country": "Saudi Arabia",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 960.4,
+     "nearest_airport": "Prince Mohammad Bin Abdulaziz International Airport (MED / OEMA)",
+     "airport_km": 110.7,
+     "ndvi": 0.1474,
+     "lst_c": 38.42,
+     "barren": true,
+     "cold_dry": 0.0,
+     "ref": "ctx:earth-448153"
+    },
+    "score": 0.7443,
+    "percentile": 99.9971,
+    "rank": 9,
+    "ref": "twin:earth-448153"
+   },
+   {
+    "id": "earth-288986",
+    "body": "earth",
+    "lat": 39.57667121521006,
+    "lon": 104.93943122029305,
+    "place_label": "China",
+    "terrain_sim": 0.6749305753743681,
+    "light_sim": 0.843899466537729,
+    "best_window": {
+     "start": "04-06",
+     "end": "05-03",
+     "emd": 0.058058500969675526,
+     "light_sim": 0.843899466537729,
+     "distinct": true,
+     "earth_range": [
+      0.1693,
+      0.9666
+     ]
+    },
+    "env": {
+     "country": "China",
+     "koppen_code": null,
+     "koppen_label": null,
+     "elevation_m": 1195.3,
+     "nearest_airport": "Lanzhou Zhongchuan International Airport (ZGC / ZLLL)",
+     "airport_km": 360.4,
+     "ndvi": 0.1065,
+     "lst_c": 27.2,
+     "barren": true,
+     "cold_dry": 0.0361,
+     "ref": "ctx:earth-288986"
+    },
+    "score": 0.7425,
+    "percentile": 99.9969,
+    "rank": 10,
+    "ref": "twin:earth-288986"
    }
   ],
   "moon": [
@@ -381,6 +401,7 @@
     "best_window": null,
     "env": null,
     "score": 0.767,
+    "percentile": 99.9997,
     "rank": 1,
     "ref": "twin:moon-13782"
    },
@@ -395,6 +416,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7518,
+    "percentile": 99.9993,
     "rank": 2,
     "ref": "twin:moon-177624"
    },
@@ -409,6 +431,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7437,
+    "percentile": 99.999,
     "rank": 3,
     "ref": "twin:moon-114197"
    },
@@ -423,6 +446,7 @@
     "best_window": null,
     "env": null,
     "score": 0.742,
+    "percentile": 99.9986,
     "rank": 4,
     "ref": "twin:moon-80531"
    },
@@ -437,6 +461,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7381,
+    "percentile": 99.9983,
     "rank": 5,
     "ref": "twin:moon-162965"
    },
@@ -451,6 +476,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7206,
+    "percentile": 99.9979,
     "rank": 6,
     "ref": "twin:moon-89674"
    },
@@ -465,6 +491,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7174,
+    "percentile": 99.9976,
     "rank": 7,
     "ref": "twin:moon-126685"
    },
@@ -479,6 +506,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7067,
+    "percentile": 99.9972,
     "rank": 8,
     "ref": "twin:moon-81249"
    },
@@ -493,6 +521,7 @@
     "best_window": null,
     "env": null,
     "score": 0.7044,
+    "percentile": 99.9969,
     "rank": 9,
     "ref": "twin:moon-230196"
    },
@@ -507,12 +536,13 @@
     "best_window": null,
     "env": null,
     "score": 0.6918,
+    "percentile": 99.9965,
     "rank": 10,
     "ref": "twin:moon-235487"
    }
   ]
  },
- "latency_ms": 406.6,
+ "latency_ms": 741.6,
  "source": "live",
  "ref": "twins:mars:18.410:77.690"
 }
