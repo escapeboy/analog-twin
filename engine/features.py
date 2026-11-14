@@ -60,14 +60,45 @@ GROUPS: dict[str, str] = {
 FEATURE_GROUP = np.array([g for _, g, _ in FEATURES])
 
 
-def group_indices() -> dict[str, np.ndarray]:
-    return {g: np.flatnonzero(FEATURE_GROUP == g) for g in GROUPS}
+# v2 (experiment, multiscale): v1 + a coarse "context" group over a 39 x 39 px (36 km) window, block-averaged 3x3
+# to 2.78 km pixels (13 x 13). The v1 dimensions are computed on the central 13 x 13 of the same window, which is
+# exactly the v1 window, so v2[:25] == v1.
+COARSE_FACTOR = 3
+WINDOW_PX_V2 = WINDOW_PX * COARSE_FACTOR
+FEATURES_CONTEXT: list[tuple[str, str, str]] = [
+    ("ctx_slope_mean", "context", "Mean slope (degrees) over the 36 km window at 2.78 km pixels."),
+    ("ctx_slope_p90", "context", "90th-percentile slope (degrees) over the 36 km window at 2.78 km pixels."),
+    ("ctx_rough", "context", "log10(1 + RMS height deviation from the best-fit plane of the 36 km window), metres."),
+    ("ctx_relief", "context", "log10(1 + max - min of the detrended 36 km window), metres."),
+    ("ctx_tpi", "context", "Centre (2.78 km block) height minus the 36 km window mean, signed log10(1 + abs(m)): "
+                           "basin / crater floor (negative) vs. massif or rim (positive)."),
+    ("ctx_hypsometric", "context", "Hypsometric integral of the detrended 36 km window."),
+]
+GROUPS_V2: dict[str, str] = {**GROUPS, "context": "landform context over 36 km (crater, basin or massif scale)"}
 
 
-def group_weights() -> np.ndarray:
+def feature_set(name: str = "v1") -> dict:
+    if name == "v1":
+        feats, groups, win = FEATURES, GROUPS, WINDOW_PX
+    elif name == "v2":
+        feats, groups, win = FEATURES + FEATURES_CONTEXT, GROUPS_V2, WINDOW_PX_V2
+    else:
+        raise ValueError(f"unknown feature set {name!r}")
+    return {"name": name, "features": feats, "names": [f[0] for f in feats],
+            "group_of": np.array([f[1] for f in feats]), "groups": groups, "window_px": win,
+            "fn": features if name == "v1" else features_v2}
+
+
+def group_indices(set_name: str = "v1") -> dict[str, np.ndarray]:
+    fs = feature_set(set_name)
+    return {g: np.flatnonzero(fs["group_of"] == g) for g in fs["groups"]}
+
+
+def group_weights(set_name: str = "v1") -> np.ndarray:
     """Per-dimension weight 1/sqrt(n_group): every group contributes equally to the expected squared distance."""
-    w = np.empty(N_FEATURES, dtype=np.float32)
-    for g, idx in group_indices().items():
+    idx_by_g = group_indices(set_name)
+    w = np.empty(sum(len(v) for v in idx_by_g.values()), dtype=np.float32)
+    for g, idx in idx_by_g.items():
         w[idx] = 1.0 / np.sqrt(len(idx))
     return w
 
@@ -184,7 +215,7 @@ def features(window: np.ndarray, gsd_m: float = GSD_M) -> np.ndarray:
 CLIP = 5.0
 
 
-def fit_scaler(raw: np.ndarray) -> dict:
+def fit_scaler(raw: np.ndarray, set_name: str = "v1") -> dict:
     """Robust scaler over the pooled corpus: centre = median, scale = IQR (fallback: std, then 1 when constant)."""
     med = np.median(raw, axis=0)
     q25, q75 = np.percentile(raw, [25, 75], axis=0)
@@ -192,12 +223,13 @@ def fit_scaler(raw: np.ndarray) -> dict:
     std = raw.std(axis=0)
     scale = np.where(iqr > 1e-9, iqr, np.where(std > 1e-9, std, 1.0))
     return {
-        "features": FEATURE_NAMES,
+        "feature_set": set_name,
+        "features": feature_set(set_name)["names"],
         "median": [float(v) for v in med],
         "scale": [float(v) for v in scale],
         "scale_kind": ["iqr" if i > 1e-9 else ("std" if s > 1e-9 else "unit") for i, s in zip(iqr, std)],
         "clip": CLIP,
-        "weights": [float(v) for v in group_weights()],
+        "weights": [float(v) for v in group_weights(set_name)],
     }
 
 
@@ -208,3 +240,35 @@ def apply_scaler(raw: np.ndarray, scaler: dict, weighted: bool = True) -> np.nda
     if weighted:
         z = z * np.asarray(scaler["weights"], dtype=np.float32)
     return z.astype(np.float32)
+
+
+def features_v2(window: np.ndarray, gsd_m: float = GSD_M) -> np.ndarray:
+    """v2 feature vectors for (B, 39, 39) or (39, 39) windows: v1 on the central 13 x 13 + 6 context dims."""
+    single = window.ndim == 2
+    w = (window[None] if single else window).astype(np.float64)
+    b, n, _ = w.shape
+    if n != WINDOW_PX_V2:
+        raise ValueError(f"v2 needs {WINDOW_PX_V2} px windows")
+    o = (n - WINDOW_PX) // 2
+    fine = features(w[:, o:o + WINDOW_PX, o:o + WINDOW_PX], gsd_m).astype(np.float64)
+    f = COARSE_FACTOR
+    m = n // f
+    cw = w.reshape(b, m, f, m, f).mean(axis=(2, 4))
+    g = gsd_m * f
+    gy, gx = np.gradient(cw, g, axis=(1, 2))
+    slope = np.degrees(np.arctan(np.hypot(gx, gy))).reshape(b, -1)
+    zd = detrend(cw).reshape(b, -1)
+    zmin, zmax = zd.min(axis=1), zd.max(axis=1)
+    rel = zmax - zmin
+    ctx = np.empty((b, len(FEATURES_CONTEXT)))
+    ctx[:, 0] = slope.mean(axis=1)
+    ctx[:, 1] = np.percentile(slope, 90, axis=1)
+    ctx[:, 2] = np.log10(1 + np.sqrt((zd ** 2).mean(axis=1)))
+    ctx[:, 3] = np.log10(1 + rel)
+    ctx[:, 4] = _slog(zd[:, (m * m) // 2] - zd.mean(axis=1))
+    with np.errstate(invalid="ignore", divide="ignore"):
+        ctx[:, 5] = np.where(rel > 1e-6, (zd.mean(axis=1) - zmin) / np.where(rel > 1e-6, rel, 1), 0.5)
+    out = np.concatenate([fine, ctx], axis=1)
+    out[~np.isfinite(w).all(axis=(1, 2))] = np.nan
+    out = out.astype(np.float32)
+    return out[0] if single else out

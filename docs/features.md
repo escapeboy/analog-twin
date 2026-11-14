@@ -95,3 +95,25 @@ view and is not used. Moon and Mars points are labelled with their coordinates.
 - The Moon's grids are 2-4 % coarser (948 m / 960 m) than Earth's and Mars's before resampling.
 - Earth heights are on the EGM2008 geoid; Moon heights are relative to a 1737.4 km sphere; Mars heights relative to
   the MOLA datum. Only shape is compared, so the datum does not matter.
+
+## Experiment: v2 multiscale feature set (data/index/full_v2)
+
+Hypothesis, stated before the run: the 12 km window cannot see crater or landform-scale context (Jezero is ~45 km
+across, Haughton ~23 km), which is why known analogs do not rank. v2 = the 25 v1 dimensions (computed on the
+central 13 x 13 px of the same window, identical to v1) plus a 6-dimension **context** group over a 39 x 39 px
+(36 km) window, block-averaged 3 x 3 to 13 x 13 px of 2.78 km:
+
+| Feature | Group | Meaning |
+|---|---|---|
+| `ctx_slope_mean` | context | Mean slope (degrees) over the 36 km window at 2.78 km pixels. |
+| `ctx_slope_p90` | context | 90th-percentile slope (degrees) over the 36 km window at 2.78 km pixels. |
+| `ctx_rough` | context | log10(1 + RMS height deviation from the best-fit plane of the 36 km window), metres. |
+| `ctx_relief` | context | log10(1 + max - min of the detrended 36 km window), metres. |
+| `ctx_tpi` | context | Centre (2.78 km block) height minus the 36 km window mean, signed log: basin or crater floor (negative) vs. massif or rim (positive). |
+| `ctx_hypsometric` | context | Hypsometric integral of the detrended 36 km window. |
+
+The context group gets the same total weight as each other group (7 groups). Grid points need the whole 36 km
+window to be valid, so v2 has fewer Earth points near coasts. Decision rule, declared before the run: make v2 the
+`current` index only if the known-analog median percentile improves by at least 5 points over v1, the random
+baseline stays near 50 % and find_twins p95 stays below 1 s. The analog list and the weights are not tuned.
+Results: `docs/metrics.json` -> `terrain.v1` and `terrain.v2_multiscale`.

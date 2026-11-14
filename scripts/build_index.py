@@ -116,15 +116,17 @@ def load_sites() -> list[dict]:
 
 # ----------------------------------------------------------------------------------------------- features
 def _feature_chunk(args):
-    body, lat, lon = args
-    win = dem.crop_metric_batch(body, lat, lon, F.WINDOW_PX, dem.GSD_M)
-    return F.features(win, dem.GSD_M)
+    body, lat, lon, set_name = args
+    fs = F.feature_set(set_name)
+    win = dem.crop_metric_batch(body, lat, lon, fs["window_px"], dem.GSD_M)
+    return fs["fn"](win, dem.GSD_M)
 
 
-def compute_features(body: str, lat: np.ndarray, lon: np.ndarray, workers: int, chunk: int = 4096) -> np.ndarray:
-    tasks = [(body, lat[i:i + chunk], lon[i:i + chunk]) for i in range(0, len(lat), chunk)]
+def compute_features(body: str, lat: np.ndarray, lon: np.ndarray, workers: int, chunk: int = 4096,
+                     set_name: str = "v1") -> np.ndarray:
+    tasks = [(body, lat[i:i + chunk], lon[i:i + chunk], set_name) for i in range(0, len(lat), chunk)]
     if not tasks:
-        return np.empty((0, F.N_FEATURES), dtype=np.float32)
+        return np.empty((0, len(F.feature_set(set_name)["names"])), dtype=np.float32)
     if workers <= 1:
         parts = [_feature_chunk(t) for t in tasks]
     else:
@@ -162,7 +164,7 @@ def coord_label(body: str, lat: float, lon: float) -> str:
 
 # ----------------------------------------------------------------------------------------------- main
 def build(out: Path, spacing_km: float, dense_km: float | None, bodies=BODIES, workers: int = 8,
-          log=print) -> dict:
+          log=print, set_name: str = "v1") -> dict:
     t0 = time.time()
     dem.prepare_grids(bodies)
     sites = load_sites() if dense_km else []
@@ -182,7 +184,7 @@ def build(out: Path, spacing_km: float, dense_km: float | None, bodies=BODIES, w
         keep = dem.in_limits(body, lat)
         lat, lon, dense = lat[keep], lon[keep], dense[keep]
         t1 = time.time()
-        raw = compute_features(body, lat, lon, workers)
+        raw = compute_features(body, lat, lon, workers, set_name=set_name)
         ok = np.isfinite(raw).all(axis=1)
         lat, lon, dense, raw = lat[ok], lon[ok], dense[ok], raw[ok]
         log(f"{body}: {ok.sum()} valid of {len(ok)} candidate points ({dense.sum()} dense) in {time.time() - t1:.0f}s")
@@ -201,7 +203,7 @@ def build(out: Path, spacing_km: float, dense_km: float | None, bodies=BODIES, w
     raw = np.concatenate(all_raw, axis=0).astype(np.float32)
     table = pa.concat_tables([pa.table(t) for t in tables])
     uniform = ~np.asarray(table.column("dense").to_numpy(zero_copy_only=False))
-    scaler = F.fit_scaler(raw[uniform])
+    scaler = F.fit_scaler(raw[uniform], set_name)
     feats = F.apply_scaler(raw, scaler)
 
     # distance -> similarity calibration over random pairs of the pooled uniform corpus
@@ -222,8 +224,9 @@ def build(out: Path, spacing_km: float, dense_km: float | None, bodies=BODIES, w
     (out / "scaler.json").write_text(json.dumps(scaler, indent=2))
     sha = hashlib.sha256(feats.tobytes()).hexdigest()
     manifest = {
-        "gsd_m": dem.GSD_M, "window_px": F.WINDOW_PX, "window_km": round(F.WINDOW_KM, 3),
-        "n_features": F.N_FEATURES, "feature_names": F.FEATURE_NAMES,
+        "feature_set": set_name, "gsd_m": dem.GSD_M, "window_px": F.WINDOW_PX, "window_km": round(F.WINDOW_KM, 3),
+        "context_window_px": F.feature_set(set_name)["window_px"],
+        "n_features": len(F.feature_set(set_name)["names"]), "feature_names": F.feature_set(set_name)["names"],
         "spacing_km": spacing_km, "dense_spacing_km": dense_km,
         "dense_zones": {"balkans_bbox": list(BALKANS_BBOX) if dense_km else None,
                         "radius_km": DENSE_RADIUS_KM if dense_km else None, "sites": len(sites)},
@@ -268,12 +271,13 @@ def main(argv=None):
     ap.add_argument("--bodies", default=",".join(BODIES))
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--no-link", action="store_true")
+    ap.add_argument("--feature-set", default="v1", choices=["v1", "v2"])
     a = ap.parse_args(argv)
     spacing = a.spacing_km or (50.0 if a.small else 12.0)
     dense = a.dense_km if a.dense_km is not None else (12.0 if a.small else 4.0)
     out = a.out or INDEX_ROOT / ("small" if a.small else "full")
     bodies = tuple(b.strip() for b in a.bodies.split(",") if b.strip())
-    build(out, spacing, dense or None, bodies, min(a.workers, 8))
+    build(out, spacing, dense or None, bodies, min(a.workers, 8), set_name=a.feature_set)
     if not a.no_link:
         cur = update_current_link()
         print(f"current -> {cur}")
