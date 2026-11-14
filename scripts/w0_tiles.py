@@ -32,7 +32,8 @@ def get(body, z, y, x):
     return f"fail {url} {err}"
 
 
-jobs = [(b, z, y, x) for b in LAYERS for z in range(MAXZ + 1) for y in range(2**z) for x in range(2 ** (z + 1))]
+BODIES = sys.argv[2].split(",") if len(sys.argv) > 2 else list(LAYERS)
+jobs = [(b, z, y, x) for b in BODIES for z in range(MAXZ + 1) for y in range(2**z) for x in range(2 ** (z + 1))]
 counts = {}
 with cf.ThreadPoolExecutor(max_workers=3) as ex:
     for res in ex.map(lambda j: get(*j), jobs):

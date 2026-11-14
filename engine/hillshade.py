@@ -22,6 +22,9 @@ from engine import light
 
 NAN_GREY = 128
 SUN_EL_MIN_DEG = 3.0
+# Display-only fill light so terrain inside shadows stays readable on a projector; applied identically to both
+# images of a pair and stated in the caption. hillshade() itself defaults to 0 (pure Lambertian + cast shadow).
+DISPLAY_AMBIENT = 0.15
 SUN_EL_MAX_DEG = 35.0
 DEFAULT_CACHE_DIR = Path(os.environ.get("ANALOG_TWIN_DATA", Path(__file__).resolve().parents[1] / "data")) \
     / "cache" / "hillshade"
@@ -53,8 +56,10 @@ def _cast_shadow(z: np.ndarray, gsd_m: float, azimuth_deg: float, elevation_deg:
     return shadow
 
 
-def hillshade(dem: np.ndarray, gsd_m: float, azimuth_deg: float, elevation_deg: float) -> np.ndarray:
-    """Render a DEM (metres) as a uint8 image: 255 * max(0, n.s), 0 in cast shadow, NaN -> grey."""
+def hillshade(dem: np.ndarray, gsd_m: float, azimuth_deg: float, elevation_deg: float,
+              ambient: float = 0.0) -> np.ndarray:
+    """Render a DEM (metres) as a uint8 image: 255 * (ambient + (1-ambient) * max(0, n.s)); cast shadow -> ambient;
+    NaN -> grey."""
     dem = np.asarray(dem, dtype=float)
     if dem.ndim != 2 or min(dem.shape) < 2:
         raise ValueError(f"dem must be a 2-D array of at least 2x2, got shape {dem.shape}")
@@ -72,7 +77,7 @@ def hillshade(dem: np.ndarray, gsd_m: float, azimuth_deg: float, elevation_deg: 
     s = _sun_vector(azimuth_deg, elevation_deg)
     lambert = np.clip((-dz_de * s[0] - dz_dn * s[1] + s[2]) / norm, 0.0, 1.0)
     lambert[_cast_shadow(z, gsd_m, azimuth_deg, elevation_deg)] = 0.0
-    img = np.rint(lambert * 255.0).astype(np.uint8)
+    img = np.rint((ambient + (1.0 - ambient) * lambert) * 255.0).astype(np.uint8)
     img[nan] = NAN_GREY
     return img
 
@@ -132,12 +137,12 @@ def render_pair(dem_a: np.ndarray, dem_b: np.ndarray, gsd_m: float, azimuth_deg:
     if dem_a.shape != dem_b.shape:
         raise ValueError(f"DEM crops must have identical shape, got {dem_a.shape} and {dem_b.shape}")
     out = Path(out_dir) if out_dir is not None else DEFAULT_CACHE_DIR
-    stem = f"{_safe_pair_id(pair_id)}_az{azimuth_deg:.0f}_el{elevation_deg:.1f}"
+    stem = f"{_safe_pair_id(pair_id)}_az{azimuth_deg:.0f}_el{elevation_deg:.1f}_f{DISPLAY_AMBIENT:.2f}"
     rows, cols = dem_a.shape
     extent_km = cols * gsd_m / 1000.0
     caption = (f"Sun azimuth {azimuth_deg:.0f}°, elevation {elevation_deg:.1f}° (identical for both) · "
                f"{extent_km:.0f} x {rows * gsd_m / 1000.0:.0f} km · GSD {gsd_m:.0f} m · "
-               f"Lambertian + cast shadows, no vertical exaggeration")
+               f"Lambertian + cast shadows + {DISPLAY_AMBIENT:.0%} fill light, no vertical exaggeration")
     paths = {k: out / f"{stem}_{k}.png" for k in ("a", "b", "pair")}
     result = {"a_path": str(paths["a"]), "b_path": str(paths["b"]), "pair_path": str(paths["pair"]),
               "caption": caption, "sun_azimuth_deg": float(azimuth_deg), "sun_elevation_deg": float(elevation_deg),
@@ -145,8 +150,8 @@ def render_pair(dem_a: np.ndarray, dem_b: np.ndarray, gsd_m: float, azimuth_deg:
     if all(p.exists() for p in paths.values()):
         return result
     out.mkdir(parents=True, exist_ok=True)
-    img_a = hillshade(dem_a, gsd_m, azimuth_deg, elevation_deg)
-    img_b = hillshade(dem_b, gsd_m, azimuth_deg, elevation_deg)
+    img_a = hillshade(dem_a, gsd_m, azimuth_deg, elevation_deg, DISPLAY_AMBIENT)
+    img_b = hillshade(dem_b, gsd_m, azimuth_deg, elevation_deg, DISPLAY_AMBIENT)
     Image.fromarray(img_a, mode="L").save(paths["a"])
     Image.fromarray(img_b, mode="L").save(paths["b"])
     pa, pb = _panel(img_a, gsd_m, label_a), _panel(img_b, gsd_m, label_b)

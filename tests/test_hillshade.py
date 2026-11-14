@@ -82,10 +82,10 @@ def test_render_pair_writes_files_and_caches(tmp_path):
     assert "azimuth 0°" in r["caption"] and "elevation 3.0°" in r["caption"]
     assert "GSD 926 m" in r["caption"] and "40 x 40 km" in r["caption"]
     assert r["extent_km"] == pytest.approx(43 * 0.926)
-    mtime = (tmp_path / "t1_az0_el3.0_pair.png").stat().st_mtime_ns
+    mtime = (tmp_path / "t1_az0_el3.0_f0.15_pair.png").stat().st_mtime_ns
     r2 = hs.render_pair(dem, dem_b, gsd, 0.0, 3.0, "x", "y", tmp_path, "t1")
     assert r2 == r
-    assert (tmp_path / "t1_az0_el3.0_pair.png").stat().st_mtime_ns == mtime
+    assert (tmp_path / "t1_az0_el3.0_f0.15_pair.png").stat().st_mtime_ns == mtime
 
 
 def test_matched_sun():
