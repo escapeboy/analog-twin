@@ -16,7 +16,8 @@ export function initDetail(root: HTMLElement) {
     const sel = store.selected?.twin;
     if (sel?.best_window) {
       const w = sel.best_window;
-      kids.push(h('p', { class: 'tight' }, h('b', null, 'Best window: '), `${w.start} to ${w.end} (light ${fmt(w.light_sim)}${w.earth_range ? ` (Earth range ${fmt(w.earth_range[0])}–${fmt(w.earth_range[1])})` : ''})`));
+      if (w.distinct === false) kids.push(h('p', { class: 'tight' }, h('b', null, 'Best window: '), `none, sunlight similar all year (light ${fmt(w.light_sim)} at best${w.earth_range ? `, Earth range ${fmt(w.earth_range[0])}–${fmt(w.earth_range[1])}` : ''})`));
+      else kids.push(h('p', { class: 'tight' }, h('b', null, 'Best window: '), `${w.start} to ${w.end} (light ${fmt(w.light_sim)}${w.earth_range ? ` (Earth range ${fmt(w.earth_range[0])}–${fmt(w.earth_range[1])})` : ''})`));
     }
     // compact one-line bars first (they carry the explanation), the picture below
     for (const g of p.groups) {
