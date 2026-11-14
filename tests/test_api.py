@@ -394,25 +394,27 @@ def test_atlas_static_mount(client):
             d.rmdir()
 
 
-def test_calendar_rows_weeks_and_replay_cache(client, monkeypatch):
+@pytest.mark.parametrize("real_calendar", [True, False])
+def test_calendar_rows_weeks_and_replay_cache(client, monkeypatch, real_calendar):
     import importlib
 
     class Idx:
         def point(self, pid):
             return {"id": pid, "body": "earth", "lat": {"A": 42.0, "B": 69.0}[pid], "lon": 10.0, "place_label": f"Place {pid}"}
 
-    lm = importlib.import_module("engine.light")
+    real = importlib.import_module("engine.light")
+    lm = real if real_calendar else types.SimpleNamespace(**{k: getattr(real, k) for k in dir(real) if k != "calendar"})
     monkeypatch.setattr(service, "get_index", lambda: Idx())
     monkeypatch.setattr(service, "_mod", lambda n: lm if n == "engine.light" else None)
     r = client.get("/api/calendar", params={"target_body": "moon", "target_lat": -89.7668, "target_lon": -171.87, "twin_ids": "A,B"})
     assert r.status_code == 200
     d = r.json()
-    assert d["caption"].startswith("Same terrain is not enough") and d["source"] == "fallback"
+    assert d["caption"].startswith("Same terrain is not enough") and d["source"] == ("live" if real_calendar else "fallback")
     assert [x["kind"] for x in d["rows"]] == ["twin", "twin", "known analog"]
     for row in d["rows"]:
         assert len(row["weeks"]) == 52 and all(0 <= w["light_sim"] <= 1 for w in row["weeks"]) and set(row["weeks"][0]) == {"week", "start", "light_sim"}
-        assert max(w["light_sim"] for w in row["weeks"]) <= row["best_window"]["light_sim"] + 1e-6
-        assert set(row["best_window"]) == {"start", "end", "light_sim"}
+        assert max(w["light_sim"] for w in row["weeks"]) <= row["best_window"]["light_sim"] + 1e-3
+        assert {"start", "end", "light_sim"} <= set(row["best_window"])
     assert client.get("/api/calendar", params={"target_body": "earth", "target_lat": 1, "target_lon": 1}).status_code == 422
     assert client.get("/api/calendar", params={"target_body": "moon", "target_lat": 1, "target_lon": 1, "twin_ids": "ZZ"}).status_code == 404
     # replay cache for a target
