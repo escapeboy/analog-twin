@@ -100,3 +100,6 @@ table.sites tbody tr { cursor:pointer; } table.sites tbody tr:hover { background
 
 #findings-body { flex:1 1 auto; min-height:0; overflow:auto; } .finding { font-size:17px; margin:6px 0; }
 .finding-i { display:inline-block; width:1.2em; height:1.2em; line-height:1.2em; text-align:center; border:1px solid var(--acc); border-radius:50%; color:var(--acc); font-size:14px; cursor:help; }
+
+/* Cesium ion is not used (empty token): no ion logo; data credits live in the footer */
+.cesium-credit-logoContainer { display: none !important; }

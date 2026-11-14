@@ -3,7 +3,7 @@
 import {
   CallbackPositionProperty, Cartesian2, Cartesian3, Color, CzmlDataSource, DistanceDisplayCondition, LabelStyle, Entity, HeadingPitchRange, ImageryLayer, JulianDate, Math as CMath, Matrix3,
   Matrix4, PathGraphics, PolylineGlowMaterialProperty, ReferenceFrame, Simon1994PlanetaryPositions,
-  TileMapServiceImageryProvider, Transforms, Viewer, buildModuleUrl, ConstantProperty,
+  Rectangle, SingleTileImageryProvider, Transforms, Viewer, ConstantProperty,
 } from 'cesium';
 import { assetUrl, http } from './api';
 import { clear, fmt, h } from './dom';
@@ -21,6 +21,8 @@ export interface MissionHooks {
   getSiteId: () => string | null;
   /** Called after the overlay is closed at the end of the choreography (not on manual close). */
   onFinish: (s: MissionSummary) => void;
+  /** Playback speed multiplier (film mode fits the 25 s choreography into its shot); ?mspeed= overrides. */
+  pace?: number;
 }
 
 const REAL_STAGES = { a: 6, b: 5, c: 8, d: 6 }; // seconds of real time per choreography stage, total 25 s
@@ -87,7 +89,9 @@ export function initMission(overlay: HTMLElement, hooks: MissionHooks) {
     shell(stage, hud, events, label, skip);
 
     viewer = new Viewer(stage, {
-      baseLayer: ImageryLayer.fromProviderAsync(TileMapServiceImageryProvider.fromUrl(buildModuleUrl('Assets/Textures/NaturalEarthII'))),
+      // bundled NASA Blue Marble (web/public/textures, see docs/data-attribution.md)
+      baseLayer: ImageryLayer.fromProviderAsync(SingleTileImageryProvider.fromUrl('textures/blue-marble-8k.jpg', { rectangle: Rectangle.fromDegrees(-180, -90, 180, 90) })),
+      creditContainer: document.createElement('div'),
       baseLayerPicker: false, geocoder: false, timeline: false, animation: false, homeButton: false,
       sceneModePicker: false, navigationHelpButton: false, infoBox: false, selectionIndicator: false,
       fullscreenButton: false, vrButton: false, shouldAnimate: false, // we drive the clock ourselves
@@ -234,7 +238,7 @@ export function initMission(overlay: HTMLElement, hooks: MissionHooks) {
       return blend(wideLook(m), close, f, 1 - (1 - f) ** 4);
     }
 
-    const pace = Number(new URLSearchParams(location.search).get('mspeed')) || 1; // e.g. ?mspeed=0.25 plays at quarter speed (screen recording)
+    const pace = Number(new URLSearchParams(location.search).get('mspeed')) || hooks.pace || 1; // e.g. ?mspeed=0.25 plays at quarter speed (screen recording)
     const started = performance.now();
     let done = false;
     const onTick = () => {

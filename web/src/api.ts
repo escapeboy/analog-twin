@@ -83,7 +83,7 @@ const params = new URLSearchParams(location.search);
 // Offline bundle (scripts/export_offline_demo.sh builds with VITE_OFFLINE=1): every API call is answered from
 // static files under ./offline/ and the crew SSE stream is replayed client-side from the golden .jsonl.
 export const OFFLINE = import.meta.env.VITE_OFFLINE === '1';
-export const REPLAY = OFFLINE || params.get('replay') === '1';
+export const REPLAY = OFFLINE || params.get('replay') === '1' || params.get('film') === '1'; // film mode uses recorded data only
 export class OfflineError extends Error {}
 
 const safe = (s: string) => s.replace(/[^A-Za-z0-9._-]/g, '_'); // keep identical to the export script
