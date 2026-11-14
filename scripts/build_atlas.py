@@ -6,7 +6,7 @@ For each non-Earth target in engine/targets.yaml and each mode (terrain, terrain
   atlas/<target>/<mode>/score.png        RGBA equirectangular (row 0 = 90 N, col 0 = 180 W), viridis, ocean/ice/no-data transparent
   atlas/<target>/<mode>/top200.geojson   top 200 Earth points after 50 km NMS
   atlas/<target>/<mode>/score.tif        float32 GeoTIFF (EPSG:4326), presets only (GEOTIFF_TARGETS)
-plus atlas/index.json (targets, modes, files, value ranges, colour ramp stops), atlas/known_analogs.geojson.
+plus atlas/barren_mask.png (global NDVI mask on the same grid), atlas/index.json (targets, modes, files, value ranges, colour ramp stops), atlas/known_analogs.geojson.
 """
 from __future__ import annotations
 
@@ -24,12 +24,18 @@ sys.path.insert(0, str(REPO))
 
 from engine import atlas as A  # noqa: E402
 from engine import dem  # noqa: E402
+from engine import env  # noqa: E402
 from engine.index import Index  # noqa: E402
 
 YAML_DIR = Path(os.environ.get("ANALOG_YAML_DIR", str(dem.ROOT / "engine")))
 GEOTIFF_TARGETS = ("shackleton-rim", "jezero", "malapert-massif")
 MODE_DIR = {"terrain": "terrain", "terrain+light": "terrain_light"}
 BUDGET_MB = 60.0
+MODIS_SOURCE = "MODIS MOD13A1 v061 annual-mean NDVI 2022-2024 via Microsoft Planetary Computer"
+# barren_mask.png colours (RGBA): barren = transparent, vegetated = neutral grey, unknown NDVI = light diagonal hatch
+MASK_VEG = (110, 110, 110, 170)
+MASK_UNKNOWN = ((205, 205, 205, 150), (205, 205, 205, 60))
+HATCH_PERIOD = 3
 
 
 def _yaml(name):
@@ -41,6 +47,30 @@ def write_png(path: Path, rgba: np.ndarray) -> None:
     from PIL import Image
     path.parent.mkdir(parents=True, exist_ok=True)
     Image.fromarray(rgba, "RGBA").save(path, optimize=True)
+
+
+def earth_ndvi(ix) -> np.ndarray:
+    """float32 NDVI of every Earth index point (position within ix.rows['earth']); NaN = unknown."""
+    n = len(ix.rows["earth"])
+    return np.full(n, np.nan, dtype=np.float32) if ix.ndvi is None else ix.ndvi[ix.rows["earth"]].astype(np.float32)
+
+
+def barren_mask_rgba(ndvi_e: np.ndarray, nearest: np.ndarray, ndvi_max: float) -> np.ndarray:
+    """RGBA mask on the score.png grid (same nearest-point rasterisation): barren transparent, vegetated grey,
+    unknown NDVI hatched light grey, no Earth point transparent."""
+    filled = nearest >= 0
+    v = np.full(nearest.shape, np.nan, dtype=np.float32)
+    v[filled] = ndvi_e[nearest[filled]]
+    known = np.isfinite(v)
+    veg = known & ~env.is_barren(v, ndvi_max)
+    unknown = filled & ~known
+    rgba = np.zeros(nearest.shape + (4,), dtype=np.uint8)
+    rgba[veg] = MASK_VEG
+    yy, xx = np.indices(nearest.shape)
+    stripe = ((xx + yy) // HATCH_PERIOD) % 2 == 0
+    rgba[unknown & stripe] = MASK_UNKNOWN[0]
+    rgba[unknown & ~stripe] = MASK_UNKNOWN[1]
+    return rgba
 
 
 def write_geotiff(path: Path, raster: np.ndarray, desc: str) -> None:
@@ -69,6 +99,13 @@ def build(out: Path, index_path: Path, width: int, log=print, tif_width: int = 2
     targets = [t for t in _yaml("targets.yaml") if t["body"] != "earth"]
     nearest = A.pixel_nearest(ix, width, height)
     nearest_tif = nearest if tif_width == width else A.pixel_nearest(ix, tif_width, tif_width // 2)
+    ndvi_e = earth_ndvi(ix)
+    ndvi_max = float(env.BARREN_NDVI_MAX)
+    mask = barren_mask_rgba(ndvi_e, nearest, ndvi_max)
+    write_png(out / "barren_mask.png", mask)
+    unknown_frac = float(np.mean(~np.isfinite(ndvi_e)))
+    barren_frac = float(np.mean(env.is_barren(ndvi_e, ndvi_max)))
+    log(f"barren mask: barren {barren_frac:.3f}, unknown {unknown_frac:.3f} of Earth points (NDVI <= {ndvi_max})")
     log(f"pixel->point map {width}x{height}: {(nearest >= 0).mean():.3f} of pixels filled ({time.time() - t0:.0f}s)")
     out.mkdir(parents=True, exist_ok=True)
     entries, sanity = [], {}
@@ -82,6 +119,10 @@ def build(out: Path, index_path: Path, width: int, log=print, tif_width: int = 2
             rast = A.rasterise(sc["score"][m], nearest)
             write_png(d / "score.png", A.to_rgba(rast, vmin, vmax))
             top = A.top_cells(ix, sc, m, 200)
+            for x in top:
+                nv = float(ix.ndvi[ix.id_to_row[x["id"]]]) if ix.ndvi is not None else float("nan")
+                x["ndvi"] = round(nv, 4) if np.isfinite(nv) else None
+                x["barren"] = bool(nv <= ndvi_max) if np.isfinite(nv) else None
             (d / "top200.geojson").write_text(json.dumps(A.geojson_points(top), ensure_ascii=False))
             f = {"png": str((d / "score.png").relative_to(out)), "top200": str((d / "top200.geojson").relative_to(out))}
             if t["id"] in GEOTIFF_TARGETS:
@@ -93,7 +134,8 @@ def build(out: Path, index_path: Path, width: int, log=print, tif_width: int = 2
             stats[m] = {"min": round(float(s.min()), 4), "p50": round(float(np.median(s)), 4),
                         "p99": round(float(np.percentile(s, 99)), 4), "max": round(float(s.max()), 4),
                         "top1": {k: top[0][k] for k in ("lat", "lon", "score", "country")},
-                        "top200_frac_abs_lat_ge_60": round(float(np.mean([abs(x["lat"]) >= 60 for x in top])), 3)}
+                        "top200_frac_abs_lat_ge_60": round(float(np.mean([abs(x["lat"]) >= 60 for x in top])), 3),
+                        "top200_barren_frac": round(float(np.mean([x["barren"] is True for x in top])), 3)}
         sanity[t["id"]] = lat_band_stats(ix, sc)
         entries.append({"id": t["id"], "label": t.get("label"), "body": t["body"], "lat": t["lat"], "lon": t["lon"],
                         "source_url": t.get("source_url"), "query": sc["query"],
@@ -122,6 +164,9 @@ def build(out: Path, index_path: Path, width: int, log=print, tif_width: int = 2
         "targets": [{**e, "modes": list(A.MODES), "vmin": e["value_range"][0], "vmax": e["value_range"][1],
                      "ramp": [s["rgb"] for s in A.legend_stops(*e["value_range"])],
                      "legend_stops": A.legend_stops(*e["value_range"])} for e in entries],
+        "barren_mask": {"png": "barren_mask.png", "ndvi_max": ndvi_max, "source": MODIS_SOURCE,
+                        "barren_frac": round(barren_frac, 4), "unknown_frac": round(unknown_frac, 4),
+                        "colours": "barren = transparent, vegetated = grey, no MODIS value = light hatch"},
         "known_analogs": "known_analogs.geojson",
         "sanity_mean_score_by_abs_latitude": sanity,
         "build_seconds": round(time.time() - t0, 1),

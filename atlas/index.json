@@ -1,7 +1,7 @@
 {
  "title": "Analog Twin - Global Analog Atlas",
  "licence": "CC BY 4.0",
- "generated_at": "2026-11-14T12:50:15+0100",
+ "generated_at": "2026-11-14T13:42:12+0100",
  "index": {
   "path": "/data/code/nasa-challenge/data/index/full_v2",
   "feature_set": "v2",
@@ -58,7 +58,8 @@
       "score": 0.46738,
       "country": "Peru"
      },
-     "top200_frac_abs_lat_ge_60": 0.005
+     "top200_frac_abs_lat_ge_60": 0.005,
+     "top200_barren_frac": 0.315
     },
     "terrain+light": {
      "min": 0.3042,
@@ -71,7 +72,8 @@
       "score": 0.59043,
       "country": "Peru"
      },
-     "top200_frac_abs_lat_ge_60": 0.015
+     "top200_frac_abs_lat_ge_60": 0.015,
+     "top200_barren_frac": 0.38
     }
    },
    "files": {
@@ -179,7 +181,8 @@
       "score": 0.55193,
       "country": "Bolivia"
      },
-     "top200_frac_abs_lat_ge_60": 0.0
+     "top200_frac_abs_lat_ge_60": 0.0,
+     "top200_barren_frac": 0.235
     },
     "terrain+light": {
      "min": 0.3048,
@@ -192,7 +195,8 @@
       "score": 0.64449,
       "country": "Bolivia"
      },
-     "top200_frac_abs_lat_ge_60": 0.02
+     "top200_frac_abs_lat_ge_60": 0.02,
+     "top200_barren_frac": 0.38
     }
    },
    "files": {
@@ -298,7 +302,8 @@
       "score": 0.22671,
       "country": "Peru"
      },
-     "top200_frac_abs_lat_ge_60": 0.0
+     "top200_frac_abs_lat_ge_60": 0.0,
+     "top200_barren_frac": 0.285
     },
     "terrain+light": {
      "min": 0.3062,
@@ -311,7 +316,8 @@
       "score": 0.46464,
       "country": "United States of America"
      },
-     "top200_frac_abs_lat_ge_60": 0.13
+     "top200_frac_abs_lat_ge_60": 0.13,
+     "top200_barren_frac": 0.455
     }
    },
    "files": {
@@ -419,7 +425,8 @@
       "score": 0.52622,
       "country": "Peru"
      },
-     "top200_frac_abs_lat_ge_60": 0.0
+     "top200_frac_abs_lat_ge_60": 0.0,
+     "top200_barren_frac": 0.235
     },
     "terrain+light": {
      "min": 0.3096,
@@ -432,7 +439,8 @@
       "score": 0.63135,
       "country": "Peru"
      },
-     "top200_frac_abs_lat_ge_60": 0.01
+     "top200_frac_abs_lat_ge_60": 0.01,
+     "top200_barren_frac": 0.3
     }
    },
    "files": {
@@ -538,7 +546,8 @@
       "score": 0.5071,
       "country": "Peru"
      },
-     "top200_frac_abs_lat_ge_60": 0.0
+     "top200_frac_abs_lat_ge_60": 0.0,
+     "top200_barren_frac": 0.2
     },
     "terrain+light": {
      "min": 0.3064,
@@ -551,7 +560,8 @@
       "score": 0.61648,
       "country": "Peru"
      },
-     "top200_frac_abs_lat_ge_60": 0.06
+     "top200_frac_abs_lat_ge_60": 0.06,
+     "top200_barren_frac": 0.33
     }
    },
    "files": {
@@ -657,7 +667,8 @@
       "score": 0.47273,
       "country": "Argentina"
      },
-     "top200_frac_abs_lat_ge_60": 0.01
+     "top200_frac_abs_lat_ge_60": 0.01,
+     "top200_barren_frac": 0.205
     },
     "terrain+light": {
      "min": 0.3063,
@@ -670,7 +681,8 @@
       "score": 0.6031,
       "country": "Argentina"
      },
-     "top200_frac_abs_lat_ge_60": 0.09
+     "top200_frac_abs_lat_ge_60": 0.09,
+     "top200_barren_frac": 0.295
     }
    },
    "files": {
@@ -776,7 +788,8 @@
       "score": 0.82689,
       "country": "Ukraine"
      },
-     "top200_frac_abs_lat_ge_60": 0.085
+     "top200_frac_abs_lat_ge_60": 0.085,
+     "top200_barren_frac": 0.35
     },
     "terrain+light": {
      "min": 0.3524,
@@ -789,7 +802,8 @@
       "score": 0.88241,
       "country": "Ukraine"
      },
-     "top200_frac_abs_lat_ge_60": 0.02
+     "top200_frac_abs_lat_ge_60": 0.02,
+     "top200_barren_frac": 0.38
     }
    },
    "files": {
@@ -897,7 +911,8 @@
       "score": 0.83988,
       "country": "United States of America"
      },
-     "top200_frac_abs_lat_ge_60": 0.08
+     "top200_frac_abs_lat_ge_60": 0.08,
+     "top200_barren_frac": 0.43
     },
     "terrain+light": {
      "min": 0.3536,
@@ -910,7 +925,8 @@
       "score": 0.86359,
       "country": "United States of America"
      },
-     "top200_frac_abs_lat_ge_60": 0.04
+     "top200_frac_abs_lat_ge_60": 0.04,
+     "top200_barren_frac": 0.44
     }
    },
    "files": {
@@ -1016,7 +1032,8 @@
       "score": 0.62476,
       "country": "United States of America"
      },
-     "top200_frac_abs_lat_ge_60": 0.005
+     "top200_frac_abs_lat_ge_60": 0.005,
+     "top200_barren_frac": 0.41
     },
     "terrain+light": {
      "min": 0.3355,
@@ -1029,7 +1046,8 @@
       "score": 0.76272,
       "country": "United States of America"
      },
-     "top200_frac_abs_lat_ge_60": 0.0
+     "top200_frac_abs_lat_ge_60": 0.0,
+     "top200_barren_frac": 0.395
     }
    },
    "files": {
@@ -1135,7 +1153,8 @@
       "score": 0.91404,
       "country": "Sudan"
      },
-     "top200_frac_abs_lat_ge_60": 0.135
+     "top200_frac_abs_lat_ge_60": 0.135,
+     "top200_barren_frac": 0.22
     },
     "terrain+light": {
      "min": 0.3568,
@@ -1148,7 +1167,8 @@
       "score": 0.94557,
       "country": "Sudan"
      },
-     "top200_frac_abs_lat_ge_60": 0.06
+     "top200_frac_abs_lat_ge_60": 0.06,
+     "top200_barren_frac": 0.22
     }
    },
    "files": {
@@ -1227,6 +1247,14 @@
    ]
   }
  ],
+ "barren_mask": {
+  "png": "barren_mask.png",
+  "ndvi_max": 0.2,
+  "source": "MODIS MOD13A1 v061 annual-mean NDVI 2022-2024 via Microsoft Planetary Computer",
+  "barren_frac": 0.2602,
+  "unknown_frac": 0.0004,
+  "colours": "barren = transparent, vegetated = grey, no MODIS value = light hatch"
+ },
  "known_analogs": "known_analogs.geojson",
  "sanity_mean_score_by_abs_latitude": {
   "shackleton-rim": {
@@ -1350,6 +1378,6 @@
    }
   }
  },
- "build_seconds": 101.2,
- "size_mb": 50.95
+ "build_seconds": 104.6,
+ "size_mb": 51.23
 }
