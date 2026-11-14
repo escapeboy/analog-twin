@@ -93,6 +93,10 @@ view and is not used. Moon and Mars points are labelled with their coordinates.
 - 926 m pixels and a 12 km window: landforms smaller than ~2 km (for example Meteor Crater, 1.2 km across) are
   below the resolution and cannot be recognised.
 - The Moon's grids are 2-4 % coarser (948 m / 960 m) than Earth's and Mars's before resampling.
+- The ice mask comes from the Natural Earth 10 m glaciated-areas polygons, whose "Antarctic Ice Sheet" polygon also
+  covers the ice-free McMurdo Dry Valleys. University Valley (a known Mars analog) is therefore masked and cannot be
+  evaluated or returned as a twin; the nearest valid land point is more than 3,000 km away. Not fixed: it would need
+  a finer ice-free-land dataset.
 - Earth heights are on the EGM2008 geoid; Moon heights are relative to a 1737.4 km sphere; Mars heights relative to
   the MOLA datum. Only shape is compared, so the datum does not matter.
 

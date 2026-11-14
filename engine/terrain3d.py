@@ -307,16 +307,49 @@ def source_resolution(body: str, lat: float, lon: float, extent_km: float = 36.0
     return choose_source(body, la, lo, fetch).res_m
 
 
-def terrain_pair(a: tuple[str, float, float], b: tuple[str, float, float], extent_km: float = 36.0,
-                 size: int = 256, fetch: bool = True) -> dict:
-    """Both terrains at the same effective resolution: the coarser of the two sources (not finer than
-    extent/size). Returns {"a": (heights, meta), "b": (heights, meta), "common_gsd_m": float}."""
-    ra = source_resolution(*a, extent_km=extent_km, fetch=fetch)
-    rb = source_resolution(*b, extent_km=extent_km, fetch=fetch)
+def _as_point(p) -> tuple[str, float, float]:
+    """Point id (resolved through the terrain index) or (body, lat, lon)."""
+    if isinstance(p, str):
+        from engine.index import load_index
+        q = load_index().point(p)
+        return q["body"], q["lat"], q["lon"]
+    body, lat, lon = p
+    if body not in dem.RADIUS_M:
+        raise ValueError(f"unknown body {body!r}")
+    return body, float(lat), float(lon)
+
+
+def terrain_pair(a, b, extent_km: float = 36.0, size: int = 256, fetch: bool = True,
+                 with_sim: bool = True) -> dict:
+    """Both terrains at the same effective resolution: the coarser of the two sources (never finer than
+    extent/size), lit by the same sun (engine.hillshade.matched_sun of the target = the non-Earth side if there is
+    one, else ``a``). a, b = point ids or (body, lat, lon), as in Index.explain.
+
+    Returns {"a": {heights, body, lat, lon, gsd_m, extent_km, dataset, source, source_res_m, min_m, max_m},
+             "b": {...}, "common_gsd_m", "sun_azimuth_deg", "sun_elevation_deg", "terrain_sim" (or None)}."""
+    from engine.hillshade import matched_sun
+
+    pa, pb = _as_point(a), _as_point(b)
+    ra = source_resolution(*pa, extent_km=extent_km, fetch=fetch)
+    rb = source_resolution(*pb, extent_km=extent_km, fetch=fetch)
     common = max(ra, rb, extent_km * 1000.0 / size)
-    ga = terrain_grid(*a, extent_km=extent_km, size=size, gsd_m=common, fetch=fetch)
-    gb = terrain_grid(*b, extent_km=extent_km, size=size, gsd_m=common, fetch=fetch)
-    common = ga[1]["gsd_m"]
-    print(f"terrain_pair: common resolution {common:.1f} m ({ga[1]['source']} {ra:.0f} m, "
-          f"{gb[1]['source']} {rb:.0f} m)")
-    return {"a": ga, "b": gb, "common_gsd_m": common}
+    out = {}
+    for key, p in (("a", pa), ("b", pb)):
+        h, m = terrain_grid(*p, extent_km=extent_km, size=size, gsd_m=common, fetch=fetch)
+        out[key] = {"heights": h, "body": m["body"], "lat": m["lat"], "lon": m["lon"], "gsd_m": m["gsd_m"],
+                    "extent_km": m["extent_km"], "dataset": m["dataset"], "source": m["source"],
+                    "source_res_m": m["source_res_m"], "min_m": m["min_m"], "max_m": m["max_m"]}
+    target = pa if pa[0] != "earth" or pb[0] == "earth" else pb
+    az, el = matched_sun(target[0], target[1])
+    sim = None
+    if with_sim:
+        try:
+            from engine.index import load_index
+            sim = load_index().explain(a if isinstance(a, str) else pa, b if isinstance(b, str) else pb)["terrain_sim"]
+        except (FileNotFoundError, ValueError, KeyError) as e:  # no index / no valid terrain: similarity is optional
+            log.info("terrain_pair: no terrain_sim (%s)", e)
+    out.update({"common_gsd_m": out["a"]["gsd_m"], "sun_azimuth_deg": az, "sun_elevation_deg": el,
+                "terrain_sim": sim})
+    print(f"terrain_pair: common resolution {out['common_gsd_m']:.1f} m ({out['a']['source']} {ra:.0f} m, "
+          f"{out['b']['source']} {rb:.0f} m)")
+    return out

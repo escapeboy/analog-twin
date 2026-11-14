@@ -92,10 +92,34 @@ def test_earth_cop30_real_crop():
     np.testing.assert_array_equal(e, h)  # served from the cache
 
 
-def test_terrain_pair_uses_coarser_resolution():
-    p = T.terrain_pair(("mars", 18.41, 77.69), ("moon", -89.7668, -171.87), extent_km=36, size=256)
-    (ha, ma), (hb, mb) = p["a"], p["b"]
-    assert ma["gsd_m"] == mb["gsd_m"] == p["common_gsd_m"]
-    assert p["common_gsd_m"] >= 463.0 - 1e-6  # MOLA is the coarser source
-    assert ha.shape == hb.shape and ha.shape[0] == math.floor(36000 / 463.09)
-    assert math.isclose(ma["extent_km"], 36.0)
+def test_terrain_pair_uses_coarser_resolution_and_matched_sun():
+    from engine.hillshade import matched_sun
+    p = T.terrain_pair(("mars", 18.41, 77.69), ("moon", -89.7668, -171.87), extent_km=36, size=256, with_sim=False)
+    a, b = p["a"], p["b"]
+    assert a["gsd_m"] == b["gsd_m"] == p["common_gsd_m"]
+    assert p["common_gsd_m"] >= 463.0  # MOLA is the coarser source
+    assert a["heights"].shape == b["heights"].shape and a["heights"].shape[0] == math.floor(36000 / 463.09)
+    assert a["heights"].dtype == np.float32 and math.isclose(a["extent_km"], 36.0)
+    assert {"body", "lat", "lon", "dataset"} <= a.keys() and b["body"] == "moon"
+    assert (p["sun_azimuth_deg"], p["sun_elevation_deg"]) == matched_sun("mars", 18.41)  # a is non-Earth
+    assert p["terrain_sim"] is None
+
+
+def test_terrain_pair_target_is_non_earth_side(monkeypatch, tmp_path):
+    from engine.hillshade import matched_sun
+    monkeypatch.setattr(T, "COP30_CACHE", tmp_path)
+    p = T.terrain_pair(("earth", 42.17972, 23.58667), ("moon", -89.7668, -171.87), size=64, fetch=False,
+                       with_sim=False)
+    assert (p["sun_azimuth_deg"], p["sun_elevation_deg"]) == matched_sun("moon", -89.7668)
+
+
+def test_terrain_pair_accepts_point_ids_and_reports_sim():
+    from engine.index import load_index
+    try:
+        ix = load_index()
+    except FileNotFoundError:
+        pytest.skip("no index")
+    pid = str(ix.ids[ix.rows["mars"][100]])
+    p = T.terrain_pair(pid, ("moon", -45.0, 30.0), size=64)
+    assert p["a"]["body"] == "mars" and p["a"]["lat"] == pytest.approx(float(ix.lat[ix.rows["mars"][100]]))
+    assert 0.0 <= p["terrain_sim"] <= 1.0
