@@ -215,3 +215,52 @@ def test_sites_routes_with_real_engine_data(client, monkeypatch):
     sf = [i for i in pack.items if i.kind == "site_finder"]
     assert len(sf) == 1 and sf[0].data["sun_pct"] and "sources" not in sf[0].data
     assert not [i for i in asyncio.run(evidence.collect(CampaignRequest(body="moon", lat=10, lon=10), "t", noop)).items if i.kind == "site_finder"]
+
+
+def _terrain_stubs(monkeypatch, with_t3):
+    import importlib
+
+    import numpy as np
+
+    class Idx:
+        def search(self, *a, **k):
+            raise ValueError("no valid terrain window")
+
+        def explain(self, a, b):
+            return {"a_id": "m1", "b_id": "e1", "terrain_sim": 0.7, "a": {"body": "moon", "lat": -85.0, "lon": 10.0},
+                    "b": {"body": "earth", "lat": 42.0, "lon": 23.0}, "groups": [], "top_similar": [], "top_different": []}
+
+    rng = np.random.default_rng(1)
+    dem = types.SimpleNamespace(crop_metric=lambda body, lat, lon, ext, gsd: rng.random((43, 43)) * 300)
+    hs = importlib.import_module("engine.hillshade")
+    t3 = types.SimpleNamespace(terrain_pair=lambda a, b: {
+        "a": {"body": "moon", "lat": -85.0, "lon": 10.0, "heights": rng.random((64, 64)) * 100, "gsd_m": 600.0},
+        "b": {"body": "earth", "lat": 42.0, "lon": 23.0, "heights": rng.random((64, 64)) * 100, "gsd_m": 600.0},
+        "sun_azimuth_deg": 12.0, "sun_elevation_deg": 4.0})
+    mods = {"engine.dem": dem, "engine.hillshade": hs, **({"engine.terrain3d": t3} if with_t3 else {})}
+    monkeypatch.setattr(service, "get_index", lambda: Idx())
+    monkeypatch.setattr(service, "_mod", lambda n: mods.get(n))
+
+
+def test_twins_no_terrain_is_422_with_plain_message(client, monkeypatch):
+    _terrain_stubs(monkeypatch, False)
+    r = client.post("/api/twins", json={"body": "earth", "lat": 0, "lon": -30})
+    assert r.status_code == 422 and r.json()["detail"].startswith("No terrain data here")
+
+
+@pytest.mark.parametrize("with_t3", [False, True])
+def test_terrain_pair_and_heights(client, monkeypatch, with_t3):
+    _terrain_stubs(monkeypatch, with_t3)
+    from engine.models import TerrainGrid
+    r = client.get("/api/terrain/m1/e1")
+    assert r.status_code == 200
+    d = r.json()
+    assert d["source"] == ("live" if with_t3 else "fallback-dem") and d["sun_elevation_deg"] > 0
+    ga = TerrainGrid.model_validate(d["a"])
+    raw = client.get(ga.heights_url)
+    assert raw.status_code == 200 and len(raw.content) == ga.size * ga.size * 4
+    import numpy as np
+    h = np.frombuffer(raw.content, dtype="<f4")
+    assert h.min() == pytest.approx(ga.min_m) and h.max() == pytest.approx(ga.max_m)
+    assert client.get("/api/terrain/heights/none.f32").status_code == 404
+    assert client.get("/api/health").json()["features"]["terrain3d"] is with_t3

@@ -13,11 +13,14 @@ import pathlib
 import re
 import shutil
 import time
-from typing import Any, Optional
+from collections import OrderedDict
+from typing import Any, Literal, Optional
 
 from api import fixtures
+from pydantic import BaseModel
+
 from engine.models import (
-    LIGHT_BINS, FeatureGroup, Hillshade, LightProfile, LightWindow, PairExplanation, Point, Preset, QueryInfo,
+    TerrainGrid, LIGHT_BINS, FeatureGroup, Hillshade, LightProfile, LightWindow, PairExplanation, Point, Preset, QueryInfo,
     SiteContext, Twin, TwinsRequest, TwinsResponse,
 )
 
@@ -27,6 +30,13 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 MAIN_ROOT = pathlib.Path(os.environ.get("ANALOG_MAIN_ROOT", "/data/code/nasa-challenge"))
 EXTENT_KM = 40.0
 BODIES = ("earth", "moon", "mars")
+
+
+NO_TERRAIN_MSG = "No terrain data here (ocean, ice sheet or beyond the latitude limit). Try a land point."
+
+
+class NoTerrain(Exception):
+    """The query point has no valid terrain (ocean, ice, outside the latitude limits)."""
 
 
 # ---------- paths (env-configurable so tests and worktrees do not touch the main tree) ----------
@@ -271,7 +281,11 @@ def find_twins(req: TwinsRequest, replay: bool = False) -> TwinsResponse:
     idx = get_index()
     if idx is None:
         return cache_get_twins(req) or fixtures.twins(req).model_copy(update={"ref": f"twins:{req.body}:{req.lat:.3f}:{req.lon:.3f}"})
-    return _live_twins(idx, req)
+    try:
+        return _live_twins(idx, req)
+    except ValueError as exc:  # engine.index: no valid terrain window at the query point
+        log.info("no terrain at %s %.3f,%.3f: %s", req.body, req.lat, req.lon, exc)
+        raise NoTerrain(NO_TERRAIN_MSG) from exc
 
 
 # ---------- pair ----------
@@ -514,3 +528,72 @@ def site_evidence_item(lat: float, lon: float) -> Optional[dict]:
     except Exception as exc:
         log.warning("site_properties failed for %.3f,%.3f: %s", lat, lon, exc)
         return None
+
+
+# ---------- 3D twin terrains (V1) ----------
+class TerrainPair(BaseModel):
+    a: TerrainGrid
+    b: TerrainGrid
+    sun_azimuth_deg: float
+    sun_elevation_deg: float
+    terrain_sim: float
+    source: Literal["live", "fallback-dem"]
+
+
+_HEIGHTS: "OrderedDict[str, bytes]" = OrderedDict()
+HEIGHTS_MAX = 64
+
+
+def terrain3d_available() -> bool:
+    m = _mod("engine.terrain3d")
+    return m is not None and hasattr(m, "terrain_pair")
+
+
+def terrain_heights(name: str) -> Optional[bytes]:
+    return _HEIGHTS.get(_safe(name))
+
+
+def _grid(pid: str, g: dict, dataset: str) -> TerrainGrid:
+    import numpy as np
+    h = np.ascontiguousarray(np.asarray(g["heights"], dtype="<f4"))
+    if h.ndim != 2 or h.shape[0] != h.shape[1]:
+        raise ValueError("terrain grid must be square")
+    h = np.nan_to_num(h, nan=float(np.nanmin(h)) if np.isfinite(h).any() else 0.0)
+    name = _safe(f"{pid}_{h.shape[0]}")
+    _HEIGHTS[name] = h.tobytes()
+    _HEIGHTS.move_to_end(name)
+    while len(_HEIGHTS) > HEIGHTS_MAX:
+        _HEIGHTS.popitem(last=False)
+    return TerrainGrid(id=pid, body=g["body"], lat=float(g["lat"]), lon=float(g["lon"]), size=int(h.shape[0]),
+                       gsd_m=float(g.get("gsd_m", gsd_m())), extent_km=float(g.get("extent_km", h.shape[0] * g.get("gsd_m", gsd_m()) / 1000)),
+                       min_m=float(h.min()), max_m=float(h.max()), dataset=str(g.get("dataset", dataset)),
+                       heights_url=f"/api/terrain/heights/{name}.f32")
+
+
+def terrain_pair(a_id: str, b_id: str) -> TerrainPair:
+    """Both heightfields under identical sun. Uses engine.terrain3d.terrain_pair when W1 has delivered it; otherwise a
+    low-resolution fallback cropped straight from the DEMs (source flag says which)."""
+    idx = get_index()
+    if idx is None:
+        raise LookupError("engine index not available")
+    ex = _as_dict(idx.explain(_resolve_arg(a_id), _resolve_arg(b_id)))
+    ca, cb = ex["a_id"], ex["b_id"]
+    t3 = _mod("engine.terrain3d")
+    if t3 is not None and hasattr(t3, "terrain_pair"):
+        res = _as_dict(t3.terrain_pair(_resolve_arg(a_id), _resolve_arg(b_id)))  # ASSUMED shape: a, b dicts with heights/body/lat/lon
+        ga, gb = _as_dict(res["a"]), _as_dict(res["b"])
+        az, el = float(res["sun_azimuth_deg"]), float(res["sun_elevation_deg"])
+        return TerrainPair(a=_grid(ca, ga, "engine.terrain3d"), b=_grid(cb, gb, "engine.terrain3d"), sun_azimuth_deg=az,
+                           sun_elevation_deg=el, terrain_sim=float(res.get("terrain_sim", ex["terrain_sim"])), source="live")
+    dem, hs = _mod("engine.dem"), _mod("engine.hillshade")
+    if dem is None or hs is None:
+        raise LookupError("terrain modules not available")
+    pa, pb = ex["a"], ex["b"]
+    tgt = pa if pa["body"] in ("moon", "mars") else (pb if pb["body"] in ("moon", "mars") else pa)
+    az, el = _sun(hs, tgt["body"], tgt["lat"])
+    grids = []
+    for pid, pt in ((ca, pa), (cb, pb)):
+        h = dem.crop_metric(pt["body"], pt["lat"], pt["lon"], EXTENT_KM, gsd_m())
+        grids.append(_grid(pid, {**pt, "heights": h, "gsd_m": gsd_m(), "extent_km": EXTENT_KM}, "common-scale DEM crop (fallback)"))
+    return TerrainPair(a=grids[0], b=grids[1], sun_azimuth_deg=az, sun_elevation_deg=el, terrain_sim=float(ex["terrain_sim"]),
+                       source="fallback-dem")
