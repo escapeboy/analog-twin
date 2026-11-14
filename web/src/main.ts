@@ -2,6 +2,7 @@ import { BODIES, BODY_NAMES, getHealth, getPresets, postTwins, REPLAY, type Body
 import { h } from './dom';
 import { Globe } from './globes';
 import { initCrew } from './panels/crew';
+import { initMission } from './mission';
 import { initTerrain3d } from './panels/terrain3d';
 import { initSites } from './panels/sites';
 import { initDetail } from './panels/detail';
@@ -179,6 +180,20 @@ function enableSites() {
   (moon ?? $('gated')).append(b);
 }
 
+const mission = initMission($('mission'), {
+  getSiteId: () => (store.query && store.query.body === 'moon' ? (store.query.presetId ?? store.twins?.query.point_id ?? store.query.id) : null),
+  onFinish: (s) => {
+    for (const g of globes) {
+      if (g.body === 'moon') g.flyTo(s.site.lat, s.site.lon, 3_000_000);
+      if (g.body === 'earth') {
+        const t = store.selected?.body === 'earth' ? store.selected.twin : store.twins?.results.earth?.[0];
+        if (t) { g.flyTo(t.lat, t.lon, 3_000_000); if (!store.selected || store.selected.body !== 'earth') selectTwin('earth', t); }
+      }
+    }
+    showTab($('tab-terrain').hidden ? 'pair' : 'terrain');
+  },
+});
+
 async function initGated() {
   let features: Record<string, boolean> = {};
   try { features = (await getHealth()).features ?? {}; } catch { /* health unavailable: keep gated features hidden */ }
@@ -187,6 +202,12 @@ async function initGated() {
   for (const [key, label] of slots) {
     if (!features[key]) continue;
     if (key === 'site_finder') { enableSites(); continue; }
+    if (key === 'mission') {
+      const mb = h('button', { type: 'button', 'data-feature': 'mission' }, 'Fly mission');
+      mb.addEventListener('click', () => void mission.open());
+      $('gated').append(mb);
+      continue;
+    }
     if (key === 'terrain3d') continue; // handled below as a tab, not a button
     const b = h('button', { type: 'button', 'data-feature': key }, label);
     b.addEventListener('click', () => window.dispatchEvent(new CustomEvent('analog-twin:feature', { detail: { key, query: store.query, selected: store.selected } })));

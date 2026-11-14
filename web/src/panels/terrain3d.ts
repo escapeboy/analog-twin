@@ -1,3 +1,5 @@
+// Design note: each terrain has its own scene and DirectionalLight (three.js cannot share one light object across scenes),
+// but both lights are driven from the single az/el state below, so they are always identical.
 // V1 "3D" tab: two displaced-plane terrains (target | Earth twin) with one sun state, shadow mapping,
 // synchronized orbit. three.js is loaded lazily and every WebGL resource is disposed in hide().
 import type * as THREE_NS from 'three';
