@@ -43,6 +43,7 @@ export function initAtlas(getEarth: () => Globe | undefined, host: HTMLElement) 
   let knownAll: any[] | null = null;
   let seq = 0;
   let loaded = false;
+  let modeDesc: Record<string, string> = {};
 
   const toggle = h('button', { type: 'button', 'aria-pressed': 'false', title: 'Colour the whole Earth by similarity to the selected target' }, 'Atlas');
   const modeBox = h('span', { class: 'atlas-modes', hidden: '' });
@@ -80,10 +81,14 @@ export function initAtlas(getEarth: () => Globe | undefined, host: HTMLElement) 
     const ramp = t.ramp?.length ? t.ramp : FALLBACK_RAMP;
     const bar = h('div', { class: 'atlas-ramp', style: `background:linear-gradient(90deg, ${ramp.join(',')})` });
     legend.append(
-      h('div', { class: 'atlas-title' }, `Similarity to ${t.label}`),
-      bar,
-      h('div', { class: 'atlas-scale' }, h('span', null, t.vmin != null ? t.vmin.toFixed(2) : 'low'), h('span', null, mode === 'terrain' ? 'terrain only' : 'terrain + light'), h('span', null, t.vmax != null ? t.vmax.toFixed(2) : 'high')),
-      h('div', { class: 'atlas-note' }, 'Yellow dots: top 10 cells. Rings: known analogs.'));
+      h('div', null,
+        h('div', { class: 'atlas-title' }, `Similarity to ${t.label}`),
+        bar,
+        h('div', { class: 'atlas-scale' }, h('span', null, t.vmin != null ? t.vmin.toFixed(2) : 'low'), h('span', null, mode === 'terrain' ? 'terrain only' : 'terrain + light'), h('span', null, t.vmax != null ? t.vmax.toFixed(2) : 'high'))),
+      h('div', null,
+        modeDesc[mode] ? h('div', { class: 'atlas-note' }, modeDesc[mode]) : '',
+        mode === 'terrain+light' ? h('div', { class: 'atlas-note' }, "Most of the global colour change comes from sunlight; terrain shape alone is the 'terrain' view.") : '',
+        h('div', { class: 'atlas-note' }, 'Yellow dots: top 10 cells. Rings: known analogs.')));
   }
 
   async function refresh() {
@@ -95,6 +100,7 @@ export function initAtlas(getEarth: () => Globe | undefined, host: HTMLElement) 
       const idx = await getJson('/atlas/index.json');
       if (my !== seq) return;
       targets = idx ? parseIndex(idx) : [];
+      modeDesc = idx?.modes && typeof idx.modes === 'object' && !Array.isArray(idx.modes) ? idx.modes : {};
       loaded = true;
     }
     const t = pickTarget();
