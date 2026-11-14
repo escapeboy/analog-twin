@@ -68,9 +68,14 @@ async def record_campaign(p, name: str, runs: int = 3, max_s: float = 40.0) -> N
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", choices=["cache", "campaign"])
+    ap.add_argument("--only-extras", action="store_true", help="only add atlas index, findings and calendars to the replay cache")
     ap.add_argument("--preset", default=None, help="preset id for the campaign (default: first preset whose id contains 'shackleton')")
     a = ap.parse_args()
     presets = service.presets()
+    if a.only_extras:
+        for k, v in service.record_extras(presets).items():
+            print(f"{k}: {v}")
+        return
     if any("fixture" in p.source_url for p in presets):
         sys.exit("engine/targets.yaml has no preset entries yet (fixture presets); nothing real to record")
     if a.only != "campaign":
@@ -79,6 +84,8 @@ def main() -> None:
         print("site finder cache recorded")
         service.record_mission_cache()
         print("mission cache recorded")
+        for k, v in service.record_extras(presets).items():
+            print(f"{k}: {v}")
     if a.only != "cache":
         p = next((x for x in presets if (x.id == a.preset if a.preset else "shackleton" in x.id.lower())), None)
         if p is None:
