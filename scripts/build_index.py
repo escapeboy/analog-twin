@@ -223,6 +223,7 @@ def build(out: Path, spacing_km: float, dense_km: float | None, bodies=BODIES, w
     pq.write_table(table, out / "points.parquet")
     (out / "scaler.json").write_text(json.dumps(scaler, indent=2))
     sha = hashlib.sha256(feats.tobytes()).hexdigest()
+    grids = (["moon", "moon_sp", "moon_np"] if "moon" in bodies else []) + [b for b in bodies if b != "moon"]
     manifest = {
         "feature_set": set_name, "gsd_m": dem.GSD_M, "window_px": F.WINDOW_PX, "window_km": round(F.WINDOW_KM, 3),
         "context_window_px": F.feature_set(set_name)["window_px"],
@@ -233,11 +234,10 @@ def build(out: Path, spacing_km: float, dense_km: float | None, bodies=BODIES, w
         "bodies": per_body, "total_points": int(len(table)),
         "lat_limits": {b: list(dem.LAT_LIMITS[b]) for b in bodies},
         "moon_south_polar_product_poleward_of": dem.MOON_POLAR_SWITCH_LAT,
+        "moon_north_polar_product_poleward_of": dem.MOON_NORTH_SWITCH_LAT,
         "radius_m": {b: dem.RADIUS_M[b] for b in bodies},
-        "datasets": {g: dem.grid_meta(g)["dataset"] for g in (["moon", "moon_sp"] if "moon" in bodies else [])
-                     + [b for b in bodies if b != "moon"]},
-        "dataset_files": {g: dem.grid_meta(g)["source"] for g in (["moon", "moon_sp"] if "moon" in bodies else [])
-                          + [b for b in bodies if b != "moon"]},
+        "datasets": {g: dem.grid_meta(g)["dataset"] for g in grids},
+        "dataset_files": {g: dem.grid_meta(g)["source"] for g in grids},
         "features_sha256": sha,
         "build_seconds": round(time.time() - t0, 1),
         "built_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),

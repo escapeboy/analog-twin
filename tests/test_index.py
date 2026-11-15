@@ -37,7 +37,7 @@ def test_manifest_records_corpus_facts(tiny):
     out, m = tiny
     man = json.loads((out / "a" / "manifest.json").read_text())
     assert man["gsd_m"] == dem.GSD_M and man["bodies"]["moon"]["points"] > 100
-    assert man["lat_limits"]["moon"] == [-90.0, 80.0]
+    assert man["lat_limits"]["moon"] == [-90.0, 90.0]  # north-polar LOLA product since W13
 
 
 def test_search_restricted_to_requested_bodies_and_nms(tiny):

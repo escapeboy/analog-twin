@@ -10,6 +10,8 @@ Pipeline
                                 using Natural Earth 10 m land / glaciated polygons (NOT elevation <= 0).
      * Moon   LOLA LDEM_64    -> 2x2 block mean, 32 px/deg (947.6 m at the equator).
      * Moon   LDEM_60S_240MPP -> 4x4 block mean, 960 m polar-stereographic grid (used poleward of 80 S).
+     * Moon   LOLA GDR ldem_75n_240m (PDS polar IMG) -> 4x4 block mean, 960 m north-polar stereographic grid (used
+              poleward of 80 N). No `_ADJ` north product exists on PGDA; this is the PDS GDR version.
      * Mars   MOLA 463 m      -> 2x2 block mean, 64 px/deg (926.2 m at the equator).
    Equirectangular grids are additionally box-averaged along longitude with a width of round(1/cos(lat)) pixels,
    so that the east-west resolution stays ~ the north-south one at high latitude (avoids aliasing).
@@ -50,16 +52,19 @@ RADIUS_M = {
 # Latitude limits of the index (design choices, recorded in the manifest / metrics.json).
 LAT_LIMITS = {
     "earth": (-85.0, 85.0),
-    "moon": (-90.0, 80.0),  # north of 80 N: no polar product downloaded, global grid not used there
+    "moon": (-90.0, 90.0),  # poleward of 80 S / 80 N the polar stereographic products are used
     "mars": (-85.0, 85.0),
 }
 MOON_POLAR_SWITCH_LAT = -80.0  # poleward of this the south-polar stereographic product is used
+MOON_NORTH_SWITCH_LAT = 80.0  # poleward of this the north-polar stereographic product is used
 
 FILES = {
     "earth": RAW / "earth_seg" / "ETOPO_2022_v1_30s_N90W180_surface.tif",
     "moon": RAW / "moon_global" / "LDEM_64.IMG",
     "moon_label": RAW / "moon_global" / "LDEM_64.LBL",
     "moon_sp": RAW / "moon_sp" / "LDEM_60S_240MPP_ADJ.TIF",
+    "moon_np": RAW / "moon_np" / "ldem_75n_240m.img",
+    "moon_np_label": RAW / "moon_np" / "ldem_75n_240m.lbl",
     "mars": RAW / "mars" / "Mars_MGS_MOLA_DEM_mosaic_global_463m.tif",
     "ne_land": RAW / "naturalearth" / "ne_10m_land.zip",
     "ne_ice": RAW / "naturalearth" / "ne_10m_glaciated_areas.zip",
@@ -168,8 +173,11 @@ class SouthPolarGrid:
     radius_m: float
     dataset: str
 
+    def xy(self, lat, lon):
+        return south_stereo_xy(lat, lon, self.radius_m)
+
     def sample(self, lat: np.ndarray, lon: np.ndarray) -> np.ndarray:
-        x, y = south_stereo_xy(lat, lon, self.radius_m)
+        x, y = self.xy(lat, lon)
         nr, nc = self.data.shape
         c = np.clip((x - self.x0) / self.res, 0.0, nc - 1.0)
         r = np.clip((self.y0 - y) / self.res, 0.0, nr - 1.0)
@@ -181,6 +189,22 @@ class SouthPolarGrid:
         v = ((d[r0, c0] * (1 - fc) + d[r0, c0 + 1] * fc) * (1 - fr)
              + (d[r0 + 1, c0] * (1 - fc) + d[r0 + 1, c0 + 1] * fc) * fr)
         return v.astype(np.float32)
+
+
+class NorthPolarGrid(SouthPolarGrid):
+    """North-polar stereographic working grid (same layout: row 0 = largest y, column 0 = smallest x)."""
+
+    def xy(self, lat, lon):
+        return north_stereo_xy(lat, lon, self.radius_m)
+
+
+def north_stereo_xy(lat, lon, radius_m):
+    """Spherical north-polar stereographic, k0 = 1 at the pole, central meridian 0 (PDS 'POLAR STEREOGRAPHIC',
+    CENTER_LATITUDE 90): rho = 2R tan(pi/4 - lat/2), x = rho sin(lon), y = -rho cos(lon)."""
+    phi = np.radians(lat)
+    lam = np.radians(lon)
+    rho = 2.0 * radius_m * np.tan(np.pi / 4.0 - phi / 2.0)
+    return rho * np.sin(lam), -rho * np.cos(lam)
 
 
 def south_stereo_xy(lat, lon, radius_m):
@@ -290,6 +314,35 @@ def prepare_moon_sp(force: bool = False) -> None:
         "source": str(FILES["moon_sp"])})
 
 
+def prepare_moon_np(force: bool = False) -> None:
+    """PDS3 polar IMG: x = (sample - SAMPLE_PROJECTION_OFFSET) * MAP_SCALE, y = (LINE_PROJECTION_OFFSET - line) *
+    MAP_SCALE (0-based line/sample; checked against LDEM_64 in the 75-80 N overlap, tests/test_dem.py)."""
+    npy, _ = _grid_paths("moon_np")
+    if npy.exists() and not force:
+        return
+    lab = parse_pds3_label(FILES["moon_np_label"])
+    if lab["SAMPLE_TYPE"] != "LSB_INTEGER" or lab["SAMPLE_BITS"] != "16" or lab["MAP_PROJECTION_TYPE"] != "POLAR STEREOGRAPHIC":
+        raise ValueError("unexpected north-polar LOLA product")
+    if float(lab["CENTER_LATITUDE"]) != 90.0 or float(lab["A_AXIS_RADIUS"]) * 1000.0 != RADIUS_M["moon"]:
+        raise ValueError("north-polar LOLA product: unexpected centre or radius")
+    lines, samples = int(lab["LINES"]), int(lab["LINE_SAMPLES"])
+    scale_m = float(lab["MAP_SCALE"])
+    dn = np.fromfile(FILES["moon_np"], dtype="<i2", count=lines * samples).reshape(lines, samples)
+    f = 4
+    blk = _block_mean(dn.astype(np.float32) * float(lab["SCALING_FACTOR"]), f)
+    c = 0.5 * (f - 1)  # centre of the first f x f block, in source pixels
+    x0 = (c - float(lab["SAMPLE_PROJECTION_OFFSET"])) * scale_m
+    y0 = (float(lab["LINE_PROJECTION_OFFSET"]) - c) * scale_m
+
+    def write(mm):
+        mm[:] = blk
+
+    _save_grid("moon_np", write, blk.shape, {
+        "kind": "north_stereo", "x0": x0, "y0": y0, "res": scale_m * f, "radius_m": RADIUS_M["moon"],
+        "dataset": "LRO LOLA GDR ldem_75n_240m north-polar stereographic (PDS), 4x4 block mean to 960 m",
+        "source": str(FILES["moon_np"])})
+
+
 def prepare_mars(force: bool = False) -> None:
     npy, _ = _grid_paths("mars")
     if npy.exists() and not force:
@@ -390,6 +443,7 @@ def prepare_grids(bodies=("moon", "mars", "earth"), force: bool = False) -> None
         if b == "moon":
             prepare_moon(force)
             prepare_moon_sp(force)
+            prepare_moon_np(force)
         elif b == "mars":
             prepare_mars(force)
         elif b == "earth":
@@ -405,7 +459,8 @@ def load_grid(name: str):
     data = np.load(npy, mmap_mode="r")
     if meta["kind"] == "equi":
         return EquiGrid(name, data, meta["lat0"], meta["lon0"], meta["dlat"], meta["dlon"], meta["dataset"])
-    return SouthPolarGrid(name, data, meta["x0"], meta["y0"], meta["res"], meta["radius_m"], meta["dataset"])
+    cls = NorthPolarGrid if meta["kind"] == "north_stereo" else SouthPolarGrid
+    return cls(name, data, meta["x0"], meta["y0"], meta["res"], meta["radius_m"], meta["dataset"])
 
 
 def grid_meta(name: str) -> dict:
@@ -429,10 +484,17 @@ def sample_heights(body: str, lat: np.ndarray, lon: np.ndarray, center_lat: np.n
     c = lat if center_lat is None else np.broadcast_to(np.asarray(center_lat, dtype=np.float64), lat.shape)
     out = np.empty(lat.shape, dtype=np.float32)
     polar = c <= MOON_POLAR_SWITCH_LAT
+    north = c >= MOON_NORTH_SWITCH_LAT
     if polar.any():
         out[polar] = load_grid("moon_sp").sample(lat[polar], lon[polar])
-    if (~polar).any():
-        out[~polar] = load_grid("moon").sample(lat[~polar], lon[~polar])
+    if north.any():
+        try:
+            out[north] = load_grid("moon_np").sample(lat[north], lon[north])
+        except FileNotFoundError:  # data folder without the north-polar grid: no terrain -> "no terrain" for the API
+            out[north] = np.nan
+    mid = ~polar & ~north
+    if mid.any():
+        out[mid] = load_grid("moon").sample(lat[mid], lon[mid])
     return out
 
 

@@ -21,7 +21,7 @@ from pydantic import BaseModel
 
 from engine.models import (
     TerrainGrid, LIGHT_BINS, FeatureGroup, Hillshade, LightProfile, LightWindow, PairExplanation, Point, Preset, QueryInfo,
-    SiteContext, Twin, TwinsRequest, TwinsResponse,
+    GeoUnit, SiteContext, Twin, TwinsRequest, TwinsResponse,
 )
 
 log = logging.getLogger("analog.service")
@@ -263,6 +263,25 @@ def _env(env_mod, tid: str, lat: float, lon: float) -> Optional[SiteContext]:
         return None
 
 
+def _geology_row(idx, tid: str) -> Optional[GeoUnit]:
+    row = getattr(idx, "id_to_row", {}).get(tid)
+    if row is None or not hasattr(idx, "geology"):
+        return None
+    g = idx.geology(int(row))
+    return GeoUnit(**g) if g else None
+
+
+def _geology_at(idx, body: str, lat: float, lon: float) -> Optional[GeoUnit]:
+    if body == "earth" or not hasattr(idx, "geology_at"):
+        return None
+    try:
+        g = idx.geology_at(body, lat, lon)
+    except Exception as exc:
+        log.warning("geology lookup failed at %s %.3f,%.3f: %s", body, lat, lon, exc)
+        return None
+    return GeoUnit(**g) if g else None
+
+
 def _random_closer(idx, r: dict) -> Optional[float]:
     if "distance" not in r or not hasattr(idx, "random_pairs_closer_pct"):
         return None
@@ -318,11 +337,13 @@ def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
             twins.append(Twin(
                 id=tid, body=dest, lat=r["lat"], lon=r["lon"], place_label=r.get("place_label") or "", terrain_sim=ts,
                 light_sim=ls, best_window=win, env=_env(env_mod, tid, r["lat"], r["lon"]) if dest == "earth" else None,
+                geology=_geology_row(idx, tid) if dest != "earth" else None,
                 score=round(score, 4), random_closer_pct=_random_closer(idx, r), random_closer_ci=_random_closer_ci(idx, r), rank=i + 1, ref=f"twin:{tid}"))
         results[dest] = twins
     return TwinsResponse(
         query=QueryInfo(body=req.body, lat=req.lat, lon=req.lon, label=q.get("label"), point_id=q.get("point_id") or f"{req.body}@{req.lat:.6f},{req.lon:.6f}",
-                        on_grid=bool(q.get("on_grid", False)), snapped_km=q.get("snapped_km")),
+                        on_grid=bool(q.get("on_grid", False)), snapped_km=q.get("snapped_km"),
+                        geology=_geology_at(idx, req.body, req.lat, req.lon)),
         mode=modes, weights=w, results=results, latency_ms=round((time.perf_counter() - t0) * 1000, 1), source="live", barren=barren,
         ref=f"twins:{req.body}:{req.lat:.3f}:{req.lon:.3f}")
 

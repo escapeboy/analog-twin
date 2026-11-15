@@ -33,8 +33,11 @@ class LightWindow(BaseModel):
 class SiteContext(BaseModel):
     """Environment layer for Earth points (P1). Any field may be null if not computed."""
     country: Optional[str] = None
-    koppen_code: Optional[str] = None
+    koppen_code: Optional[str] = Field(default=None, description="Koppen-Geiger class, CHELSA-BIOCLIM+ 1981-2010")
     koppen_label: Optional[str] = None
+    aridity_index: Optional[float] = Field(default=None, description="precipitation / PET, CHELSA 1981-2010 (capped at 100)")
+    aridity_class: Optional[str] = Field(default=None, description="hyper-arid | arid | semi-arid | dry sub-humid | humid")
+    t_mean_c: Optional[float] = Field(default=None, description="mean annual air temperature, deg C, CHELSA 1981-2010")
     elevation_m: Optional[float] = None
     nearest_airport: Optional[str] = None
     airport_km: Optional[float] = None
@@ -43,6 +46,14 @@ class SiteContext(BaseModel):
     barren: Optional[bool] = Field(default=None, description="ndvi <= configured barren threshold")
     cold_dry: Optional[float] = Field(default=None, description="0-1 cold/dry indicator (used only in 'full' scoring mode)")
     ref: Optional[str] = None
+
+
+class GeoUnit(BaseModel):
+    """Mapped geologic unit of a Moon or Mars point (USGS global maps). Shown as context; not part of the score."""
+    unit: str
+    name: Optional[str] = None
+    period: Optional[str] = None
+    source: Optional[str] = None
 
 
 class Twin(BaseModel):
@@ -55,6 +66,7 @@ class Twin(BaseModel):
     light_sim: Optional[float] = Field(default=None, ge=0, le=1)
     best_window: Optional[LightWindow] = None
     env: Optional[SiteContext] = None
+    geology: Optional[GeoUnit] = None
     score: float
     random_closer_pct: Optional[float] = Field(
         default=None, ge=0, le=100,
@@ -84,6 +96,7 @@ class QueryInfo(Point):
     point_id: Optional[str] = None
     on_grid: bool
     snapped_km: Optional[float] = None
+    geology: Optional[GeoUnit] = None
 
 
 class TwinsResponse(BaseModel):

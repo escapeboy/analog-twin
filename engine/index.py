@@ -83,7 +83,62 @@ class Index:
         self.gidx = F.group_indices(self.fset["name"])
         self.ndvi = self.lst_c = None
         self._load_modis()
+        self.koppen = self.aridity = self.t_mean_c = None
+        self._load_climate()
+        self.geo_unit = self.geo_name = self.geo_period = None
+        self._load_geology()
         self.weights = np.asarray(self.scaler["weights"], dtype=np.float32)
+
+    def _rows_of(self, t):
+        rows = np.array([self.id_to_row.get(i, -1) for i in t.column("id").to_pylist()], dtype=np.int64)
+        return rows, rows >= 0
+
+    def _load_climate(self) -> None:
+        """CHELSA climate per Earth point (scripts/build_climate.py): Koppen code (0 = unknown), aridity, t_mean_c."""
+        p = self.path / "env_climate.parquet"
+        if not p.exists():
+            return
+        import pyarrow.parquet as pq
+        t = pq.read_table(p)
+        rows, ok = self._rows_of(t)
+        n = len(self.ids)
+        self.koppen = np.zeros(n, dtype=np.uint8)
+        self.aridity = np.full(n, np.nan, dtype=np.float32)
+        self.t_mean_c = np.full(n, np.nan, dtype=np.float32)
+        self.koppen[rows[ok]] = t.column("koppen").to_numpy()[ok]
+        self.aridity[rows[ok]] = t.column("aridity").to_numpy()[ok]
+        self.t_mean_c[rows[ok]] = t.column("t_mean_c").to_numpy()[ok]
+
+    def _load_geology(self) -> None:
+        """USGS geologic unit per Moon/Mars point (scripts/build_geology.py); None where unmapped."""
+        p = self.path / "geology.parquet"
+        if not p.exists():
+            return
+        import pyarrow.parquet as pq
+        t = pq.read_table(p)
+        rows, ok = self._rows_of(t)
+        n = len(self.ids)
+        out = []
+        for col in ("unit", "name", "period"):
+            a = np.full(n, None, dtype=object)
+            a[rows[ok]] = np.asarray(t.column(col).to_pylist(), dtype=object)[ok]
+            out.append(a)
+        self.geo_unit, self.geo_name, self.geo_period = out
+
+    def geology(self, row: int) -> dict | None:
+        """{unit, name, period, source} of an index row, or None (Earth rows, unmapped cells, no layer)."""
+        if self.geo_unit is None or self.geo_unit[row] is None:
+            return None
+        src = {"moon": "USGS SIM 3316 (2020), 1:5M", "mars": "USGS SIM 3292 (2014), 1:20M"}.get(self.body[row])
+        return {"unit": self.geo_unit[row], "name": self.geo_name[row], "period": self.geo_period[row],
+                "source": src}
+
+    def geology_at(self, body: str, lat: float, lon: float, max_km: float = 15.0) -> dict | None:
+        """Geologic unit of the nearest index point of ``body`` within max_km (targets off the grid)."""
+        if self.geo_unit is None or body not in self.rows:
+            return None
+        rows, km = self.nearest(body, lat, lon, k=1)
+        return self.geology(int(rows[0])) if km[0] <= max_km else None
 
     def _load_modis(self) -> None:
         """MODIS annual means per Earth point (scripts/build_modis.py), aligned to all rows (NaN elsewhere)."""

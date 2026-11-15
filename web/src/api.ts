@@ -12,13 +12,16 @@ export interface SiteContext {
   country?: string | null; koppen_code?: string | null; koppen_label?: string | null;
   elevation_m?: number | null; nearest_airport?: string | null; airport_km?: number | null; ref?: string | null;
   ndvi?: number | null; barren?: boolean | null;
+  aridity_index?: number | null; aridity_class?: string | null; t_mean_c?: number | null;
 }
+/** Mapped geologic unit of a Moon or Mars point (USGS global maps); context only, not scored. */
+export interface GeoUnit { unit: string; name?: string | null; period?: string | null; source?: string | null }
 export interface Twin extends Point {
   id: string; place_label: string; terrain_sim: number; light_sim?: number | null;
-  best_window?: LightWindow | null; env?: SiteContext | null; score: number; random_closer_pct?: number | null; random_closer_ci?: [number, number] | null; rank: number; ref: string;
+  best_window?: LightWindow | null; env?: SiteContext | null; geology?: GeoUnit | null; score: number; random_closer_pct?: number | null; random_closer_ci?: [number, number] | null; rank: number; ref: string;
 }
 export interface QueryInfo extends Point {
-  label?: string | null; point_id?: string | null; on_grid: boolean; snapped_km?: number | null;
+  label?: string | null; point_id?: string | null; on_grid: boolean; snapped_km?: number | null; geology?: GeoUnit | null;
 }
 export interface TwinsResponse {
   query: QueryInfo; mode: Record<string, Mode>; weights: Record<string, number>;

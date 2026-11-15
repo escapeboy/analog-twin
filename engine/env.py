@@ -6,9 +6,10 @@
   * elevation_m: ETOPO 2022 30" surface elevation (bilinear; negative over the sea floor).
   * nearest_airport / airport_km: Natural Earth 10 m airports (893 airports), great-circle distance on a 6371 km
     sphere (NASA Earth fact sheet, https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html).
-  * koppen_code / koppen_label: None. The Beck et al. (2023) Koppen-Geiger V3 archive
-    (https://figshare.com/ndownloader/files/61012822, linked from https://www.gloh2o.org/koppen/) answered HTTP 403
-    to every request from the build host on 2026-11-14, so climate classes are not available.
+  * koppen_code / koppen_label, aridity_index / aridity_class, t_mean_c: CHELSA-BIOCLIM+ 1981-2010 (CC0) of the
+    nearest Earth index point within MODIS_SNAP_KM (scripts/build_climate.py -> <index>/env_climate.parquet; legend
+    and classes in engine/climate.py). The Beck et al. (2023) archive on figshare is not used: figshare answered
+    HTTP 403 / a WAF challenge to Friday and Jarvis (2026-11-14/15).
   * ndvi / lst_c: MODIS multi-year annual means (scripts/build_modis.py -> <index>/env_modis.parquet) of the nearest
     Earth index point within MODIS_SNAP_KM; None if there is none or the file is missing.
   * barren: ndvi <= BARREN_NDVI_MAX (see below); cold_dry: 0-1 indicator (formula in cold_dry()).
@@ -30,7 +31,7 @@ from functools import lru_cache
 
 import numpy as np
 
-from engine import dem
+from engine import climate, dem
 
 EARTH_R_KM = dem.RADIUS_M["earth"] / 1000.0
 AIRPORTS_ZIP = dem.RAW / "naturalearth" / "ne_10m_airports.zip"
@@ -79,6 +80,29 @@ def modis_values(lat: float, lon: float):
     i = int(rows[0])
     nd, ls = float(ix.ndvi[i]), float(ix.lst_c[i])
     return (None if not math.isfinite(nd) else round(nd, 4)), (None if not math.isfinite(ls) else round(ls, 2))
+
+
+def climate_values(lat: float, lon: float) -> dict:
+    """CHELSA climate of the nearest Earth index point within MODIS_SNAP_KM (engine/climate.py); all None if none."""
+    out = {"koppen_code": None, "koppen_label": None, "aridity_index": None, "aridity_class": None, "t_mean_c": None}
+    try:
+        from engine.index import load_index
+        ix = load_index()
+    except FileNotFoundError:
+        return out
+    if ix.koppen is None or "earth" not in ix.rows:
+        return out
+    rows, km = ix.nearest("earth", lat, lon, k=1)
+    if km[0] > MODIS_SNAP_KM:
+        return out
+    i = int(rows[0])
+    out["koppen_code"], out["koppen_label"] = climate.koppen(ix.koppen[i])
+    ai, t = float(ix.aridity[i]), float(ix.t_mean_c[i])
+    if math.isfinite(ai):
+        out["aridity_index"], out["aridity_class"] = round(ai, 3), climate.aridity_class(ai)
+    if math.isfinite(t):
+        out["t_mean_c"] = round(t, 1)
+    return out
 
 
 def _unit(lat, lon):
@@ -177,7 +201,7 @@ def site_context(lat: float, lon: float) -> dict:
         country = _country(lat, lon)
     nd, ls = modis_values(lat, lon)
     cd = None if nd is None or ls is None else round(float(cold_dry(nd, ls)), 4)
-    return {"country": country, "koppen_code": None, "koppen_label": None,
+    return {"country": country, **climate_values(lat, lon),
             "elevation_m": _elevation(lat, lon), "nearest_airport": name, "airport_km": round(km, 1),
             "ndvi": nd, "lst_c": ls, "barren": None if nd is None else bool(is_barren(nd)), "cold_dry": cd,
             "ref": f"ctx:{lat:.4f},{lon:.4f}"}

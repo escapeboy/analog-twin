@@ -45,10 +45,20 @@ def percentile_rank(d_earth: np.ndarray, d_site: float) -> float:
     return float(100.0 * (d_earth < d_site).mean())
 
 
-def known_analog_test(ix: Index, barren: bool = False) -> dict:
+def _dry_polar_rows(ix: Index, rows: np.ndarray) -> np.ndarray:
+    """Boolean mask: Koppen main group B (arid) or E (polar), CHELSA 1981-2010 (env_climate.parquet)."""
+    from engine import climate
+    if ix.koppen is None:
+        raise RuntimeError("climate test needs env_climate.parquet in the index folder (scripts/build_climate.py)")
+    be = np.array([climate.is_dry_or_polar(c) for c in range(climate.N_CODES + 1)])
+    return be[ix.koppen[rows]]
+
+
+def known_analog_test(ix: Index, barren: bool = False, climate_dry: bool = False) -> dict:
     """barren=True: rank sites only among barren Earth points (MODIS annual-mean NDVI <= engine.env.BARREN_NDVI_MAX),
-    i.e. the corpus the twin search uses with the barren filter in "exclude" mode; the baseline is drawn from it too."""
-    from engine import env
+    i.e. the corpus the twin search uses with the barren filter in "exclude" mode; the baseline is drawn from it too.
+    climate_dry=True: the corpus is the Earth points with a dry (B) or polar (E) Koppen class instead."""
+    from engine import climate, env
     targets = {t["id"]: t for t in _yaml("targets.yaml")}
     sites = _yaml("known_analogs.yaml")
     earth_rows = ix.rows["earth"][~ix.dense[ix.rows["earth"]]]
@@ -57,6 +67,8 @@ def known_analog_test(ix: Index, barren: bool = False) -> dict:
         if ix.ndvi is None:
             raise RuntimeError("barren test needs env_modis.parquet in the index folder")
         earth_rows = earth_rows[env.is_barren(ix.ndvi[earth_rows])]
+    if climate_dry:
+        earth_rows = earth_rows[_dry_polar_rows(ix, earth_rows)]
     tvec, tinfo = {}, {}
     for tid, t in targets.items():
         if t["body"] == "earth":
@@ -90,6 +102,11 @@ def known_analog_test(ix: Index, barren: bool = False) -> dict:
             v = float(ix.ndvi[int(rr[0])]) if kk[0] <= env.MODIS_SNAP_KM else float("nan")
             entry["site_ndvi"] = round(v, 4) if np.isfinite(v) else None
             entry["site_barren"] = bool(env.is_barren(v)) if np.isfinite(v) else None
+        if ix.koppen is not None:
+            rr, kk = ix.nearest("earth", r.lat, r.lon, k=1)
+            code = climate.koppen(ix.koppen[int(rr[0])])[0] if kk[0] <= env.MODIS_SNAP_KM else None
+            entry["site_koppen"] = code
+            entry["site_dry_or_polar"] = None if code is None else code[0] in "BE"
         entry.update({"evaluable": True, "on_grid": r.on_grid,
                       "snapped_km": None if r.snapped_km is None else round(r.snapped_km, 2),
                       "evaluated_at": {"lat": round(r.lat, 4), "lon": round(r.lon, 4)}})
@@ -134,6 +151,8 @@ def known_analog_test(ix: Index, barren: bool = False) -> dict:
         "barren_filter": {"on": barren, "ndvi_max": env.BARREN_NDVI_MAX,
                           "uniform_earth_points": int(n_uniform),
                           "excluded_points": int(n_uniform - len(earth_rows)) if barren else 0},
+        "climate_filter": {"on": climate_dry, "rule": "Koppen main group B or E (CHELSA-BIOCLIM+ 1981-2010)",
+                           "excluded_points": int(n_uniform - len(earth_rows)) if climate_dry else 0},
         "targets": tinfo,
         "sites": per_site,
         "median_percentile_all_pairs": round(float(np.median(all_pcts)), 2) if all_pcts else None,
@@ -234,6 +253,9 @@ def main(argv=None):
     ap.add_argument("--skip-determinism", action="store_true")
     ap.add_argument("--barren-compare", action="store_true",
                     help="write terrain.known_analog_test_barren_on / _off (needs env_modis.parquet) and exit")
+    ap.add_argument("--climate-compare", action="store_true",
+                    help="write terrain.known_analog_test_climate_dry and terrain.climate_vs_ndvi (needs "
+                         "env_climate.parquet and env_modis.parquet) and exit")
     ap.add_argument("--tag", default=None,
                     help="write results only under terrain.<tag> (experiment comparison); other keys untouched")
     a = ap.parse_args(argv)
@@ -252,6 +274,32 @@ def main(argv=None):
                               "baseline": v["baseline_random_median_percentile"], "pairs": v["pairs_evaluated"],
                               "earth_points_ranked": v["earth_points_ranked"], "by_target_body": v["by_target_body"]}
                           for k, v in (("barren_on", on), ("barren_off", off))}, indent=1))
+        return
+    if a.climate_compare:
+        dry = known_analog_test(ix, climate_dry=True)
+        rows = ix.rows["earth"][~ix.dense[ix.rows["earth"]]]
+        be = _dry_polar_rows(ix, rows)
+        from engine import env
+        known = np.isfinite(ix.ndvi[rows]) if ix.ndvi is not None else np.zeros(len(rows), bool)
+        bar = env.is_barren(ix.ndvi[rows]) if ix.ndvi is not None else np.zeros(len(rows), bool)
+        k = known & (ix.koppen[rows] > 0)
+        agree = {"uniform_earth_points": int(len(rows)), "both_known": int(k.sum()),
+                 "barren_and_dry_polar": int((k & bar & be).sum()), "barren_not_dry_polar": int((k & bar & ~be).sum()),
+                 "dry_polar_not_barren": int((k & ~bar & be).sum()), "neither": int((k & ~bar & ~be).sum()),
+                 "rule": f"barren = MODIS NDVI <= {env.BARREN_NDVI_MAX}; dry_polar = Koppen B or E (CHELSA 1981-2010)"}
+        agree["agreement_pct"] = round(100.0 * (agree["barren_and_dry_polar"] + agree["neither"]) / max(agree["both_known"], 1), 2)
+        cur = json.loads(a.metrics.read_text()) if a.metrics.exists() else {}
+        terrain = cur.get("terrain") if isinstance(cur.get("terrain"), dict) else {}
+        terrain["known_analog_test_climate_dry"] = dry
+        terrain["climate_vs_ndvi"] = agree
+        merge_write(a.metrics, {"terrain": terrain}, None)
+        print(json.dumps({"climate_dry": {"median_percentile_all_pairs": dry["median_percentile_all_pairs"],
+                                          "median_of_site_medians": dry["median_of_site_medians"],
+                                          "baseline": dry["baseline_random_median_percentile"],
+                                          "pairs": dry["pairs_evaluated"], "earth_points_ranked": dry["earth_points_ranked"],
+                                          "by_target_body": dry["by_target_body"]},
+                          "climate_vs_ndvi": agree,
+                          "sites": [(e["id"], e.get("site_koppen"), e.get("median_percentile")) for e in dry["sites"]]}, indent=1))
         return
     if a.tag:
         kat = known_analog_test(ix)

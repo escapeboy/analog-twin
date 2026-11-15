@@ -1,6 +1,6 @@
 # How sure are the numbers? — requirements (brainstorm, 15.11.2026)
 
-Status: R1, R2 and R5 done 15.11 (see Results). R3, R4 and R6 open.
+Status: R1, R2 and R5 done 15.11 (see Results). R3 done 15.11 on branch w13-data-layers (see gap 2). R4 and R6 open.
 
 ## How each number is made
 | Number on the stage | Computed from | Random? |
@@ -24,7 +24,7 @@ The AI crew never produces a number; it only cites engine output.
 
 ## Gaps (what is NOT proven)
 1. **Correctly computed ≠ meaningful.** The known-analog test, 51.1 vs 48.5, says the terrain score does not yet rank known analog sites better than chance. This is the biggest open question, and no test of the arithmetic answers it.
-2. **The SPICE cross-check predates the new light metric.** It compared the old 6-bin histogram. It has not been re-run with the fine bins below 10° that `light_sim` now uses. Mars has no SPICE check.
+2. **The SPICE cross-check predates the new light metric.** Closed by R3 (W13): `engine/spice_check.py` now also compares the light_sim inputs (day fraction and the fine sun-up histogram) from SPICE with the analytic ones and scores them with `light_score`: 0.92–0.98 on Earth, 0.97–0.99 on the Moon, 0.88–0.99 on Mars (`mar099s.bsp` added). Hour by hour Mars is off by a mean 4.4–8.6° and up to 22.4° (eccentric orbit, equation of time), stated in limitations.md.
 3. **No independent check of the features on real data.** The slope tests use synthetic planes. Nobody has compared our slope or roughness on a real DEM window against an independent tool such as GDAL `gdaldem` or richdem.
 4. **"1 in N" has a sampling error.** Closed by R2 (the stage shows the 95 % range) and R5 (other seeds stay inside it).
 5. **No frozen regression for the stage numbers.** Closed by R1.
@@ -58,8 +58,8 @@ The AI crew never produces a number; it only cites engine output.
 3. **The Sun model is checked against NASA JPL ephemerides (SPICE).** The mean error is about 1° on Earth and 0.6° on the Moon, and 0.04° at the lunar south pole.
 4. **"1 in N" carries its error bar.** It is a sample of 200,000 random pairs, so we show the 95 % range (Jezero: 1 in 940 to 1,200). Re-drawing the sample 5 times stays inside that range.
 5. **The numbers on this screen are frozen in a test.** If anything in the pipeline changes them, the build fails.
-6. **What is NOT proven, and we say it first:** "computed correctly" is not "a validated analog". Known analog sites do not yet rank better than random places (median percentile 51 vs 49). Terrain shape at about 1 km plus sun pattern is a screening tool, not a verdict.
+6. **What is NOT proven, and we say it first:** "computed correctly" is not "a validated analog". Known analog sites do not yet rank better than random places (median percentile 51 vs 49; 46.6 vs 47.9 among dry and polar Earth climates). Terrain shape at about 1 km plus sun pattern is a screening tool, not a verdict.
 
 ## Still open
-- R3 (SPICE re-check of the new light metric; Mars has no SPICE check) and R4 (features against an independent tool on real data): 1–2 h each.
+- R4 (features against an independent tool on real data): 1–2 h.
 - R6 (validity of the known-analog result): after the hackathon.
