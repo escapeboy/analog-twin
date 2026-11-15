@@ -39,7 +39,7 @@ export function renderWeeks(root: HTMLElement, s: StoryState): void {
   const n = row.weeks.length;
   const gap = 2;
   const cw = (W - gap * (n - 1)) / n;
-  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, class: 'wk-svg', role: 'img',
+  const svg = el('svg', { width: W, height: H, class: 'wk-svg', role: 'img',
     'aria-label': `Light similarity for each of ${n} weeks of the year` });
 
   const inWindow = (start: string): boolean => {
@@ -51,12 +51,15 @@ export function renderWeeks(root: HTMLElement, s: StoryState): void {
   const baseY = TOP + BAR_H;
   svg.append(el('line', { x1: 0, x2: W, y1: baseY + 0.5, y2: baseY + 0.5, class: 'wk-base' }));
 
+  const vals = row.weeks.map((x) => x.light_sim);
+  const lo = Math.min(...vals), span = Math.max(...vals) - lo || 1;
   row.weeks.forEach((w, i) => {
+    const op = (0.3 + 0.7 * (w.light_sim - lo) / span).toFixed(2);
     const hgt = Math.max(2, clamp01(w.light_sim) * BAR_H);
     const hit = inWindow(w.start);
     svg.append(el('rect', {
       x: (i * (cw + gap)).toFixed(2), y: (baseY - hgt).toFixed(2), width: cw.toFixed(2), height: hgt.toFixed(2),
-      class: `wk-cell${hit ? ' wk-best' : distinct ? ' wk-dim' : ''}`,
+      class: `wk-cell${hit ? ' wk-best' : ''}`, 'fill-opacity': op,
     }));
   });
 

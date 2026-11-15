@@ -2,19 +2,24 @@
 .band-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .c-wide { grid-column: 1 / -1; }
 .c-limits { grid-column: 1 / -1; }
-.c-verdict { grid-column: span 1; }
+#band .c-verdict { grid-column: span 4; }
+#band .c-hero { grid-column: span 5; }
+#band .c-figs { grid-column: span 3; gap: 28px; }
+#band .c-third { grid-column: span 4; }
+.figure-hero .fig-value { white-space: nowrap; }
+.figure-hero.long .fig-value { font-size: 72px; }
 
-.band-name { font-size: 40px; line-height: 1.15; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+.band-name { font-size: 40px; line-height: 1.15; font-weight: 600; color: var(--text); }
 .band-question { font-size: 72px; line-height: 1.05; font-weight: 600; color: var(--text); }
 .band-coords { font-size: 24px; color: var(--text-2); }
 .band-line { font-size: 28px; color: var(--text-2); }
 .band-why { font-size: 40px; line-height: 1.2; color: var(--text); }
 .band-note { font-size: 28px; line-height: 1.25; color: var(--text-2); }
 
-.verdict { font-size: 40px; line-height: 1.1; font-weight: 700; color: var(--text); }
-.figure-hero .fig-value { font-size: 112px; line-height: 1; font-weight: 700; color: var(--text); overflow-wrap: anywhere; }
+.figure-hero .fig-value { font-size: 112px; line-height: 1; font-weight: 700; color: var(--text); }
 .figure .fig-value { font-size: 72px; line-height: 1; font-weight: 700; color: var(--text); }
-.figure-label { font-size: 24px; line-height: 1.2; color: var(--text-2); }
+.figure-label { font-size: 28px; line-height: 1.2; letter-spacing: normal; word-spacing: normal; font-stretch: normal; color: var(--text-2); }
+.figure-sub { font-size: 24px; line-height: 1.2; color: var(--text-2); margin-top: 6px; }
 
 .twin-switch { display: flex; align-items: center; gap: 16px; font-size: 24px; color: var(--text-2); }
 .band-step, .band-retry {
@@ -41,3 +46,13 @@
 .skel-c { height: 56px; }
 @keyframes band-pulse { 50% { opacity: 0.5; } }
 @media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
+
+#band .c-verdict { gap: 6px; }
+#band .c-verdict .verdict { font-size: 56px; }
+.figure-sub { font-weight: 400; }
+#band .c-why { grid-column: 1 / -1; }
+#band .c-third { gap: 4px; }
+#band .c-third .figure .fig-value { font-size: 56px; }
+#band .c-wide { margin-bottom: 4px; }
+#band .c-weeks { grid-column: span 7; }
+#band .c-when { grid-column: span 5; }

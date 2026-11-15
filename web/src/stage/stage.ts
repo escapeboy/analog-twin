@@ -80,6 +80,8 @@ function layout() {
     const el = slots.get(b)!;
     Object.assign(el.style, { width: `${size}px`, height: `${size}px`, left: `${Math.round(cx - size / 2)}px`, top: `${Math.round((R.height - size) / 2)}px` });
     el.classList.toggle('side', b !== centre);
+    // label sits a fixed gap under the visible disc (the globe fills 0.86 of its box), same for all three
+    names.get(b)!.style.top = `${Math.round(size * 0.93) + 12}px`;
   };
   place(centre, R.width / 2, big);
   place(others[0], R.width * 0.2, small);

@@ -6,7 +6,7 @@ import { pointLabel, twinLabels } from '../present/labels';
 import type { Twin } from '../api';
 import './band.css';
 import {
-  BULGARIA_NOTE, ONE_IN_LABEL, TARGET_QUESTION, limits, oneIn, pairGroup, pct, place, scope, sunLine, sunMax, twinCounter,
+  BULGARIA_HEADING, BULGARIA_NOTE, ONE_IN_LABEL, SUN_LABEL, TOP3_NOTE, bulgariaPlace, oneInPairs, TARGET_QUESTION, limits, oneIn, pairGroup, pct, place, scope, sunLine, sunMax, twinCounter,
   verdict, verdictText, weakNote, whyLine, windowLine,
 } from './copy';
 import { selectedTwin, type Actions, type Render, type StoryState } from './types';
@@ -27,7 +27,15 @@ const nameOf = (t: Twin, m: Map<string, string>) => place(t, m.get(t.id) ?? (gaz
 
 const col = (cls: string, ...kids: (Node | string | null)[]) => h('div', { class: `band-col ${cls}` }, ...kids);
 const figure = (value: string, label: string, hero = false) =>
-  h('div', { class: hero ? 'figure-hero' : 'figure' }, h('div', { class: 'fig-value' }, value), h('div', { class: 'figure-label' }, label));
+  h('div', { class: hero ? `figure-hero${value.length > 12 ? ' long' : ''}` : 'figure' }, h('div', { class: 'fig-value' }, value), h('div', { class: 'figure-label' }, label));
+
+function sunFigure(s: StoryState, tw: Twin): HTMLElement {
+  const compared = tw.body === 'earth' && s.target?.body !== 'earth' && tw.light_sim != null;
+  const f = figure(compared ? pct(tw.light_sim as number) : '–', compared ? SUN_LABEL : sunLine(s.target?.body ?? 'earth', tw));
+  const max = sunMax(tw);
+  if (max) f.append(h('div', { class: 'figure-sub' }, max));
+  return f;
+}
 
 function skeleton(): HTMLElement {
   return h('div', { class: 'band-skel', 'aria-busy': 'true', 'aria-label': 'Loading' },
@@ -82,10 +90,11 @@ export const renderBand: Render = (root, s, act) => {
   if (s.step === 1) {
     out.push(col('c-wide', h('div', { class: 'band-name' }, targetName(s)), h('div', { class: 'band-question' }, TARGET_QUESTION)));
   } else if (s.step === 2) {
+    out.push(col('c-wide', h('div', { class: 'band-line' }, TOP3_NOTE)));
     for (const t of s.twins.slice(0, 3)) {
       const p = nameOf(t, m);
-      out.push(col('c-twin', h('div', { class: 'band-name' }, p.name), h('div', { class: 'band-coords' }, p.coords),
-        figure(`${pct(t.terrain_sim)}`, 'terrain alike'), h('div', { class: 'band-line' }, oneIn(t.random_closer_pct))));
+      out.push(col('c-twin c-third', h('div', { class: 'band-name' }, p.name), h('div', { class: 'band-coords' }, p.coords),
+        figure(`${pct(t.terrain_sim)}`, 'terrain alike'), h('div', { class: 'band-line' }, oneInPairs(t.random_closer_pct))));
     }
   } else if (s.step === 3 && tw) {
     const rc = tw.random_closer_pct, v = verdict(rc);
@@ -97,7 +106,7 @@ export const renderBand: Render = (root, s, act) => {
         h('div', { class: 'band-name' }, p.name), h('div', { class: 'band-coords' }, p.coords), switcher(s, act)),
       col('c-hero', rc != null ? figure(oneIn(rc), ONE_IN_LABEL, true) : null),
       col('c-figs', figure(pct(tw.terrain_sim), 'terrain shape alike'),
-        figure(tw.body === 'earth' && s.target?.body !== 'earth' && tw.light_sim != null ? pct(tw.light_sim) : '–', sunLine(s.target?.body ?? 'earth', tw))),
+        sunFigure(s, tw)),
     );
   } else if (s.step === 4 && s.pair && !(s.pair instanceof Error) && s.pair !== 'loading') {
     const c = pairGroup(s.pair.groups, s.pair.top_similar, 'closest');
@@ -110,10 +119,9 @@ export const renderBand: Render = (root, s, act) => {
   } else if (s.step === 6 && s.bulgaria !== undefined && s.bulgaria !== 'loading' && !(s.bulgaria instanceof Error)) {
     const b = s.bulgaria;
     if (b) {
-      const p = nameOf(b, new Map());
-      out.push(col('c-bg', h('div', { class: 'band-name' }, p.name), h('div', { class: 'band-coords' }, p.coords)),
-        col('c-figs', figure(oneIn(b.random_closer_pct), ONE_IN_LABEL, true), figure(pct(b.terrain_sim), 'terrain shape alike')),
-        col('c-note', h('div', { class: 'band-note' }, BULGARIA_NOTE)));
+      out.push(col('c-verdict', h('div', { class: 'band-name' }, BULGARIA_HEADING), h('div', { class: 'band-line' }, bulgariaPlace(b)), h('div', { class: 'band-note' }, BULGARIA_NOTE)),
+        col('c-hero', figure(oneIn(b.random_closer_pct), ONE_IN_LABEL, true)),
+        col('c-figs', figure(pct(b.terrain_sim), 'terrain shape alike')));
     } else {
       out.push(col('c-note', h('div', { class: 'band-note' }, 'No Bulgarian place found.')));
     }

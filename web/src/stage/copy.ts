@@ -102,3 +102,11 @@ export const place = (twin: Pick<Twin, 'place_label' | 'lat' | 'lon'>, title?: s
 });
 
 export const twinCounter = (idx: number, total: number): string => `twin ${idx + 1} of ${total}`;
+
+export const TOP3_NOTE = 'Top 3 twins, ranked by terrain shape and sun together';
+export const oneInPairs = (randomCloserPct: number | null | undefined): string =>
+  randomCloserPct == null ? '' : `${oneIn(randomCloserPct)} random pairs`;
+export const SUN_LABEL = 'sun pattern alike';
+export const BULGARIA_HEADING = 'Closest terrain in Bulgaria';
+/** The request is limited to the Bulgaria box, so the place is always Bulgaria. */
+export const bulgariaPlace = (twin: Pick<Twin, 'lat' | 'lon'>): string => `Bulgaria, ${fmtLatLon(twin.lat, twin.lon).replace(', ', ' ')}`;

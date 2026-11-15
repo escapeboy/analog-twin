@@ -23,7 +23,7 @@ const pct = (x: number) => `${Math.round(x * 100)}%`;
 
 function scaleLine(hs: NonNullable<PairExplanation['hillshade']>): string {
   const km = hs.gsd_m >= 500 ? `${Math.max(1, Math.round(hs.gsd_m / 1000))} km` : `${Math.round(hs.gsd_m)} m`;
-  return `Shaded relief, same scale: one pixel is about ${km}. Each picture is ${Math.round(hs.extent_km)} km wide.`;
+  return `Shaded relief, same scale, contrast enhanced: one pixel is about ${km}. Each picture is ${Math.round(hs.extent_km)} km wide.`;
 }
 
 function picture(url: string, caption: string, alt: string): HTMLElement {
@@ -110,21 +110,22 @@ export const renderRelief: Render = (root, s, act) => {
 
   const hs = pair.hillshade;
   const left = h('div', { class: 'rl-left' });
+  let scale: HTMLElement | null = null;
   if (hs) {
     const tName = s.target?.label.replace(/\s*\((Moon|Mars|Earth)\)$/, '') ?? 'Target';
     const wName = t?.place_label ?? 'Twin';
     left.append(
       h('div', { class: 'rl-pair' },
         picture(hs.a_url, tName, `Shaded relief of ${tName}`),
-        picture(hs.b_url, wName, `Shaded relief of ${wName}`)),
-      h('p', { class: 'rl-note' }, scaleLine(hs)));
+        picture(hs.b_url, wName, `Shaded relief of ${wName}`)));
+    scale = h('p', { class: 'rl-note' }, scaleLine(hs));
   } else {
     left.append(h('p', { class: 'rl-note' }, 'No relief pictures for this pair.'));
   }
 
   const btn = h('button', { type: 'button', class: 'rl-btn' }, '3D terrain');
   btn.addEventListener('click', () => { note3d = ''; open3d = true; view3d(root, s, pair, rerender); });
-  const right = h('div', { class: 'rl-right' }, strip(pair), btn,
+  const right = h('div', { class: 'rl-right' }, strip(pair), scale, btn,
     note3d ? h('p', { class: 'rl-note rl-err', role: 'alert' }, note3d) : null);
   root.replaceChildren(h('div', { class: 'rl-wrap' }, left, right));
 };

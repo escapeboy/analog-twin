@@ -46,7 +46,8 @@ export function createStory(): { state: () => StoryState; actions: Actions; subs
     const my = ++pairSeq, mySeq = seq;
     const ok = () => my === pairSeq && mySeq === seq;
     st.pair = 'loading';
-    getPair(t.id, tw.id).then((p) => { if (ok()) { st.pair = p; emit(); } }, (e) => { if (ok()) { st.pair = e instanceof Error ? e : new Error(String(e)); emit(); } });
+    const aId = (typeof st.res === 'object' && !(st.res instanceof Error) ? st.res.query.point_id : null) ?? t.id; // the engine's point id, not the preset id
+    getPair(aId, tw.id).then((p) => { if (ok()) { st.pair = p; emit(); } }, (e) => { if (ok()) { st.pair = e instanceof Error ? e : new Error(String(e)); emit(); } });
     if (t.body !== 'earth' && tw.body === 'earth') {
       st.calendar = 'loading';
       getCalendar({ target: t, twin: tw }).then((c) => {
