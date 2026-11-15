@@ -116,12 +116,30 @@ def test_replay_cache_serves_presets(client):
     p = service.fixtures.pair("x", "y")
     service.cache_put_pair(p)
     assert client.get("/api/pair/x/y?replay=1").json()["source"] == "replay-cache"
+    # the cache holds default-filter results only: another vegetation filter is never answered from it
+    q = {"body": "moon", "lat": -89.5, "lon": 0.0, "k": 2}
+    assert client.post("/api/twins?replay=1", json={**q, "barren": "exclude"}).json()["source"] == "replay-cache"
+    assert client.post("/api/twins?replay=1", json={**q, "barren": "off"}).json()["source"] != "replay-cache"
+    assert client.post("/api/twins", json={**q, "barren": "sometimes"}).status_code == 422
+
+
+def test_twins_barren_mode_reaches_engine(monkeypatch):
+    seen = {}
+
+    class Idx:
+        def search(self, body, lat, lon, to, k, region=None, barren=None):
+            seen["barren"] = barren
+            return {"query": {"on_grid": True}, "results": {d: [] for d in to}}
+
+    monkeypatch.setattr(service, "_mod", lambda name: None)
+    r = service._live_twins(Idx(), TwinsRequest(body="moon", lat=-89.5, lon=0.0, to=["earth"], barren="off"))
+    assert seen["barren"] == "off" and r.barren == "off"
 
 
 def test_live_scoring_blend_and_ranking(monkeypatch):
     """Stub engine: Earth candidate B has lower terrain_sim but a much better light window; blend must rank it first."""
     class Idx:
-        def search(self, body, lat, lon, to, k, region):
+        def search(self, body, lat, lon, to, k, region, barren=None):
             return {"results": {"earth": [{"id": "A", "body": "earth", "lat": 10.0, "lon": 1.0, "place_label": "A", "terrain_sim": 0.9},
                               {"id": "B", "body": "earth", "lat": 20.0, "lon": 2.0, "place_label": "B", "terrain_sim": 0.8}],
                     "mars": [{"id": "M", "body": "mars", "lat": 1.0, "lon": 1.0, "place_label": "M", "terrain_sim": 0.7}]},

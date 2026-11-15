@@ -72,6 +72,9 @@ class TwinsRequest(BaseModel):
     k: int = Field(default=10, ge=1, le=50)
     mode: Optional[Mode] = Field(default=None, description="null = spec default per body pair")
     region: Optional[list[float]] = Field(default=None, description="[lon_min, lat_min, lon_max, lat_max] filter")
+    barren: Optional[Literal["exclude", "penalty", "off"]] = Field(
+        default=None, description="Earth vegetation filter (MODIS NDVI): exclude = bare ground only, penalty = vegetated "
+                                  "ground ranks lower, off = no filter; null = server default (ANALOG_BARREN_MODE)")
 
 
 class QueryInfo(Point):
@@ -88,6 +91,7 @@ class TwinsResponse(BaseModel):
     results: dict[str, list[Twin]] = Field(description="destination body -> ranked twins")
     latency_ms: float
     source: Literal["live", "replay-cache", "fixture"]
+    barren: Optional[str] = Field(default=None, description="vegetation filter mode used for Earth results")
     ref: str
 
 

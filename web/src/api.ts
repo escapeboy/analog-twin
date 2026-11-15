@@ -11,6 +11,7 @@ export interface LightWindow { start: string; end: string; emd: number; light_si
 export interface SiteContext {
   country?: string | null; koppen_code?: string | null; koppen_label?: string | null;
   elevation_m?: number | null; nearest_airport?: string | null; airport_km?: number | null; ref?: string | null;
+  ndvi?: number | null; barren?: boolean | null;
 }
 export interface Twin extends Point {
   id: string; place_label: string; terrain_sim: number; light_sim?: number | null;
@@ -21,8 +22,10 @@ export interface QueryInfo extends Point {
 }
 export interface TwinsResponse {
   query: QueryInfo; mode: Record<string, Mode>; weights: Record<string, number>;
-  results: Record<string, Twin[]>; latency_ms: number; source: Source; ref: string;
+  results: Record<string, Twin[]>; latency_ms: number; source: Source; ref: string; barren?: string | null;
 }
+/** Earth vegetation filter: exclude = bare ground only (server default), off = vegetated ground too. */
+export type Barren = 'exclude' | 'off';
 export interface FeatureGroup { group: string; label: string; a: number[]; b: number[]; contribution: number; similarity?: number | null }
 export interface Hillshade {
   a_url: string; b_url: string; pair_url: string; sun_azimuth_deg: number; sun_elevation_deg: number;
@@ -161,8 +164,8 @@ const post = (url: string, body: unknown): RequestInit => ({
 
 export const getHealth = () => http<Health>('/api/health');
 export const getPresets = () => http<Preset[]>('/api/presets');
-export const postTwins = (p: Point, k = 10) =>
-  http<TwinsResponse>('/api/twins', post('', { body: p.body, lat: p.lat, lon: p.lon, k }));
+export const postTwins = (p: Point, k = 10, barren?: Barren) =>
+  http<TwinsResponse>('/api/twins', post('', { body: p.body, lat: p.lat, lon: p.lon, k, ...(barren ? { barren } : {}) }));
 export const getPair = (a: string, b: string) =>
   http<PairExplanation>(`/api/pair/${encodeURIComponent(a)}/${encodeURIComponent(b)}`);
 export const postCampaign = (body: Record<string, unknown>) =>

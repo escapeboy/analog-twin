@@ -29,7 +29,7 @@ export function initTwinList(root: HTMLElement, onSelect: (body: Body, t: Twin) 
       for (const t of rows) {
         const sel = store.selected?.twin.id === t.id;
         const tr = h('tr', { tabindex: '0', 'data-id': t.id, class: sel ? 'sel' : '', 'aria-selected': String(sel) },
-          h('td', null, String(t.rank)), h('td', null, t.place_label),
+          h('td', null, String(t.rank)), h('td', null, t.place_label, t.env?.barren === false ? h('span', { class: 'chip veg', title: `Vegetated ground (NDVI ${fmt(t.env.ndvi)})` }, 'vegetated') : ''),
           h('td', null, fmt(t.terrain_sim)), lightCell(t), h('td', null, fmt(t.score)));
         const go = () => onSelect(body as Body, t);
         tr.addEventListener('click', go);

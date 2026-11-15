@@ -12,6 +12,8 @@ button.primary { background:#0b5d80; border-color:var(--acc); font-weight:700; }
 #presets, #gated { display:flex; gap:8px; flex-wrap:wrap; }
 a.repo-link { color:var(--mut); font-size:16px; text-decoration:none; border:1px solid var(--line); padding:4px 12px; border-radius:4px; }
 a.repo-link:hover { color:inherit; }
+.barren-toggle { font-size:16px; color:var(--mut); display:inline-flex; align-items:center; gap:6px; cursor:pointer; }
+.chip.veg { margin-left:6px; background:#2f5d3a; color:#d8f5df; }
 #status { color:var(--mut); font-size:16px; margin-left:auto; }
 .badge { padding:2px 12px; border-radius:99px; font-size:18px; font-weight:700; }
 .badge.replay { background:var(--warn); color:#000; } .badge.src { background:#7a4dff; color:#fff; display:inline-block; margin-bottom:6px; }

@@ -165,6 +165,11 @@ def _pair_key(a: str, b: str) -> str:
     return f"pair_{_safe(a)}__{_safe(b)}.json"
 
 
+def _default_barren() -> str:
+    env_mod = _mod("engine.env")
+    return env_mod.BARREN_MODE if env_mod is not None else "exclude"
+
+
 def cache_put_twins(resp: TwinsResponse) -> pathlib.Path:
     cache_dir().mkdir(parents=True, exist_ok=True)
     p = cache_dir() / _twins_key(resp.query.body, resp.query.lat, resp.query.lon)
@@ -188,6 +193,8 @@ def cache_put_pair(expl: PairExplanation) -> pathlib.Path:
 
 
 def cache_get_twins(req: TwinsRequest) -> Optional[TwinsResponse]:
+    if req.barren is not None and req.barren != _default_barren():
+        return None  # the replay cache holds default-filter results only
     p = cache_dir() / _twins_key(req.body, req.lat, req.lon)
     if not p.exists():
         return None
@@ -281,7 +288,8 @@ def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
         except Exception as exc:
             log.warning("earth_light_range failed: %s", exc)
     over = min(150, req.k * 3) if any(use_light.values()) else req.k
-    raw = idx.search(req.body, req.lat, req.lon, to=to, k=over, region=req.region)
+    barren = req.barren or (env_mod.BARREN_MODE if env_mod is not None else None)
+    raw = idx.search(req.body, req.lat, req.lon, to=to, k=over, region=req.region, barren=barren)
     q = raw.get("query", {}) or {}
     results: dict[str, list[Twin]] = {}
     for dest in to:
@@ -308,7 +316,7 @@ def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
     return TwinsResponse(
         query=QueryInfo(body=req.body, lat=req.lat, lon=req.lon, label=q.get("label"), point_id=q.get("point_id") or f"{req.body}@{req.lat:.6f},{req.lon:.6f}",
                         on_grid=bool(q.get("on_grid", False)), snapped_km=q.get("snapped_km")),
-        mode=modes, weights=w, results=results, latency_ms=round((time.perf_counter() - t0) * 1000, 1), source="live",
+        mode=modes, weights=w, results=results, latency_ms=round((time.perf_counter() - t0) * 1000, 1), source="live", barren=barren,
         ref=f"twins:{req.body}:{req.lat:.3f}:{req.lon:.3f}")
 
 

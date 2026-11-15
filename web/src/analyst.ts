@@ -1,4 +1,4 @@
-import { OFFLINE, BODIES, BODY_NAMES, getHealth, getPresets, postTwins, REPLAY, REPO_URL, type Body, type Point, type Preset, type Site, type Twin } from './api';
+import { OFFLINE, BODIES, BODY_NAMES, getHealth, getPresets, postTwins, REPLAY, REPO_URL, type Barren, type Body, type Point, type Preset, type Site, type Twin } from './api';
 import { h } from './dom';
 import { Globe } from './globes';
 import { initCrew } from './panels/crew';
@@ -36,13 +36,14 @@ function sync() {
 }
 store.subscribe(sync);
 
+let barren: Barren = params.get('barren') === 'off' ? 'off' : 'exclude';
 let querySeq = 0;
 async function runQuery(p: Point, label: string, presetId?: string) {
   const my = ++querySeq; // a late answer to an older click must not overwrite a newer one
   store.busy = true; store.error = null; store.selected = null; store.emit();
   status.textContent = 'Searching…';
   try {
-    const res = await postTwins(p, 10);
+    const res = await postTwins(p, 10, barren === 'off' ? 'off' : undefined);
     if (my !== querySeq) return;
     store.query = { ...p, label: res.query.label ?? label, id: res.query.point_id ?? presetId ?? `${p.body}_${p.lat.toFixed(3)}_${p.lon.toFixed(3)}`, presetId };
     store.twins = res;
@@ -249,6 +250,20 @@ async function initGated() {
   b.addEventListener('click', () => { const u = new URL(location.href); u.searchParams.set('view', 'present'); location.href = u.toString(); });
   const repo = h('a', { class: 'repo-link', href: REPO_URL, target: '_blank', rel: 'noopener' }, 'Source on GitHub');
   $('top').append(b, repo);
+}
+if (!OFFLINE) { // vegetation filter: Earth twins on bare ground only (default) or anywhere
+  const cb = h('input', { type: 'checkbox', id: 'barren-toggle' }) as HTMLInputElement;
+  cb.checked = barren === 'exclude';
+  const lab = h('label', { class: 'barren-toggle', for: 'barren-toggle', title: 'On: Earth twins only where the ground is bare (MODIS NDVI 0.2 or less). Off: vegetated ground is searched too, so the terrain shape matches but the surface does not.' }, cb, ' Bare ground only');
+  cb.addEventListener('change', () => {
+    barren = cb.checked ? 'exclude' : 'off';
+    const u = new URL(location.href);
+    if (barren === 'off') u.searchParams.set('barren', 'off'); else u.searchParams.delete('barren');
+    history.replaceState(null, '', u.toString());
+    const q = store.query;
+    if (q) void runQuery({ body: q.body, lat: q.lat, lon: q.lon }, q.label, q.presetId);
+  });
+  $('gated').before(lab);
 }
 build();
 initTwinList($('twin-list'), selectTwin);
