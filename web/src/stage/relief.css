@@ -3,8 +3,8 @@
 .rl-wrap { display: flex; gap: 32px; height: 100%; box-sizing: border-box; padding: 4px 0; overflow: hidden; }
 .rl-left { flex: 0 0 auto; display: flex; flex-direction: column; gap: 10px; }
 .rl-pair { display: flex; gap: 24px; }
-.rl-fig { margin: 0; width: 520px; }
-.rl-img { display: block; width: 520px; height: 520px; object-fit: cover; filter: contrast(1.6) brightness(0.9); background: var(--surface); border: 1px solid var(--line); }
+.rl-fig { margin: 0; width: 500px; }
+.rl-img { display: block; width: 500px; height: 500px; object-fit: cover; filter: contrast(1.6) brightness(0.9); background: var(--surface); border: 1px solid var(--line); }
 .rl-missing { display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--text-2); }
 .rl-cap { margin-top: 6px; font-size: 28px; line-height: 1.15; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rl-note { margin: 0; font-size: 24px; line-height: 1.2; color: var(--text-2); }
@@ -12,7 +12,7 @@
 .rl-right { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
 
 .rl-strip { width: 100%; }
-.rl-row { display: grid; grid-template-columns: 200px 1fr 70px; align-items: center; column-gap: 16px; min-height: 34px; font-size: 24px; }
+.rl-row { display: grid; grid-template-columns: 330px minmax(0, 1fr) 70px; align-items: center; column-gap: 16px; min-height: 34px; font-size: 24px; }
 .rl-name { color: var(--text); white-space: nowrap; }
 .rl-val { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-2); }
 .rl-track { position: relative; height: 34px; }
@@ -22,7 +22,7 @@
 .rl-ref { position: absolute; top: 0; bottom: 0; width: 0; }
 .rl-ref b { position: absolute; top: 0; left: 0; transform: translateX(-50%); font-size: 24px; font-weight: 600; white-space: nowrap; }
 .rl-body { position: relative; }
-.rl-over { position: absolute; left: 216px; right: 86px; top: 0; bottom: 0; pointer-events: none; }
+.rl-over { position: absolute; left: 346px; right: 86px; top: 0; bottom: 0; pointer-events: none; }
 .rl-over i { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px solid var(--text); }
 .rl-axis { display: flex; justify-content: space-between; color: var(--text-2); }
 .rl-scale { min-height: 30px; }
@@ -46,7 +46,7 @@
 .rl-error p { margin: 0; }
 
 .rl-skel { display: flex; gap: 24px; height: 100%; padding: 8px 0; box-sizing: border-box; }
-.rl-skel-img { flex: 0 0 520px; height: 520px; background: var(--surface); border: 1px solid var(--line); }
+.rl-skel-img { flex: 0 0 500px; height: 500px; background: var(--surface); border: 1px solid var(--line); }
 .rl-skel-strip { flex: 1; height: 400px; margin-left: 8px; background: var(--surface); border: 1px solid var(--line); }
 @media (prefers-reduced-motion: no-preference) {
   .rl-skel-img, .rl-skel-strip { animation: rl-pulse 1.6s ease-in-out infinite; }

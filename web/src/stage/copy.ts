@@ -110,3 +110,7 @@ export const SUN_LABEL = 'sun pattern alike';
 export const BULGARIA_HEADING = 'Closest terrain in Bulgaria';
 /** The request is limited to the Bulgaria box, so the place is always Bulgaria. */
 export const bulgariaPlace = (twin: Pick<Twin, 'lat' | 'lon'>): string => `Bulgaria, ${fmtLatLon(twin.lat, twin.lon).replace(', ', ' ')}`;
+
+/** Heading above the window line: says what the dates mean. */
+export const whenHeading = (targetName: string, twinName: string, bw: { distinct?: boolean | null } | null | undefined): string =>
+  bw && bw.distinct === true ? `Sun most like ${targetName}'s` : `Sun at ${twinName}`;

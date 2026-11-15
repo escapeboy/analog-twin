@@ -4,7 +4,9 @@ import { assetUrl, type PairExplanation } from '../api';
 import { clear, h } from '../dom';
 import { initTerrain3d } from '../panels/terrain3d';
 import { store } from '../state';
-import { groupPlain } from './copy';
+import { loadGazetteer } from '../present/gazetteer';
+import { pointLabel, twinLabels } from '../present/labels';
+import { groupPlain, place } from './copy';
 import { selectedTwin, type Render, type StoryState } from './types';
 import './relief.css';
 
@@ -13,6 +15,9 @@ let open3d = false;
 let note3d = '';
 let shownKey = '';
 let shownRoot: HTMLElement | null = null;
+let gaz: Awaited<ReturnType<typeof loadGazetteer>> | undefined;
+let last: { root: HTMLElement; s: StoryState; act: Parameters<Render>[2] } | null = null;
+void loadGazetteer().then((g) => { gaz = g; if (last && !open3d) renderRelief(last.root, last.s, last.act); }).catch(() => {});
 
 function closeTerrain() {
   try { terrain?.hide(); } catch { /* the panel is gone anyway */ }
@@ -72,7 +77,7 @@ function view3d(root: HTMLElement, s: StoryState, pair: PairExplanation, rerende
   root.replaceChildren(h('div', { class: 'rl-3d' }, h('div', { class: 'rl-3d-bar' }, h('b', null, '3D terrain'), back), host));
   try {
     if (!syncStore(s, pair)) throw new Error('no twin selected');
-    terrain = initTerrain3d(host, { fill: 0.1, twinName: () => selectedTwin(s)?.place_label });
+    terrain = initTerrain3d(host, { fill: 0.1, twinName: () => { const x = selectedTwin(s); return x ? place(x, gaz ? (twinLabels(gaz, s.twins).get(x.id)?.title ?? null) : null).name : undefined; } });
     terrain.show();
   } catch (e) {
     open3d = false; closeTerrain();
@@ -83,6 +88,7 @@ function view3d(root: HTMLElement, s: StoryState, pair: PairExplanation, rerende
 
 export const renderRelief: Render = (root, s, act) => {
   root.classList.add('rl-root');
+  last = { root, s, act };
   const pair = s.pair;
   const t = selectedTwin(s);
   const key = pair && pair !== 'loading' && !(pair instanceof Error) ? `${pair.a_id}/${pair.b_id}` : '';
@@ -113,7 +119,8 @@ export const renderRelief: Render = (root, s, act) => {
   let scale: HTMLElement | null = null;
   if (hs) {
     const tName = s.target?.label.replace(/\s*\((Moon|Mars|Earth)\)$/, '') ?? 'Target';
-    const wName = t?.place_label ?? 'Twin';
+    // Same naming as the band: gazetteer title when loaded, else the API's place_label.
+    const wName = t ? place(t, gaz ? (twinLabels(gaz, s.twins).get(t.id)?.title ?? pointLabel(gaz, t.body, t.lat, t.lon).title) : null).name : 'Twin';
     left.append(
       h('div', { class: 'rl-pair' },
         picture(hs.a_url, tName, `Shaded relief of ${tName}`),

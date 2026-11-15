@@ -46,6 +46,11 @@ t('windowLine', () => {
   assert.equal(c.windowLine(null), 'No season stands out');
   assert.equal(c.windowLine({ ...bw, distinct: true }), '4 Feb – 3 Mar');
 });
+t('whenHeading', () => {
+  assert.equal(c.whenHeading('Jezero', 'Danakil Desert', { distinct: true }), "Sun most like Jezero's");
+  assert.equal(c.whenHeading('Jezero', 'Danakil Desert', { distinct: false }), 'Sun at Danakil Desert');
+  assert.equal(c.whenHeading('Jezero', 'Danakil Desert', null), 'Sun at Danakil Desert');
+});
 t('sun', () => {
   const mars = { body: 'mars', light_sim: null };
   const earth = { body: 'earth', light_sim: 0.94, best_window: { earth_range: [0.1, 0.35] } };

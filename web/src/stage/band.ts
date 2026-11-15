@@ -7,7 +7,7 @@ import type { Twin } from '../api';
 import './band.css';
 import {
   BULGARIA_HEADING, BULGARIA_NOTE, ONE_IN_LABEL, SUN_LABEL, TOP3_NOTE, bulgariaPlace, oneInPairs, TARGET_QUESTION, limits, oneIn, pairGroup, pct, place, scope, sunLine, sunMax, twinCounter,
-  verdict, verdictText, weakNote, whyLine, windowLine,
+  verdict, verdictText, weakNote, whenHeading, whyLine, windowLine,
 } from './copy';
 import { selectedTwin, type Actions, type Render, type StoryState } from './types';
 import { renderWeeks } from './weeks';
@@ -115,7 +115,7 @@ export const renderBand: Render = (root, s, act) => {
   } else if (s.step === 5 && tw) {
     const weeks = h('div', { class: 'band-weeks' });
     if (s.calendar && s.calendar !== 'loading' && !(s.calendar instanceof Error)) renderWeeks(weeks, s);
-    out.push(col('c-weeks', weeks), col('c-when', h('div', { class: 'band-name' }, windowLine(tw.best_window)), h('div', { class: 'band-line' }, sunMax(tw)), switcher(s, act)));
+    out.push(col('c-weeks', weeks), col('c-when', h('div', { class: 'band-line' }, whenHeading(targetName(s), nameOf(tw, m).name, tw.best_window)), h('div', { class: 'band-name' }, windowLine(tw.best_window)), h('div', { class: 'band-line' }, sunMax(tw)), switcher(s, act)));
   } else if (s.step === 6 && s.bulgaria !== undefined && s.bulgaria !== 'loading' && !(s.bulgaria instanceof Error)) {
     const b = s.bulgaria;
     if (b) {
