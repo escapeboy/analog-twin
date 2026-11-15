@@ -15,7 +15,7 @@ The AI crew never produces a number; it only cites engine output.
 
 ## What already backs them
 - **Determinism.** A test builds the index twice and compares hashes (`test_determinism_identical_hash`). The feature set hash is stored in docs/metrics.json. The random-pair seed is fixed.
-- **Arithmetic.** A tilted plane gives the analytic slope. Detrending removes a plane. A crater and a dome get opposite curvature signs. The polar-stereographic projection matches GDAL. Single and batch feature computation agree. The 242 pytest cases pass.
+- **Arithmetic.** A tilted plane gives the analytic slope. Detrending removes a plane. A crater and a dome get opposite curvature signs. The polar-stereographic projection matches GDAL. Single and batch feature computation agree. The 246 pytest cases pass (15.11).
 - **Sun model.** It was cross-checked against JPL SPICE ephemerides (de440s). For Earth the mean error is 1.05° and the max 4.9° (no equation of time). For the Moon the mean is 0.58° and the max 2.2°. At the lunar south pole (−89.5°) the mean is 0.04° and the max 0.12°. Physics sanity tests also pass:
   - equator at the equinox: 90°;
   - polar circle at the solstice: 0°;
@@ -26,8 +26,8 @@ The AI crew never produces a number; it only cites engine output.
 1. **Correctly computed ≠ meaningful.** The known-analog test, 51.1 vs 48.5, says the terrain score does not yet rank known analog sites better than chance. This is the biggest open question, and no test of the arithmetic answers it.
 2. **The SPICE cross-check predates the new light metric.** It compared the old 6-bin histogram. It has not been re-run with the fine bins below 10° that `light_sim` now uses. Mars has no SPICE check.
 3. **No independent check of the features on real data.** The slope tests use synthetic planes. Nobody has compared our slope or roughness on a real DEM window against an independent tool such as GDAL `gdaldem` or richdem.
-4. **"1 in N" has a sampling error.** It is not reported. For 1 in 1,100 (0.09% of 200k ≈ 180 pairs) it is about ±7%. For tiny shares it is much larger.
-5. **No frozen regression for the stage numbers.** If the index or a weight changes, "1 in 1,100" can silently become another number.
+4. **"1 in N" has a sampling error.** Closed by R2 (the stage shows the 95 % range) and R5 (other seeds stay inside it).
+5. **No frozen regression for the stage numbers.** Closed by R1.
 6. **Cross-body scale.** One distance scale is assumed to mean the same thing on the Moon, Mars and Earth. The Moon's coarser source grid is not tested for its effect.
 7. **No local horizon.** At the lunar poles real light is dominated by the terrain horizon. The analytic Sun ignores it. This is a stated limit, not a bug.
 
@@ -60,6 +60,6 @@ The AI crew never produces a number; it only cites engine output.
 5. **The numbers on this screen are frozen in a test.** If anything in the pipeline changes them, the build fails.
 6. **What is NOT proven, and we say it first:** "computed correctly" is not "a validated analog". Known analog sites do not yet rank better than random places (median percentile 51 vs 49). Terrain shape at about 1 km plus sun pattern is a screening tool, not a verdict.
 
-## Open questions for the owner
-1. Before the 16:00 finals, which of R1–R5? Recommendation: R1 + R2 + R5 (about 30–45 min, no engine change), so on stage we can say "reproducible, with a stated error". R3 and R4 are 1–2 h each.
-2. On stage, say "the arithmetic is verified, the meaning is not yet validated" in those words?
+## Still open
+- R3 (SPICE re-check of the new light metric; Mars has no SPICE check) and R4 (features against an independent tool on real data): 1–2 h each.
+- R6 (validity of the known-analog result): after the hackathon.
