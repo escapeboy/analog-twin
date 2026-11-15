@@ -1,7 +1,7 @@
 // Presentation view (default page): one stage, three globes, the selected body large in the centre.
 import '../style.css';
 import './present.css';
-import { BODIES, BODY_NAMES, getPresets, postTwins, type Body, type Point, type Preset, type Twin, type TwinsResponse } from '../api';
+import { BODIES, BODY_NAMES, getPresets, postTwins, REPO_URL, type Body, type Point, type Preset, type Twin, type TwinsResponse } from '../api';
 import { h } from '../dom';
 import { store } from '../state';
 import { Arcs } from './arcs';
@@ -32,7 +32,8 @@ const brand = h('div', { class: 'p-brand' }, h('span', { class: 'p-mark-t' }), h
 const presetsBox = h('nav', { class: 'p-presets', 'aria-label': 'Targets' });
 const toAnalyst = h('button', { type: 'button', class: 'p-toggle' }, 'Analyst view');
 toAnalyst.addEventListener('click', () => { const u = new URL(location.href); u.searchParams.delete('view'); u.searchParams.delete('film'); location.href = u.toString(); });
-top.append(brand, presetsBox, toAnalyst);
+const repo = h('a', { class: 'p-repo', href: REPO_URL, target: '_blank', rel: 'noopener' }, 'GitHub');
+top.append(brand, presetsBox, toAnalyst, repo);
 
 // ---- globes ----
 type Role = 'center' | 'left' | 'right';

@@ -57,6 +57,8 @@ body.present-mode { background: var(--p-void); overflow: hidden; font-family: va
 .p-presets button[aria-pressed=true] { color: var(--p-text); border-bottom-color: var(--p-amber); }
 .p-pbody { font-size: 16px; color: var(--p-dim); }
 .p-toggle { margin-left: auto; font-size: 20px; color: var(--p-dim) !important; border: 1px solid var(--p-edge) !important; padding: 8px 16px !important; border-radius: 4px !important; }
+.p-repo { font-size: 20px; color: var(--p-dim); text-decoration: none; border: 1px solid var(--p-edge); padding: 8px 16px; border-radius: 4px; }
+.p-repo:hover { color: var(--p-text); border-color: var(--p-cyan); }
 .p-toggle:hover { color: var(--p-text) !important; border-color: var(--p-cyan) !important; }
 
 /* ---- footer ---- */
@@ -148,7 +150,7 @@ body.present-mode { background: var(--p-void); overflow: hidden; font-family: va
 .hud-twins .r { color: var(--p-dim); } .hud-twins .s { color: var(--p-cyan); }
 
 /* ---- film ---- */
-body.film .p-top, body.film .p-toggle, body.film .p-status, body.film .p-name, body.film .hud-close, body.film .hud-step, body.film .t3-controls { display: none !important; }
+body.film .p-top, body.film .p-toggle, body.film .p-repo, body.film .p-status, body.film .p-name, body.film .hud-close, body.film .hud-step, body.film .t3-controls { display: none !important; }
 body.film .p-hud { pointer-events: none; }
 body.film { cursor: none; }
 .f-caption { position: fixed; left: 50%; bottom: 84px; z-index: 40; transform: translateX(-50%); max-width: 76vw; text-align: center;

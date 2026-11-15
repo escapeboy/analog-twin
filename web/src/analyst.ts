@@ -1,4 +1,4 @@
-import { OFFLINE, BODIES, BODY_NAMES, getHealth, getPresets, postTwins, REPLAY, type Body, type Point, type Preset, type Site, type Twin } from './api';
+import { OFFLINE, BODIES, BODY_NAMES, getHealth, getPresets, postTwins, REPLAY, REPO_URL, type Body, type Point, type Preset, type Site, type Twin } from './api';
 import { h } from './dom';
 import { Globe } from './globes';
 import { initCrew } from './panels/crew';
@@ -247,7 +247,8 @@ async function initGated() {
 { // view toggle: the analyst view is the default page, the Presentation view is ?view=present
   const b = h('button', { type: 'button', class: 'view-toggle' }, 'Presentation view');
   b.addEventListener('click', () => { const u = new URL(location.href); u.searchParams.set('view', 'present'); location.href = u.toString(); });
-  $('top').append(b);
+  const repo = h('a', { class: 'repo-link', href: REPO_URL, target: '_blank', rel: 'noopener' }, 'Source on GitHub');
+  $('top').append(b, repo);
 }
 build();
 initTwinList($('twin-list'), selectTwin);

@@ -10,6 +10,8 @@ button:hover:not(:disabled) { border-color:var(--acc); } button:disabled { opaci
 button.primary { background:#0b5d80; border-color:var(--acc); font-weight:700; }
 :focus-visible { outline:3px solid var(--warn); outline-offset:1px; }
 #presets, #gated { display:flex; gap:8px; flex-wrap:wrap; }
+a.repo-link { color:var(--mut); font-size:16px; text-decoration:none; border:1px solid var(--line); padding:4px 12px; border-radius:4px; }
+a.repo-link:hover { color:inherit; }
 #status { color:var(--mut); font-size:16px; margin-left:auto; }
 .badge { padding:2px 12px; border-radius:99px; font-size:18px; font-weight:700; }
 .badge.replay { background:var(--warn); color:#000; } .badge.src { background:#7a4dff; color:#fff; display:inline-block; margin-bottom:6px; }
