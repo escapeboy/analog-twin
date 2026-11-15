@@ -19,10 +19,17 @@ let gaz: Awaited<ReturnType<typeof loadGazetteer>> | undefined;
 let last: { root: HTMLElement; s: StoryState; act: Parameters<Render>[2] } | null = null;
 void loadGazetteer().then((g) => { gaz = g; if (last && !open3d) renderRelief(last.root, last.s, last.act); }).catch(() => {});
 
+let watcher: MutationObserver | null = null;
+
 function closeTerrain() {
+  watcher?.disconnect(); watcher = null;
   try { terrain?.hide(); } catch { /* the panel is gone anyway */ }
   terrain = null;
 }
+
+/** Closes and frees the 3D panel (hide() disposes the WebGL renderer, loses the context and cancels the animation loop). */
+export function closeRelief(): void { open3d = false; closeTerrain(); }
+export function isTerrainOpen(): boolean { return open3d && terrain !== null; }
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
@@ -79,6 +86,14 @@ function view3d(root: HTMLElement, s: StoryState, pair: PairExplanation, rerende
     if (!syncStore(s, pair)) throw new Error('no twin selected');
     terrain = initTerrain3d(host, { fill: 0.1, twinName: () => { const x = selectedTwin(s); return x ? place(x, gaz ? (twinLabels(gaz, s.twins).get(x.id)?.title ?? null) : null).name : undefined; } });
     terrain.show();
+    // terrain3d reports its own load failures as <p class="err"> inside the host instead of throwing; watch for that.
+    watcher = new MutationObserver(() => {
+      if (!host.querySelector('.err')) return;
+      open3d = false; closeTerrain();
+      note3d = '3D view unavailable, the relief pictures still work.';
+      rerender();
+    });
+    watcher.observe(host, { childList: true, subtree: true });
   } catch (e) {
     open3d = false; closeTerrain();
     note3d = `3D view unavailable (${e instanceof Error ? e.message : e}). The relief pictures still work.`;

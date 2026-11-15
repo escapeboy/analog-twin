@@ -7,7 +7,7 @@ import { h } from '../dom';
 import { Arcs } from '../present/arcs';
 import { PresentGlobe } from '../present/globe';
 import { renderBand } from './band';
-import { renderRelief } from './relief';
+import { closeRelief, isTerrainOpen, renderRelief } from './relief';
 import { createStory } from './story';
 import { STEP_NAMES, selectedTwin, type Step, type StoryState } from './types';
 
@@ -103,11 +103,13 @@ function aim(b: Body, lat: number, lon: number, duration: number) {
   const g = globeOf(b);
   if (b === 'earth') g.sunOver(lon);
   const height = fitHeight(g, 0.86);
-  if (duration <= 0) g.setView(lat, lon, height); else g.flyTo(lat, lon, height, duration);
+  if (duration <= 0 || reduceMotion.matches) g.setView(lat, lon, height); else g.flyTo(lat, lon, height, duration);
 }
 
 // ---- render ----
 let arcKey = '';
+let prevStep = 0;
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 let layoutKey = '';
 function render() {
   const s: StoryState = story.state();
@@ -133,6 +135,8 @@ function render() {
   arcs.el.style.display = s.step === 4 ? 'none' : '';
   takeover.hidden = s.step !== 4;
   if (s.step === 4) renderRelief(takeover, s, act);
+  else if (prevStep === 4) closeRelief(); // frees the 3D panel's WebGL context
+  prevStep = s.step;
   renderBand(band, s, act);
 }
 
@@ -143,7 +147,7 @@ function updateArcs(s: StoryState) {
   let sel: string | null = null;
   if (s.step >= 2) {
     list = s.twins.slice(0, 3);
-    if (tw && !list.includes(tw)) list.push(tw);
+    if (tw && !list.includes(tw)) list = [...list.slice(0, 2), tw]; // never more than 3 arcs
     sel = tw?.id ?? null;
   }
   if (s.step === 6 && s.bulgaria && s.bulgaria !== 'loading' && !(s.bulgaria instanceof Error)) { list = [{ ...s.bulgaria, rank: 1 }]; sel = s.bulgaria.id; }
@@ -179,7 +183,10 @@ window.addEventListener('keydown', (e) => {
   else if (e.key >= '1' && e.key <= '3') { const p = s.presets[Number(e.key) - 1]; if (p) act.preset(p.id); }
   else if (e.key === ']') act.twin(s.twinIdx + 1);
   else if (e.key === '[') act.twin(s.twinIdx - 1);
-  else if (e.key === 'Escape') { act.go(1); menuEl.hidden = true; }
+  else if (e.key === 'Escape') {
+    if (isTerrainOpen()) return; // Esc only closes the 3D panel
+    act.go(1); menuEl.hidden = true;
+  }
 });
 
 // ---- loop ----

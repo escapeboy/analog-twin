@@ -85,9 +85,7 @@ export const limits = (): string[] => [
 ];
 
 export const WEAK_NOTE = 'Earth has no good twin for this site.';
-export const BULGARIA_NOTE = 'Shape matches; surface does not (vegetated ground).';
 export const weakNote = (): string => WEAK_NOTE;
-export const bulgariaNote = (): string => BULGARIA_NOTE;
 
 export const TARGET_QUESTION = 'Where on Earth is the ground most like here?';
 export const ONE_IN_LABEL = 'random pairs of places look this alike';
@@ -103,7 +101,6 @@ export const place = (twin: Pick<Twin, 'place_label' | 'lat' | 'lon'>, title?: s
 
 export const twinCounter = (idx: number, total: number): string => `twin ${idx + 1} of ${total}`;
 
-export const TOP3_NOTE = 'Top 3 twins, ranked by terrain shape and sun together';
 export const oneInPairs = (randomCloserPct: number | null | undefined): string =>
   randomCloserPct == null ? '' : `${oneIn(randomCloserPct)} random pairs`;
 export const SUN_LABEL = 'sun pattern alike';
@@ -114,3 +111,18 @@ export const bulgariaPlace = (twin: Pick<Twin, 'lat' | 'lon'>): string => `Bulga
 /** Heading above the window line: says what the dates mean. */
 export const whenHeading = (targetName: string, twinName: string, bw: { distinct?: boolean | null } | null | undefined): string =>
   bw && bw.distinct === true ? `Sun most like ${targetName}'s` : `Sun at ${twinName}`;
+
+const BODY_WORD: Record<Body, string> = { earth: 'Earth', moon: 'Moon', mars: 'Mars' };
+/** Mode of the destination body: 'terrain' means the ranking ignores sun. */
+export const top3Note = (body: Body, mode: string | null | undefined): string =>
+  mode === 'terrain' ? `Top 3 twins on ${BODY_WORD[body]}, ranked by terrain shape` : `Top 3 twins on ${BODY_WORD[body]}, ranked by terrain shape and sun together`;
+
+/** "Earth has no good twin" is decided by the best Earth twin, and only for a Moon or Mars target. */
+export const earthHasNoTwin = (targetBody: Body | null | undefined, bestEarth: Pick<Twin, 'random_closer_pct'> | null | undefined): boolean =>
+  !!targetBody && targetBody !== 'earth' && !!bestEarth && verdict(bestEarth.random_closer_pct) === 'weak';
+
+/** Step 6 sentence. The shape claim needs a non-weak verdict; the vegetation claim needs env.barren === false. */
+export function bulgariaNote(twin: Pick<Twin, 'random_closer_pct' | 'env'>): string {
+  if (verdict(twin.random_closer_pct) === 'weak') return 'No good twin in Bulgaria for this site.';
+  return twin.env?.barren === false ? 'Shape matches; surface does not match (vegetated ground).' : 'Shape matches.';
+}

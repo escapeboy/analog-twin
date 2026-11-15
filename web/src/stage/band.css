@@ -56,3 +56,4 @@
 #band .c-wide { margin-bottom: 4px; }
 #band .c-weeks { grid-column: span 7; }
 #band .c-when { grid-column: span 5; }
+.band-verdict { font-size: 40px; line-height: 1.15; font-weight: 700; color: var(--text); }

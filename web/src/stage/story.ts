@@ -1,27 +1,24 @@
 // Presentation v2 state: one store, fetches guarded by a sequence counter so a late answer to an older click is dropped.
-import { getPair, getPresets, postTwins, withReplay, type Preset, type Twin, type TwinsResponse } from '../api';
+import { getPair, getPresets, http, postTwins, type Preset, type Twin, type TwinsResponse } from '../api';
 import type { Actions, CalendarResponse, Step, StoryState } from './types';
 
 const BG_REGION = [22.35, 41.23, 28.61, 44.22];
 const ORDER = ['mars', 'moon', 'earth'];
 
-async function getCalendar(s: { target: Preset; twin: Twin }): Promise<CalendarResponse> {
+function getCalendar(s: { target: Preset; twin: Twin }): Promise<CalendarResponse> {
   const q = new URLSearchParams({
     target_body: s.target.body, target_lat: String(s.target.lat), target_lon: String(s.target.lon), twin_ids: s.twin.id,
   });
-  const r = await fetch(withReplay(`/api/calendar?${q}`));
-  if (!r.ok) throw new Error(`calendar failed: HTTP ${r.status}`);
-  return (await r.json()) as CalendarResponse;
+  return http<CalendarResponse>(`/api/calendar?${q}`);
 }
 
+/** The region is a rectangle that also covers neighbouring countries: ask for 10 and keep the first Bulgarian cell. */
 async function postBulgaria(t: Preset): Promise<Twin | null> {
-  const r = await fetch('/api/twins', {
+  const res = await http<TwinsResponse>('/api/twins', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ body: t.body, lat: t.lat, lon: t.lon, k: 1, to: ['earth'], region: BG_REGION, barren: 'off' }),
+    body: JSON.stringify({ body: t.body, lat: t.lat, lon: t.lon, k: 10, mode: 'terrain', to: ['earth'], region: BG_REGION, barren: 'off' }),
   });
-  if (!r.ok) throw new Error(`bulgaria failed: HTTP ${r.status}`);
-  const res = (await r.json()) as TwinsResponse;
-  return res.results.earth?.[0] ?? null;
+  return res.results.earth?.find((x) => x.place_label === 'Bulgaria') ?? null;
 }
 
 function stepsFor(s: StoryState): Step[] {
@@ -52,8 +49,8 @@ export function createStory(): { state: () => StoryState; actions: Actions; subs
       st.calendar = 'loading';
       getCalendar({ target: t, twin: tw }).then((c) => {
         if (!ok()) return;
-        const row = c.rows.find((r) => r.kind === 'twin' && Math.abs(r.lat - tw.lat) < 0.01 && Math.abs(r.lon - tw.lon) < 0.01) ?? c.rows.find((r) => r.kind === 'twin');
-        st.calendar = row ? { ...c, rows: [row] } : c;
+        const row = c.rows.find((r) => r.kind === 'twin' && Math.abs(r.lat - tw.lat) < 0.01 && Math.abs(r.lon - tw.lon) < 0.01);
+        st.calendar = row ? { ...c, rows: [row] } : new Error('no calendar for this twin');
         emit();
       }, (e) => { if (ok()) { st.calendar = e instanceof Error ? e : new Error(String(e)); emit(); } });
     } else st.calendar = undefined;
@@ -99,6 +96,7 @@ export function createStory(): { state: () => StoryState; actions: Actions; subs
       loadPair();
     },
     retry() {
+      if (!st.presets.length) { void loadPresets(); return; }
       if (!st.target) return;
       if (st.res instanceof Error) { preset(st.presetId!); return; }
       if (st.pair instanceof Error || st.calendar instanceof Error) loadPair();
@@ -106,18 +104,20 @@ export function createStory(): { state: () => StoryState; actions: Actions; subs
     },
   };
 
-  void (async () => {
+  async function loadPresets() {
     try {
       const ps = await getPresets();
       st.presets = [...ps].sort((a, b) => ORDER.indexOf(a.body) - ORDER.indexOf(b.body));
+      st.res = undefined;
       emit();
       const def = st.presets.find((p) => p.body === 'mars') ?? st.presets[0];
       if (def) preset(def.id);
     } catch (e) {
-      st.res = e instanceof Error ? e : new Error(String(e));
+      st.res = e instanceof Error ? e : new Error(String(e)); // band step 1 shows a res error and its retry
       emit();
     }
-  })();
+  }
+  void loadPresets();
 
   return {
     state: () => st,

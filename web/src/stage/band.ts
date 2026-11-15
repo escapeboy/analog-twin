@@ -6,7 +6,7 @@ import { pointLabel, twinLabels } from '../present/labels';
 import type { Twin } from '../api';
 import './band.css';
 import {
-  BULGARIA_HEADING, BULGARIA_NOTE, ONE_IN_LABEL, SUN_LABEL, TOP3_NOTE, bulgariaPlace, oneInPairs, TARGET_QUESTION, limits, oneIn, pairGroup, pct, place, scope, sunLine, sunMax, twinCounter,
+  BULGARIA_HEADING, ONE_IN_LABEL, SUN_LABEL, bulgariaNote, bulgariaPlace, earthHasNoTwin, top3Note, oneInPairs, TARGET_QUESTION, limits, oneIn, pairGroup, pct, place, scope, sunLine, sunMax, twinCounter,
   verdict, verdictText, weakNote, whenHeading, whyLine, windowLine,
 } from './copy';
 import { selectedTwin, type Actions, type Render, type StoryState } from './types';
@@ -74,10 +74,10 @@ export const renderBand: Render = (root, s, act) => {
   const earthTarget = s.target?.body === 'earth';
   if (earthTarget && (s.step === 5 || s.step === 6)) { root.replaceChildren(); return; }
 
-  const slots = needs(s);
+  const slots = s.step === 1 ? [s.res] : needs(s);
   const err = slots.find((x): x is Error => x instanceof Error);
   if (err) { root.replaceChildren(errorView(err, act)); return; }
-  if (slots.some((x) => x === 'loading' || x === undefined)) {
+  if (s.step !== 1 && slots.some((x) => x === 'loading' || x === undefined)) {
     // An unasked slot (undefined) only counts as loading when it can still be asked; a non-Earth twin has no calendar.
     const pending = slots.some((x) => x === 'loading') || slots.some((x) => x === undefined && !(s.step === 5 && selectedTwin(s)?.body !== 'earth'));
     if (pending) { root.replaceChildren(skeleton()); return; }
@@ -90,7 +90,7 @@ export const renderBand: Render = (root, s, act) => {
   if (s.step === 1) {
     out.push(col('c-wide', h('div', { class: 'band-name' }, targetName(s)), h('div', { class: 'band-question' }, TARGET_QUESTION)));
   } else if (s.step === 2) {
-    out.push(col('c-wide', h('div', { class: 'band-line' }, TOP3_NOTE)));
+    out.push(col('c-wide', h('div', { class: 'band-line' }, top3Note(s.twins[0]?.body ?? 'earth', s.twins[0] && s.res && s.res !== 'loading' && !(s.res instanceof Error) ? s.res.mode[s.twins[0].body] : null))));
     for (const t of s.twins.slice(0, 3)) {
       const p = nameOf(t, m);
       out.push(col('c-twin c-third', h('div', { class: 'band-name' }, p.name), h('div', { class: 'band-coords' }, p.coords),
@@ -99,10 +99,12 @@ export const renderBand: Render = (root, s, act) => {
   } else if (s.step === 3 && tw) {
     const rc = tw.random_closer_pct, v = verdict(rc);
     const p = nameOf(tw, m);
+    const bestEarth = s.res && s.res !== 'loading' && !(s.res instanceof Error) ? s.res.results.earth?.[0] : null;
+    const bestEarthWeak = earthHasNoTwin(s.target?.body, bestEarth);
     out.push(
       col('c-verdict',
         h('div', { class: `verdict ${v ?? ''}` }, v ? verdictText(v) : 'Terrain match'),
-        v === 'weak' ? h('div', { class: 'band-note' }, weakNote()) : null,
+        bestEarthWeak ? h('div', { class: 'band-note' }, weakNote()) : null,
         h('div', { class: 'band-name' }, p.name), h('div', { class: 'band-coords' }, p.coords), switcher(s, act)),
       col('c-hero', rc != null ? figure(oneIn(rc), ONE_IN_LABEL, true) : null),
       col('c-figs', figure(pct(tw.terrain_sim), 'terrain shape alike'),
@@ -113,13 +115,18 @@ export const renderBand: Render = (root, s, act) => {
     const f = pairGroup(s.pair.groups, s.pair.top_different, 'furthest');
     out.push(col('c-why', c ? h('div', { class: 'band-why' }, whyLine('closest', c)) : null, f ? h('div', { class: 'band-why' }, whyLine('furthest', f)) : null));
   } else if (s.step === 5 && tw) {
-    const weeks = h('div', { class: 'band-weeks' });
-    if (s.calendar && s.calendar !== 'loading' && !(s.calendar instanceof Error)) renderWeeks(weeks, s);
-    out.push(col('c-weeks', weeks), col('c-when', h('div', { class: 'band-line' }, whenHeading(targetName(s), nameOf(tw, m).name, tw.best_window)), h('div', { class: 'band-name' }, windowLine(tw.best_window)), h('div', { class: 'band-line' }, sunMax(tw)), switcher(s, act)));
+    if (tw.body !== 'earth') {
+      out.push(col('c-when', h('div', { class: 'band-name' }, sunLine(s.target?.body ?? 'earth', tw)), switcher(s, act)));
+    } else {
+      const weeks = h('div', { class: 'band-weeks' });
+      if (s.calendar && s.calendar !== 'loading' && !(s.calendar instanceof Error)) renderWeeks(weeks, s);
+      out.push(col('c-weeks', weeks), col('c-when', h('div', { class: 'band-line' }, whenHeading(targetName(s), nameOf(tw, m).name, tw.best_window)), h('div', { class: 'band-name' }, windowLine(tw.best_window)), h('div', { class: 'band-line' }, sunMax(tw)), switcher(s, act)));
+    }
   } else if (s.step === 6 && s.bulgaria !== undefined && s.bulgaria !== 'loading' && !(s.bulgaria instanceof Error)) {
     const b = s.bulgaria;
+    const bv = b ? verdict(b.random_closer_pct) : null;
     if (b) {
-      out.push(col('c-verdict', h('div', { class: 'band-name' }, BULGARIA_HEADING), h('div', { class: 'band-line' }, bulgariaPlace(b)), h('div', { class: 'band-note' }, BULGARIA_NOTE)),
+      out.push(col('c-verdict', h('div', { class: 'band-name' }, BULGARIA_HEADING), h('div', { class: 'band-line' }, bulgariaPlace(b)), bv ? h('div', { class: 'band-verdict' }, verdictText(bv)) : null, h('div', { class: 'band-note' }, bulgariaNote(b))),
         col('c-hero', figure(oneIn(b.random_closer_pct), ONE_IN_LABEL, true)),
         col('c-figs', figure(pct(b.terrain_sim), 'terrain shape alike')));
     } else {

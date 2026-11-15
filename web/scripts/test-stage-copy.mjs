@@ -60,6 +60,21 @@ t('sun', () => {
   assert.equal(c.sunMax(earth), 'Earth reaches at most 35%');
   assert.equal(c.sunMax({ body: 'earth' }), '');
 });
+t('bulgariaNote / earthHasNoTwin / top3Note', () => {
+  const weak = c.bulgariaNote({ random_closer_pct: 25, env: { barren: false } });
+  assert.equal(weak, 'No good twin in Bulgaria for this site.');
+  assert.ok(!/shape matches/i.test(weak));
+  assert.equal(c.bulgariaNote({ random_closer_pct: 0.5, env: { barren: false } }), 'Shape matches; surface does not match (vegetated ground).');
+  assert.equal(c.bulgariaNote({ random_closer_pct: 0.5, env: { barren: true } }), 'Shape matches.');
+  assert.equal(c.bulgariaNote({ random_closer_pct: 0.5, env: null }), 'Shape matches.');
+  assert.equal(c.earthHasNoTwin('moon', { random_closer_pct: 3 }), true);
+  assert.equal(c.earthHasNoTwin('moon', { random_closer_pct: 0.05 }), false);
+  assert.equal(c.earthHasNoTwin('earth', { random_closer_pct: 3 }), false);
+  assert.equal(c.earthHasNoTwin('mars', null), false);
+  assert.equal(c.top3Note('earth', 'terrain'), 'Top 3 twins on Earth, ranked by terrain shape');
+  assert.equal(c.top3Note('earth', 'terrain+light'), 'Top 3 twins on Earth, ranked by terrain shape and sun together');
+  assert.equal(c.top3Note('moon', 'terrain'), 'Top 3 twins on Moon, ranked by terrain shape');
+});
 t('misc', () => {
   assert.equal(c.pct(0.674), '67%');
   assert.equal(c.groupPlain('context'), 'the wider 36 km landscape');
@@ -68,7 +83,6 @@ t('misc', () => {
   assert.match(c.limits()[1], /51\.1.*48\.5.*not yet better than chance/i);
   assert.equal(c.scope(), 'Terrain shape at about 1 km and sun pattern. Not geology, not chemistry.');
   assert.equal(c.weakNote(), 'Earth has no good twin for this site.');
-  assert.equal(c.bulgariaNote(), 'Shape matches; surface does not (vegetated ground).');
   const p = c.place({ place_label: 'Atacama', lat: -24.1, lon: -69.9 });
   assert.deepEqual(p, { name: 'Atacama', coords: '24.10°S, 69.90°W' });
   const groups = [{ group: 'slope', label: 'L1', contribution: 0.5 }, { group: 'relief', label: 'L2', contribution: 0.1 }];
