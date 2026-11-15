@@ -11,7 +11,7 @@ Result: PASS 2026-11-15 (260 pytest, stage copy test, tsc; stage numbers unchang
 | North of 84 N / no CHELSA | koppen/aridity null, no exception |
 | geology lookup | Moon mare point (Mare Imbrium 33 N, 15 W) -> a mare unit; Mars Olympus Mons (18.65 N, -133.8 E) -> an Amazonian volcanic unit |
 | Earth twin has no geology; Moon twin has no climate | fields are null |
-| API contract | /api/twins response validates with new optional fields; old golden replay files still validate |
+| API contract | /api/twins response validates with new optional fields; the 18 committed golden replay twins/pair files validate against the new models (tests/test_contracts.py::test_golden_replay_files_validate) |
 | spice_check Mars | light_score(SPICE inputs, analytic inputs) >= 0.85 (measured 0.88-0.99). The planned "mean hourly error < 1 deg" was wrong for Mars: measured 4.4-8.6 deg mean, 22.4 max (eccentric orbit, equation of time); the test pins that it is reported (tests/test_spice_numbers.py) |
 | Moon north grid | orientation: median abs height diff vs LDEM_64 in 75.5-79.5 N < 100 m; wrong orientations give much more |
 | Stage numbers | tests/test_stage_numbers.py unchanged (default filters and index untouched) |

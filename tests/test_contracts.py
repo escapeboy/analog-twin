@@ -37,3 +37,16 @@ def test_fixture_session_valid():
     p = pathlib.Path(__file__).resolve().parent.parent / "sessions" / "golden" / "fixture.jsonl"
     evs = [Event.model_validate_json(x) for x in p.read_text().splitlines() if x.strip()]
     assert evs[-1].type == "session.end" and any(e.type == "plan.final" for e in evs)
+
+
+def test_golden_replay_files_validate():
+    """The committed replay cache (recorded before W13) must still parse with the current models (new fields optional)."""
+    import json
+    from pathlib import Path
+    from engine.models import PairExplanation, TwinsResponse
+    cache = Path(__file__).resolve().parents[1] / "sessions" / "golden" / "cache"
+    files = sorted(cache.glob("twins_*.json")) + sorted(cache.glob("pair_*.json"))
+    assert files
+    for f in files:
+        model = TwinsResponse if f.name.startswith("twins_") else PairExplanation
+        model.model_validate(json.loads(f.read_text()))

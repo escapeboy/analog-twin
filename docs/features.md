@@ -18,7 +18,8 @@ Similarity in Analog Twin is **terrain shape only**: not geology, not chemistry,
 - Each point's window is resampled (bilinear) onto a **local azimuthal-equidistant grid** centred on the point,
   north-up, 926 m spacing, which corrects for longitude convergence.
 - **Window: 13 x 13 px = 12.0 km** on a side.
-- Latitude limits of the index: Earth and Mars 85 S - 85 N; Moon 90 S - 80 N (no north-polar product was downloaded).
+- Latitude limits of the index: Earth and Mars 85 S - 85 N; Moon 90 S - 80 N in the shipped index v2; the engine accepts Moon queries up to 90 N (LOLA north-polar grid,
+  computed on the fly) and the v3 index covers 80-90 N (not switched on; docs/architecture-data-layers.md).
 - Grid points need a window with no missing data. On Earth this drops points within roughly 6 km of the coast or of
   an ice sheet.
 - Body radii for the local projection: Moon 1737.4 km (LDEM_64 label / IAU 30100 sphere), Mars 3396.19 km (MOLA

@@ -1,7 +1,7 @@
 """Climate classes for Earth points (CHELSA-BIOCLIM+ 1981-2010; values per point from scripts/build_climate.py).
 
-Koppen legend of CHELSA kg0. The GeoTIFF carries no legend. Codes run in alphabetical class order (Af, Am, As, Aw,
-BWk, BWh, BSk, BSh, Cfa ... Dwd), then ET = 30 and EF = 31. Checked on 2026-11-15 by sampling the file at places of
+Koppen legend of CHELSA kg0. The GeoTIFF carries no legend. Codes run in the usual legend order (Af, Am, As, Aw,
+BWk, BWh, BSk, BSh, Cfa ... Dwd; within B the cold k class comes first), then ET = 30 and EF = 31. Checked on 2026-11-15 by sampling the file at places of
 known climate (tests/test_climate.py): codes 1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 15, 16, 18, 19, 21, 26, 27, 29, 30
 and 31 match. Codes 3, 7, 14, 17, 20, 22-25 and 28 follow the same order but were not checked with a place
 (KOPPEN_INFERRED).
