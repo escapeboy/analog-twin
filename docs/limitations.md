@@ -9,8 +9,17 @@ windows at about 1 km pixels), not identical landforms. A crater target does not
 flat target matches flat plains almost anywhere, so a high score for a flat target discriminates little.
 
 - Similarity is terrain shape only (31 features in 7 groups: slope, roughness, position, curvature, relief, aspect, and a 36 km context group; index v2).
-  It does not see geology, chemistry, regolith, climate or absolute altitude. A site can be a good analog for
+  The score does not see geology, chemistry, regolith, climate or absolute altitude. A site can be a good analog for
   reasons this tool cannot measure (Rio Tinto is the standard example).
+- Context shown next to the score, not part of it (W13): for Earth twins the Koppen-Geiger class, aridity index and
+  mean annual temperature (CHELSA-BIOCLIM+ 1981-2010, about 1 km, the value of the nearest index point within 15 km);
+  for Moon and Mars twins and targets the mapped geologic unit (USGS global maps at 1:5M and 1:20M, the unit of the
+  nearest index point within 15 km). These maps are coarse: a unit is a regional generalisation, and a 1 km climate
+  cell on a mountain is the summit climate (the Rila preset is "ET", alpine tundra). Earth has no geology layer:
+  no global lithology map with a usable resolution and a verified licence was found (GLiM raster is 0.5 degrees;
+  the GLiM vector licence could not be verified), so geology is never compared across bodies.
+- 10 of the 31 CHELSA Koppen codes (3, 7, 14, 17, 20, 22-25, 28) follow the legend order but were not checked against
+  a place of known climate; the other 21 were (tests/test_climate.py).
 - The candidates in [new-candidates.md](new-candidates.md) are hypotheses for field scouting. For some targets even the best
   Earth terrain is a weak shape match (see the ranges in that file).
 - Common scale: all three bodies are resampled to about 926 m, because Earth's only global DEM here is ETOPO 2022 at
@@ -39,6 +48,12 @@ flat target matches flat plains almost anywhere, so a high score for a flat targ
   The shipped index (v2, multiscale) improves this to 51.12 against 48.54 for random (metrics:
   terrain.known_analog_test, terrain.multiscale_decision), which is still not clearly better than chance. We report
   this as measured.
+- Ranking the sites only among Earth points with a dry (B) or polar (E) Koppen class (297,615 of 841,198 uniform
+  points) gives 46.59 against 47.94 for random over all 42 pairs (metrics: terrain.known_analog_test_climate_dry),
+  again about the same as chance. For the 18 Moon pairs alone it is 37.18 against 48.73, the clearest gap so far, but
+  these are 3 sites (Haughton, Meteor Crater, Ries) against the same 6 south-polar targets, too few to call it a
+  result. The NDVI barren mask and the B/E climate mask agree on 81.7 %
+  of Earth points (metrics: terrain.climate_vs_ndvi). Twin search still uses the NDVI filter only.
 - v2 can evaluate only 8 of the 11 analog sites (42 pairs): coastal and island sites such as Lanzarote and Bockfjorden
   drop out, and the McMurdo Dry Valleys are masked. The median of per-site medians got worse (54.69 to 57.97; metrics:
   terrain.multiscale_decision). The gain is in pairs, led by Haughton.
@@ -61,6 +76,12 @@ flat target matches flat plains almost anywhere, so a high score for a flat targ
 - The Moon's obliquity (1.535 degrees to the ecliptic) and its 346.62-day declination cycle are derived from NASA fact
   sheet values with a stated argument ([light.md](light.md)); the SPICE cross-check bounds the error but is not a
   proof for every point.
+- SPICE cross-check of the light_sim inputs (re-run 15.11 for the current metric, Mars added; metrics:
+  light.spice_crosscheck): SPICE and the analytic model give light_sim inputs that score 0.92-0.98 against each other
+  on Earth, 0.97-0.99 on the Moon and 0.88-0.99 on Mars. Hour by hour, Mars is much worse: mean 4.4-8.6 degrees and up
+  to 22.4 degrees of Sun-elevation error, because Mars's orbit is eccentric (circular-orbit model) and its equation of
+  time is large (mean solar time). The Earth best-window and calendar use Earth's own model, where the hourly error is
+  mean 0.6-1.6 degrees, max 4.9.
 - The Earth "best window" is a 28-day window on a fixed non-leap calendar. Time zone and longitude are ignored.
   At very high latitudes one 28-day window cannot hold both polar day and polar night.
 - Light profiles are long-term averages (climatology), not a forecast for a given year.
@@ -107,7 +128,12 @@ flat target matches flat plains almost anywhere, so a high score for a flat targ
 
 - Data files are not in the repository; the build needs the downloads listed in
   [data-attribution.md](data-attribution.md).
-- Not downloaded: Earth ETOPO 15 arc-second tiles, a Moon global model at about 118 m, a Koppen climate map, and the
-  north-polar LOLA products. Consequences are listed in [PREP-REPORT.md](PREP-REPORT.md) (in Bulgarian).
+- Not downloaded: Earth ETOPO 15 arc-second tiles, a Moon global model at about 118 m, the Beck et al. Koppen map
+  (figshare blocks the build hosts; CHELSA's Koppen layer is used instead) and the north-polar LOLA illumination maps.
+  Consequences are listed in [PREP-REPORT.md](PREP-REPORT.md) (in Bulgarian).
+- Considered and not used (15.11): MODIS MCD12Q1 land cover (needs an Earthdata login), ESA WorldCover (124 GB),
+  WDPA protected areas (no redistribution), the HRSC+MOLA 200 m Mars DEM (share-alike licence on the HRSC part),
+  SCAR rock outcrop (licence not verified; it would unmask the McMurdo Dry Valleys), Copernicus GLO-90 and SLDEM2015 for
+  a finer common scale (a method change, not a data drop-in).
 - Several licence entries could not be verified from the provider's page; see the table in
   [data-attribution.md](data-attribution.md).

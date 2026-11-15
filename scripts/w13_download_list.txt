@@ -1,0 +1,16 @@
+# W13 data layers (15.11.2026). Usage from the MAIN checkout (writes to main's data/raw):
+#   /data/code/nasa-challenge/scripts/w0_download.sh <this file>
+# Licences and sizes: docs/data-attribution.md. Sizes from HTTP HEAD on 15.11.2026.
+# CHELSA-BIOCLIM+ 1981-2010 (CC0 1.0, https://www.chelsa-climate.org/datasets/chelsa_bioclim)
+chelsa https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_kg0_1981-2010_V.2.1.tif
+chelsa https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif
+chelsa https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_ai_1981-2010_V.2.1.tif
+# Moon: USGS Unified Geologic Map of the Moon 1:5M, SIM 3316 (CC0), 224 MB
+moon_geology https://asc-astropedia.s3.us-west-2.amazonaws.com/Moon/Geology/Unified_Geologic_Map_of_the_Moon_GIS_v2.zip
+# Mars: USGS Geologic Map of Mars, SIM 3292 ("please cite authors"), 809 MB
+mars_geology https://pubs.usgs.gov/sim/3292/downloads/sim3292_database.zip
+# Moon north pole: LOLA GDR polar DEM 75N-90N, 240 m (PDS), 29 MB + label
+moon_np https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_75n_240m.lbl
+moon_np https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/ldem_75n_240m.img
+# Mars system ephemeris for the SPICE light check (NAIF), 64 MB
+spice https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/mar099s.bsp

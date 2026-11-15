@@ -44,5 +44,5 @@ def test_schema_ref_and_speed():
     assert time.perf_counter() - t < 0.5
     SiteContext(**c)
     assert c["country"] == "Chile" and c["ref"] == "ctx:-24.0846,-69.9153"
-    assert c["koppen_code"] is None and c["koppen_label"] is None
+    assert c["koppen_code"] == "BWh" and c["koppen_label"] == "Hot desert"  # Yungay, Atacama (CHELSA 1981-2010)
     assert 0 < c["elevation_m"] < 5000 and c["airport_km"] > 0

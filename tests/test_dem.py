@@ -118,3 +118,17 @@ def test_earth_mask_uses_land_polygons_not_elevation():
     assert np.isnan(h[1])
     assert np.isfinite(h[2]) and h[2] < 200
     assert np.isnan(h[3])
+
+
+@pytest.mark.skipif(not _have("moon") or not _have("moon_np"), reason="moon north grid not prepared")
+def test_moon_north_polar_grid_orientation_matches_ldem64():
+    # 75-80 N overlap: same LOLA data in two projections. A mirrored or rotated stereographic grid gives a median
+    # difference of ~700 m and no correlation (measured 15.11.2026); the right one ~18 m and r = 0.999.
+    rng = np.random.default_rng(0)
+    lat, lon = rng.uniform(75.5, 79.5, 5000), rng.uniform(-180, 180, 5000)
+    g = dem.load_grid("moon").sample(lat, lon)
+    n = dem.load_grid("moon_np").sample(lat, lon)
+    assert np.median(np.abs(g - n)) < 100
+    assert np.corrcoef(g, n)[0, 1] > 0.99
+    h = dem.sample_heights("moon", np.array([85.0, 89.9]), np.array([30.0, -100.0]))
+    assert np.isfinite(h).all()

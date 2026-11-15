@@ -29,16 +29,19 @@ from engine import light
 
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_KERNELS = REPO / "data" / "raw" / "spice"
-KERNELS = ["naif0012.tls", "pck00011.tpc", "de440s.bsp", "moon_pa_de440_200625.bpc", "moon_de440_250416.tf"]
+KERNELS = ["naif0012.tls", "pck00011.tpc", "de440s.bsp", "moon_pa_de440_200625.bpc", "moon_de440_250416.tf",
+           "mar099s.bsp"]
 
 # Generic test points (not named sites): latitude spread incl. one near the lunar south pole.
 TEST_POINTS = [
     ("moon", -89.5, 0.0), ("moon", -60.0, 30.0), ("moon", 0.0, 0.0), ("moon", 45.0, -60.0),
     ("earth", 0.0, 0.0), ("earth", 45.0, 25.0), ("earth", -77.5, 160.0),
+    ("mars", 0.0, 0.0), ("mars", 18.4, 77.5), ("mars", -70.0, 0.0),
 ]
+CHECK_BODIES = ("earth", "moon", "mars")
 START_UTC = "2026-01-01T00:00:00"
-FRAMES = {"earth": "IAU_EARTH", "moon": "MOON_ME"}
-SPICE_NAMES = {"earth": "EARTH", "moon": "MOON"}
+FRAMES = {"earth": "IAU_EARTH", "moon": "MOON_ME", "mars": "IAU_MARS"}
+SPICE_NAMES = {"earth": "EARTH", "moon": "MOON", "mars": "MARS"}
 
 
 def _spice():
@@ -80,7 +83,7 @@ def run(kernel_dir: Path) -> dict:
         et0 = sp.str2et(START_UTC)
         out_points = []
         per_body = {}
-        for body in ("earth", "moon"):
+        for body in CHECK_BODIES:
             b = light.BODIES[body]
             n_hours = int(b.year_d * 24)
             t_days = np.arange(n_hours) / 24.0
@@ -107,6 +110,12 @@ def run(kernel_dir: Path) -> dict:
                 diff = np.abs(el_spice - el_model)
                 h_spice = _hist(el_spice)
                 h_model = np.array(light.light_profile(body, lat)["hist"])
+                # light_sim inputs: (day fraction, sun-up elevation histogram) from SPICE vs the analytic profile,
+                # scored with the same light_score the app uses (1 = identical inputs).
+                day_s, up_s = light._up_hist(el_spice)
+                prof = light.sunup_profile(body, lat)
+                ls_self = float(light.light_score(prof["day_fraction"], prof["up_hist"],
+                                                  np.array([day_s]), np.array([up_s]))[0])
                 out_points.append({
                     "body": body, "lat": lat, "lon": lon,
                     "max_abs_diff_deg": round(float(diff.max()), 3),
@@ -117,17 +126,25 @@ def run(kernel_dir: Path) -> dict:
                     "hist_emd": round(light.emd_1d(h_spice, h_model), 4),
                     "spice_hist": [round(float(x), 4) for x in h_spice],
                     "analytic_hist": [round(float(x), 4) for x in h_model],
+                    "sunup_day_fraction_spice": round(float(day_s), 4),
+                    "sunup_day_fraction_analytic": round(float(prof["day_fraction"]), 4),
+                    "sunup_w": round(float(light._sunup_w(prof["up_hist"], up_s)), 4),
+                    "light_sim_spice_vs_analytic": round(ls_self, 4),
                 })
         summary = {}
-        for body in ("earth", "moon"):
+        for body in CHECK_BODIES:
             pts = [p for p in out_points if p["body"] == body]
             summary[body] = {
                 "max_abs_diff_deg": max(p["max_abs_diff_deg"] for p in pts),
                 "mean_abs_diff_deg": round(float(np.mean([p["mean_abs_diff_deg"] for p in pts])), 3),
                 "max_hist_emd": max(p["hist_emd"] for p in pts),
+                "min_light_sim_spice_vs_analytic": min(p["light_sim_spice_vs_analytic"] for p in pts),
+                "max_sunup_day_fraction_diff": round(max(abs(p["sunup_day_fraction_spice"] - p["sunup_day_fraction_analytic"])
+                                                         for p in pts), 4),
             }
         return {
-            "method": "Hourly true Sun elevation from SPICE (de440s, IAU_EARTH / MOON_ME, LT+S) vs analytic model; "
+            "method": "Hourly true Sun elevation from SPICE (de440s + mar099s, IAU_EARTH / MOON_ME / IAU_MARS, LT+S) vs "
+                      "analytic model; "
                       "analytic phase aligned once per body at SPICE northward equinox and per point at the t0 "
                       "local hour angle, then free-running over one declination period from " + START_UTC + " UTC.",
             "kernels": KERNELS,
