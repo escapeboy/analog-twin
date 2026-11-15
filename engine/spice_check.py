@@ -4,7 +4,7 @@ Run:  python -m engine.spice_check [--metrics docs/metrics.json] [--kernels DIR]
 Merges the result under key "light" of metrics.json (other keys are left untouched).
 
 Method (see docs/light.md):
-* True Sun elevation at each test point, hourly over one declination period (Earth: 2026; Moon: one draconic year
+* True Sun elevation at each test point, hourly over one declination period (Earth: 2026; Mars: one Mars year from 2026-01-01 with mar099s.bsp and IAU_MARS; Moon: one draconic year
   from 2026-01-01), from de440s.bsp + body-fixed frames (Earth: IAU_EARTH from pck00011.tpc; Moon: MOON_ME from
   moon_pa_de440_200625.bpc + moon_de440_250416.tf), with light time and stellar aberration correction. Elevation is
   measured from the local horizontal plane (geodetic normal on the Earth ellipsoid, radial on the Moon sphere).

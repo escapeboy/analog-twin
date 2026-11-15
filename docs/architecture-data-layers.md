@@ -33,7 +33,7 @@ engine/dem.py moon_np grid (LOLA 75N 240 m -> 960 m) ─> scripts/build_index.py
   from the SIM 3316 DOMU csv (Moon) and UnitDesc (Mars). Mars period parsed from the description's first words.
 - **Climate filter test.** Same as the barren test, with the Earth corpus = points whose Koppen class is B* or E*
   (dry or polar). Reported next to the NDVI test, plus the agreement table between "NDVI barren" and "B/E climate".
-- **SPICE.** Mars: `mar099s.bsp` + IAU_MARS from pck00011.tpc, test points at 0, 45 N, 70 S. New for all bodies:
+- **SPICE.** Mars: `mar099s.bsp` + IAU_MARS from pck00011.tpc, test points at 0, 18.4 N (Jezero latitude), 70 S. New for all bodies:
   SPICE (day fraction, sun-up histogram) vs `light.sunup_profile`, and the light_score between them (1 = identical).
 - **Moon north.** `prepare_moon_np` reads the PDS IMG (int16 LSB, x 0.5 m, polar stereographic, centre 90 N),
   4 x 4 block mean to 960 m. `sample_heights` uses it when the window centre is >= 80 N; `LAT_LIMITS["moon"]` becomes
@@ -53,8 +53,18 @@ engine/dem.py moon_np grid (LOLA 75N 240 m -> 960 m) ─> scripts/build_index.py
 - [x] T5 Web: api.ts types; twinlist shows climate class and geology chips
 - [x] T6 `validate.py --climate-compare` -> metrics.json terrain.known_analog_test_climate_dry + climate_vs_ndvi
 - [x] T7 `spice_check.py`: Mars points + light_sim input check; metrics.json light re-run
-- [ ] T8 `dem.py` Moon north polar grid + orientation check; build `data/index/full_v3` (current stays v2); report counts
+- [x] T8 `dem.py` Moon north polar grid + orientation check; build `data/index/full_v3` (current stays v2); report counts
 - [x] T9 Tests: climate legend points, site_context fields, geology lookup, spice mars smoke, moon north orientation
 - [x] T10 Docs: data-attribution rows, limitations, number-accuracy (R3), build-log entry
 - [x] T11 {added} Two existing tests updated to the new behaviour (test_env Koppen now filled; test_index Moon limit 90 N)
 - [x] T12 {added} tests/test_spice_numbers.py pins the quoted SPICE numbers
+
+## Result: v3 index (built 15.11, `data/index/full_v3`, not linked)
+- 2,317,319 points (v2: 2,315,318). Moon 288,544 (+2,001, all poleward of 80 N); Earth and Mars ids and coordinates
+  identical to v2. Build 816 s on a loaded host. env_modis/env_climate copied (same Earth ids), geology rebuilt.
+- Known-analog test on v3 (scratch metrics, not in docs/metrics.json): barren off 51.13 vs 48.55 random, barren on
+  45.31 vs 49.10 (v2: 51.12 / 48.54 and 45.31 / 49.11).
+- The stage numbers move because the scaler is refit with the new Moon points: Shackleton -> Peru terrain_sim 0.42
+  -> 0.41, Rila -> Moon 0.52 -> 0.51, Jezero "1 in N" random_closer_pct 0.0925 -> 0.076. Switching `current` to v3 needs:
+  re-pin tests/test_stage_numbers.py, validate.py (both modes), build_atlas.py, findings.py, record_golden.py,
+  export_offline_demo.sh, and copying `data/index/grids/moon_np.*` to every deployed data folder. Owner decision.

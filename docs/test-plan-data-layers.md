@@ -1,6 +1,6 @@
 # Test plan: extra data layers (W13)
 
-Result: (pending)
+Result: PASS 2026-11-15 (260 pytest, stage copy test, tsc; stage numbers unchanged on v2; on v3 they shift, see architecture doc)
 
 ## Automated (pytest, `ANALOG_TWIN_DATA=/data/code/nasa-challenge/data`)
 | Case | Expectation |

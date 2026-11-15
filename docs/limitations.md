@@ -36,8 +36,10 @@ flat target matches flat plains almost anywhere, so a high score for a flat targ
 - The 3D terrain view uses finer DEMs than the index (Copernicus GLO-30 for Earth, fetched on demand; LOLA 80 m near
   the lunar south pole). The two sides of a pair are drawn at the coarser of the two resolutions. If a Copernicus tile
   cannot be fetched, the Earth side falls back to ETOPO 30 arc-seconds.
-- Latitude coverage: Earth and Mars 85 S to 85 N. Moon 90 S to 80 N: no north-polar product was downloaded, so the
-  Moon north of 80 N is not indexed.
+- Latitude coverage: Earth and Mars 85 S to 85 N. Moon 90 S to 80 N in the shipped index (v2). A v3 index with the
+  LOLA north-polar DEM covers the whole Moon (2,001 more points north of 80 N) but is not switched on yet, because it
+  shifts the published numbers slightly (docs/architecture-data-layers.md). The engine itself accepts Moon queries up
+  to 90 N.
 - Place labels for Earth use Natural Earth's German point-of-view country file. Disputed areas follow that view; 85
   points in the full index have no country and are labelled "Disputed area".
 

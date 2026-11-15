@@ -488,7 +488,10 @@ def sample_heights(body: str, lat: np.ndarray, lon: np.ndarray, center_lat: np.n
     if polar.any():
         out[polar] = load_grid("moon_sp").sample(lat[polar], lon[polar])
     if north.any():
-        out[north] = load_grid("moon_np").sample(lat[north], lon[north])
+        try:
+            out[north] = load_grid("moon_np").sample(lat[north], lon[north])
+        except FileNotFoundError:  # data folder without the north-polar grid: no terrain -> "no terrain" for the API
+            out[north] = np.nan
     mid = ~polar & ~north
     if mid.any():
         out[mid] = load_grid("moon").sample(lat[mid], lon[mid])

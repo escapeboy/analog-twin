@@ -132,3 +132,14 @@ def test_moon_north_polar_grid_orientation_matches_ldem64():
     assert np.corrcoef(g, n)[0, 1] > 0.99
     h = dem.sample_heights("moon", np.array([85.0, 89.9]), np.array([30.0, -100.0]))
     assert np.isfinite(h).all()
+
+
+def test_moon_north_without_grid_gives_nan_not_crash(monkeypatch, tmp_path):
+    # a data folder without grids/moon_np.npy (e.g. a deployed copy) must give NaN heights -> API "no terrain", not 500
+    monkeypatch.setattr(dem, "GRID_DIR", tmp_path)
+    dem.load_grid.cache_clear()
+    try:
+        h = dem.sample_heights("moon", np.array([85.0]), np.array([10.0]))
+        assert np.isnan(h).all()
+    finally:
+        dem.load_grid.cache_clear()
