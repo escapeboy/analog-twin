@@ -2,7 +2,7 @@
 
 Result: PASS 2026-11-15 (one known gap: the arc draw-on still animates under prefers-reduced-motion; present/arcs.ts has no switch)
 
-Run 15.11: 3 presets × all steps at 1920×1080 on the live engine: min font 24px (credits excluded), no clipped or off-screen text, no page scroll; numbers match /api/twins and /api/pair (Jezero 1 in 1,100 / 67% / 94%; Shackleton 1 in 42 / 42% / 6% / Earth max 35%; Bulgaria for Shackleton weak 1 in 5 -> 'No good twin in Bulgaria'; Rila 5 steps, 'Sun not compared'). Keys 1/2/3 rapid switch, [ ], Esc, failed /api/pair -> error + Retry recovers, 3D opens, Esc closes only 3D, leaving step 4 frees the canvas. Old view ?view=present-old loads. Offline export: steps 1-5 and 7, Bulgaria dropped, relief images and week strip load.
+Run 15.11: 3 presets × all steps at 1920×1080 on the live engine: min font 24px (credits excluded), no clipped or off-screen text, no page scroll; numbers match /api/twins and /api/pair (Jezero 1 in 1,100 / 67% / 94%; Shackleton 1 in 42 / 42% / 6% / Earth max 35%; Bulgaria for Shackleton weak 1 in 5 -> 'No good twin in Bulgaria'; Rila 5 steps, 'Sun not compared'). Keys 1/2/3 rapid switch, [ ], Esc, failed /api/pair -> error + Retry recovers, 3D opens, Esc closes only 3D, leaving step 4 frees the canvas. Old view ?view=present-old loads. Offline export: steps 1-5 and 7, Bulgaria dropped, relief images load; the week strip loads for Earth twins 1–5 only (the export records /api/calendar without twin_ids, which returns 5 twin rows), so twins 6–10 show 'no calendar for this twin' + Retry offline.
 
 ## Automated
 - `npm --prefix web run build` passes with no TS errors.

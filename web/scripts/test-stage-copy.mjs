@@ -4,12 +4,13 @@ import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const web = path.resolve(here, '..');
 const require = createRequire(path.join(web, 'package.json'));
 const { build } = require('rolldown'); // vite 8 bundles with rolldown; esbuild is not installed
-const outDir = '/tmp/claude-1000/stage-copy';
+const outDir = path.join(os.tmpdir(), 'stage-copy');
 mkdirSync(outDir, { recursive: true });
 const out = path.join(outDir, 'copy.mjs');
 await build({ input: path.join(web, 'src/stage/copy.ts'), platform: 'node', output: { file: out, format: 'esm' }, logLevel: 'silent' });

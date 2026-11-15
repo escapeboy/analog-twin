@@ -58,7 +58,8 @@ The stepper chips are clickable.
 Sizes: verdict 72, hero 112, figures 72, names 40, body 28, minimum 24. Credits are 16 and the only text below 20.
 
 ## Data rules
-- Every number comes from the API. The client only formats it: rounding, and N = round(100/pct) to 2 significant digits.
+- Every per-result number (terrain %, sun %, 1 in N, window, groups) comes from the API. The client only formats it: rounding, and N = round(100/pct) to 2 significant digits.
+- Fixed method facts on the Limits step and scale lines (known-analog 51.1 vs 48.5, 926 m ≈ 1 km, 36 km context, 200,000 random pairs) are literals in `copy.ts`. They match docs/metrics.json (`terrain.known_analog_test` 51.12 / 48.54) and engine constants on 15.11, but nothing ties them together: update `copy.ts` whenever those change.
 - Verdict bands: < 0.1 strong, 0.1–1 good, > 1 weak (the same constants as the old HUD).
 - Sun is shown only for Earth twins of Moon/Mars targets. For the others: "Sun not compared".
 
