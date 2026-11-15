@@ -19,7 +19,7 @@
 .figure-hero .fig-value { font-size: 112px; line-height: 1; font-weight: 700; color: var(--text); }
 .figure .fig-value { font-size: 72px; line-height: 1; font-weight: 700; color: var(--text); }
 .figure-label { font-size: 28px; line-height: 1.2; letter-spacing: normal; word-spacing: normal; font-stretch: normal; color: var(--text-2); }
-.figure-sub { font-size: 24px; line-height: 1.2; color: var(--text-2); margin-top: 6px; }
+.figure-sub { font-size: 24px; line-height: 1.2; color: var(--text-2); margin-top: 6px; letter-spacing: normal; }
 
 .twin-switch { display: flex; align-items: center; gap: 16px; font-size: 24px; color: var(--text-2); }
 .band-step, .band-retry {
