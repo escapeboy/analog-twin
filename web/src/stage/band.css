@@ -1,0 +1,43 @@
+/* Band content. Tokens and the .band grid come from stage.css. Nothing here is below 24px. */
+.band-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.c-wide { grid-column: 1 / -1; }
+.c-limits { grid-column: 1 / -1; }
+.c-verdict { grid-column: span 1; }
+
+.band-name { font-size: 40px; line-height: 1.15; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+.band-question { font-size: 72px; line-height: 1.05; font-weight: 600; color: var(--text); }
+.band-coords { font-size: 24px; color: var(--text-2); }
+.band-line { font-size: 28px; color: var(--text-2); }
+.band-why { font-size: 40px; line-height: 1.2; color: var(--text); }
+.band-note { font-size: 28px; line-height: 1.25; color: var(--text-2); }
+
+.verdict { font-size: 40px; line-height: 1.1; font-weight: 700; color: var(--text); }
+.figure-hero .fig-value { font-size: 112px; line-height: 1; font-weight: 700; color: var(--text); overflow-wrap: anywhere; }
+.figure .fig-value { font-size: 72px; line-height: 1; font-weight: 700; color: var(--text); }
+.figure-label { font-size: 24px; line-height: 1.2; color: var(--text-2); }
+
+.twin-switch { display: flex; align-items: center; gap: 16px; font-size: 24px; color: var(--text-2); }
+.band-step, .band-retry {
+  font: inherit; font-size: 28px; line-height: 1; color: var(--text); background: transparent; border: 0;
+  padding: 8px 14px; border-radius: 999px; cursor: pointer;
+}
+.band-step:hover, .band-retry:hover { background: var(--surface); }
+.band-step:focus-visible, .band-retry:focus-visible { outline: 2px solid var(--text-2); outline-offset: 2px; }
+.band-retry { background: var(--surface); }
+
+.band-weeks { min-height: 200px; }
+
+.band-limits { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 48px; }
+.band-limits li { font-size: 28px; line-height: 1.25; color: var(--text); }
+
+.band-error { display: flex; align-items: center; gap: 24px; grid-column: 1 / -1; font-size: 28px; color: var(--text); }
+.band-error p { margin: 0; }
+
+/* Skeleton: same height as the real band so nothing jumps. */
+.band-skel { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; min-height: 240px; }
+.skel { background: var(--surface); border-radius: 8px; animation: band-pulse 1.4s ease-in-out infinite; }
+.skel-a { height: 56px; }
+.skel-b { height: 112px; }
+.skel-c { height: 56px; }
+@keyframes band-pulse { 50% { opacity: 0.5; } }
+@media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
