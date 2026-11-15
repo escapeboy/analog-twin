@@ -77,8 +77,9 @@ for p in presets:
             if pair is not FAIL:
                 save(f"offline/api/pair/{safe(a)}__{safe(b)}.json", json.dumps(pair).encode()); n["pair"] += 1
                 hs = pair.get("hillshade")
-                if hs and try_("hillshade", lambda: save_asset(hs["pair_url"])) is not FAIL:
-                    n["assets"] += 1
+                for key in ("pair_url", "a_url", "b_url"):  # the stage's step 4 shows a_url / b_url side by side
+                    if hs and hs.get(key) and try_("hillshade", lambda: save_asset(hs[key])) is not FAIL:
+                        n["assets"] += 1
             tp = try_(f"terrain {a}/{b}", lambda: json.loads(fetch(f"/api/terrain/{quote(a)}/{quote(b)}")))
             if tp is not FAIL:
                 save(f"offline/api/terrain/{safe(a)}__{safe(b)}.json", json.dumps(tp).encode()); n["terrain"] += 1
