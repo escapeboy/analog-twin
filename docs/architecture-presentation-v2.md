@@ -66,15 +66,15 @@ Sizes: verdict 72, hero 112, figures 72, names 40, body 28, minimum 24. Credits 
 The public deploy is fleetq-01, the same image procedure as before; no new server dependencies. `/api/calendar` and `region`+`barren` already run there (checked 15.11 on the public API: Jezero → Bulgaria, barren off, returns results).
 
 ## Tasks
-- [ ] T1 Router: `?view=present` → stage, `?view=present-old` → old present; old toggle links still work
-- [ ] T2 Fonts: Archivo (variable, latin) self-hosted with OFL; check tabular figures (`tnum`), else fall back to IBM Plex Sans
-- [ ] T3 `stage.css` tokens + layout grid + reduced motion
-- [ ] T4 `copy.ts` wording functions (verdict, oneIn, sunLine, windowLine, groupPlain, limits) + unit test via a tiny node script
-- [ ] T5 `story.ts` state machine with sequence guard, fetch orchestration, Bulgaria fetch, error/retry
-- [ ] T6 `stage.ts` shell: top bar, preset tabs, stepper, corner menu, 3 globes, top-3 arcs, keyboard
-- [ ] T7 `band.ts` steps 1, 2, 3, 5, 6, 7 + skeleton/error states
-- [ ] T8 `relief.ts` step 4 takeover (relief pair, group dot strip, 3D button)
-- [ ] T9 `weeks.ts` step 5 week strip
-- [ ] T10 Weak case reads as a finding (Shackleton) and Earth-target case (Rila) skips sun/Bulgaria steps correctly
-- [ ] T11 Offline build works (presets only; the Bulgaria step skipped when the request fails)
-- [ ] T12 Screenshots at 1920×1080 for every step × 3 presets; nothing truncated, no text under 24px except credits
+- [x] T1 Router: `?view=present` → stage, `?view=present-old` → old present; old toggle links still work
+- [x] T2 Fonts: Archivo (variable, latin) self-hosted with OFL; check tabular figures (`tnum`), else fall back to IBM Plex Sans
+- [x] T3 `stage.css` tokens + layout grid + reduced motion {gap: arc draw-on still animates under reduced motion}
+- [x] T4 `copy.ts` wording functions (verdict, oneIn, sunLine, windowLine, groupPlain, limits) + unit test via a tiny node script
+- [x] T5 `story.ts` state machine with sequence guard, fetch orchestration, Bulgaria fetch, error/retry
+- [x] T6 `stage.ts` shell: top bar, preset tabs, stepper, corner menu, 3 globes, top-3 arcs, keyboard
+- [x] T7 `band.ts` steps 1, 2, 3, 5, 6, 7 + skeleton/error states
+- [x] T8 `relief.ts` step 4 takeover (relief pair, group dot strip, 3D button)
+- [x] T9 `weeks.ts` step 5 week strip
+- [x] T10 Weak case reads as a finding (Shackleton) and Earth-target case (Rila) skips sun/Bulgaria steps correctly
+- [x] T11 Offline build works (presets only; the Bulgaria step skipped when the request fails)
+- [x] T12 Screenshots at 1920×1080 for every step × 3 presets; nothing truncated, no text under 24px except credits
