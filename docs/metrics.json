@@ -2496,6 +2496,92 @@
         "Sites on narrow coasts or islands have no fully valid 12 km land window; they are snapped to the nearest valid Earth index point within 50 km (snapped_km, evaluated_at) or reported as not evaluable.",
         "Analog sites were chosen by their operators for geology, climate or logistics; terrain shape at 926 m / 12 km is only one aspect, so poor ranks are expected for some (e.g. Rio Tinto)."
       ]
+    },
+    "random_pairs_seed_stability": {
+      "method": "best twin of each preset: share of random corpus pairs closer, 200k pairs per seed; shipped seed vs 5 others; Wilson 95 % interval of the shipped value",
+      "pairs": 200000,
+      "shipped_seed": 20261114,
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "presets": {
+        "jezero": {
+          "twin": [
+            12.84,
+            41.43
+          ],
+          "shipped_pct": 0.0925,
+          "ci95_pct": [
+            0.0801,
+            0.1068
+          ],
+          "other_seeds_pct": [
+            0.0935,
+            0.0845,
+            0.089,
+            0.0815,
+            0.092
+          ],
+          "one_in_shipped": 1081,
+          "one_in_range_other_seeds": [
+            1070,
+            1227
+          ],
+          "other_seeds_inside_ci": "5/5"
+        },
+        "shackleton-rim": {
+          "twin": [
+            -15.43,
+            -73.13
+          ],
+          "shipped_pct": 2.3805,
+          "ci95_pct": [
+            2.3146,
+            2.4482
+          ],
+          "other_seeds_pct": [
+            2.3645,
+            2.386,
+            2.4065,
+            2.439,
+            2.352
+          ],
+          "one_in_shipped": 42,
+          "one_in_range_other_seeds": [
+            41,
+            43
+          ],
+          "other_seeds_inside_ci": "5/5"
+        },
+        "rila": {
+          "twin": [
+            36.09,
+            10.22
+          ],
+          "shipped_pct": 0.7635,
+          "ci95_pct": [
+            0.7263,
+            0.8026
+          ],
+          "other_seeds_pct": [
+            0.772,
+            0.7605,
+            0.7555,
+            0.7735,
+            0.7575
+          ],
+          "one_in_shipped": 131,
+          "one_in_range_other_seeds": [
+            129,
+            132
+          ],
+          "other_seeds_inside_ci": "5/5"
+        }
+      }
     }
   },
   "determinism": {

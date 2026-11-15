@@ -69,7 +69,7 @@ The public deploy is fleetq-01, the same image procedure as before; no new serve
 ## Tasks
 - [x] T1 Router: `?view=present` → stage, `?view=present-old` → old present; old toggle links still work
 - [x] T2 Fonts: Archivo (variable, latin) self-hosted with OFL; check tabular figures (`tnum`), else fall back to IBM Plex Sans
-- [x] T3 `stage.css` tokens + layout grid + reduced motion {gap: arc draw-on still animates under reduced motion}
+- [x] T3 `stage.css` tokens + layout grid + reduced motion
 - [x] T4 `copy.ts` wording functions (verdict, oneIn, sunLine, windowLine, groupPlain, limits) + unit test via a tiny node script
 - [x] T5 `story.ts` state machine with sequence guard, fetch orchestration, Bulgaria fetch, error/retry
 - [x] T6 `stage.ts` shell: top bar, preset tabs, stepper, corner menu, 3 globes, top-3 arcs, keyboard

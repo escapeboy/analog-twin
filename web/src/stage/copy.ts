@@ -15,12 +15,21 @@ export const verdictText = (v: Verdict): string =>
   v === 'strong' ? 'Strong terrain match' : v === 'good' ? 'Good terrain match' : 'Weak terrain match';
 
 /** "1 in 44" / "1 in 1,100" / "fewer than 1 in 200,000" / "" when unknown. */
-export function oneIn(randomCloserPct: number | null | undefined): string {
+export function oneIn(randomCloserPct: number | null | undefined, ci?: [number, number] | null): string {
   if (randomCloserPct == null) return '';
   if (randomCloserPct <= 0) return 'fewer than 1 in 200,000';
   const n = 100 / randomCloserPct;
-  const r = n < 100 ? Math.round(n) : Number(n.toPrecision(2));
+  // no digit beyond the sampling error: one significant figure when the 95 % interval is wider than +-25 %
+  const wide = !!ci && ci[0] > 0 && (100 / ci[0] - 100 / ci[1]) / 2 / n > 0.25;
+  const r = n < 10 ? Math.round(n) : wide ? Number(n.toPrecision(1)) : n < 100 ? Math.round(n) : Number(n.toPrecision(2));
   return `1 in ${r.toLocaleString('en-US')}`;
+}
+
+/** 95 % interval of "1 in N" from the API's Wilson interval: "95% range: 1 in 940 to 1,200" */
+export function oneInRange(ci: [number, number] | null | undefined): string {
+  if (!ci || !(ci[0] > 0) || !(ci[1] > 0)) return '';
+  const f = (x: number) => Number((100 / x).toPrecision(2)).toLocaleString('en-US');
+  return `95% range: 1 in ${f(ci[1])} to ${f(ci[0])}`;
 }
 
 /** 0.67 -> "67%" */
@@ -101,8 +110,8 @@ export const place = (twin: Pick<Twin, 'place_label' | 'lat' | 'lon'>, title?: s
 
 export const twinCounter = (idx: number, total: number): string => `twin ${idx + 1} of ${total}`;
 
-export const oneInPairs = (randomCloserPct: number | null | undefined): string =>
-  randomCloserPct == null ? '' : `${oneIn(randomCloserPct)} random pairs`;
+export const oneInPairs = (randomCloserPct: number | null | undefined, ci?: [number, number] | null): string =>
+  randomCloserPct == null ? '' : `${oneIn(randomCloserPct, ci)} random pairs`;
 export const SUN_LABEL = 'sun pattern alike';
 export const BULGARIA_HEADING = 'Closest terrain in Bulgaria';
 /** The request is limited to the Bulgaria box, so the place is always Bulgaria. */

@@ -269,6 +269,13 @@ def _random_closer(idx, r: dict) -> Optional[float]:
     return round(float(idx.random_pairs_closer_pct(float(r["distance"]))), 4)
 
 
+def _random_closer_ci(idx, r: dict) -> Optional[list[float]]:
+    if "distance" not in r or not hasattr(idx, "random_pairs_closer_ci"):
+        return None
+    lo, hi = idx.random_pairs_closer_ci(float(r["distance"]))
+    return [round(lo, 4), round(hi, 4)]
+
+
 def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
     t0 = time.perf_counter()
     light_mod = _mod("engine.light")
@@ -311,7 +318,7 @@ def _live_twins(idx, req: TwinsRequest) -> TwinsResponse:
             twins.append(Twin(
                 id=tid, body=dest, lat=r["lat"], lon=r["lon"], place_label=r.get("place_label") or "", terrain_sim=ts,
                 light_sim=ls, best_window=win, env=_env(env_mod, tid, r["lat"], r["lon"]) if dest == "earth" else None,
-                score=round(score, 4), random_closer_pct=_random_closer(idx, r), rank=i + 1, ref=f"twin:{tid}"))
+                score=round(score, 4), random_closer_pct=_random_closer(idx, r), random_closer_ci=_random_closer_ci(idx, r), rank=i + 1, ref=f"twin:{tid}"))
         results[dest] = twins
     return TwinsResponse(
         query=QueryInfo(body=req.body, lat=req.lat, lon=req.lon, label=q.get("label"), point_id=q.get("point_id") or f"{req.body}@{req.lat:.6f},{req.lon:.6f}",

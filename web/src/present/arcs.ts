@@ -18,6 +18,8 @@ const MARK_GAP = 2 * MARK_R + 4;
 
 interface TwinMark { t: Twin; g: SVGGElement; arc: SVGPathElement; lead: SVGLineElement; delay: number; arcOn: boolean }
 
+const REDUCED_MOTION = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 export class Arcs {
   readonly el: SVGSVGElement;
   private arcsG: SVGGElement;
@@ -141,7 +143,7 @@ export class Arcs {
       const lift = Math.min(260, d * 0.32);
       const cx = (tp.x + q!.x) / 2 + nx * lift, cy = (tp.y + q!.y) / 2 + ny * lift;
       const dAttr = `M${tp.x.toFixed(1)},${tp.y.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${q!.x.toFixed(1)},${q!.y.toFixed(1)}`;
-      const f = Math.min(1, Math.max(0, (now - this.t0 - m.delay) / 900));
+      const f = REDUCED_MOTION() ? 1 : Math.min(1, Math.max(0, (now - this.t0 - m.delay) / 900)); // no draw-on under reduced motion
       const ease = 1 - (1 - f) ** 3;
       const len = d * 1.25; // close enough to the quadratic's length for a draw-on effect
       m.arc.setAttribute('d', dAttr);

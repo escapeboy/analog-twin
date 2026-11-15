@@ -90,4 +90,13 @@ t('misc', () => {
   assert.equal(c.pairGroup(groups, ['Closest in L2: x'], 'closest'), 'relief');
   assert.equal(c.pairGroup(groups, [], 'furthest'), 'slope');
 });
+t('oneIn with sampling interval', () => {
+  // Jezero: 0.0925 % with 95 % interval 0.0801-0.1068 % -> narrow, 2 significant figures
+  assert.equal(c.oneIn(0.0925, [0.0801, 0.1068]), '1 in 1,100');
+  assert.equal(c.oneInRange([0.0801, 0.1068]), '95% range: 1 in 940 to 1,200');
+  // 0.0015 % = 3 pairs of 200k: interval 0.0005-0.0044 % -> wide, 1 significant figure
+  assert.equal(c.oneIn(0.0015, [0.0005, 0.0044]), '1 in 70,000');
+  assert.equal(c.oneInRange(null), '');
+  assert.equal(c.oneInPairs(0.0925, [0.0801, 0.1068]), '1 in 1,100 random pairs');
+});
 console.log(`test-stage-copy: ${n} groups passed`);

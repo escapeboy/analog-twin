@@ -1,6 +1,6 @@
 # How sure are the numbers? — requirements (brainstorm, 15.11.2026)
 
-Status: draft for the owner. No code yet.
+Status: R1, R2 and R5 done 15.11 (see Results). R3, R4 and R6 open.
 
 ## How each number is made
 | Number on the stage | Computed from | Random? |
@@ -38,6 +38,27 @@ The AI crew never produces a number; it only cites engine output.
 - **R4 Independent features.** On 5 real windows (one per body plus two Earth), compare our slope and roughness statistics against `gdaldem slope` / `richdem`. Acceptance: ≤ 2% relative.
 - **R5 Seed stability.** Re-draw the 200k random pairs with 5 other seeds. Acceptance: N for the 3 presets changes by no more than the R2 interval.
 - **R6 Validity (after the hackathon).** Improve the known-analog result. Options: more analog sites, a per-body scale, a weight study. Report it honestly until then.
+
+## Results (15.11)
+- **R1 done.** `tests/test_stage_numbers.py` pins the three presets' best twin against the real index:
+  - Jezero → Danakil: 1 in 1,100 (0.0925 %), terrain 0.672, sun 0.936, window 04 Feb–03 Mar;
+  - Shackleton → Cordillera Occidental: 1 in 42, 0.42, 0.064, no distinct window;
+  - Rila → Montes Caucasus (Moon): 1 in 130, 0.52, sun not compared.
+
+  It runs in the normal pytest suite.
+- **R2 done.** The engine computes a 95 % Wilson interval for "1 in N" (`random_pairs_closer_ci`). The API returns it as `random_closer_ci`. The stage shows it under the hero figure, e.g. "95% range: 1 in 940 to 1,200". It uses one significant figure when the interval is wider than ±25 %.
+- **R5 done.** `scripts/seed_stability.py` re-drew the 200k random pairs with 5 other seeds and wrote `metrics.json → terrain.random_pairs_seed_stability`. All 15 values fall inside the shipped 95 % interval:
+  - Jezero 1 in 1,070–1,230;
+  - Shackleton 1 in 41–43;
+  - Rila 1 in 129–132.
+
+## What to say when the jury asks "how do you know the numbers are right?"
+1. **Reproducible.** Every number comes from a deterministic engine: fixed data, fixed seed, a hash check that rebuilds the index identically. The AI crew never makes a number; it only quotes the engine.
+2. **The arithmetic is tested against known answers.** 240+ automated tests, for example: a tilted plane gives its exact slope, a crater and a dome get opposite curvature, our map projection matches GDAL.
+3. **The Sun model is checked against NASA JPL ephemerides (SPICE).** The mean error is about 1° on Earth and 0.6° on the Moon, and 0.04° at the lunar south pole.
+4. **"1 in N" carries its error bar.** It is a sample of 200,000 random pairs, so we show the 95 % range (Jezero: 1 in 940 to 1,200). Re-drawing the sample 5 times stays inside that range.
+5. **The numbers on this screen are frozen in a test.** If anything in the pipeline changes them, the build fails.
+6. **What is NOT proven, and we say it first:** "computed correctly" is not "a validated analog". Known analog sites do not yet rank better than random places (median percentile 51 vs 49). Terrain shape at about 1 km plus sun pattern is a screening tool, not a verdict.
 
 ## Open questions for the owner
 1. Before the 16:00 finals, which of R1–R5? Recommendation: R1 + R2 + R5 (about 30–45 min, no engine change), so on stage we can say "reproducible, with a stated error". R3 and R4 are 1–2 h each.

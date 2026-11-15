@@ -87,7 +87,18 @@ for p in presets:
                     if try_("heights", lambda: save_asset(g["heights_url"])) is not FAIL:
                         n["assets"] += 1
                 terrain_ok = True
-    cal = try_(f"calendar {p['id']}", lambda: json.loads(fetch(f"/api/calendar?target_body={p['body']}&target_lat={p['lat']}&target_lon={p['lon']}")))
+    # every Earth twin (the stage's "When" step needs the selected twin's row, not only the default top 5)
+    # (the API takes at most 8 twin ids per request, so ask in chunks of 8 and merge the twin rows)
+    earth_ids = [t["id"] for t in res["results"].get("earth", [])]
+    cal_url = f"/api/calendar?target_body={p['body']}&target_lat={p['lat']}&target_lon={p['lon']}"
+    def calendar_all():
+        if not earth_ids:
+            return json.loads(fetch(cal_url))
+        parts = [json.loads(fetch(cal_url + "&twin_ids=" + quote(",".join(earth_ids[i:i + 8])))) for i in range(0, len(earth_ids), 8)]
+        merged = parts[0]
+        merged["rows"] = [r for r in parts[0]["rows"]] + [r for q in parts[1:] for r in q["rows"] if r.get("kind") == "twin"]
+        return merged
+    cal = try_(f"calendar {p['id']}", calendar_all)
     if cal is not FAIL:
         save(f"offline/api/calendar/{safe(p['id'])}.json", json.dumps(cal).encode())
         calendar_ok = True

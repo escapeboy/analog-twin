@@ -6,7 +6,7 @@ import { pointLabel, twinLabels } from '../present/labels';
 import type { Twin } from '../api';
 import './band.css';
 import {
-  BULGARIA_HEADING, ONE_IN_LABEL, SUN_LABEL, bulgariaNote, bulgariaPlace, earthHasNoTwin, top3Note, oneInPairs, TARGET_QUESTION, limits, oneIn, pairGroup, pct, place, scope, sunLine, sunMax, twinCounter,
+  BULGARIA_HEADING, ONE_IN_LABEL, SUN_LABEL, bulgariaNote, bulgariaPlace, earthHasNoTwin, top3Note, oneInPairs, TARGET_QUESTION, limits, oneIn, oneInRange, pairGroup, pct, place, scope, sunLine, sunMax, twinCounter,
   verdict, verdictText, weakNote, whenHeading, whyLine, windowLine,
 } from './copy';
 import { selectedTwin, type Actions, type Render, type StoryState } from './types';
@@ -28,6 +28,13 @@ const nameOf = (t: Twin, m: Map<string, string>) => place(t, m.get(t.id) ?? (gaz
 const col = (cls: string, ...kids: (Node | string | null)[]) => h('div', { class: `band-col ${cls}` }, ...kids);
 const figure = (value: string, label: string, hero = false) =>
   h('div', { class: hero ? `figure-hero${value.length > 12 ? ' long' : ''}` : 'figure' }, h('div', { class: 'fig-value' }, value), h('div', { class: 'figure-label' }, label));
+
+function heroFigure(rc: number | null | undefined, ci: [number, number] | null | undefined): HTMLElement {
+  const f = figure(oneIn(rc, ci), ONE_IN_LABEL, true);
+  const r = oneInRange(ci);
+  if (r) f.append(h('div', { class: 'figure-sub' }, r));
+  return f;
+}
 
 function sunFigure(s: StoryState, tw: Twin): HTMLElement {
   const compared = tw.body === 'earth' && s.target?.body !== 'earth' && tw.light_sim != null;
@@ -94,7 +101,7 @@ export const renderBand: Render = (root, s, act) => {
     for (const t of s.twins.slice(0, 3)) {
       const p = nameOf(t, m);
       out.push(col('c-twin c-third', h('div', { class: 'band-name' }, p.name), h('div', { class: 'band-coords' }, p.coords),
-        figure(`${pct(t.terrain_sim)}`, 'terrain alike'), h('div', { class: 'band-line' }, oneInPairs(t.random_closer_pct))));
+        figure(`${pct(t.terrain_sim)}`, 'terrain alike'), h('div', { class: 'band-line' }, oneInPairs(t.random_closer_pct, t.random_closer_ci))));
     }
   } else if (s.step === 3 && tw) {
     const rc = tw.random_closer_pct, v = verdict(rc);
@@ -106,7 +113,7 @@ export const renderBand: Render = (root, s, act) => {
         h('div', { class: `verdict ${v ?? ''}` }, v ? verdictText(v) : 'Terrain match'),
         bestEarthWeak ? h('div', { class: 'band-note' }, weakNote()) : null,
         h('div', { class: 'band-name' }, p.name), h('div', { class: 'band-coords' }, p.coords), switcher(s, act)),
-      col('c-hero', rc != null ? figure(oneIn(rc), ONE_IN_LABEL, true) : null),
+      col('c-hero', rc != null ? heroFigure(rc, tw.random_closer_ci) : null),
       col('c-figs', figure(pct(tw.terrain_sim), 'terrain shape alike'),
         sunFigure(s, tw)),
     );
@@ -127,7 +134,7 @@ export const renderBand: Render = (root, s, act) => {
     const bv = b ? verdict(b.random_closer_pct) : null;
     if (b) {
       out.push(col('c-verdict', h('div', { class: 'band-name' }, BULGARIA_HEADING), h('div', { class: 'band-line' }, bulgariaPlace(b)), bv ? h('div', { class: 'band-verdict' }, verdictText(bv)) : null, h('div', { class: 'band-note' }, bulgariaNote(b))),
-        col('c-hero', figure(oneIn(b.random_closer_pct), ONE_IN_LABEL, true)),
+        col('c-hero', heroFigure(b.random_closer_pct, b.random_closer_ci)),
         col('c-figs', figure(pct(b.terrain_sim), 'terrain shape alike')));
     } else {
       out.push(col('c-note', h('div', { class: 'band-note' }, 'No Bulgarian place found.')));

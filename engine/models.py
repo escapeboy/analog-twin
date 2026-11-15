@@ -60,6 +60,8 @@ class Twin(BaseModel):
         default=None, ge=0, le=100,
         description="share (%) of random pairs of places (all three bodies) whose terrain is closer than this pair's; "
                     "below 0.1 = strong, 0.1-1 = good, above 1 = weak (terrain_sim 0.5 is about 1)")
+    random_closer_ci: Optional[list[float]] = Field(
+        default=None, description="95 % Wilson interval [low, high] of random_closer_pct (sampling error of the 200k random pairs)")
     rank: int
     ref: str
 

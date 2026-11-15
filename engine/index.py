@@ -121,6 +121,16 @@ class Index:
             self._random_d = np.sort(np.sqrt(((self.feats[i].astype(np.float64) - self.feats[j]) ** 2).sum(axis=1)))
         return 100.0 * np.searchsorted(self._random_d, np.asarray(d, dtype=np.float64)) / len(self._random_d)
 
+    def random_pairs_closer_ci(self, d, z: float = 1.96) -> tuple[float, float]:
+        """95 % Wilson interval (%) for random_pairs_closer_pct(d): the share comes from a sample of RANDOM_PAIRS,
+        so "1 in N" carries a sampling error (about +-7 % at 0.09 %, much more for very small shares)."""
+        n = self.RANDOM_PAIRS
+        p = float(self.random_pairs_closer_pct(d)) / 100.0
+        den = 1.0 + z * z / n
+        mid = (p + z * z / (2 * n)) / den
+        half = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / den
+        return 100.0 * max(0.0, mid - half), 100.0 * min(1.0, mid + half)
+
     def group_ref_share(self) -> dict[str, float]:
         """Per feature group: share of the expected squared distance between two random corpus points
         (E|x - y|^2 = 2 * sum of per-feature variances of the weighted features), computed once."""
